@@ -1,0 +1,121 @@
+import * as React from 'react';
+
+export interface PincodeCheckResult {
+  isServiceable: boolean;
+  estimatedDeliveryDate?: string;
+  isCodAvailable?: boolean;
+  courier?: string;
+}
+
+export interface PincodeCheckerProps {
+  onCheck?: (pincode: string) => Promise<PincodeCheckResult> | PincodeCheckResult;
+  defaultPincode?: string;
+  className?: string;
+}
+
+export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
+  onCheck,
+  defaultPincode = '',
+  className = '',
+}) => {
+  const [pincode, setPincode] = React.useState(defaultPincode);
+  const [loading, setLoading] = React.useState(false);
+  const [result, setResult] = React.useState<PincodeCheckResult | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleCheck = async () => {
+    const clean = pincode.trim();
+    if (!/^\d{6}$/.test(clean)) {
+      setError('Please enter a valid 6-digit Indian pincode');
+      setResult(null);
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (onCheck) {
+        const res = await onCheck(clean);
+        setResult(res);
+      } else {
+        // Default realistic estimator
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 3);
+        const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+        setResult({
+          isServiceable: true,
+          estimatedDeliveryDate: deliveryDate.toLocaleDateString('en-IN', options),
+          isCodAvailable: true,
+          courier: 'Express Courier',
+        });
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to verify pincode');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ margin: '14px 0', fontFamily: 'inherit' }} className={`boost-pincode-checker ${className}`}>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+        🚚 Check Delivery & COD Availability:
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', maxWidth: '320px' }}>
+        <input
+          type="text"
+          maxLength={6}
+          placeholder="Enter 6-digit Pincode"
+          value={pincode}
+          onChange={(e: any) => setPincode(e.target.value.replace(/\D/g, ''))}
+          onKeyDown={(e: any) => e.key === 'Enter' && handleCheck()}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            borderRadius: '6px',
+            border: '1px solid #d1d5db',
+            fontSize: '13px',
+            outline: 'none',
+          }}
+        />
+        <button
+          onClick={handleCheck}
+          disabled={loading}
+          style={{
+            backgroundColor: '#000',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {loading ? 'Checking...' : 'Check'}
+        </button>
+      </div>
+
+      {error && (
+        <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '6px' }}>
+          {error}
+        </div>
+      )}
+
+      {result && (
+        <div style={{ marginTop: '8px', fontSize: '12px', color: '#166534', background: '#f0fdf4', padding: '8px 12px', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+          {result.isServiceable ? (
+            <div>
+              <div>✅ <strong>Delivery by {result.estimatedDeliveryDate}</strong></div>
+              {result.isCodAvailable && <div style={{ color: '#854d0e', marginTop: '2px' }}>💵 Cash on Delivery (COD) is available</div>}
+            </div>
+          ) : (
+            <div style={{ color: '#dc2626' }}>❌ Pincode currently not serviceable for delivery</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

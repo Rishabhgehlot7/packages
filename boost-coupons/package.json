@@ -1,0 +1,46 @@
+{
+  "name": "@boostengine/coupons",
+  "version": "1.0.0",
+  "description": "High-Converting eCommerce Discounts & Promotions Engine (Flat, Percentage, BOGO, Tiered, Free Shipping, Prepaid-Only & Auto-Apply Best Coupon).",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "coupons",
+    "discounts",
+    "promotions",
+    "ecommerce",
+    "bogo",
+    "tiered-discounts",
+    "cart-rules",
+    "best-coupon",
+    "free-shipping"
+  ],
+  "bin": {
+    "boost-coupons": "./bin/cli.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@boostengine/seo",
+  "version": "1.0.0",
+  "description": "High-converting eCommerce SEO Engine: JSON-LD Rich Snippets (Product, Breadcrumbs, FAQ), Google Merchant Center XML Feed Generator, Next.js OpenGraph Metadata & Sitemaps.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "seo",
+    "ecommerce-seo",
+    "json-ld",
+    "schema-org",
+    "google-merchant-center",
+    "google-shopping-feed",
+    "nextjs-seo",
+    "opengraph",
+    "sitemap"
+  ],
+  "bin": {
+    "boost-seo": "./bin/cli.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

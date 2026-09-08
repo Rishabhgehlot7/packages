@@ -1,0 +1,490 @@
+{
+  "info": {
+    "_postman_id": "sr123456-2222-4abc-def3-456789012345",
+    "name": "Shiprocket Full Logistics & Courier API Collection",
+    "description": "Exhaustive Enterprise Postman Collection for Shiprocket (Authentication, Pincode & International Serviceability, Custom & Bulk Orders, AWB Generation, Courier Pickup, Manifests, Labels, Tax Invoices, Live Tracking, NDR Actions, and Webhooks Simulator). Includes auto-chaining token and shipment IDs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{shiprocket_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "description": "Login API to generate Bearer JWT token.",
+      "item": [
+        {
+          "name": "Login & Auto-Set Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.token) {",
+                  "    pm.environment.set('shiprocket_token', jsonData.token);",
+                  "    console.log('Shiprocket token saved to environment!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{shiprocket_email}}\",\n  \"password\": \"{{shiprocket_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/auth/login",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Logs in and automatically saves JWT into {{shiprocket_token}} for all subsequent requests."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Serviceability & Courier Rates",
+      "description": "Check pin code delivery, courier rates, and COD eligibility.",
+      "item": [
+        {
+          "name": "Check Domestic Courier Serviceability & Rates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/serviceability?pickup_postcode={{pickup_pincode}}&delivery_postcode={{delivery_pincode}}&weight=0.5&cod=1",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "serviceability"],
+              "query": [
+                { "key": "pickup_postcode", "value": "{{pickup_pincode}}" },
+                { "key": "delivery_postcode", "value": "{{delivery_pincode}}" },
+                { "key": "weight", "value": "0.5" },
+                { "key": "cod", "value": "1" }
+              ]
+            },
+            "description": "Returns courier partners (Delhivery, Bluedart, Xpressbees, Shadowfax) with freight rates and estimated delivery times."
+          }
+        },
+        {
+          "name": "Check International Courier Serviceability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/international/serviceability?pickup_postcode={{pickup_pincode}}&delivery_country=US&delivery_postcode=90001&weight=1",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "international", "serviceability"],
+              "query": [
+                { "key": "pickup_postcode", "value": "{{pickup_pincode}}" },
+                { "key": "delivery_country", "value": "US" },
+                { "key": "delivery_postcode", "value": "90001" },
+                { "key": "weight", "value": "1" }
+              ]
+            },
+            "description": "Calculates cross-border shipping rates for DHL, FedEx, Aramex."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Orders API",
+      "description": "Create, modify, and cancel shipment orders.",
+      "item": [
+        {
+          "name": "Create Custom / Quick Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.order_id) {",
+                  "    pm.environment.set('shiprocket_order_id', jsonData.order_id);",
+                  "    pm.environment.set('shipment_id', jsonData.shipment_id);",
+                  "    console.log('Saved order_id: ' + jsonData.order_id + ', shipment_id: ' + jsonData.shipment_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD_SR_{{$timestamp}}\",\n  \"order_date\": \"2026-09-08 18:30\",\n  \"pickup_location\": \"Primary Warehouse\",\n  \"billing_customer_name\": \"Aman\",\n  \"billing_last_name\": \"Sharma\",\n  \"billing_address\": \"Flat 402, Skyline Residency\",\n  \"billing_city\": \"Mumbai\",\n  \"billing_pincode\": \"400053\",\n  \"billing_state\": \"Maharashtra\",\n  \"billing_country\": \"India\",\n  \"billing_email\": \"aman@example.com\",\n  \"billing_phone\": \"9876543210\",\n  \"shipping_is_billing\": true,\n  \"order_items\": [\n    {\n      \"name\": \"Boost Engine Heavy Hoodie\",\n      \"sku\": \"HOODIE-BLK-L\",\n      \"units\": 1,\n      \"selling_price\": 1499,\n      \"discount\": 0,\n      \"tax\": 18\n    }\n  ],\n  \"payment_method\": \"Prepaid\",\n  \"sub_total\": 1499,\n  \"length\": 10,\n  \"breadth\": 15,\n  \"height\": 5,\n  \"weight\": 0.5\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/orders/create/adhoc",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["orders", "create", "adhoc"]
+            },
+            "description": "Creates shipment order and sets {{shiprocket_order_id}} and {{shipment_id}}."
+          }
+        },
+        {
+          "name": "Update Customer Delivery Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": [{{shiprocket_order_id}}],\n  \"shipping_customer_name\": \"Aman Sharma\",\n  \"shipping_phone\": \"9876543210\",\n  \"shipping_address\": \"Plot 12, Tech Park, Andheri East\",\n  \"shipping_city\": \"Mumbai\",\n  \"shipping_state\": \"Maharashtra\",\n  \"shipping_pincode\": \"400069\",\n  \"shipping_country\": \"India\"\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/orders/address/update",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["orders", "address", "update"]
+            },
+            "description": "Updates customer shipping address before courier pickup."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [{{shiprocket_order_id}}]\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/orders/cancel",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["orders", "cancel"]
+            },
+            "description": "Cancels an order before dispatch."
+          }
+        },
+        {
+          "name": "Create Return Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"RET_SR_{{$timestamp}}\",\n  \"order_date\": \"2026-09-08 18:30\",\n  \"channel_id\": \"\",\n  \"pickup_customer_name\": \"Aman Sharma\",\n  \"pickup_phone\": \"9876543210\",\n  \"pickup_address\": \"Flat 402, Skyline Residency\",\n  \"pickup_city\": \"Mumbai\",\n  \"pickup_state\": \"Maharashtra\",\n  \"pickup_pincode\": \"400053\",\n  \"order_items\": [\n    {\n      \"name\": \"Boost Engine Heavy Hoodie\",\n      \"sku\": \"HOODIE-BLK-L\",\n      \"units\": 1,\n      \"selling_price\": 1499\n    }\n  ],\n  \"sub_total\": 1499,\n  \"length\": 10,\n  \"breadth\": 15,\n  \"height\": 5,\n  \"weight\": 0.5\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/orders/create/return",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["orders", "create", "return"]
+            },
+            "description": "Creates reverse pickup request for returned products."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Shipments, AWB & Labels",
+      "description": "Assign courier AWB, schedule pickup, print labels & manifests.",
+      "item": [
+        {
+          "name": "Generate AWB (Assign Courier)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.response && jsonData.response.data) {",
+                  "    pm.environment.set('shiprocket_awb', jsonData.response.data.awb_code);",
+                  "    console.log('Saved AWB: ' + jsonData.response.data.awb_code);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipment_id\": {{shipment_id}},\n  \"courier_id\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/assign/awb",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "assign", "awb"]
+            },
+            "description": "Assigns courier and generates AWB tracking number."
+          }
+        },
+        {
+          "name": "Request Courier Pickup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipment_id\": [{{shipment_id}}]\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/generate/pickup",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "generate", "pickup"]
+            },
+            "description": "Schedules rider pickup at your warehouse."
+          }
+        },
+        {
+          "name": "Generate Shipping Label",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipment_id\": [{{shipment_id}}]\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/generate/label",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "generate", "label"]
+            },
+            "description": "Returns PDF label download URL with barcode for thermal printing."
+          }
+        },
+        {
+          "name": "Generate Manifest & Print",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipment_id\": [{{shipment_id}}]\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/manifests/generate",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["manifests", "generate"]
+            },
+            "description": "Generates courier handover manifest document for driver signature."
+          }
+        },
+        {
+          "name": "Print Tax Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [{{shiprocket_order_id}}]\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/orders/print/invoice",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["orders", "print", "invoice"]
+            },
+            "description": "Downloads PDF invoice for customer package."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Live Tracking API",
+      "description": "Realtime parcel location, transit updates, and ETA.",
+      "item": [
+        {
+          "name": "Track by AWB Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/track/awb/{{shiprocket_awb}}",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "track", "awb", "{{shiprocket_awb}}"]
+            },
+            "description": "Returns complete scan history, current hub, and delivered timestamp."
+          }
+        },
+        {
+          "name": "Track by Order ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shiprocket_base_url}}/courier/track?order_id={{shiprocket_order_id}}",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["courier", "track"],
+              "query": [
+                { "key": "order_id", "value": "{{shiprocket_order_id}}" }
+              ]
+            },
+            "description": "Fetches tracking history directly by order ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. NDR (Non-Delivery Reports & Escalations)",
+      "description": "Manage undelivered packages, trigger WhatsApp verification & re-attempts.",
+      "item": [
+        {
+          "name": "Fetch All NDR Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shiprocket_base_url}}/ndr/all",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["ndr", "all"]
+            },
+            "description": "Lists failed delivery attempts (Customer Unavailable, Address Incomplete, COD Refused)."
+          }
+        },
+        {
+          "name": "Action NDR (Re-attempt Delivery)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"reattempt\",\n  \"awb\": \"{{shiprocket_awb}}\",\n  \"next_attempt_date\": \"2026-09-09\",\n  \"comments\": \"Customer confirmed availability on phone call\"\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/ndr/action",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["ndr", "action"]
+            },
+            "description": "Instructs courier to reattempt package delivery."
+          }
+        },
+        {
+          "name": "Action NDR (Return to Origin - RTO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"return\",\n  \"awb\": \"{{shiprocket_awb}}\",\n  \"comments\": \"Customer cancelled order\"\n}"
+            },
+            "url": {
+              "raw": "{{shiprocket_base_url}}/ndr/action",
+              "host": ["{{shiprocket_base_url}}"],
+              "path": ["ndr", "action"]
+            },
+            "description": "Instructs courier to return undelivered parcel back to merchant warehouse."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Webhooks Simulator",
+      "description": "Ready-to-fire simulated Shiprocket webhook payloads.",
+      "item": [
+        {
+          "name": "Webhook: shipment.shipped",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{shiprocket_webhook_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"awb\": \"10928371928\",\n  \"courier_name\": \"Delhivery\",\n  \"current_status\": \"SHIPPED\",\n  \"order_id\": \"ORD_SR_1001\",\n  \"scans\": [\n    {\n      \"date\": \"2026-09-08 20:00:00\",\n      \"activity\": \"Picked up from warehouse\",\n      \"location\": \"Bhiwandi Hub\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates shipment.shipped status update."
+          }
+        },
+        {
+          "name": "Webhook: shipment.delivered",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{shiprocket_webhook_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"awb\": \"10928371928\",\n  \"courier_name\": \"Delhivery\",\n  \"current_status\": \"DELIVERED\",\n  \"order_id\": \"ORD_SR_1001\",\n  \"delivered_to\": \"Aman Sharma\",\n  \"delivered_date\": \"2026-09-10 14:20:00\"\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates shipment.delivered event."
+          }
+        }
+      ]
+    }
+  ]
+}

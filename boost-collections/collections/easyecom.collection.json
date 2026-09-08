@@ -1,0 +1,278 @@
+{
+  "info": {
+    "_postman_id": "8f21bc90-2134-4b45-9128-b12a83e01290",
+    "name": "EasyEcom Full eCommerce & Warehouse ERP API Collection",
+    "description": "Exhaustive Enterprise Postman Collection for EasyEcom (Orders, Batch Dispatches, Multi-Warehouse Stock Sync, Master Catalog SKUs, Inward/Outward Inventory, AWB & Courier Manifests, Returns Reconciliation).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{easyecom_api_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Orders & Dispatches API",
+      "description": "Push storefront orders, fetch pending shipments, allocate couriers, and generate manifests.",
+      "item": [
+        {
+          "name": "Fetch Pending Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{easyecom_base_url}}/orders/v2/getOrders?status=pending&limit=20",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["orders", "v2", "getOrders"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Fetches unfulfilled orders."
+          }
+        },
+        {
+          "name": "Create / Push Store Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_details\": {\n    \"order_reference_id\": \"ORD_BOOST_{{$timestamp}}\",\n    \"order_date\": \"2026-09-08 18:30:00\",\n    \"payment_mode\": \"Prepaid\",\n    \"marketplace\": \"CustomStore\",\n    \"customer_details\": {\n      \"first_name\": \"Rahul\",\n      \"last_name\": \"Verma\",\n      \"email\": \"rahul.verma@example.com\",\n      \"contact_number\": \"9876543210\"\n    },\n    \"shipping_address\": {\n      \"address_line_1\": \"Flat 402, Skyline Residency\",\n      \"city\": \"Mumbai\",\n      \"state\": \"Maharashtra\",\n      \"pin_code\": \"400053\",\n      \"country\": \"India\"\n    },\n    \"order_items\": [\n      {\n        \"sku\": \"TEE-ANIME-BLK-L\",\n        \"item_title\": \"Oversized Anime Black T-Shirt (Large)\",\n        \"quantity\": 1,\n        \"selling_price\": 799,\n        \"tax_percentage\": 5,\n        \"discount\": 0\n      }\n    ],\n    \"total_amount\": 799,\n    \"shipping_charges\": 0\n  }\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/orders/v2/createOrder",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["orders", "v2", "createOrder"]
+            },
+            "description": "Pushes storefront order into EasyEcom ERP."
+          }
+        },
+        {
+          "name": "Update Order Status (Shipped / Delivered)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_reference_id\": \"ORD_BOOST_9821\",\n  \"status\": \"shipped\",\n  \"tracking_number\": \"AWB_DELHIVERY_1092831\",\n  \"courier_name\": \"Delhivery Surface\"\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/orders/v2/updateOrderStatus",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["orders", "v2", "updateOrderStatus"]
+            },
+            "description": "Updates fulfillment status."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_reference_id\": \"ORD_BOOST_9821\",\n  \"cancellation_reason\": \"Customer requested cancellation before pack\"\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/orders/v2/cancelOrder",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["orders", "v2", "cancelOrder"]
+            },
+            "description": "Cancels order in EasyEcom ERP."
+          }
+        },
+        {
+          "name": "Generate Dispatch Manifest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carrier_name\": \"Delhivery\",\n  \"warehouse_id\": 101,\n  \"order_ids\": [\"ORD_BOOST_9821\", \"ORD_BOOST_9822\"]\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/orders/v2/generateManifest",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["orders", "v2", "generateManifest"]
+            },
+            "description": "Generates dispatch handover manifest document."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Inventory & Warehouses API",
+      "description": "Multi-location inventory sync, stock adjustment, and warehouse management.",
+      "item": [
+        {
+          "name": "Get Inventory by Warehouse",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{easyecom_base_url}}/inventory/v2/getInventory?warehouse_id=101&limit=50",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["inventory", "v2", "getInventory"],
+              "query": [
+                { "key": "warehouse_id", "value": "101" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Fetches current stock on hand and available to sell."
+          }
+        },
+        {
+          "name": "Update Stock (Single SKU)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"TEE-ANIME-BLK-L\",\n  \"warehouse_id\": 101,\n  \"quantity\": 150,\n  \"update_type\": \"absolute\"\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/inventory/v2/updateStock",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["inventory", "v2", "updateStock"]
+            },
+            "description": "Updates physical inventory for an SKU across sales channels."
+          }
+        },
+        {
+          "name": "List All Warehouses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{easyecom_base_url}}/warehouses/v2/getWarehouses",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["warehouses", "v2", "getWarehouses"]
+            },
+            "description": "Lists all fulfillment centers and locations."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Master Catalog & SKUs",
+      "description": "Manage master product catalog, barcodes, and HSN tax codes.",
+      "item": [
+        {
+          "name": "Get Product Master by SKU",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{easyecom_base_url}}/products/v2/getProduct?sku=TEE-ANIME-BLK-L",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["products", "v2", "getProduct"],
+              "query": [
+                { "key": "sku", "value": "TEE-ANIME-BLK-L" }
+              ]
+            },
+            "description": "Fetches SKU attributes, weight, dimensions, and HSN code."
+          }
+        },
+        {
+          "name": "Create / Update Product Master",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"HOODIE-WINTER-NVY-XL\",\n  \"name\": \"Oversized Navy Blue Winter Hoodie (XL)\",\n  \"hsn_code\": \"61012000\",\n  \"cost_price\": 650,\n  \"mrp\": 2499,\n  \"tax_rate\": 12,\n  \"weight_grams\": 650,\n  \"length\": 30,\n  \"width\": 25,\n  \"height\": 8\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/products/v2/createProduct",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["products", "v2", "createProduct"]
+            },
+            "description": "Creates master product record in ERP."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Returns & Inward Reconciliation",
+      "description": "Process RTO & Customer Returns.",
+      "item": [
+        {
+          "name": "List Inward Returns",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{easyecom_base_url}}/returns/v2/getReturns?status=in_transit&limit=20",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["returns", "v2", "getReturns"],
+              "query": [
+                { "key": "status", "value": "in_transit" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Lists customer returns on their way to warehouse."
+          }
+        },
+        {
+          "name": "Reconcile Inward Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"return_id\": \"RET_109283\",\n  \"qc_status\": \"PASSED\",\n  \"restock_inventory\": true,\n  \"warehouse_id\": 101,\n  \"remarks\": \"Item verified in original packaging\"\n}"
+            },
+            "url": {
+              "raw": "{{easyecom_base_url}}/returns/v2/reconcileReturn",
+              "host": ["{{easyecom_base_url}}"],
+              "path": ["returns", "v2", "reconcileReturn"]
+            },
+            "description": "Runs QC check and restocks returned item back to inventory."
+          }
+        }
+      ]
+    }
+  ]
+}

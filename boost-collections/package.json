@@ -1,0 +1,59 @@
+{
+  "name": "@boostengine/collections",
+  "version": "1.1.0",
+  "description": "Production-ready Postman Collections (Schema v2.1.0) & Environments for Razorpay, Cashfree, PhonePe, Paytm, Stripe, EasyEcom WMS, Shiprocket, Delhivery & Shopify.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "postman",
+    "postman-collection",
+    "razorpay",
+    "cashfree",
+    "phonepe",
+    "paytm",
+    "stripe",
+    "shiprocket",
+    "delhivery",
+    "easyecom",
+    "shopify",
+    "ecommerce-apis",
+    "payment-gateway",
+    "logistics",
+    "warehouse-management",
+    "india-ecommerce",
+    "api-testing",
+    "rest-api"
+  ],
+  "bin": {
+    "boost-collections": "./bin/cli.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "collections",
+    "environments",
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "sync": "node scripts/sync-upstream.cjs",
+    "sync:upstream": "node scripts/sync-upstream.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,351 @@
+{
+  "info": {
+    "_postman_id": "sp123456-4444-4abc-def5-678901234567",
+    "name": "Shopify Full Admin REST API Collection (2024-07)",
+    "description": "Exhaustive Production Postman Collection for Shopify Admin REST API 2024-07 (Products, Variants, Orders, Fulfillments, Customers, Inventory Levels, Webhooks). Includes auto-chaining IDs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "1. Products & Variants",
+      "description": "Manage catalog products, variants, images, and prices.",
+      "item": [
+        {
+          "name": "Fetch Products List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/products.json?limit=20",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "products.json"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lists store products."
+          }
+        },
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.product && jsonData.product.id) {",
+                  "    pm.environment.set('shopify_product_id', jsonData.product.id);",
+                  "    if (jsonData.product.variants && jsonData.product.variants[0]) {",
+                  "        pm.environment.set('shopify_variant_id', jsonData.product.variants[0].id);",
+                  "        pm.environment.set('shopify_inventory_item_id', jsonData.product.variants[0].inventory_item_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"title\": \"Boost Engine Oversized Tee\",\n    \"body_html\": \"<strong>240 GSM Luxury Heavyweight Cotton</strong>\",\n    \"vendor\": \"Boost Engine\",\n    \"product_type\": \"Apparel\",\n    \"tags\": \"anime, oversized, luxury\",\n    \"variants\": [\n      {\n        \"option1\": \"Large\",\n        \"price\": \"999.00\",\n        \"sku\": \"TEE-BOOST-L\",\n        \"inventory_management\": \"shopify\"\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/products.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "products.json"]
+            },
+            "description": "Creates product and auto-saves product ID, variant ID, and inventory item ID in environment."
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/products/{{shopify_product_id}}.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "products", "{{shopify_product_id}}.json"]
+            },
+            "description": "Fetches a specific product entity."
+          }
+        },
+        {
+          "name": "Update Variant Price",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"variant\": {\n    \"id\": {{shopify_variant_id}},\n    \"price\": \"899.00\",\n    \"compare_at_price\": \"1499.00\"\n  }\n}"
+            },
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/variants/{{shopify_variant_id}}.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "variants", "{{shopify_variant_id}}.json"]
+            },
+            "description": "Updates variant price and strikethrough compare-at price."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Orders & Fulfillments",
+      "description": "Fetch orders, create manual orders, and manage fulfillments.",
+      "item": [
+        {
+          "name": "Fetch Orders List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/orders.json?status=any&limit=20",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "orders.json"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "any"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lists store orders."
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/orders/{{shopify_order_id}}.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "orders", "{{shopify_order_id}}.json"]
+            },
+            "description": "Fetches line items, shipping address, and payment gateway details."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"customer\",\n  \"email\": true,\n  \"restock\": true\n}"
+            },
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/orders/{{shopify_order_id}}/cancel.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "orders", "{{shopify_order_id}}", "cancel.json"]
+            },
+            "description": "Cancels order and optionally restocks inventory."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Customers API",
+      "description": "Search and manage customer profiles.",
+      "item": [
+        {
+          "name": "Search Customer by Email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/customers/search.json?query=email:aman@example.com",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "customers", "search.json"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "email:aman@example.com"
+                }
+              ]
+            },
+            "description": "Searches for an existing customer profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Inventory & Locations",
+      "description": "Sync multi-location inventory levels.",
+      "item": [
+        {
+          "name": "List Store Locations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/locations.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "locations.json"]
+            },
+            "description": "Retrieves warehouse locations."
+          }
+        },
+        {
+          "name": "Set Inventory Level",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location_id\": {{shopify_location_id}},\n  \"inventory_item_id\": {{shopify_inventory_item_id}},\n  \"available\": 100\n}"
+            },
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/inventory_levels/set.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "inventory_levels", "set.json"]
+            },
+            "description": "Updates live available stock count."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Webhooks API",
+      "description": "Register and manage Shopify real-time webhooks.",
+      "item": [
+        {
+          "name": "List Registered Webhooks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/webhooks.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "webhooks.json"]
+            },
+            "description": "Lists active webhooks."
+          }
+        },
+        {
+          "name": "Register Order Paid Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Shopify-Access-Token",
+                "value": "{{shopify_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"webhook\": {\n    \"topic\": \"orders/paid\",\n    \"address\": \"https://yourstore.com/api/webhooks/shopify\",\n    \"format\": \"json\"\n  }\n}"
+            },
+            "url": {
+              "raw": "https://{{shopify_store_domain}}.myshopify.com/admin/api/2024-07/webhooks.json",
+              "protocol": "https",
+              "host": ["{{shopify_store_domain}}", "myshopify", "com"],
+              "path": ["admin", "api", "2024-07", "webhooks.json"]
+            },
+            "description": "Subscribes endpoint to orders/paid notifications."
+          }
+        }
+      ]
+    }
+  ]
+}

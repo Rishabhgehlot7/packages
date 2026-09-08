@@ -1,0 +1,270 @@
+{
+  "info": {
+    "_postman_id": "dl123456-3333-4abc-def4-567890123456",
+    "name": "Delhivery Full Express Logistics API Collection",
+    "description": "Exhaustive Enterprise Postman Collection for Delhivery Express (Pincode Serviceability, Waybill Management, Single & Bulk Shipment Manifests, Shipping Labels, Warehouse Pickup Requests, Live Tracking, NDR Actions, and Webhooks Simulator).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "1. Serviceability & Rates",
+      "description": "Check pin code delivery, COD status, and calculate freight rates.",
+      "item": [
+        {
+          "name": "Check Pincode Serviceability",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" }
+            ],
+            "url": {
+              "raw": "{{delhivery_base_url}}/c/api/pin-codes/json/?filter_codes={{check_pincode}}",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["c", "api", "pin-codes", "json", ""],
+              "query": [
+                { "key": "filter_codes", "value": "{{check_pincode}}" }
+              ]
+            },
+            "description": "Checks if the pincode is serviceable for Surface/Express and COD."
+          }
+        },
+        {
+          "name": "Calculate Estimated Shipping Rate",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" }
+            ],
+            "url": {
+              "raw": "{{delhivery_base_url}}/api/kinko/v1/invoice/charges/.json?md=S&ss=Delivered&d_pin={{check_pincode}}&o_pin=110001&cgm=500&pt=Pre-paid",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["api", "kinko", "v1", "invoice", "charges", ".json"],
+              "query": [
+                { "key": "md", "value": "S", "description": "Mode: S (Surface) or E (Express)" },
+                { "key": "ss", "value": "Delivered" },
+                { "key": "d_pin", "value": "{{check_pincode}}" },
+                { "key": "o_pin", "value": "110001" },
+                { "key": "cgm", "value": "500" },
+                { "key": "pt", "value": "Pre-paid" }
+              ]
+            },
+            "description": "Calculates shipping charges based on weight, distance, and payment type."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Waybill & Shipments API",
+      "description": "Generate bulk waybills, create manifest shipments, and update orders.",
+      "item": [
+        {
+          "name": "Fetch Bulk Waybill Numbers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.text();",
+                  "if (jsonData) {",
+                  "    var firstWbn = jsonData.split(',')[0].replace(/\"/g, '').trim();",
+                  "    pm.environment.set('delhivery_waybill', firstWbn);",
+                  "    console.log('Saved Delhivery Waybill: ' + firstWbn);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" }
+            ],
+            "url": {
+              "raw": "{{delhivery_base_url}}/waybill/api/bulk/json/?count=5",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["waybill", "api", "bulk", "json", ""],
+              "query": [
+                { "key": "count", "value": "5" }
+              ]
+            },
+            "description": "Fetches a pre-allocated pool of waybill tracking numbers."
+          }
+        },
+        {
+          "name": "Create Surface / Express Shipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" },
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "format",
+                  "value": "json",
+                  "type": "text"
+                },
+                {
+                  "key": "data",
+                  "value": "{\n  \"shipments\": [\n    {\n      \"name\": \"Aman Sharma\",\n      \"add\": \"Flat 402, Skyline Residency\",\n      \"pin\": \"400053\",\n      \"city\": \"Mumbai\",\n      \"state\": \"Maharashtra\",\n      \"country\": \"India\",\n      \"phone\": \"9876543210\",\n      \"order\": \"ORD_DEL_{{$timestamp}}\",\n      \"payment_mode\": \"Pre-paid\",\n      \"products_desc\": \"Boost Apparel\",\n      \"cod_amount\": \"0\",\n      \"order_date\": \"2026-09-08 18:30:00\",\n      \"total_amount\": \"1499\",\n      \"seller_add\": \"Warehouse 1, Bhiwandi\",\n      \"seller_name\": \"Boost Engine Store\",\n      \"seller_inv\": \"INV_9821\",\n      \"quantity\": \"1\",\n      \"waybill\": \"{{delhivery_waybill}}\",\n      \"shipment_width\": 15,\n      \"shipment_height\": 5,\n      \"weight\": 500\n    }\n  ],\n  \"pickup_location\": {\n    \"name\": \"Primary Warehouse\"\n  }\n}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{delhivery_base_url}}/api/cmu/create.json",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["api", "cmu", "create.json"]
+            },
+            "description": "Manifests an order and books parcel pickup with Delhivery Express."
+          }
+        },
+        {
+          "name": "Edit Shipment Customer Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"waybill\": \"{{delhivery_waybill}}\",\n  \"name\": \"Aman Sharma\",\n  \"phone\": \"9876543210\",\n  \"add\": \"Plot 12, Tech Park, Andheri East\"\n}"
+            },
+            "url": {
+              "raw": "{{delhivery_base_url}}/api/p/edit",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["api", "p", "edit"]
+            },
+            "description": "Updates receiver contact or delivery address."
+          }
+        },
+        {
+          "name": "Cancel Shipment Waybill",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"waybill\": \"{{delhivery_waybill}}\",\n  \"cancellation\": \"true\"\n}"
+            },
+            "url": {
+              "raw": "{{delhivery_base_url}}/api/p/edit",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["api", "p", "edit"]
+            },
+            "description": "Cancels a booked waybill."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Warehouse & Pickup Request",
+      "description": "Schedule rider warehouse pickup.",
+      "item": [
+        {
+          "name": "Create Warehouse Pickup Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickup_time\": \"14:00:00\",\n  \"pickup_date\": \"2026-09-09\",\n  \"pickup_location\": \"Primary Warehouse\",\n  \"expected_package_count\": 10\n}"
+            },
+            "url": {
+              "raw": "{{delhivery_base_url}}/fm/request/new/",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["fm", "request", "new", ""]
+            },
+            "description": "Requests Delhivery pickup van at your warehouse location."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Shipping Label & Barcodes",
+      "description": "Generate thermal shipping slips.",
+      "item": [
+        {
+          "name": "Download Shipping Label (PDF / Barcode)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" }
+            ],
+            "url": {
+              "raw": "{{delhivery_base_url}}/api/p/packing_slip?wbns={{delhivery_waybill}}&pdf=true",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["api", "p", "packing_slip"],
+              "query": [
+                { "key": "wbns", "value": "{{delhivery_waybill}}" },
+                { "key": "pdf", "value": "true" }
+              ]
+            },
+            "description": "Downloads PDF shipping label with courier routing code and barcode."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Live Tracking API",
+      "description": "Realtime parcel scan checkpoints and delivery confirmations.",
+      "item": [
+        {
+          "name": "Live Track by Waybill",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{delhivery_api_token}}" }
+            ],
+            "url": {
+              "raw": "{{delhivery_base_url}}/api/v1/packages/json/?waybill={{delhivery_waybill}}",
+              "host": ["{{delhivery_base_url}}"],
+              "path": ["api", "v1", "packages", "json", ""],
+              "query": [
+                { "key": "waybill", "value": "{{delhivery_waybill}}" }
+              ]
+            },
+            "description": "Returns full transit scans, current hub, and delivery status."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Webhooks Simulator",
+      "description": "Simulated Delhivery push event notifications.",
+      "item": [
+        {
+          "name": "Webhook: In-Transit Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Shipment\": {\n    \"AWB\": \"128371928371\",\n    \"Status\": {\n      \"Status\": \"In Transit\",\n      \"StatusDateTime\": \"2026-09-08T22:00:00+05:30\",\n      \"StatusType\": \"UD\",\n      \"Instructions\": \"Package arrived at Mumbai Central Sort Center\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates Delhivery push tracking event."
+          }
+        }
+      ]
+    }
+  ]
+}

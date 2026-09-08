@@ -1,0 +1,651 @@
+{
+  "info": {
+    "_postman_id": "cf123456-7890-4abc-def1-234567890123",
+    "name": "Cashfree Full Payments & Payouts API Suite",
+    "description": "Exhaustive Enterprise Postman Collection for Cashfree PG & Banking v2023-08-01 (Orders, Seamless UPI/Cards, Payment Links, Subscriptions, Bank/UPI Verification, Payouts, Refunds, Settlements, Webhooks). Includes auto-chaining test scripts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "1. Orders API (Checkout & Drop-in)",
+      "description": "Create, fetch, and manage customer checkout orders in Cashfree PG.",
+      "item": [
+        {
+          "name": "Create Order (with Session ID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.order_id) {",
+                  "    pm.environment.set('cashfree_order_id', jsonData.order_id);",
+                  "    pm.environment.set('payment_session_id', jsonData.payment_session_id);",
+                  "    console.log('Saved order_id: ' + jsonData.order_id + ', session_id: ' + jsonData.payment_session_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"order_cf_{{$timestamp}}\",\n  \"order_amount\": 1499.00,\n  \"order_currency\": \"INR\",\n  \"customer_details\": {\n    \"customer_id\": \"cust_{{$timestamp}}\",\n    \"customer_name\": \"Aman Sharma\",\n    \"customer_email\": \"aman@example.com\",\n    \"customer_phone\": \"9876543210\"\n  },\n  \"order_meta\": {\n    \"return_url\": \"https://yourstore.com/order-confirmed?order_id={order_id}\",\n    \"notify_url\": \"{{local_webhook_url}}\",\n    \"payment_methods\": \"cc,dc,upi,nb\"\n  },\n  \"order_note\": \"Boost Engine eCommerce Checkout\"\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Creates an order and returns payment_session_id for Cashfree Drop-in UI or Native SDK checkout."
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}"]
+            },
+            "description": "Retrieves the status of an order (PAID, ACTIVE, EXPIRED)."
+          }
+        },
+        {
+          "name": "Terminate / Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_status\": \"TERMINATED\"\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}"]
+            },
+            "description": "Terminates an active order so that no more payments can be made against it."
+          }
+        },
+        {
+          "name": "Fetch Order Settlements",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/settlements",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "settlements"]
+            },
+            "description": "Retrieves settlement breakdown, MDR charges, and bank transfer reference for an order."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Seamless / Direct Payments API",
+      "description": "Direct S2S checkout without redirecting to hosted page (UPI Intent, UPI Collect, Cards, Netbanking).",
+      "item": [
+        {
+          "name": "Pay Order - UPI Intent (GPay, PhonePe, Paytm)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_session_id\": \"{{payment_session_id}}\",\n  \"payment_method\": {\n    \"upi\": {\n      \"channel\": \"intent\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/sessions",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "sessions"]
+            },
+            "description": "Returns deep link / intent URI for mobile app checkouts (GPay, PhonePe, Paytm)."
+          }
+        },
+        {
+          "name": "Pay Order - UPI Collect (Enter VPA)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_session_id\": \"{{payment_session_id}}\",\n  \"payment_method\": {\n    \"upi\": {\n      \"channel\": \"collect\",\n      \"upi_id\": \"testsuccess@gocash\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/sessions",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "sessions"]
+            },
+            "description": "Sends UPI collect request directly to customer's UPI app."
+          }
+        },
+        {
+          "name": "Pay Order - Netbanking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_session_id\": \"{{payment_session_id}}\",\n  \"payment_method\": {\n    \"netbanking\": {\n      \"channel\": \"link\",\n      \"netbanking_bank_code\": 3003\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/sessions",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "sessions"]
+            },
+            "description": "Directly routes customer to bank netbanking portal (e.g. 3003 = HDFC, 3022 = ICICI, 3044 = SBI)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Payments & Transactions API",
+      "description": "Fetch payments, details, and submit headless OTPs.",
+      "item": [
+        {
+          "name": "Fetch Payments for an Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/payments",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "payments"]
+            },
+            "description": "Retrieves payment attempts with bank reference IDs, payment methods, and timestamps."
+          }
+        },
+        {
+          "name": "Get Payment by CF Payment ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/payments/{{cf_payment_id}}",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "payments", "{{cf_payment_id}}"]
+            },
+            "description": "Fetches a specific transaction attempt."
+          }
+        },
+        {
+          "name": "Submit Headless Card OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"SUBMIT_OTP\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/payments/{{cf_payment_id}}/otp",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "payments", "{{cf_payment_id}}", "otp"]
+            },
+            "description": "Submits bank OTP directly for headless custom card checkout experiences."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Payment Links API",
+      "description": "Generate dynamic payment links with SMS/Email/WhatsApp reminders.",
+      "item": [
+        {
+          "name": "Create Payment Link",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.link_id) {",
+                  "    pm.environment.set('cashfree_link_id', jsonData.link_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"link_id\": \"link_cf_{{$timestamp}}\",\n  \"link_amount\": 1499.00,\n  \"link_currency\": \"INR\",\n  \"link_purpose\": \"Boost Engine Order #9821\",\n  \"customer_details\": {\n    \"customer_name\": \"Aman Sharma\",\n    \"customer_email\": \"aman@example.com\",\n    \"customer_phone\": \"9876543210\"\n  },\n  \"link_notify\": {\n    \"send_sms\": true,\n    \"send_email\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/links",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["links"]
+            },
+            "description": "Generates a hosted payment link with SMS/Email notifications."
+          }
+        },
+        {
+          "name": "Get Payment Link Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/links/{{cashfree_link_id}}",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["links", "{{cashfree_link_id}}"]
+            },
+            "description": "Fetches status of the payment link."
+          }
+        },
+        {
+          "name": "Cancel Payment Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/links/{{cashfree_link_id}}/cancel",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["links", "{{cashfree_link_id}}", "cancel"]
+            },
+            "description": "Cancels an active payment link."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Verification Suite (KYC & Bank / UPI Verify)",
+      "description": "Cashfree Verification Suite for vendor / customer bank account, UPI, and PAN verification.",
+      "item": [
+        {
+          "name": "Verify Bank Account (Penny Drop)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bank_account\": \"001101524321\",\n  \"ifsc\": \"HDFC0000001\",\n  \"name\": \"Aman Sharma\",\n  \"phone\": \"9876543210\"\n}"
+            },
+            "url": {
+              "raw": "https://api.cashfree.com/verification/bank-account/sync",
+              "protocol": "https",
+              "host": ["api", "cashfree", "com"],
+              "path": ["verification", "bank-account", "sync"]
+            },
+            "description": "Performs instant penny-drop verification and returns registered account holder name."
+          }
+        },
+        {
+          "name": "Verify UPI VPA ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vpa\": \"aman@oksbi\",\n  \"name\": \"Aman Sharma\"\n}"
+            },
+            "url": {
+              "raw": "https://api.cashfree.com/verification/upi",
+              "protocol": "https",
+              "host": ["api", "cashfree", "com"],
+              "path": ["verification", "upi"]
+            },
+            "description": "Validates UPI ID existence and checks if VPA is active and matches customer name."
+          }
+        },
+        {
+          "name": "Verify PAN Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pan\": \"ABCDE1234F\",\n  \"name\": \"Aman Sharma\"\n}"
+            },
+            "url": {
+              "raw": "https://api.cashfree.com/verification/pan",
+              "protocol": "https",
+              "host": ["api", "cashfree", "com"],
+              "path": ["verification", "pan"]
+            },
+            "description": "Verifies PAN card authenticity and registered tax name with NSDL."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Payouts & Disbursals API",
+      "description": "Instant vendor, affiliate, and refund disbursals via IMPS / NEFT / UPI.",
+      "item": [
+        {
+          "name": "Add Beneficiary",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{cashfree_payout_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"beneId\": \"bene_{{$timestamp}}\",\n  \"name\": \"Aman Sharma\",\n  \"email\": \"aman@example.com\",\n  \"phone\": \"9876543210\",\n  \"bankAccount\": \"001101524321\",\n  \"ifsc\": \"HDFC0000001\",\n  \"address1\": \"Skyline Residency\"\n}"
+            },
+            "url": {
+              "raw": "https://payout-api.cashfree.com/payout/v1/addBeneficiary",
+              "protocol": "https",
+              "host": ["payout-api", "cashfree", "com"],
+              "path": ["payout", "v1", "addBeneficiary"]
+            },
+            "description": "Registers a beneficiary for instant payouts."
+          }
+        },
+        {
+          "name": "Request Instant Transfer / Payout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{cashfree_payout_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"beneId\": \"bene_12345\",\n  \"amount\": \"1500.00\",\n  \"transferId\": \"trans_{{$timestamp}}\",\n  \"transferMode\": \"imps\",\n  \"remarks\": \"Boost Engine Affiliate Payout\"\n}"
+            },
+            "url": {
+              "raw": "https://payout-api.cashfree.com/payout/v1/requestTransfer",
+              "protocol": "https",
+              "host": ["payout-api", "cashfree", "com"],
+              "path": ["payout", "v1", "requestTransfer"]
+            },
+            "description": "Disburses funds instantly to beneficiary bank account via IMPS/UPI/NEFT."
+          }
+        },
+        {
+          "name": "Get Transfer Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{cashfree_payout_token}}" }
+            ],
+            "url": {
+              "raw": "https://payout-api.cashfree.com/payout/v1/getTransferStatus?transferId=trans_12345",
+              "protocol": "https",
+              "host": ["payout-api", "cashfree", "com"],
+              "path": ["payout", "v1", "getTransferStatus"],
+              "query": [
+                { "key": "transferId", "value": "trans_12345" }
+              ]
+            },
+            "description": "Checks status of payout transfer (SUCCESS, PENDING, REVERSED)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Refunds API",
+      "description": "Trigger instant and standard refund requests.",
+      "item": [
+        {
+          "name": "Create Refund",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.refund_id) {",
+                  "    pm.environment.set('cashfree_refund_id', jsonData.refund_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refund_id\": \"rfnd_cf_{{$timestamp}}\",\n  \"refund_amount\": 1499.00,\n  \"refund_note\": \"Customer requested order cancellation\"\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/refunds",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "refunds"]
+            },
+            "description": "Processes a refund for a paid order."
+          }
+        },
+        {
+          "name": "Fetch Refund by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/refunds/{{cashfree_refund_id}}",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "refunds", "{{cashfree_refund_id}}"]
+            },
+            "description": "Queries the refund status (SUCCESS, PENDING, CANCELLED)."
+          }
+        },
+        {
+          "name": "List All Refunds for an Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" }
+            ],
+            "url": {
+              "raw": "{{cashfree_base_url}}/orders/{{cashfree_order_id}}/refunds",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["orders", "{{cashfree_order_id}}", "refunds"]
+            },
+            "description": "Lists all partial/full refunds created for the order."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Subscriptions & Recurring API",
+      "description": "Recurring mandates and subscription billing.",
+      "item": [
+        {
+          "name": "Create Subscription Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"plan_monthly_coffee_{{$timestamp}}\",\n  \"plan_name\": \"Monthly Coffee Club\",\n  \"plan_type\": \"PERIODIC\",\n  \"plan_currency\": \"INR\",\n  \"plan_recurring_amount\": 999.00,\n  \"plan_max_amount\": 2000.00,\n  \"plan_intervals\": 1,\n  \"plan_interval_type\": \"MONTH\"\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/subscription-plans",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["subscription-plans"]
+            },
+            "description": "Creates a recurring billing plan for UPI Autopay / eNACH / Card mandate."
+          }
+        },
+        {
+          "name": "Create Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-client-id", "value": "{{cashfree_app_id}}" },
+              { "key": "x-client-secret", "value": "{{cashfree_secret_key}}" },
+              { "key": "x-api-version", "value": "2023-08-01" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscription_id\": \"sub_cf_{{$timestamp}}\",\n  \"plan_id\": \"plan_monthly_coffee_123\",\n  \"customer_details\": {\n    \"customer_name\": \"Aman Sharma\",\n    \"customer_email\": \"aman@example.com\",\n    \"customer_phone\": \"9876543210\"\n  },\n  \"subscription_expiry_time\": \"2027-12-31T23:59:59+05:30\"\n}"
+            },
+            "url": {
+              "raw": "{{cashfree_base_url}}/subscriptions",
+              "host": ["{{cashfree_base_url}}"],
+              "path": ["subscriptions"]
+            },
+            "description": "Initializes a subscription for a customer to authorize mandate."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Webhooks Simulator",
+      "description": "Ready-to-fire simulated Cashfree webhooks for testing local servers and background workers.",
+      "item": [
+        {
+          "name": "Webhook: PAYMENT_SUCCESS_WEBHOOK",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-webhook-signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"order\": {\n      \"order_id\": \"order_cf_001\",\n      \"order_amount\": 1499.00,\n      \"order_currency\": \"INR\"\n    },\n    \"payment\": {\n      \"cf_payment_id\": 109283719,\n      \"payment_status\": \"SUCCESS\",\n      \"payment_amount\": 1499.00,\n      \"payment_currency\": \"INR\",\n      \"payment_message\": \"Transaction successful\",\n      \"payment_time\": \"2026-09-08T18:30:00+05:30\",\n      \"bank_reference\": \"UPI-9821739218\",\n      \"payment_method\": {\n        \"upi\": {\n          \"channel\": null,\n          \"upi_id\": \"success@upi\"\n        }\n      }\n    },\n    \"customer_details\": {\n      \"customer_name\": \"Aman Sharma\",\n      \"customer_id\": \"cust_boost_01\",\n      \"customer_email\": \"aman@example.com\",\n      \"customer_phone\": \"9876543210\"\n    }\n  },\n  \"event_time\": \"2026-09-08T18:30:05+05:30\",\n  \"type\": \"PAYMENT_SUCCESS_WEBHOOK\"\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates PAYMENT_SUCCESS_WEBHOOK event."
+          }
+        },
+        {
+          "name": "Webhook: PAYMENT_FAILED_WEBHOOK",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-webhook-signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"order\": {\n      \"order_id\": \"order_cf_001\",\n      \"order_amount\": 1499.00,\n      \"order_currency\": \"INR\"\n    },\n    \"payment\": {\n      \"cf_payment_id\": 109283720,\n      \"payment_status\": \"FAILED\",\n      \"payment_amount\": 1499.00,\n      \"payment_message\": \"Bank declined transaction due to insufficient funds\"\n    }\n  },\n  \"type\": \"PAYMENT_FAILED_WEBHOOK\"\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates PAYMENT_FAILED_WEBHOOK event."
+          }
+        },
+        {
+          "name": "Webhook: REFUND_STATUS_WEBHOOK",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-webhook-signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"refund\": {\n      \"cf_payment_id\": 109283719,\n      \"cf_refund_id\": 8821921,\n      \"order_id\": \"order_cf_001\",\n      \"refund_id\": \"rfnd_cf_001\",\n      \"refund_amount\": 1499.00,\n      \"refund_status\": \"SUCCESS\",\n      \"refund_arn\": \"ARN1928374619\"\n    }\n  },\n  \"event_time\": \"2026-09-08T18:35:00+05:30\",\n  \"type\": \"REFUND_STATUS_WEBHOOK\"\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates REFUND_STATUS_WEBHOOK event."
+          }
+        }
+      ]
+    }
+  ]
+}

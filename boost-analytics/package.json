@@ -1,0 +1,52 @@
+{
+  "name": "@boostengine/analytics",
+  "version": "1.1.1",
+  "description": "Universal eCommerce Analytics & Pixel Tracker for Next.js, React, and Vite with Meta Pixel, GTM, GA4, Clarity & WebView error shielding.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "meta-pixel",
+    "facebook-pixel",
+    "google-tag-manager",
+    "gtm",
+    "ga4",
+    "ecommerce-tracking",
+    "clarity",
+    "nextjs",
+    "vite",
+    "react"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup && node scripts/add-use-client.cjs",
+    "dev": "tsup --watch",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

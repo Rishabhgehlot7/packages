@@ -1,0 +1,45 @@
+{
+  "name": "@boostengine/auth",
+  "version": "1.0.0",
+  "description": "Frictionless Phone OTP & 1-Click eCommerce Identity Engine for Next.js and Node.js with session cookies, guest checkout merging, and phone auth.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "auth",
+    "otp",
+    "phone-auth",
+    "ecommerce-auth",
+    "jwt",
+    "session",
+    "nextjs-auth",
+    "guest-checkout"
+  ],
+  "bin": {
+    "boost-auth": "./bin/cli.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

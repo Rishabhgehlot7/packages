@@ -1,0 +1,359 @@
+{
+  "info": {
+    "_postman_id": "pe123456-7890-4abc-def1-234567890123",
+    "name": "PhonePe PG Standard & Custom Full Collection",
+    "description": "Production Postman Collection for PhonePe PG (Standard Web Checkout, Custom UPI Intent Flow, UPI Collect VPA, Dynamic QR, Status Verification, Refunds, S2S Webhooks). Includes Pre-request scripts for automatic Base64 encoding and SHA256 X-VERIFY Checksum generation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "1. Standard Web Checkout",
+      "description": "PhonePe Standard Hosted Pay Page flow with auto-checksum calculation.",
+      "item": [
+        {
+          "name": "Initiate Standard Payment Request",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var txnId = 'MT_' + Date.now();",
+                  "pm.environment.set('phonepe_txn_id', txnId);",
+                  "var payload = {",
+                  "  merchantId: pm.environment.get('phonepe_merchant_id') || 'PGTESTPAYUAT',",
+                  "  merchantTransactionId: txnId,",
+                  "  merchantUserId: 'MUID_' + Date.now(),",
+                  "  amount: 149900,",
+                  "  redirectUrl: 'https://yourstore.com/order-success?id=' + txnId,",
+                  "  redirectMode: 'POST',",
+                  "  callbackUrl: pm.environment.get('local_webhook_url') || 'https://api.yourstore.com/webhooks/phonepe',",
+                  "  mobileNumber: '9876543210',",
+                  "  paymentInstrument: {",
+                  "    type: 'PAY_PAGE'",
+                  "  }",
+                  "};",
+                  "var base64Payload = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+                  "pm.environment.set('phonepe_base64_payload', base64Payload);",
+                  "var saltKey = pm.environment.get('phonepe_salt_key') || '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';",
+                  "var saltIndex = pm.environment.get('phonepe_salt_index') || '1';",
+                  "var stringToHash = base64Payload + '/pg/v1/pay' + saltKey;",
+                  "var sha256Hash = CryptoJS.SHA256(stringToHash).toString();",
+                  "var xVerify = sha256Hash + '###' + saltIndex;",
+                  "pm.environment.set('phonepe_x_verify', xVerify);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.instrumentResponse) {",
+                  "    pm.environment.set('phonepe_redirect_url', jsonData.data.instrumentResponse.redirectInfo.url);",
+                  "    console.log('PhonePe checkout redirect URL:', jsonData.data.instrumentResponse.redirectInfo.url);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_x_verify}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": \"{{phonepe_base64_payload}}\"\n}"
+            },
+            "url": {
+              "raw": "{{phonepe_base_url}}/pg/v1/pay",
+              "host": ["{{phonepe_base_url}}"],
+              "path": ["pg", "v1", "pay"]
+            },
+            "description": "Standard PhonePe Web Pay Page. Computes Base64 request body and X-VERIFY checksum in pre-request script."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Custom Mobile / App Flows (Intent & VPA)",
+      "description": "Mobile App SDK and Direct Intent Checkout.",
+      "item": [
+        {
+          "name": "Initiate UPI Intent Payment (Mobile Apps)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var txnId = 'MT_INTENT_' + Date.now();",
+                  "pm.environment.set('phonepe_txn_id', txnId);",
+                  "var payload = {",
+                  "  merchantId: pm.environment.get('phonepe_merchant_id') || 'PGTESTPAYUAT',",
+                  "  merchantTransactionId: txnId,",
+                  "  merchantUserId: 'MUID_' + Date.now(),",
+                  "  amount: 149900,",
+                  "  callbackUrl: pm.environment.get('local_webhook_url') || 'https://api.yourstore.com/webhooks/phonepe',",
+                  "  mobileNumber: '9876543210',",
+                  "  paymentInstrument: {",
+                  "    type: 'UPI_INTENT',",
+                  "    targetApp: 'com.phonepe.app'",
+                  "  }",
+                  "};",
+                  "var base64Payload = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+                  "pm.environment.set('phonepe_intent_base64', base64Payload);",
+                  "var saltKey = pm.environment.get('phonepe_salt_key') || '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';",
+                  "var saltIndex = pm.environment.get('phonepe_salt_index') || '1';",
+                  "var stringToHash = base64Payload + '/pg/v1/pay' + saltKey;",
+                  "var sha256Hash = CryptoJS.SHA256(stringToHash).toString();",
+                  "pm.environment.set('phonepe_intent_x_verify', sha256Hash + '###' + saltIndex);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_intent_x_verify}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": \"{{phonepe_intent_base64}}\"\n}"
+            },
+            "url": {
+              "raw": "{{phonepe_base_url}}/pg/v1/pay",
+              "host": ["{{phonepe_base_url}}"],
+              "path": ["pg", "v1", "pay"]
+            },
+            "description": "Returns intentUrl to trigger PhonePe Android/iOS app directly without browser redirect."
+          }
+        },
+        {
+          "name": "Initiate UPI Collect (VPA Flow)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var txnId = 'MT_VPA_' + Date.now();",
+                  "pm.environment.set('phonepe_txn_id', txnId);",
+                  "var payload = {",
+                  "  merchantId: pm.environment.get('phonepe_merchant_id') || 'PGTESTPAYUAT',",
+                  "  merchantTransactionId: txnId,",
+                  "  merchantUserId: 'MUID_' + Date.now(),",
+                  "  amount: 149900,",
+                  "  callbackUrl: pm.environment.get('local_webhook_url') || 'https://api.yourstore.com/webhooks/phonepe',",
+                  "  mobileNumber: '9876543210',",
+                  "  paymentInstrument: {",
+                  "    type: 'UPI_COLLECT',",
+                  "    vpa: 'aman@oksbi'",
+                  "  }",
+                  "};",
+                  "var base64Payload = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+                  "pm.environment.set('phonepe_vpa_base64', base64Payload);",
+                  "var saltKey = pm.environment.get('phonepe_salt_key') || '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';",
+                  "var saltIndex = pm.environment.get('phonepe_salt_index') || '1';",
+                  "var stringToHash = base64Payload + '/pg/v1/pay' + saltKey;",
+                  "var sha256Hash = CryptoJS.SHA256(stringToHash).toString();",
+                  "pm.environment.set('phonepe_vpa_x_verify', sha256Hash + '###' + saltIndex);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_vpa_x_verify}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": \"{{phonepe_vpa_base64}}\"\n}"
+            },
+            "url": {
+              "raw": "{{phonepe_base_url}}/pg/v1/pay",
+              "host": ["{{phonepe_base_url}}"],
+              "path": ["pg", "v1", "pay"]
+            },
+            "description": "Sends UPI collect request directly to customer VPA handle."
+          }
+        },
+        {
+          "name": "Create Dynamic UPI QR",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var txnId = 'MT_QR_' + Date.now();",
+                  "pm.environment.set('phonepe_txn_id', txnId);",
+                  "var payload = {",
+                  "  merchantId: pm.environment.get('phonepe_merchant_id') || 'PGTESTPAYUAT',",
+                  "  transactionId: txnId,",
+                  "  merchantOrderId: 'ORD_' + Date.now(),",
+                  "  amount: 149900,",
+                  "  expiresIn: 600,",
+                  "  storeId: 'STORE_01',",
+                  "  terminalId: 'TERM_01'",
+                  "};",
+                  "var base64Payload = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+                  "pm.environment.set('phonepe_qr_base64', base64Payload);",
+                  "var saltKey = pm.environment.get('phonepe_salt_key') || '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';",
+                  "var saltIndex = pm.environment.get('phonepe_salt_index') || '1';",
+                  "var stringToHash = base64Payload + '/pg/v1/qr/init' + saltKey;",
+                  "var sha256Hash = CryptoJS.SHA256(stringToHash).toString();",
+                  "pm.environment.set('phonepe_qr_x_verify', sha256Hash + '###' + saltIndex);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_qr_x_verify}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": \"{{phonepe_qr_base64}}\"\n}"
+            },
+            "url": {
+              "raw": "{{phonepe_base_url}}/pg/v1/qr/init",
+              "host": ["{{phonepe_base_url}}"],
+              "path": ["pg", "v1", "qr", "init"]
+            },
+            "description": "Initializes a dynamic QR code for desktop checkout or in-store POS."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Status Verification API",
+      "description": "Verify payment transaction status via S2S polling.",
+      "item": [
+        {
+          "name": "Check Order Payment Status",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var merchantId = pm.environment.get('phonepe_merchant_id') || 'PGTESTPAYUAT';",
+                  "var txnId = pm.environment.get('phonepe_txn_id') || 'MT_TEST_001';",
+                  "var saltKey = pm.environment.get('phonepe_salt_key') || '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';",
+                  "var saltIndex = pm.environment.get('phonepe_salt_index') || '1';",
+                  "var endpoint = '/pg/v1/status/' + merchantId + '/' + txnId;",
+                  "var stringToHash = endpoint + saltKey;",
+                  "var sha256Hash = CryptoJS.SHA256(stringToHash).toString();",
+                  "pm.environment.set('phonepe_status_x_verify', sha256Hash + '###' + saltIndex);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_status_x_verify}}" },
+              { "key": "X-MERCHANT-ID", "value": "{{phonepe_merchant_id}}" }
+            ],
+            "url": {
+              "raw": "{{phonepe_base_url}}/pg/v1/status/{{phonepe_merchant_id}}/{{phonepe_txn_id}}",
+              "host": ["{{phonepe_base_url}}"],
+              "path": ["pg", "v1", "status", "{{phonepe_merchant_id}}", "{{phonepe_txn_id}}"]
+            },
+            "description": "Fetches status of transaction (PAYMENT_SUCCESS, PAYMENT_ERROR, PAYMENT_PENDING)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Refunds API",
+      "description": "Trigger and monitor refund requests.",
+      "item": [
+        {
+          "name": "Initiate Refund",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var refundTxnId = 'RF_' + Date.now();",
+                  "pm.environment.set('phonepe_refund_id', refundTxnId);",
+                  "var payload = {",
+                  "  merchantId: pm.environment.get('phonepe_merchant_id') || 'PGTESTPAYUAT',",
+                  "  merchantTransactionId: refundTxnId,",
+                  "  originalTransactionId: pm.environment.get('phonepe_txn_id') || 'MT_TEST_001',",
+                  "  amount: 149900,",
+                  "  callbackUrl: pm.environment.get('local_webhook_url') || 'https://api.yourstore.com/webhooks/phonepe'",
+                  "};",
+                  "var base64Payload = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+                  "pm.environment.set('phonepe_refund_base64', base64Payload);",
+                  "var saltKey = pm.environment.get('phonepe_salt_key') || '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399';",
+                  "var saltIndex = pm.environment.get('phonepe_salt_index') || '1';",
+                  "var stringToHash = base64Payload + '/pg/v1/refund' + saltKey;",
+                  "var sha256Hash = CryptoJS.SHA256(stringToHash).toString();",
+                  "pm.environment.set('phonepe_refund_x_verify', sha256Hash + '###' + saltIndex);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_refund_x_verify}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request\": \"{{phonepe_refund_base64}}\"\n}"
+            },
+            "url": {
+              "raw": "{{phonepe_base_url}}/pg/v1/refund",
+              "host": ["{{phonepe_base_url}}"],
+              "path": ["pg", "v1", "refund"]
+            },
+            "description": "Initiates a refund back to customer source account."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. S2S Callback / Webhook Simulator",
+      "description": "Simulate server-to-server webhook callbacks sent by PhonePe on payment completion.",
+      "item": [
+        {
+          "name": "S2S Callback: PAYMENT_SUCCESS",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-VERIFY", "value": "{{phonepe_mock_callback_verify}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"response\": \"eyJzdWNjZXNzIjp0cnVlLCJjb2RlIjoiUEFZTUVOVF9TVUNDRVNTIiwibWVzc2FnZSI6IlBheW1lbnQgc3VjY2Vzc2Z1bCIsImRhdGEiOnsibWVyY2hhbnRJZCI6IlBHVEVTVFBBWVVBVCIsIm1lcmNoYW50VHJhbnNhY3Rpb25JZCI6Ik1UXzA5MjE3MzgxIiwidHJhbnNhY3Rpb25JZCI6IlQyNDA5MDgxODMwMTAiLCJhbW91bnQiOjE0OTkwMCwic3RhdGUiOiJDT01QTEVURUQiLCJyZXNwb25zZUNvZGUiOiJTVUNDRVNTIn19\"\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates PhonePe Base64 decoded PAYMENT_SUCCESS server callback."
+          }
+        }
+      ]
+    }
+  ]
+}

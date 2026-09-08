@@ -1,0 +1,322 @@
+{
+  "info": {
+    "_postman_id": "st123456-1111-4abc-def2-345678901234",
+    "name": "Stripe Full Global Payments API Collection",
+    "description": "Exhaustive Production Postman Collection for Stripe API (Checkout Sessions, PaymentIntents, Customers, Payment Methods, Refunds, Webhooks).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{stripe_secret_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Checkout Sessions",
+      "description": "Hosted checkout page APIs for global card and local payment methods.",
+      "item": [
+        {
+          "name": "Create Checkout Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('stripe_session_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "mode",
+                  "value": "payment"
+                },
+                {
+                  "key": "success_url",
+                  "value": "https://yourstore.com/order-confirmed?session_id={CHECKOUT_SESSION_ID}"
+                },
+                {
+                  "key": "cancel_url",
+                  "value": "https://yourstore.com/cart"
+                },
+                {
+                  "key": "line_items[0][price_data][currency]",
+                  "value": "inr"
+                },
+                {
+                  "key": "line_items[0][price_data][product_data][name]",
+                  "value": "Boost Engine Cyberpunk Hoodie"
+                },
+                {
+                  "key": "line_items[0][price_data][unit_amount]",
+                  "value": "199900"
+                },
+                {
+                  "key": "line_items[0][quantity]",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{stripe_base_url}}/checkout/sessions",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["checkout", "sessions"]
+            },
+            "description": "Creates a Stripe Checkout Session."
+          }
+        },
+        {
+          "name": "Retrieve Checkout Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{stripe_base_url}}/checkout/sessions/{{stripe_session_id}}",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["checkout", "sessions", "{{stripe_session_id}}"]
+            },
+            "description": "Retrieves the checkout session to verify payment status."
+          }
+        },
+        {
+          "name": "Expire Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{stripe_base_url}}/checkout/sessions/{{stripe_session_id}}/expire",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["checkout", "sessions", "{{stripe_session_id}}", "expire"]
+            },
+            "description": "Expires an open checkout session so it cannot be paid."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Payment Intents (Headless)",
+      "description": "Direct server-driven payment flows.",
+      "item": [
+        {
+          "name": "Create PaymentIntent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('stripe_payment_intent_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "amount",
+                  "value": "199900"
+                },
+                {
+                  "key": "currency",
+                  "value": "inr"
+                },
+                {
+                  "key": "automatic_payment_methods[enabled]",
+                  "value": "true"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{stripe_base_url}}/payment_intents",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["payment_intents"]
+            },
+            "description": "Creates a PaymentIntent for custom checkout Elements."
+          }
+        },
+        {
+          "name": "Retrieve PaymentIntent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{stripe_base_url}}/payment_intents/{{stripe_payment_intent_id}}",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["payment_intents", "{{stripe_payment_intent_id}}"]
+            },
+            "description": "Checks PaymentIntent status."
+          }
+        },
+        {
+          "name": "Capture PaymentIntent",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{stripe_base_url}}/payment_intents/{{stripe_payment_intent_id}}/capture",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["payment_intents", "{{stripe_payment_intent_id}}", "capture"]
+            },
+            "description": "Captures funds of an authorized PaymentIntent."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Customers API",
+      "description": "Manage saved payment methods and customer records.",
+      "item": [
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('stripe_customer_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "name",
+                  "value": "Aman Sharma"
+                },
+                {
+                  "key": "email",
+                  "value": "aman@example.com"
+                },
+                {
+                  "key": "phone",
+                  "value": "+919876543210"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{stripe_base_url}}/customers",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["customers"]
+            },
+            "description": "Creates customer record in Stripe."
+          }
+        },
+        {
+          "name": "Retrieve Customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{stripe_base_url}}/customers/{{stripe_customer_id}}",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["customers", "{{stripe_customer_id}}"]
+            },
+            "description": "Retrieves customer profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Refunds API",
+      "description": "Process and query refunds.",
+      "item": [
+        {
+          "name": "Create Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "payment_intent",
+                  "value": "{{stripe_payment_intent_id}}"
+                },
+                {
+                  "key": "amount",
+                  "value": "199900"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{stripe_base_url}}/refunds",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["refunds"]
+            },
+            "description": "Processes refund."
+          }
+        },
+        {
+          "name": "List All Refunds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{stripe_base_url}}/refunds?limit=10",
+              "host": ["{{stripe_base_url}}"],
+              "path": ["refunds"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lists recent refunds."
+          }
+        }
+      ]
+    }
+  ]
+}

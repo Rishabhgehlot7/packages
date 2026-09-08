@@ -1,0 +1,44 @@
+{
+  "name": "@boostengine/reviews",
+  "version": "1.0.0",
+  "description": "High-converting Social Proof & Product Review Engine with Star Aggregates, Verified Buyer Badges, Helpful Upvoting, Sentiment & Media Support.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "reviews",
+    "social-proof",
+    "product-reviews",
+    "star-rating",
+    "verified-buyer",
+    "ecommerce-reviews",
+    "ugc"
+  ],
+  "bin": {
+    "boost-reviews": "./bin/cli.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

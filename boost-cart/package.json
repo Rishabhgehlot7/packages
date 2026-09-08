@@ -1,0 +1,46 @@
+{
+  "name": "@boostengine/cart",
+  "version": "1.0.0",
+  "description": "High-performance eCommerce Cart Calculation Engine with Indian GST (CGST/SGST/IGST), Free Shipping Threshold Progress, Multi-Tax Rates & Prepaid Discounts.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "cart",
+    "ecommerce-cart",
+    "shopping-cart",
+    "gst",
+    "cgst",
+    "sgst",
+    "igst",
+    "free-shipping-bar",
+    "nextjs-cart"
+  ],
+  "bin": {
+    "boost-cart": "./bin/cli.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

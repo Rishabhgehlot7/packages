@@ -1,0 +1,161 @@
+{
+  "info": {
+    "_postman_id": "pt123456-5555-4abc-def6-789012345678",
+    "name": "Paytm Payment Gateway Full API Collection",
+    "description": "Production Postman Collection for Paytm All-In-One PG (Initiate Transaction Token, Fetch Payment Status, Process Refund, Refund Status, Dynamic QR, and S2S Webhooks Simulator).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "1. Transaction & Checkout",
+      "description": "Initiate checkout and generate txnToken for Paytm JS Checkout SDK / App SDK.",
+      "item": [
+        {
+          "name": "Initiate Transaction (Generate txnToken)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.body && jsonData.body.txnToken) {",
+                  "    pm.environment.set('paytm_txn_token', jsonData.body.txnToken);",
+                  "    console.log('Saved paytm_txn_token: ' + jsonData.body.txnToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"head\": {\n    \"signature\": \"{{paytm_checksum}}\"\n  },\n  \"body\": {\n    \"requestType\": \"Payment\",\n    \"mid\": \"{{paytm_mid}}\",\n    \"websiteName\": \"DEFAULT\",\n    \"orderId\": \"ORDER_PTM_{{$timestamp}}\",\n    \"callbackUrl\": \"{{local_webhook_url}}\",\n    \"txnAmount\": {\n      \"value\": \"1499.00\",\n      \"currency\": \"INR\"\n    },\n    \"userInfo\": {\n      \"custId\": \"CUST_{{$timestamp}}\",\n      \"mobile\": \"9876543210\",\n      \"email\": \"aman@example.com\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{paytm_base_url}}/theia/api/v1/initiateTransaction?mid={{paytm_mid}}&orderId=ORDER_PTM_{{$timestamp}}",
+              "host": ["{{paytm_base_url}}"],
+              "path": ["theia", "api", "v1", "initiateTransaction"],
+              "query": [
+                { "key": "mid", "value": "{{paytm_mid}}" },
+                { "key": "orderId", "value": "ORDER_PTM_{{$timestamp}}" }
+              ]
+            },
+            "description": "Initiates payment session and returns txnToken used by frontend checkout."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Payment Status Verification",
+      "description": "Query Paytm backend for real-time payment status.",
+      "item": [
+        {
+          "name": "Transaction Status Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"head\": {\n    \"signature\": \"{{paytm_checksum}}\"\n  },\n  \"body\": {\n    \"mid\": \"{{paytm_mid}}\",\n    \"orderId\": \"{{paytm_order_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{paytm_base_url}}/v3/order/status",
+              "host": ["{{paytm_base_url}}"],
+              "path": ["v3", "order", "status"]
+            },
+            "description": "Verifies transaction state (TXN_SUCCESS, TXN_FAILURE, PENDING)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Refunds API",
+      "description": "Trigger and monitor refund status.",
+      "item": [
+        {
+          "name": "Initiate Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"head\": {\n    \"signature\": \"{{paytm_checksum}}\"\n  },\n  \"body\": {\n    \"mid\": \"{{paytm_mid}}\",\n    \"txnType\": \"REFUND\",\n    \"orderId\": \"{{paytm_order_id}}\",\n    \"txnId\": \"{{paytm_txn_id}}\",\n    \"refId\": \"REFUND_PTM_{{$timestamp}}\",\n    \"refundAmount\": \"1499.00\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{paytm_base_url}}/refund/apply",
+              "host": ["{{paytm_base_url}}"],
+              "path": ["refund", "apply"]
+            },
+            "description": "Initiates refund to source payment method."
+          }
+        },
+        {
+          "name": "Check Refund Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"head\": {\n    \"signature\": \"{{paytm_checksum}}\"\n  },\n  \"body\": {\n    \"mid\": \"{{paytm_mid}}\",\n    \"orderId\": \"{{paytm_order_id}}\",\n    \"refId\": \"REFUND_PTM_001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{paytm_base_url}}/v2/refund/status",
+              "host": ["{{paytm_base_url}}"],
+              "path": ["v2", "refund", "status"]
+            },
+            "description": "Checks status of refund (TXN_SUCCESS, PENDING)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Webhooks Simulator",
+      "description": "Simulated Paytm S2S payment notification.",
+      "item": [
+        {
+          "name": "Webhook: Payment Response S2S",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "MID", "value": "{{paytm_mid}}" },
+                { "key": "ORDERID", "value": "ORDER_PTM_1001" },
+                { "key": "TXNAMOUNT", "value": "1499.00" },
+                { "key": "CURRENCY", "value": "INR" },
+                { "key": "STATUS", "value": "TXN_SUCCESS" },
+                { "key": "RESPCODE", "value": "01" },
+                { "key": "RESPMSG", "value": "Txn Success" },
+                { "key": "BANKTXNID", "value": "109283719283" },
+                { "key": "PAYMENTMODE", "value": "UPI" },
+                { "key": "CHECKSUMHASH", "value": "{{paytm_checksum}}" }
+              ]
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates S2S POST callback sent by Paytm on transaction completion."
+          }
+        }
+      ]
+    }
+  ]
+}

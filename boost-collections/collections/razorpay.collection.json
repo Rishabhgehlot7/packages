@@ -1,0 +1,715 @@
+{
+  "info": {
+    "_postman_id": "9b12a83e-105b-4832-8419-a86d5e789012",
+    "name": "Razorpay Full eCommerce API Collection",
+    "description": "Exhaustive Enterprise Postman Collection for Razorpay (Orders, Payments, Payment Links, Smart Collect Virtual Accounts, UPI QR Codes, Customers & Card Tokens, Invoices, Subscriptions, Route Transfers & Webhook Simulator). Includes auto-chaining test scripts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{razorpay_key_id}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{razorpay_key_secret}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Orders API",
+      "description": "Create, fetch, and manage customer checkout orders.",
+      "item": [
+        {
+          "name": "Create Order (Standard eCommerce)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('order_id', jsonData.id);",
+                  "    console.log('Saved order_id to environment: ' + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 149900,\n  \"currency\": \"INR\",\n  \"receipt\": \"rcpt_boost_{{$timestamp}}\",\n  \"partial_payment\": false,\n  \"notes\": {\n    \"customer_name\": \"Aman Sharma\",\n    \"customer_email\": \"aman@example.com\",\n    \"customer_phone\": \"+919876543210\",\n    \"shipping_address\": \"Flat 402, Skyline Residency, Mumbai\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/orders",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "orders"]
+            },
+            "description": "Creates a new Order in Razorpay. Automatically extracts and sets {{order_id}} in environment."
+          }
+        },
+        {
+          "name": "Fetch Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/orders/{{order_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "orders", "{{order_id}}"]
+            },
+            "description": "Retrieves the order entity using {{order_id}}."
+          }
+        },
+        {
+          "name": "Fetch Payments for an Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/orders/{{order_id}}/payments",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "orders", "{{order_id}}", "payments"]
+            },
+            "description": "Fetches all payment attempts made against {{order_id}}."
+          }
+        },
+        {
+          "name": "List All Orders (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/orders?count=20&skip=0",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "orders"],
+              "query": [
+                { "key": "count", "value": "20" },
+                { "key": "skip", "value": "0" }
+              ]
+            },
+            "description": "Lists all merchant orders in descending order."
+          }
+        },
+        {
+          "name": "Update Order Notes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": {\n    \"special_instructions\": \"Fragile packing required\",\n    \"delivery_slot\": \"Morning 9 AM - 12 PM\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/orders/{{order_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "orders", "{{order_id}}"]
+            },
+            "description": "Updates metadata/notes for an existing order."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Payments API",
+      "description": "Inspect, capture, and process transactions.",
+      "item": [
+        {
+          "name": "Fetch Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments/{{payment_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments", "{{payment_id}}"]
+            },
+            "description": "Fetches details of a specific payment transaction."
+          }
+        },
+        {
+          "name": "Capture Payment (Manual)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 149900,\n  \"currency\": \"INR\"\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments/{{payment_id}}/capture",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments", "{{payment_id}}", "capture"]
+            },
+            "description": "Captures an authorized payment before timeout."
+          }
+        },
+        {
+          "name": "Fetch Card Details of Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments/{{payment_id}}/card",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments", "{{payment_id}}", "card"]
+            },
+            "description": "Fetches tokenized card brand, last4, and issuer network."
+          }
+        },
+        {
+          "name": "List All Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments?count=10",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments"],
+              "query": [
+                { "key": "count", "value": "10" }
+              ]
+            },
+            "description": "Lists recent payments received."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Payment Links & UPI QR Codes",
+      "description": "Direct checkout links and dynamic on-counter / on-screen UPI QR codes.",
+      "item": [
+        {
+          "name": "Create Standard Payment Link",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('payment_link_id', jsonData.id);",
+                  "    console.log('Saved payment_link_id: ' + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 149900,\n  \"currency\": \"INR\",\n  \"accept_partial\": false,\n  \"reference_id\": \"pl_ref_{{$timestamp}}\",\n  \"description\": \"Payment for Boost Engine eCommerce Order\",\n  \"customer\": {\n    \"name\": \"Aman Sharma\",\n    \"contact\": \"+919876543210\",\n    \"email\": \"aman@example.com\"\n  },\n  \"notify\": {\n    \"sms\": true,\n    \"email\": true,\n    \"whatsapp\": true\n  },\n  \"reminder_enable\": true\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payment_links",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payment_links"]
+            },
+            "description": "Generates a hosted payment link with automatic SMS/Email/WhatsApp notification."
+          }
+        },
+        {
+          "name": "Fetch Payment Link Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payment_links/{{payment_link_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payment_links", "{{payment_link_id}}"]
+            },
+            "description": "Checks payment link status (created, paid, expired, cancelled)."
+          }
+        },
+        {
+          "name": "Cancel Payment Link",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payment_links/{{payment_link_id}}/cancel",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payment_links", "{{payment_link_id}}", "cancel"]
+            },
+            "description": "Cancels an unpaid payment link."
+          }
+        },
+        {
+          "name": "Create Dynamic UPI QR Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('razorpay_qr_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"upi_qr\",\n  \"name\": \"Boost Engine Checkout QR\",\n  \"usage\": \"single_use\",\n  \"fixed_amount\": true,\n  \"payment_amount\": 149900,\n  \"description\": \"Payment for Order #1001\",\n  \"customer_id\": \"{{customer_id}}\",\n  \"close_by\": 1735689600\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments/qr_codes",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments", "qr_codes"]
+            },
+            "description": "Creates a dynamic single-use or multi-use UPI QR code image and payload."
+          }
+        },
+        {
+          "name": "Fetch QR Code by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments/qr_codes/{{razorpay_qr_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments", "qr_codes", "{{razorpay_qr_id}}"]
+            },
+            "description": "Retrieves the status, scanned state, and payments received on a QR code."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Smart Collect (Virtual Accounts / B2B Bank Transfer)",
+      "description": "Generate unique virtual bank account & UPI ID for automatic reconciliation of NEFT/RTGS/IMPS payments.",
+      "item": [
+        {
+          "name": "Create Virtual Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('razorpay_va_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receivers\": {\n    \"types\": [\n      \"bank_account\",\n      \"vpa\"\n    ]\n  },\n  \"description\": \"Dedicated Virtual Account for Aman Sharma\",\n  \"customer_id\": \"{{customer_id}}\",\n  \"close_by\": 1735689600\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/virtual_accounts",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "virtual_accounts"]
+            },
+            "description": "Creates a dedicated virtual bank account (account number + IFSC) and UPI ID."
+          }
+        },
+        {
+          "name": "Fetch Virtual Account by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/virtual_accounts/{{razorpay_va_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "virtual_accounts", "{{razorpay_va_id}}"]
+            },
+            "description": "Fetches bank account and receiver details."
+          }
+        },
+        {
+          "name": "Fetch Payments for Virtual Account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/virtual_accounts/{{razorpay_va_id}}/payments",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "virtual_accounts", "{{razorpay_va_id}}", "payments"]
+            },
+            "description": "Lists all payments received into the virtual account."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Customers & Card Vault API",
+      "description": "Manage customer profiles and saved cards/mandates.",
+      "item": [
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('customer_id', jsonData.id);",
+                  "    console.log('Saved customer_id: ' + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aman Sharma\",\n  \"contact\": \"+919876543210\",\n  \"email\": \"aman@example.com\",\n  \"fail_existing\": 0,\n  \"notes\": {\n    \"user_type\": \"VIP Member\",\n    \"app_user_id\": \"usr_boost_1001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/customers",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "customers"]
+            },
+            "description": "Creates customer record for one-click checkout and saved payment methods."
+          }
+        },
+        {
+          "name": "Fetch Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/customers/{{customer_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "customers", "{{customer_id}}"]
+            },
+            "description": "Fetches customer entity."
+          }
+        },
+        {
+          "name": "Fetch Saved Tokens / Cards of Customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/customers/{{customer_id}}/tokens",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "customers", "{{customer_id}}", "tokens"]
+            },
+            "description": "Fetches RBI-compliant tokenized cards for 1-click seamless re-purchases."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Invoices API",
+      "description": "GST-compliant tax invoices for eCommerce sales.",
+      "item": [
+        {
+          "name": "Create Tax Invoice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('razorpay_invoice_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"invoice\",\n  \"customer\": {\n    \"name\": \"Aman Sharma\",\n    \"email\": \"aman@example.com\",\n    \"contact\": \"+919876543210\"\n  },\n  \"line_items\": [\n    {\n      \"name\": \"Boost Engine Premium Hoodie\",\n      \"description\": \"Size L, Black color\",\n      \"amount\": 149900,\n      \"currency\": \"INR\",\n      \"quantity\": 1\n    }\n  ],\n  \"sms_notify\": 1,\n  \"email_notify\": 1,\n  \"currency\": \"INR\"\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/invoices",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "invoices"]
+            },
+            "description": "Creates a GST itemized invoice."
+          }
+        },
+        {
+          "name": "Issue Invoice",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/invoices/{{razorpay_invoice_id}}/issue",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "invoices", "{{razorpay_invoice_id}}", "issue"]
+            },
+            "description": "Issues a draft invoice and sends email/SMS link to customer."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Subscriptions & Recurring Plans",
+      "description": "Automated recurring subscriptions with UPI Autopay and cards.",
+      "item": [
+        {
+          "name": "Create Recurring Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('razorpay_plan_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"period\": \"monthly\",\n  \"interval\": 1,\n  \"item\": {\n    \"name\": \"Boost Engine Pro Membership\",\n    \"amount\": 99900,\n    \"currency\": \"INR\",\n    \"description\": \"Monthly Pro Membership\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/plans",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "plans"]
+            },
+            "description": "Creates a billing plan."
+          }
+        },
+        {
+          "name": "Create Subscription",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('razorpay_sub_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{razorpay_plan_id}}\",\n  \"total_count\": 12,\n  \"quantity\": 1,\n  \"customer_notify\": 1,\n  \"start_at\": 1735689600,\n  \"notes\": {\n    \"user_id\": \"usr_boost_01\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/subscriptions",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "subscriptions"]
+            },
+            "description": "Initializes a recurring subscription."
+          }
+        },
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancel_at_cycle_end\": 0\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/subscriptions/{{razorpay_sub_id}}/cancel",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "subscriptions", "{{razorpay_sub_id}}", "cancel"]
+            },
+            "description": "Cancels active subscription."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Refunds API",
+      "description": "Process standard or instant refunds.",
+      "item": [
+        {
+          "name": "Create Refund",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.id) {",
+                  "    pm.environment.set('refund_id', jsonData.id);",
+                  "    console.log('Saved refund_id: ' + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 149900,\n  \"reverse_all\": 1,\n  \"notes\": {\n    \"reason\": \"Customer requested cancellation before dispatch\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/payments/{{payment_id}}/refund",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "payments", "{{payment_id}}", "refund"]
+            },
+            "description": "Initiates a full or partial refund."
+          }
+        },
+        {
+          "name": "Fetch Refund by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{razorpay_base_url}}/v1/refunds/{{refund_id}}",
+              "host": ["{{razorpay_base_url}}"],
+              "path": ["v1", "refunds", "{{refund_id}}"]
+            },
+            "description": "Fetches refund details and status (processed, pending)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Webhooks Simulator",
+      "description": "Simulated webhook payloads ready to trigger against local API server.",
+      "item": [
+        {
+          "name": "Webhook: order.paid",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Razorpay-Signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entity\": \"event\",\n  \"account_id\": \"acc_boost_1001\",\n  \"event\": \"order.paid\",\n  \"contains\": [\"order\", \"payment\"],\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_test_001\",\n        \"entity\": \"payment\",\n        \"amount\": 149900,\n        \"currency\": \"INR\",\n        \"status\": \"captured\",\n        \"order_id\": \"order_test_001\",\n        \"method\": \"upi\",\n        \"vpa\": \"aman@upi\"\n      }\n    },\n    \"order\": {\n      \"entity\": {\n        \"id\": \"order_test_001\",\n        \"entity\": \"order\",\n        \"amount\": 149900,\n        \"currency\": \"INR\",\n        \"status\": \"paid\"\n      }\n    }\n  },\n  \"created_at\": 1709923200\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates order.paid webhook."
+          }
+        },
+        {
+          "name": "Webhook: payment.failed",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Razorpay-Signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entity\": \"event\",\n  \"account_id\": \"acc_boost_1001\",\n  \"event\": \"payment.failed\",\n  \"contains\": [\"payment\"],\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_test_failed\",\n        \"entity\": \"payment\",\n        \"amount\": 149900,\n        \"currency\": \"INR\",\n        \"status\": \"failed\",\n        \"error_code\": \"BAD_REQUEST_ERROR\",\n        \"error_description\": \"Payment was declined by bank\"\n      }\n    }\n  },\n  \"created_at\": 1709923200\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates payment.failed webhook."
+          }
+        },
+        {
+          "name": "Webhook: refund.processed",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Razorpay-Signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entity\": \"event\",\n  \"account_id\": \"acc_boost_1001\",\n  \"event\": \"refund.processed\",\n  \"contains\": [\"refund\"],\n  \"payload\": {\n    \"refund\": {\n      \"entity\": {\n        \"id\": \"rfnd_test_001\",\n        \"entity\": \"refund\",\n        \"amount\": 149900,\n        \"currency\": \"INR\",\n        \"payment_id\": \"pay_test_001\",\n        \"status\": \"processed\"\n      }\n    }\n  },\n  \"created_at\": 1709923500\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates refund.processed webhook."
+          }
+        },
+        {
+          "name": "Webhook: virtual_account.credited",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Razorpay-Signature", "value": "{{computed_webhook_signature}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entity\": \"event\",\n  \"account_id\": \"acc_boost_1001\",\n  \"event\": \"virtual_account.credited\",\n  \"contains\": [\"virtual_account\", \"payment\"],\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_va_001\",\n        \"amount\": 500000,\n        \"currency\": \"INR\",\n        \"method\": \"bank_transfer\",\n        \"bank\": \"HDFC\"\n      }\n    }\n  },\n  \"created_at\": 1709923800\n}"
+            },
+            "url": {
+              "raw": "{{local_webhook_url}}",
+              "host": ["{{local_webhook_url}}"]
+            },
+            "description": "Simulates virtual_account.credited webhook for automated B2B NEFT/RTGS reconciliation."
+          }
+        }
+      ]
+    }
+  ]
+}
