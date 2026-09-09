@@ -290,13 +290,19 @@ export const db = {
   getOrderById(id: string): AdminOrder | undefined {
     return globalThis.__boostStoreDb!.orders.find((o) => o.id === id || o.orderNumber === id);
   },
-  createOrder(orderData: Omit<AdminOrder, 'id' | 'orderNumber' | 'createdAt' | 'updatedAt'>): AdminOrder {
-    const count = globalThis.__boostStoreDb!.orders.length + 1001;
+  createOrder(
+    orderData: Omit<AdminOrder, 'id' | 'orderNumber' | 'createdAt' | 'updatedAt'>,
+    customId?: string,
+    customOrderNumber?: string
+  ): AdminOrder {
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    const orderNum = customOrderNumber || `BOOST-${Date.now().toString().slice(-6)}-${randomSuffix}`;
+    const orderId = customId || `ord_${Date.now()}_${randomSuffix}`;
     const now = new Date().toISOString();
     const newOrder: AdminOrder = {
       ...orderData,
-      id: `ord_${Date.now()}`,
-      orderNumber: `BOOST-${count}`,
+      id: orderId,
+      orderNumber: orderNum,
       createdAt: now,
       updatedAt: now,
     };

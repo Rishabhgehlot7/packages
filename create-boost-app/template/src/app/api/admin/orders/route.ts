@@ -71,20 +71,35 @@ export async function POST(request: Request) {
     }
 
     // Always create in in-memory store for instant sync
-    const order = db.createOrder(body);
+    const order = db.createOrder(body, body.id, body.orderNumber);
 
     // Save to MongoDB if available
     try {
       const conn = await dbConnect();
       if (conn && Order) {
         await Order.create({
-          ...order,
+          id: order.id,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          customer: order.customer,
+          items: order.items,
+          subtotal: order.subtotal,
+          discount: order.discount,
+          shipping: order.shipping,
+          tax: order.tax,
+          total: order.total,
+          paymentMethod: order.paymentMethod,
+          paymentStatus: order.paymentStatus,
+          orderStatus: order.orderStatus,
           razorpayOrderId: body.razorpayOrderId,
           metadata: body.metadata || {},
+          createdAt: new Date(order.createdAt),
+          updatedAt: new Date(order.updatedAt),
         });
+        console.log(`✅ Order ${order.orderNumber} successfully saved to MongoDB`);
       }
-    } catch (dbErr) {
-      console.warn('Could not save order to MongoDB:', dbErr);
+    } catch (dbErr: any) {
+      console.warn('Could not save order to MongoDB:', dbErr.message);
     }
 
     // Send order confirmation email asynchronously

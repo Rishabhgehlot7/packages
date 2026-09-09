@@ -126,10 +126,19 @@ export async function POST(request: Request) {
     try {
       const conn = await dbConnect();
       if (conn && Product) {
-        await Product.create(newProduct);
+        const slug =
+          body.slug ||
+          (body.title
+            ? body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+            : newProduct.id) + `-${Date.now().toString().slice(-4)}`;
+        await Product.create({
+          ...newProduct,
+          slug,
+        });
+        console.log(`✅ Product "${newProduct.title}" saved to MongoDB`);
       }
-    } catch (dbErr) {
-      console.warn('Could not save product to MongoDB:', dbErr);
+    } catch (dbErr: any) {
+      console.warn('Could not save product to MongoDB:', dbErr.message);
     }
 
     const saved = db.addProduct(newProduct);

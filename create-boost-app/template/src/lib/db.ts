@@ -41,8 +41,30 @@ export async function dbConnect(): Promise<typeof mongoose | null> {
 
     cached.promise = mongoose
       .connect(uri, opts)
-      .then((mongooseInstance) => {
+      .then(async (mongooseInstance) => {
         console.log('⚡ MongoDB High-Throughput Connection Initialized');
+        try {
+          const ordersColl = mongooseInstance.connection.collection('orders');
+          const indexes = await ordersColl.indexes();
+          const orderIdIdx = indexes.find((i: any) => i.name === 'orderId_1');
+          if (orderIdIdx) {
+            await ordersColl.dropIndex('orderId_1');
+            console.log('🧹 Cleaned legacy index orderId_1 from orders collection');
+          }
+        } catch (idxErr) {
+          // Index might not exist or already dropped
+        }
+        try {
+          const productsColl = mongooseInstance.connection.collection('products');
+          const pIndexes = await productsColl.indexes();
+          const slugIdx = pIndexes.find((i: any) => i.name === 'slug_1');
+          if (slugIdx) {
+            await productsColl.dropIndex('slug_1');
+            console.log('🧹 Cleaned legacy index slug_1 from products collection');
+          }
+        } catch (pIdxErr) {
+          // Index might not exist or already dropped
+        }
         return mongooseInstance;
       })
       .catch((err) => {

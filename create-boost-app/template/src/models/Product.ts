@@ -21,6 +21,7 @@ export interface IProductReview {
 
 export interface IProductDocument extends Document {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   price: number;
@@ -71,6 +72,7 @@ const ProductReviewSchema = new Schema<IProductReview>(
 const ProductSchema = new Schema<IProductDocument>(
   {
     id: { type: String, required: true, unique: true, index: true },
+    slug: { type: String, index: true },
     title: { type: String, required: true, index: true },
     description: { type: String, default: '' },
     price: { type: Number, required: true },
@@ -95,7 +97,10 @@ const ProductSchema = new Schema<IProductDocument>(
   }
 );
 
-// Prevent re-compilation of existing model in Next.js HMR
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Product) {
+  delete (mongoose.models as any).Product;
+}
+
 const Product: Model<IProductDocument> =
   mongoose.models.Product || mongoose.model<IProductDocument>('Product', ProductSchema);
 

@@ -11,6 +11,7 @@ export interface IOrderItem {
 
 export interface IOrderDocument extends Document {
   id: string;
+  orderId?: string;
   orderNumber: string;
   customer: {
     name: string;
@@ -57,6 +58,7 @@ const OrderItemSchema = new Schema<IOrderItem>(
 const OrderSchema = new Schema<IOrderDocument>(
   {
     id: { type: String, required: true, unique: true, index: true },
+    orderId: { type: String, index: true },
     orderNumber: { type: String, required: true, unique: true, index: true },
     customer: {
       name: { type: String, required: true },
@@ -103,6 +105,10 @@ const OrderSchema = new Schema<IOrderDocument>(
     timestamps: true,
   }
 );
+
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Order) {
+  delete (mongoose.models as any).Order;
+}
 
 const Order: Model<IOrderDocument> =
   mongoose.models.Order || mongoose.model<IOrderDocument>('Order', OrderSchema);
