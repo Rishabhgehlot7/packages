@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { StoreProvider } from '../context/StoreContext';
+import { AdBanner } from '../components/AdBanner';
 import { Navbar } from '../components/Navbar';
 import { GlobalCartDrawer } from '../components/GlobalCartDrawer';
 import { Footer } from '../components/Footer';
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased selection:bg-black selection:text-white bg-white text-gray-900">
         <StoreProvider>
+          <AdBanner />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <GlobalCartDrawer />

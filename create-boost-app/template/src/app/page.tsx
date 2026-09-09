@@ -13,13 +13,55 @@ import {
   LightningDealsBar,
   AssuredBadge,
 } from '@boostengine/ui';
-import { Flame, Sparkles, Zap, ArrowRight, Tag, Heart } from 'lucide-react';
+import { Flame, Sparkles, Zap, ArrowRight, Tag, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
   const { addToCart, toggleWishlist, wishlistItems, inventory, superCoins } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<SearchSortOption>('relevance');
+
+  // Dynamic Banners from MongoDB
+  const [heroBanners, setHeroBanners] = useState<any[]>([]);
+  const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+
+  // Dynamic Categories
+  const [apiCategories, setApiCategories] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    async function fetchHomeData() {
+      try {
+        const [bannersRes, catRes] = await Promise.all([
+          fetch('/api/banners'),
+          fetch('/api/categories'),
+        ]);
+        const bannersData = await bannersRes.json();
+        const catData = await catRes.json();
+
+        if (bannersData.success && bannersData.hero && bannersData.hero.length > 0) {
+          setHeroBanners(bannersData.hero);
+        } else if (bannersData.success && bannersData.data && bannersData.data.length > 0) {
+          setHeroBanners(bannersData.data.slice(0, 5));
+        }
+
+        if (catData.success && catData.data && catData.data.length > 0) {
+          setApiCategories(catData.data);
+        }
+      } catch (err) {
+        // Fallback to static
+      }
+    }
+    fetchHomeData();
+  }, []);
+
+  // Auto-slide hero banner
+  React.useEffect(() => {
+    if (heroBanners.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveBannerIdx((prev) => (prev + 1) % heroBanners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [heroBanners.length]);
 
   const searchResults = BoostSearchEngine.search(PRODUCTS as any, {
     category: selectedCategory === 'All' ? undefined : selectedCategory,
@@ -29,11 +71,19 @@ export default function HomePage() {
   // Visual Category Circles (Compact Amazon/Flipkart style)
   const visualCategories = [
     { name: 'All', icon: '🛍️', bg: '#eff6ff' },
-    { name: 'Hoodies', icon: '🧥', bg: '#fef3c7' },
-    { name: 'T-Shirts', icon: '👕', bg: '#fce7f3' },
-    { name: 'Electronics', icon: '🎧', bg: '#e0e7ff' },
-    { name: 'Footwear', icon: '👟', bg: '#ecfdf5' },
-    { name: 'Accessories', icon: '🎒', bg: '#f3e8ff' },
+    ...(apiCategories.length > 0
+      ? apiCategories.slice(0, 6).map((c, i) => ({
+          name: c.name,
+          icon: ['🧥', '👕', '🎒', '🎧', '👟', '🕶️'][i % 6],
+          bg: ['#fef3c7', '#fce7f3', '#e0e7ff', '#ecfdf5', '#f3e8ff', '#fff1f2'][i % 6],
+        }))
+      : [
+          { name: 'Hoodies', icon: '🧥', bg: '#fef3c7' },
+          { name: 'T-Shirts', icon: '👕', bg: '#fce7f3' },
+          { name: 'Electronics', icon: '🎧', bg: '#e0e7ff' },
+          { name: 'Footwear', icon: '👟', bg: '#ecfdf5' },
+          { name: 'Accessories', icon: '🎒', bg: '#f3e8ff' },
+        ]),
   ];
 
   const [dealEndTimestamp] = useState<number>(() => Date.now() + 6 * 3600 * 1000 + 42 * 60 * 1000);
@@ -77,48 +127,134 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Compact Marketplace Hero Banner */}
+      {/* 2. Compact Marketplace Hero Banner & Carousel */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="relative rounded-2xl bg-gradient-to-r from-slate-950 via-indigo-950 to-blue-900 text-white py-6 sm:py-8 px-5 sm:px-8 overflow-hidden shadow-lg">
-          <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]" />
+        {heroBanners.length > 0 ? (
+          <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[21/10] sm:aspect-[24/9] md:aspect-[28/9] bg-slate-950 group">
+            {/* Carousel Slides */}
+            {heroBanners.map((banner, idx) => {
+              const isActive = idx === activeBannerIdx;
+              const imgSrc = banner.desktopImage || banner.mobileImage || banner.image;
+              const mobileSrc = banner.mobileImage || banner.desktopImage || banner.image;
 
-          <div className="max-w-xl space-y-2.5 sm:space-y-3 relative z-10">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 bg-yellow-400 text-black text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                <Zap className="w-3 h-3 fill-black" />
-                BIG SAVINGS DAY
-              </span>
-              <AssuredBadge type="assured" />
-            </div>
+              return (
+                <div
+                  key={banner.id || (banner as any)._id || idx}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                  }`}
+                >
+                  <picture>
+                    <source media="(max-width: 640px)" srcSet={mobileSrc} />
+                    <img
+                      src={imgSrc}
+                      alt={banner.title || 'Boost Hero Banner'}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </picture>
 
-            <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight uppercase">
-              India's Favorite <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-rose-300">
-                Premium Marketplace
-              </span>
-            </h1>
+                  {/* Gradient Overlay & Text Content */}
+                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/40 to-transparent flex items-end sm:items-center p-5 sm:p-8 md:p-12">
+                    <div className="max-w-xl space-y-2 sm:space-y-3">
+                      {banner.title && (
+                        <h2 className="text-base sm:text-2xl md:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md line-clamp-2">
+                          {banner.title}
+                        </h2>
+                      )}
+                      <Link
+                        href={banner.link || '/products'}
+                        className="inline-flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-4 py-2 rounded-full transition shadow-md cursor-pointer"
+                      >
+                        <span>{banner.buttonText || 'Explore Collection'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
 
-            <p className="text-xs sm:text-sm text-gray-300 font-normal line-clamp-2 max-w-lg">
-              100% genuine fashion & electronics. Same-day dispatch, No-Cost EMI & SuperCoins cashback!
-            </p>
+            {/* Slider Arrow Controls */}
+            {heroBanners.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActiveBannerIdx((prev) => (prev - 1 + heroBanners.length) % heroBanners.length)
+                  }
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 backdrop-blur cursor-pointer"
+                  aria-label="Previous banner"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveBannerIdx((prev) => (prev + 1) % heroBanners.length)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 backdrop-blur cursor-pointer"
+                  aria-label="Next banner"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
 
-            <div className="flex flex-wrap items-center gap-2.5 pt-1">
-              <a
-                href="#lightning-deals"
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-4 py-2 rounded-full transition shadow-sm flex items-center gap-1.5"
-              >
-                <span>Shop Deals</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </a>
-              <Link
-                href="/products"
-                className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2 rounded-full border border-white/20 transition"
-              >
-                All Products
-              </Link>
+                {/* Dot Indicators */}
+                <div className="absolute bottom-3 right-4 sm:right-6 flex items-center gap-1.5 z-20">
+                  {heroBanners.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setActiveBannerIdx(i)}
+                      className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                        i === activeBannerIdx ? 'w-5 bg-yellow-400' : 'w-1.5 bg-white/60'
+                      }`}
+                      aria-label={`Slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="relative rounded-2xl bg-gradient-to-r from-slate-950 via-indigo-950 to-blue-900 text-white py-6 sm:py-8 px-5 sm:px-8 overflow-hidden shadow-lg">
+            <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]" />
+
+            <div className="max-w-xl space-y-2.5 sm:space-y-3 relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 bg-yellow-400 text-black text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  <Zap className="w-3 h-3 fill-black" />
+                  BIG SAVINGS DAY
+                </span>
+                <AssuredBadge type="assured" />
+              </div>
+
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight uppercase">
+                India's Favorite <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-rose-300">
+                  Premium Marketplace
+                </span>
+              </h1>
+
+              <p className="text-xs sm:text-sm text-gray-300 font-normal line-clamp-2 max-w-lg">
+                100% genuine fashion & electronics. Same-day dispatch, No-Cost EMI & SuperCoins cashback!
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                <a
+                  href="#lightning-deals"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-4 py-2 rounded-full transition shadow-sm flex items-center gap-1.5"
+                >
+                  <span>Shop Deals</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+                <Link
+                  href="/products"
+                  className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2 rounded-full border border-white/20 transition"
+                >
+                  All Products
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* 3. ⚡ Amazon / Flipkart Lightning Deals (Compact Grid) */}

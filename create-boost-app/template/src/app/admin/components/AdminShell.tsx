@@ -15,6 +15,8 @@ import {
   Database,
   ChevronRight,
   ShieldCheck,
+  FolderTree,
+  Megaphone,
 } from 'lucide-react';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -50,10 +52,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           exact: false,
         },
         {
+          href: '/admin/categories',
+          label: 'Categories & Subs',
+          icon: FolderTree,
+          badge: 'Tree',
+          exact: false,
+        },
+        {
           href: '/admin/orders',
           label: 'Orders & Dispatch',
           icon: ShoppingCart,
           badge: null,
+          exact: false,
+        },
+        {
+          href: '/admin/banners',
+          label: 'Banners & Ads',
+          icon: Megaphone,
+          badge: 'Live',
           exact: false,
         },
       ],

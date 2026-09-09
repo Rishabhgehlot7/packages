@@ -84,4 +84,6 @@ export async function dbConnect(): Promise<typeof mongoose | null> {
   return cached.conn;
 }
 
+export { dbConnect as connectDB };
 export default dbConnect;
+

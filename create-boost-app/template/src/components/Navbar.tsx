@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useStore, getCityFromPincode } from '../context/StoreContext';
 import { BoostSearchEngine } from '@boostengine/search';
 import { PRODUCTS } from '../data/products';
-import { Search, ShoppingBag, Heart, MapPin, Sparkles, X } from 'lucide-react';
+import { Search, ShoppingBag, Heart, MapPin, Sparkles, X, ChevronDown, ChevronRight, FolderTree } from 'lucide-react';
 import { AnnouncementBar, AssuredBadge } from '@boostengine/ui';
 
 export const Navbar: React.FC = () => {
@@ -32,6 +32,27 @@ export const Navbar: React.FC = () => {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [newPincode, setNewPincode] = useState(deliveryLocation.pincode);
   const [newCity, setNewCity] = useState(deliveryLocation.city);
+
+  // Categories & Subcategories State
+  const [categoriesTree, setCategoriesTree] = useState<any[]>([]);
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+  const [hoveredCategory, setHoveredCategory] = useState<any | null>(null);
+
+  React.useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        const data = await res.json();
+        if (data.success && data.data && data.data.length > 0) {
+          setCategoriesTree(data.data);
+          setHoveredCategory(data.data[0]);
+        }
+      } catch (err) {
+        // Fallback
+      }
+    }
+    loadCategories();
+  }, []);
 
   React.useEffect(() => {
     setNewPincode(deliveryLocation.pincode);
@@ -150,6 +171,95 @@ export const Navbar: React.FC = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Categories Mega-Menu Trigger */}
+          {categoriesTree.length > 0 && (
+            <div
+              className="relative hidden sm:block"
+              onMouseEnter={() => setIsMegaMenuOpen(true)}
+              onMouseLeave={() => setIsMegaMenuOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setIsMegaMenuOpen((prev) => !prev)}
+                className="flex items-center gap-1 text-xs font-bold text-gray-700 hover:text-blue-600 px-2 py-1.5 rounded-lg transition cursor-pointer"
+              >
+                <span>Categories</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMegaMenuOpen ? 'rotate-180 text-blue-600' : ''}`} />
+              </button>
+
+              {/* Mega-Menu Panel */}
+              {isMegaMenuOpen && (
+                <div className="absolute top-full left-0 w-[540px] bg-white border border-gray-200/80 rounded-2xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150 flex gap-4">
+                  {/* Left Column: Main Categories */}
+                  <div className="w-1/2 border-r border-gray-100 pr-3 space-y-1 max-h-80 overflow-y-auto">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-2 mb-1">
+                      Collections
+                    </div>
+                    {categoriesTree.map((parentCat) => {
+                      const isHovered = (hoveredCategory?.id || hoveredCategory?._id) === (parentCat.id || parentCat._id);
+                      return (
+                        <div
+                          key={parentCat.id || parentCat._id}
+                          onMouseEnter={() => setHoveredCategory(parentCat)}
+                          className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                            isHovered
+                              ? 'bg-blue-50 text-blue-600 font-bold'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <Link
+                            href={`/products?category=${encodeURIComponent(parentCat.name)}`}
+                            onClick={() => setIsMegaMenuOpen(false)}
+                            className="flex-1 truncate"
+                          >
+                            {parentCat.name}
+                          </Link>
+                          {parentCat.subcategories?.length > 0 && (
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-400 ml-1" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Column: Subcategories */}
+                  <div className="w-1/2 pl-2 space-y-2 max-h-80 overflow-y-auto">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 px-1">
+                      {hoveredCategory ? `${hoveredCategory.name} Sub-Items` : 'Subcategories'}
+                    </div>
+
+                    {hoveredCategory?.subcategories && hoveredCategory.subcategories.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-1">
+                        {hoveredCategory.subcategories.map((sub: any) => (
+                          <Link
+                            key={sub.id || sub._id}
+                            href={`/products?category=${encodeURIComponent(sub.name)}`}
+                            onClick={() => setIsMegaMenuOpen(false)}
+                            className="flex items-center gap-2 p-2 rounded-xl text-xs text-gray-700 hover:text-blue-600 hover:bg-gray-50 font-medium transition"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
+                            <span className="truncate">{sub.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-8 text-center text-xs text-gray-400">
+                        <p className="font-semibold">Direct Collection</p>
+                        <Link
+                          href={`/products?category=${encodeURIComponent(hoveredCategory?.name || '')}`}
+                          onClick={() => setIsMegaMenuOpen(false)}
+                          className="inline-block mt-2 text-[11px] font-bold text-blue-600 hover:underline"
+                        >
+                          View all {hoveredCategory?.name} →
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Catalog Link */}
           <Link
             href="/products"
