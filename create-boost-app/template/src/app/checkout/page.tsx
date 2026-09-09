@@ -51,11 +51,27 @@ export default function CheckoutPage() {
 
   const finalPayable = useSuperCoins ? loyaltyQuote.payableAfterDiscount : cartSummary.finalTotal;
 
+  // Load Razorpay checkout.js dynamically if needed
+  const loadRazorpayScript = () => {
+    return new Promise<boolean>((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   async function handleCompleteOrder(e: React.FormEvent) {
     e.preventDefault();
     try {
       setSubmitting(true);
-      const payload = {
+
+      const basePayload = {
         customer: {
           name: form.name,
           email: form.email,
@@ -81,7 +97,7 @@ export default function CheckoutPage() {
         tax: cartSummary.gst?.totalTax || 0,
         total: finalPayable,
         paymentMethod: form.paymentMethod,
-        paymentStatus: form.paymentMethod === 'cod' ? 'pending' : 'paid',
+        paymentStatus: 'pending',
         orderStatus: 'processing',
         metadata: {
           deliverySpeed,
@@ -90,22 +106,121 @@ export default function CheckoutPage() {
         },
       };
 
-      const res = await fetch('/api/admin/orders', {
+      // COD Flow
+      if (form.paymentMethod === 'cod') {
+        const res = await fetch('/api/admin/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(basePayload),
+        });
+        const data = await res.json();
+        if (data.success) {
+          clearCart();
+          router.push(`/order-success/${data.data.id}`);
+        } else {
+          alert(data.error || 'Failed to place order');
+        }
+        return;
+      }
+
+      // Online Payment Flow via Razorpay
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        alert('Razorpay payment gateway failed to load. Please check your internet connection.');
+        setSubmitting(false);
+        return;
+      }
+
+      // 1. Create order on server
+      const rzpOrderRes = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          amount: finalPayable,
+          receipt: `rcpt_${Date.now()}`,
+          notes: { customerName: form.name, customerEmail: form.email },
+        }),
       });
-      const data = await res.json();
-      if (data.success) {
-        clearCart();
-        router.push(`/order-success/${data.data.id}`);
-      } else {
-        alert(data.error || 'Failed to place order');
+
+      const rzpData = await rzpOrderRes.json();
+      if (!rzpData.success) {
+        throw new Error(rzpData.error || 'Failed to initiate Razorpay transaction');
       }
-    } catch (err) {
+
+      // 2. Pre-create pending order in store DB
+      const orderCreateRes = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...basePayload,
+          razorpayOrderId: rzpData.order.id,
+        }),
+      });
+      const localOrderData = await orderCreateRes.json();
+      const boostOrderId = localOrderData.data?.id || `ord_${Date.now()}`;
+
+      // 3. Launch Razorpay Checkout Popup
+      const options = {
+        key: rzpData.key,
+        amount: rzpData.order.amount,
+        currency: rzpData.order.currency,
+        name: 'Boost D2C Store',
+        description: `Order #${localOrderData.data?.orderNumber || boostOrderId}`,
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=200&q=80',
+        order_id: rzpData.order.id,
+        handler: async function (response: any) {
+          try {
+            // Verify HMAC signature
+            const verifyRes = await fetch('/api/payments/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                boostOrderId,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              clearCart();
+              router.push(`/order-success/${boostOrderId}`);
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (verErr) {
+            console.error('Verification error:', verErr);
+            alert('Error verifying payment.');
+          }
+        },
+        prefill: {
+          name: form.name,
+          email: form.email,
+          contact: form.phone,
+        },
+        notes: {
+          boostOrderId,
+        },
+        theme: {
+          color: '#2563eb',
+        },
+        modal: {
+          ondismiss: function () {
+            setSubmitting(false);
+          },
+        },
+      };
+
+      const razorpayInstance = new (window as any).Razorpay(options);
+      razorpayInstance.on('payment.failed', function (resp: any) {
+        console.error('Payment failed:', resp.error);
+        alert(`Payment failed: ${resp.error.description}`);
+        setSubmitting(false);
+      });
+      razorpayInstance.open();
+    } catch (err: any) {
       console.error(err);
-      alert('Error creating order');
-    } finally {
+      alert(err.message || 'Error processing order');
       setSubmitting(false);
     }
   }
