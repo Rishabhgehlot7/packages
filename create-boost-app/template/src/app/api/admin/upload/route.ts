@@ -13,6 +13,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Maximum 10MB file size limit for enterprise security
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: 'File size exceeds maximum allowed limit (10MB)' },
+        { status: 400 }
+      );
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = file.name || `upload_${Date.now()}.png`;
     const contentType = file.type || 'image/jpeg';
