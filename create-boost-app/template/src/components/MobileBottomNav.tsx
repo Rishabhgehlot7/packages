@@ -22,13 +22,18 @@ export const MobileBottomNav: React.FC = () => {
   return (
     <div className="md:hidden">
       <BoostMobileBottomBar
-        activeTab={pathname === '/' ? 'home' : 'shop'}
+        activeTab={pathname === '/' ? 'home' : pathname === '/wishlist' ? 'wishlist' : 'shop'}
         cartCount={cartSummary.totalQuantity}
         wishlistCount={wishlistItems.length}
         onTabChange={(tabId) => {
           if (tabId === 'home') router.push('/');
+          else if (tabId === 'search') {
+            const el = document.getElementById('catalog');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            else router.push('/#catalog');
+          }
           else if (tabId === 'bag' || tabId === 'cart') setIsCartOpen(true);
-          else if (tabId === 'wishlist') router.push('/#wishlist');
+          else if (tabId === 'wishlist') router.push('/wishlist');
           else if (tabId === 'admin') router.push('/admin');
         }}
       />

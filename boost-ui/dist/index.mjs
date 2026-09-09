@@ -884,6 +884,8 @@ var ProductCard = ({
                 "button",
                 {
                   type: "button",
+                  "aria-label": "Wishlist",
+                  title: isWishlisted ? "Remove from Wishlist" : "Add to Wishlist",
                   onClick: (e) => {
                     e.stopPropagation();
                     onToggleWishlist();

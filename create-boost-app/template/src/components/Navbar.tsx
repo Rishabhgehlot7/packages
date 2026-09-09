@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useStore } from '../context/StoreContext';
+import { useStore, getCityFromPincode } from '../context/StoreContext';
 import { BoostSearchEngine } from '@boostengine/search';
 import { PRODUCTS } from '../data/products';
 import { Search, ShoppingBag, Heart, MapPin, Sparkles, X } from 'lucide-react';
@@ -28,6 +28,20 @@ export const Navbar: React.FC = () => {
   const [newPincode, setNewPincode] = useState(deliveryLocation.pincode);
   const [newCity, setNewCity] = useState(deliveryLocation.city);
 
+  React.useEffect(() => {
+    setNewPincode(deliveryLocation.pincode);
+    setNewCity(deliveryLocation.city);
+  }, [deliveryLocation]);
+
+  const handlePincodeChange = (pin: string) => {
+    const clean = pin.replace(/\D/g, '').slice(0, 6);
+    setNewPincode(clean);
+    if (clean.length === 6) {
+      const detected = getCityFromPincode(clean);
+      setNewCity(detected.city);
+    }
+  };
+
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
     if (!val.trim()) {
@@ -40,8 +54,9 @@ export const Navbar: React.FC = () => {
 
   const handleSaveLocation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPincode.trim() && newCity.trim()) {
-      setDeliveryLocation({ city: newCity.trim(), pincode: newPincode.trim() });
+    if (newPincode.trim()) {
+      const cityToSave = newCity.trim() || getCityFromPincode(newPincode.trim()).city;
+      setDeliveryLocation({ city: cityToSave, pincode: newPincode.trim() });
       setIsLocationModalOpen(false);
     }
   };
@@ -152,7 +167,7 @@ export const Navbar: React.FC = () => {
 
           {/* Wishlist Button */}
           <Link
-            href="/#wishlist"
+            href="/wishlist"
             className="p-2 text-gray-700 hover:text-black hover:bg-gray-50 rounded-full relative transition"
             title="Wishlist"
           >
@@ -219,6 +234,30 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
+      {/* Mobile Location Ribbon (Amazon / Flipkart style: "Deliver to Mumbai 400050 ⌵") */}
+      <div className="sm:hidden px-3 py-1.5 bg-blue-50/70 border-t border-b border-blue-100 flex items-center justify-between text-[11px]">
+        <button
+          type="button"
+          onClick={() => setIsLocationModalOpen(true)}
+          className="flex items-center gap-1.5 text-blue-950 font-bold truncate max-w-[280px]"
+        >
+          <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+          <span>
+            Deliver to{' '}
+            <span className="underline decoration-blue-400 font-extrabold">
+              {deliveryLocation.city} {deliveryLocation.pincode}
+            </span>
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsLocationModalOpen(true)}
+          className="text-[10px] text-blue-600 font-extrabold uppercase hover:underline"
+        >
+          Change
+        </button>
+      </div>
+
       {/* Delivery Location Picker Modal */}
       {isLocationModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -237,33 +276,34 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
             <p className="text-xs text-gray-500">
-              Select delivery location to see product availability and delivery options.
+              Enter your pincode to check instant product availability and 1-day delivery.
             </p>
             <form onSubmit={handleSaveLocation} className="space-y-3">
               <div>
                 <label className="block text-[11px] font-bold text-gray-700 uppercase mb-1">
-                  City
+                  6-Digit Pincode
+                </label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  required
+                  value={newPincode}
+                  onChange={(e) => handlePincodeChange(e.target.value)}
+                  className="w-full text-xs px-3 py-2 border rounded-lg focus:border-blue-600 focus:outline-none"
+                  placeholder="e.g. 400050, 110001, 560001"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 uppercase mb-1">
+                  City / Area (Auto-detected)
                 </label>
                 <input
                   type="text"
                   required
                   value={newCity}
                   onChange={(e) => setNewCity(e.target.value)}
-                  className="w-full text-xs px-3 py-2 border rounded-lg"
+                  className="w-full text-xs px-3 py-2 border rounded-lg focus:border-blue-600 focus:outline-none bg-gray-50"
                   placeholder="e.g. Mumbai, Delhi, Bengaluru"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-bold text-gray-700 uppercase mb-1">
-                  Pincode
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newPincode}
-                  onChange={(e) => setNewPincode(e.target.value)}
-                  className="w-full text-xs px-3 py-2 border rounded-lg"
-                  placeholder="6 digit pincode"
                 />
               </div>
               <button

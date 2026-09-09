@@ -13,7 +13,7 @@ import {
   LightningDealsBar,
   AssuredBadge,
 } from '@boostengine/ui';
-import { Flame, Sparkles, Zap, ArrowRight, Tag } from 'lucide-react';
+import { Flame, Sparkles, Zap, ArrowRight, Tag, Heart } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
@@ -147,7 +147,24 @@ export default function HomePage() {
                     <span className="bg-red-600 text-white text-[9px] sm:text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
                       {discountPercent}% OFF
                     </span>
-                    <span className="text-[10px] font-bold text-blue-600 hidden sm:inline">Assured</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-blue-600 hidden sm:inline">Assured</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(product.id);
+                        }}
+                        className="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition"
+                        title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                        aria-label="Wishlist"
+                      >
+                        <Heart
+                          size={15}
+                          className={isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-400'}
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   <div

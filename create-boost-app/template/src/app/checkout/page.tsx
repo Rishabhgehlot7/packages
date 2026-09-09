@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStore } from '../../context/StoreContext';
+import { useStore, getCityFromPincode } from '../../context/StoreContext';
 import { LoyaltyEngine } from '@boostengine/loyalty';
 import { AssuredBadge } from '@boostengine/ui';
 import { ShieldCheck, Truck, CreditCard, ArrowLeft, Zap, Sparkles, Check } from 'lucide-react';
@@ -10,21 +10,35 @@ import Link from 'next/link';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, cartSummary, clearCart, superCoins, customerTier, deliveryLocation } = useStore();
+  const { cart, cartSummary, clearCart, superCoins, customerTier, deliveryLocation, setDeliveryLocation } = useStore();
   const [submitting, setSubmitting] = useState(false);
   const [useSuperCoins, setUseSuperCoins] = useState(true);
   const [deliverySpeed, setDeliverySpeed] = useState<'express' | 'standard'>('express');
+
+  const initialGeo = deliveryLocation?.pincode ? getCityFromPincode(deliveryLocation.pincode) : { city: 'Mumbai', state: 'Maharashtra' };
 
   const [form, setForm] = useState({
     name: 'Aarav Mehta',
     phone: '9876543210',
     email: 'aarav@example.com',
     line1: 'Flat 402, Sea Breeze Apts, Bandra West',
-    city: deliveryLocation.city || 'Mumbai',
-    state: 'Maharashtra',
+    city: deliveryLocation.city || initialGeo.city,
+    state: initialGeo.state,
     pincode: deliveryLocation.pincode || '400050',
     paymentMethod: 'razorpay' as 'razorpay' | 'cod' | 'upi',
   });
+
+  React.useEffect(() => {
+    if (deliveryLocation?.pincode) {
+      const geo = getCityFromPincode(deliveryLocation.pincode);
+      setForm((prev) => ({
+        ...prev,
+        city: deliveryLocation.city || geo.city,
+        state: geo.state || prev.state,
+        pincode: deliveryLocation.pincode,
+      }));
+    }
+  }, [deliveryLocation]);
 
   if (cartSummary.totalQuantity === 0) {
     return (
@@ -326,9 +340,19 @@ export default function CheckoutPage() {
                   <label className="block text-[11px] font-bold text-gray-700 uppercase mb-1">Pincode</label>
                   <input
                     type="text"
+                    maxLength={6}
                     required
                     value={form.pincode}
-                    onChange={(e) => setForm({ ...form, pincode: e.target.value })}
+                    onChange={(e) => {
+                      const pin = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      if (pin.length === 6) {
+                        const detected = getCityFromPincode(pin);
+                        setForm((prev) => ({ ...prev, pincode: pin, city: detected.city, state: detected.state }));
+                        setDeliveryLocation({ city: detected.city, pincode: pin });
+                      } else {
+                        setForm((prev) => ({ ...prev, pincode: pin }));
+                      }
+                    }}
                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-blue-600"
                   />
                 </div>

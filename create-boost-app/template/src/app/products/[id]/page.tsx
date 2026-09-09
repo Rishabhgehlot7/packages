@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { PRODUCTS, StoreProduct } from '../../../data/products';
-import { useStore } from '../../../context/StoreContext';
+import { useStore, getCityFromPincode } from '../../../context/StoreContext';
 import { RecommendationsEngine } from '@boostengine/recommendations';
 import {
   PincodeChecker,
@@ -42,6 +42,7 @@ export default function ProductDetailPage({
     inventory,
     addBundleToCart,
     deliveryLocation,
+    setDeliveryLocation,
   } = useStore();
 
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
@@ -247,17 +248,19 @@ export default function ProductDetailPage({
             <PincodeChecker
               defaultPincode={deliveryLocation.pincode}
               onCheck={(pin) => {
+                const detected = getCityFromPincode(pin);
+                setDeliveryLocation({ city: detected.city, pincode: pin });
                 const num = parseInt(pin, 10);
                 if (num >= 400001 && num <= 400099) {
                   return {
                     isServiceable: true,
-                    estimatedDeliveryDate: 'Tomorrow, by 11 PM (Prime 1-Day)',
+                    estimatedDeliveryDate: `Tomorrow, by 11 PM to ${detected.city} (Prime 1-Day)`,
                     isCodAvailable: true,
                   };
                 }
                 return {
                   isServiceable: true,
-                  estimatedDeliveryDate: '2-3 business days',
+                  estimatedDeliveryDate: `2-3 business days to ${detected.city}`,
                   isCodAvailable: true,
                 };
               }}
