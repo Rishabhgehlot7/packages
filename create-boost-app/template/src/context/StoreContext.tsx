@@ -213,16 +213,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const addToCart = (product: StoreProduct, variantId?: string, quantity = 1) => {
     let sku = product.sku;
-    let price = product.price;
-    let title = product.title;
+    let price = product.salePrice || product.price;
+    let title = product.name || product.title;
     let variantTitle: string | undefined;
+    let itemImage = (product.images && product.images[0]) || product.media?.[0]?.url || '';
 
     if (variantId && product.variants) {
-      const v = product.variants.find((item) => item.id === variantId);
+      const v = product.variants.find((item) => item.id === variantId || item.sku === variantId);
       if (v) {
         sku = v.sku;
-        price = v.price;
-        variantTitle = v.title;
+        price = v.salePrice || v.price;
+        variantTitle = v.title || v.name || v.options?.map((o) => o.value).join(' / ');
+        if (v.images && v.images.length > 0 && v.images[0]) {
+          itemImage = v.images[0];
+        }
       }
     }
 
@@ -230,13 +234,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       id: `${product.id}_${variantId || 'default'}`,
       productId: product.id,
       variantId,
+      variantSku: sku,
+      variantName: variantTitle,
       title,
       variantTitle,
       price,
       quantity,
-      taxRate: product.taxRate || 18,
+      taxRate: product.gstRate || product.taxRate || 18,
       hsnCode: product.hsnCode || '6109',
-      image: product.images[0],
+      image: itemImage,
       metadata: { sku },
     } as any);
 
@@ -309,9 +315,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       wishlist.addItem({
         id: prod.id,
         productId: prod.id,
-        title: prod.title,
-        price: prod.price,
-        image: prod.images[0],
+        title: prod.title || prod.name || '',
+        price: prod.salePrice || prod.price,
+        image: prod.images?.[0] || prod.media?.[0]?.url || '',
         inStock: prod.inStock,
       });
     }

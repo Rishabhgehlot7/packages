@@ -1,37 +1,69 @@
 export interface StoreProduct {
   id: string;
   title: string;
+  name?: string;
+  slug?: string;
   description: string;
+  shortDescription?: string;
   price: number;
+  salePrice?: number;
   compareAtPrice: number;
   brand: string;
   category: string;
   tags: string[];
   images: string[];
+  media?: Array<{ type: 'image' | 'video'; url: string }>;
   inStock: boolean;
+  isActive?: boolean;
+  isDeleted?: boolean;
   hsnCode: string;
   taxRate: number;
+  gstRate?: number;
   sku: string;
+  weight?: number;
+  dimensions?: { length: number; width: number; height: number };
+  highlights?: string[];
+  warrantyYears?: number;
+  featureBanners?: Array<{ image: string; displayOrder?: number }>;
+  upsellProducts?: string[];
+  upsellItems?: Array<{
+    product: string;
+    variantSku?: string;
+    discountType?: 'percentage' | 'fixed_price';
+    discountValue?: number;
+  }>;
+  checkoutDealConfig?: {
+    variantSku?: string;
+    discountType?: 'percentage' | 'fixed_price';
+    discountValue?: number;
+  } | null;
   rating: {
     value: number;
     count: number;
   };
   variants?: Array<{
     id: string;
-    title: string;
+    title?: string;
+    name?: string;
     sku: string;
     price: number;
-    compareAtPrice: number;
+    salePrice?: number;
+    compareAtPrice?: number;
     stock: number;
-    attributes: Record<string, string>;
+    images?: string[];
+    options?: Array<{ name: string; value: string }>;
+    attributes?: Record<string, string>;
+    weight?: number;
+    dimensions?: { length: number; width: number; height: number };
   }>;
   reviews?: Array<{
     id: string;
     author: string;
     rating: number;
-    body: string;
-    verifiedBuyer: boolean;
-    createdAt: string;
+    body?: string;
+    comment?: string;
+    verifiedBuyer?: boolean;
+    createdAt?: string;
   }>;
 }
 

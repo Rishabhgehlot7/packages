@@ -2,11 +2,16 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IOrderItem {
   productId: string;
+  variantId?: string;
+  variantSku?: string;
+  variantName?: string;
   title: string;
   sku: string;
   price: number;
   quantity: number;
   image?: string;
+  gstRate?: number;
+  hsnCode?: string;
 }
 
 export interface IOrderDocument extends Document {
@@ -46,11 +51,16 @@ export interface IOrderDocument extends Document {
 const OrderItemSchema = new Schema<IOrderItem>(
   {
     productId: { type: String, required: true },
+    variantId: { type: String, default: '' },
+    variantSku: { type: String, default: '' },
+    variantName: { type: String, default: '' },
     title: { type: String, required: true },
     sku: { type: String, default: '' },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true, default: 1 },
     image: { type: String, default: '' },
+    gstRate: { type: Number, default: 18 },
+    hsnCode: { type: String, default: '6109' },
   },
   { _id: false }
 );

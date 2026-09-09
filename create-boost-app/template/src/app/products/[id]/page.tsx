@@ -51,20 +51,24 @@ export default function ProductDetailPage({
   const [quantity, setQuantity] = useState<number>(1);
   const isWishlisted = wishlistItems.some((w) => w.productId === product.id);
 
-  const currentVariant = product.variants?.find((v) => v.id === selectedVariantId);
-  const currentPrice = currentVariant ? currentVariant.price : product.price;
-  const currentComparePrice = currentVariant ? currentVariant.compareAtPrice : product.compareAtPrice;
+  const currentVariant = product.variants?.find((v) => v.id === selectedVariantId || v.sku === selectedVariantId);
+  const currentPrice = currentVariant ? (currentVariant.salePrice || currentVariant.price) : (product.salePrice || product.price);
+  const currentComparePrice = currentVariant ? (currentVariant.compareAtPrice || currentVariant.price) : (product.compareAtPrice || product.price);
   const currentSku = currentVariant ? currentVariant.sku : product.sku;
   const stockLevel = inventory.getStock(currentSku);
   const stockQty = stockLevel ? stockLevel.quantity : (product.inStock ? 10 : 0);
 
+  const galleryImages = (currentVariant?.images && currentVariant.images.length > 0)
+    ? currentVariant.images
+    : (product.images?.length > 0 ? product.images : (product.media?.map(m => m.url) || []));
+
   // Compute Frequently Bought Together combo using @boostengine/recommendations
   const catalogRecItems = PRODUCTS.map((p) => ({
     id: p.id,
-    title: p.title,
-    price: p.price,
+    title: p.title || p.name || '',
+    price: p.salePrice || p.price,
     compareAtPrice: p.compareAtPrice,
-    imageUrl: p.images[0],
+    imageUrl: p.images[0] || p.media?.[0]?.url || '',
     category: p.category,
     rating: p.rating?.value || 4.5,
     tags: p.tags,
@@ -72,9 +76,9 @@ export default function ProductDetailPage({
 
   const mainRecItem = {
     id: product.id,
-    title: product.title,
+    title: product.title || product.name || '',
     price: currentPrice,
-    imageUrl: product.images[0],
+    imageUrl: galleryImages[0] || product.images[0] || '',
     category: product.category,
     rating: product.rating?.value || 4.5,
     tags: product.tags,
@@ -109,7 +113,7 @@ export default function ProductDetailPage({
           className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-black transition"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span className="truncate max-w-[280px] sm:max-w-md">Home / {product.category} / {product.title}</span>
+          <span className="truncate max-w-[280px] sm:max-w-md">Home / {product.category} / {product.title || product.name}</span>
         </Link>
       </div>
 
@@ -117,22 +121,27 @@ export default function ProductDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left Column: Gallery (Sticky on Big Screens like Amazon/Flipkart) */}
         <div className="lg:col-span-6 space-y-3 lg:sticky lg:top-20 self-start">
-          <ProductGallery images={product.images} />
+          <ProductGallery images={galleryImages} />
         </div>
 
         {/* Right Column: Information & Actions */}
         <div className="lg:col-span-6 space-y-3.5 sm:space-y-4">
           {/* Brand, Title & Assured Badge */}
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                 {product.brand}
               </span>
               <AssuredBadge type="assured" />
+              {product.warrantyYears && product.warrantyYears > 0 && (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  🛡️ {product.warrantyYears >= 99 ? 'Lifetime Warranty' : `${product.warrantyYears} Year${product.warrantyYears > 1 ? 's' : ''} Warranty`}
+                </span>
+              )}
             </div>
 
             <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-gray-950 tracking-tight">
-              {product.title}
+              {product.title || product.name}
             </h1>
 
             {product.rating && (
@@ -182,20 +191,39 @@ export default function ProductDetailPage({
                 Select Option / Color
               </label>
               <div className="flex flex-wrap gap-2">
-                {product.variants.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setSelectedVariantId(v.id)}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-bold border transition ${
-                      selectedVariantId === v.id
-                        ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
-                        : 'border-gray-200 hover:border-gray-400 text-gray-800'
-                    }`}
-                  >
-                    {v.title}
-                  </button>
-                ))}
+                {product.variants.map((v) => {
+                  const label = v.title || v.name || v.options?.map((o) => o.value).join(' / ') || v.sku;
+                  const isSelected = selectedVariantId === v.id || selectedVariantId === v.sku;
+                  return (
+                    <button
+                      key={v.id || v.sku}
+                      onClick={() => setSelectedVariantId(v.id || v.sku)}
+                      className={`px-3.5 py-2 rounded-lg text-xs font-bold border transition ${
+                        isSelected
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
+                          : 'border-gray-200 hover:border-gray-400 text-gray-800'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
+          )}
+
+          {/* Key Highlights */}
+          {product.highlights && product.highlights.length > 0 && (
+            <div className="space-y-2 border-t border-gray-100 pt-4">
+              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Key Highlights</h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700">
+                {product.highlights.map((h, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -292,6 +320,19 @@ export default function ProductDetailPage({
           }}
         />
       </section>
+
+      {/* Feature Banners Showcase */}
+      {product.featureBanners && product.featureBanners.length > 0 && (
+        <section className="space-y-4 pt-4 border-t border-gray-100">
+          <div className="space-y-4">
+            {product.featureBanners.map((banner, idx) => (
+              <div key={idx} className="w-full rounded-2xl overflow-hidden border border-gray-100 shadow-xs">
+                <img src={banner.image} alt={`Feature ${idx + 1}`} className="w-full h-auto object-cover" />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Ratings & Customer Reviews Breakdown */}
       <section className="space-y-6 pt-4 border-t border-gray-100">

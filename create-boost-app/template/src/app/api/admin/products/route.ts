@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
+import Category from '@/models/Category';
 import { db } from '@/data/db';
 import { StoreProduct, PRODUCTS as INITIAL_PRODUCTS } from '@/data/products';
 
@@ -36,18 +37,59 @@ export async function GET(request: Request) {
         if (query) {
           filter.$or = [
             { title: { $regex: query, $options: 'i' } },
+            { name: { $regex: query, $options: 'i' } },
             { brand: { $regex: query, $options: 'i' } },
             { tags: { $in: [new RegExp(query, 'i')] } },
           ];
         }
 
         const mongoProducts = await Product.find(filter).sort({ createdAt: -1 }).lean();
+        let catMap = new Map<string, string>();
+        try {
+          const allCats = await Category.find({}).lean();
+          allCats.forEach((c: any) => {
+            if (c._id && c.name) {
+              catMap.set(c._id.toString(), c.name);
+            }
+          });
+        } catch (catErr) {
+          // ignore
+        }
+
+        const normalized = mongoProducts.map((p: any) => {
+          let categoryName = p.category;
+          if (typeof p.category === 'object' && p.category?.name) {
+            categoryName = p.category.name;
+          } else if (p.category && catMap.has(p.category.toString())) {
+            categoryName = catMap.get(p.category.toString());
+          }
+
+          return {
+            ...p,
+            id: p.id || p._id?.toString(),
+            title: p.title || p.name || 'Untitled Product',
+            name: p.name || p.title || 'Untitled Product',
+            category: categoryName || 'General',
+            price: p.salePrice || p.price || 0,
+            compareAtPrice: p.compareAtPrice || (p.salePrice ? p.price : 0),
+            images: (p.images && p.images.length > 0) ? p.images : (p.media?.map((m: any) => m.url) || []),
+            variants: p.variants?.map((v: any) => ({
+              ...v,
+              id: v.id || v.sku,
+              title: v.title || v.name || v.options?.map((o: any) => o.value).join(' / ') || v.sku,
+              name: v.name || v.title || v.sku,
+              price: v.salePrice || v.price,
+              compareAtPrice: v.compareAtPrice || (v.salePrice ? v.price : 0),
+              images: v.images || [],
+            })) || [],
+          };
+        });
         if (mongoProducts && mongoProducts.length > 0) {
           return NextResponse.json({
             success: true,
             source: 'mongodb',
-            count: mongoProducts.length,
-            data: mongoProducts,
+            count: normalized.length,
+            data: normalized,
           });
         }
       }
@@ -89,19 +131,31 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    if (!body.title || !body.price) {
+    const title = body.title || body.name;
+    const price = Number(body.price || body.salePrice);
+
+    if (!title || !price) {
       return NextResponse.json(
-        { success: false, error: 'Title and price are required.' },
+        { success: false, error: 'Title (or Name) and price are required.' },
         { status: 400 }
       );
     }
 
+    const images =
+      Array.isArray(body.images) && body.images.length > 0
+        ? body.images
+        : Array.isArray(body.media) && body.media.length > 0
+        ? body.media.map((m: any) => m.url)
+        : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'];
+
     const newProduct: StoreProduct = {
       id: body.id || `prod_${Date.now()}`,
-      title: body.title,
+      title,
+      name: title,
       description: body.description || '',
-      price: Number(body.price),
-      compareAtPrice: Number(body.compareAtPrice || body.price),
+      price,
+      salePrice: body.salePrice ? Number(body.salePrice) : undefined,
+      compareAtPrice: Number(body.compareAtPrice || (body.salePrice ? price : price)),
       brand: body.brand || 'Boost Brand',
       category: body.category || 'General',
       tags: Array.isArray(body.tags)
@@ -109,17 +163,22 @@ export async function POST(request: Request) {
         : body.tags
         ? body.tags.split(',').map((t: string) => t.trim())
         : [],
-      images:
-        Array.isArray(body.images) && body.images.length > 0
-          ? body.images
-          : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'],
+      images,
+      media: Array.isArray(body.media) && body.media.length > 0 ? body.media : images.map((url: string) => ({ type: 'image', url })),
       inStock: body.inStock ?? true,
       hsnCode: body.hsnCode || '6109',
       taxRate: Number(body.taxRate || 18),
+      gstRate: Number(body.gstRate || body.taxRate || 18),
       sku: body.sku || `SKU-${Date.now().toString().slice(-6)}`,
       rating: body.rating || { value: 5.0, count: 1 },
       variants: body.variants || [],
       reviews: body.reviews || [],
+      highlights: body.highlights || [],
+      warrantyYears: body.warrantyYears ? Number(body.warrantyYears) : 0,
+      featureBanners: body.featureBanners || [],
+      upsellProducts: body.upsellProducts || [],
+      upsellItems: body.upsellItems || [],
+      checkoutDealConfig: body.checkoutDealConfig || null,
     };
 
     // Save to MongoDB if available
@@ -128,8 +187,8 @@ export async function POST(request: Request) {
       if (conn && Product) {
         const slug =
           body.slug ||
-          (body.title
-            ? body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+          (title
+            ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
             : newProduct.id) + `-${Date.now().toString().slice(-4)}`;
         await Product.create({
           ...newProduct,

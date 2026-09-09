@@ -57,15 +57,20 @@ export default function AdminProductsPage() {
     }
   }
 
-  const categories = ['All', ...Array.from(new Set(products.map((p) => p.category)))];
+  const categories = ['All', ...Array.from(new Set(products.map((p) => p.category || 'General').filter(Boolean)))];
 
   const filtered = products.filter((p) => {
-    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || (p.category || 'General') === selectedCategory;
+    const titleStr = (p.title || (p as any).name || '').toLowerCase();
+    const skuStr = (p.sku || (p.variants?.[0]?.sku) || '').toLowerCase();
+    const brandStr = (p.brand || '').toLowerCase();
+    const q = search.toLowerCase();
+
     const matchesSearch =
       search === '' ||
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase());
+      titleStr.includes(q) ||
+      skuStr.includes(q) ||
+      brandStr.includes(q);
     return matchesCategory && matchesSearch;
   });
 
@@ -181,11 +186,11 @@ export default function AdminProductsPage() {
 
                       <td className="py-4 px-5">
                         <span className="text-white font-black text-xs block">
-                          ₹{product.price.toLocaleString('en-IN')}
+                          ₹{product.price?.toLocaleString('en-IN') || 0}
                         </span>
                         {product.compareAtPrice && product.compareAtPrice > product.price ? (
                           <span className="text-[10px] text-slate-500 line-through">
-                            ₹{product.compareAtPrice.toLocaleString('en-IN')}
+                            ₹{product.compareAtPrice?.toLocaleString('en-IN') || 0}
                           </span>
                         ) : null}
                       </td>
@@ -274,11 +279,11 @@ export default function AdminProductsPage() {
                       </div>
                       <div className="flex items-baseline gap-1.5 pt-0.5">
                         <span className="text-white font-black text-xs">
-                          ₹{product.price.toLocaleString('en-IN')}
+                          ₹{product.price?.toLocaleString('en-IN') || 0}
                         </span>
                         {product.compareAtPrice && product.compareAtPrice > product.price ? (
                           <span className="text-[10px] text-slate-500 line-through">
-                            ₹{product.compareAtPrice.toLocaleString('en-IN')}
+                            ₹{product.compareAtPrice?.toLocaleString('en-IN') || 0}
                           </span>
                         ) : null}
                       </div>
