@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useStore, getCityFromPincode } from '../context/StoreContext';
 import { BoostSearchEngine } from '@boostengine/search';
 import { PRODUCTS } from '../data/products';
@@ -11,6 +11,11 @@ import { AnnouncementBar, AssuredBadge } from '@boostengine/ui';
 
 export const Navbar: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
   const {
     cartSummary,
     setIsCartOpen,
