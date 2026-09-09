@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { RazorpayAdapter } from '@boostengine/payments';
 import dbConnect from '@/lib/db';
 import Order from '@/models/Order';
 import { db } from '@/data/db';
@@ -17,24 +17,27 @@ export async function POST(request: Request) {
       );
     }
 
+    const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-    if (!keySecret) {
+
+    if (!keyId || !keySecret) {
       return NextResponse.json(
-        { success: false, error: 'RAZORPAY_KEY_SECRET is not configured.' },
+        { success: false, error: 'RAZORPAY credentials are not configured.' },
         { status: 500 }
       );
     }
 
-    const payload = `${razorpay_order_id}|${razorpay_payment_id}`;
-    const expectedSignature = crypto
-      .createHmac('sha256', keySecret)
-      .update(payload)
-      .digest('hex');
+    // Direct cryptographic verification via @boostengine/payments
+    const adapter = new RazorpayAdapter({ keyId, keySecret });
+    const verification = await adapter.verifyPayment({
+      gateway: 'razorpay',
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      signature: razorpay_signature,
+    });
 
-    const isVerified = expectedSignature === razorpay_signature;
-
-    if (!isVerified) {
-      console.error('❌ Razorpay signature mismatch', { expectedSignature, razorpay_signature });
+    if (!verification.isSuccessful) {
+      console.error('❌ Razorpay signature mismatch via @boostengine/payments');
       return NextResponse.json(
         { success: false, error: 'Payment signature verification failed' },
         { status: 400 }
@@ -80,7 +83,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       verified: true,
-      message: 'Payment verified successfully',
+      data: verification,
+      message: 'Payment verified successfully via @boostengine/payments',
     });
   } catch (error: any) {
     console.error('Payment Verification Error:', error);

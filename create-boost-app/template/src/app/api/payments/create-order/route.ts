@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import Razorpay from 'razorpay';
+import { RazorpayAdapter } from '@boostengine/payments';
 
 export async function POST(request: Request) {
   try {
@@ -22,28 +22,29 @@ export async function POST(request: Request) {
       );
     }
 
-    const instance = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    });
+    // Direct instantiation of @boostengine/payments RazorpayAdapter
+    const adapter = new RazorpayAdapter({ keyId, keySecret });
 
-    const options = {
-      amount: Math.round(amount * 100), // In paise
+    const orderResult = await adapter.createOrder({
+      amount,
       currency: 'INR',
       receipt: receipt || `rcpt_${Date.now()}`,
+      customer: {
+        name: notes?.customerName || 'Customer',
+        email: notes?.customerEmail || 'customer@example.com',
+        phone: notes?.customerPhone || '9876543210',
+      },
       notes: notes || {},
-    };
-
-    const razorpayOrder = await instance.orders.create(options);
+    });
 
     return NextResponse.json({
       success: true,
       key: keyId,
       order: {
-        id: razorpayOrder.id,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
-        receipt: razorpayOrder.receipt,
+        id: orderResult.gatewayOrderId,
+        amount: Math.round(orderResult.amount * 100),
+        currency: orderResult.currency,
+        receipt: orderResult.orderId,
       },
     });
   } catch (error: any) {
