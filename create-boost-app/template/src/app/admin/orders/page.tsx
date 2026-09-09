@@ -190,8 +190,8 @@ export default function AdminOrdersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {filteredOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-slate-800/30 transition">
+                  {filteredOrders.map((order, idx) => (
+                    <tr key={order.id || order.orderNumber || (order as any)._id || idx} className="hover:bg-slate-800/30 transition">
                       <td className="py-4 px-5">
                         <span className="font-mono font-black text-indigo-400 text-xs block">
                           {order.orderNumber}
@@ -288,8 +288,8 @@ export default function AdminOrdersPage() {
 
             {/* Mobile Cards View (< 768px) */}
             <div className="md:hidden divide-y divide-slate-800/60">
-              {filteredOrders.map((order) => (
-                <div key={order.id} className="p-4 space-y-3">
+              {filteredOrders.map((order, idx) => (
+                <div key={order.id || order.orderNumber || (order as any)._id || idx} className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="font-mono text-xs font-black text-indigo-400 block">

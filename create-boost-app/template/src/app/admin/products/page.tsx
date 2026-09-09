@@ -149,8 +149,8 @@ export default function AdminProductsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {filtered.map((product) => (
-                    <tr key={product.id} className="hover:bg-slate-800/30 transition">
+                  {filtered.map((product, idx) => (
+                    <tr key={product.id || (product as any)._id || (product as any).slug || product.sku || idx} className="hover:bg-slate-800/30 transition">
                       <td className="py-4 px-5 flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-700/60">
                           {product.images?.[0] ? (
@@ -248,8 +248,8 @@ export default function AdminProductsPage() {
 
             {/* Mobile Cards (< 768px) */}
             <div className="md:hidden divide-y divide-slate-800/60">
-              {filtered.map((product) => (
-                <div key={product.id} className="p-4 space-y-3">
+              {filtered.map((product, idx) => (
+                <div key={product.id || (product as any)._id || (product as any).slug || product.sku || idx} className="p-4 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-14 h-14 rounded-xl bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-700/60">
                       {product.images?.[0] ? (

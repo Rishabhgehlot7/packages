@@ -245,8 +245,8 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-slate-800/30 transition">
+                  {recentOrders.map((order, idx) => (
+                    <tr key={order.id || order.orderNumber || (order as any)._id || idx} className="hover:bg-slate-800/30 transition">
                       <td className="py-3.5 px-5 font-mono font-bold text-indigo-400">
                         {order.orderNumber}
                       </td>
@@ -299,8 +299,8 @@ export default function AdminDashboardPage() {
 
             {/* Mobile Cards View (< 640px) */}
             <div className="sm:hidden divide-y divide-slate-800/60">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="p-4 space-y-2.5">
+              {recentOrders.map((order, idx) => (
+                <div key={order.id || order.orderNumber || (order as any)._id || idx} className="p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-black text-indigo-400">
                       {order.orderNumber}
