@@ -8,6 +8,7 @@ export interface CartItem {
   compareAtPrice?: number;
   quantity: number;
   image?: string;
+  sku?: string;
   weightGrams?: number;
   hsnCode?: string;
   taxRate?: number; // GST rate percentage (e.g., 0, 5, 12, 18, 28). Default: 18

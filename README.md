@@ -5,10 +5,12 @@
 
 ---
 
-## 📦 The 15 Core Packages
+## 📦 The Core Ecosystem & Micro-Packages
 
 | # | Package Name | NPM Link | Key Responsibilities |
 |---|---|---|---|
+| **Core** | [`@boostengine/core`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-core) | `npm i @boostengine/core` | WordPress/Shopify-style modular plugin runtime, Action/Filter dispatch system & lifecycle events |
+| **CLI** | [`create-boost-app`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/create-boost-app) | `npx create-boost-app` | 1-command generator for launching production-ready Next.js D2C eCommerce store & admin |
 | 1 | [`@boostengine/analytics`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-analytics) | `npm i @boostengine/analytics` | Meta Pixel, GA4, GTM, TikTok, Pinterest unified tracking + React hydration |
 | 2 | [`@boostengine/collections`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-collections) | `npm i @boostengine/collections` | Official Postman v2.1 collections & envs for 9 platforms with sync CLI |
 | 3 | [`@boostengine/payments`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-payments) | `npm i @boostengine/payments` | Razorpay, Cashfree, PhonePe, Paytm, Stripe, COD with subunit amount normalization & Next.js webhook helper |
@@ -27,10 +29,10 @@
 
 ---
 
-## ⚡ 1-Click Install Complete Suite
+## ⚡ 1-Click Store Generation with npx
 
 ```bash
-npm install @boostengine/analytics @boostengine/collections @boostengine/payments @boostengine/shipping @boostengine/notifications @boostengine/coupons @boostengine/auth @boostengine/cart @boostengine/seo @boostengine/reviews @boostengine/ui @boostengine/invoicing @boostengine/search @boostengine/wishlist @boostengine/inventory
+npx create-boost-app my-new-store
 ```
 
 ---

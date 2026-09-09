@@ -9,7 +9,7 @@ export interface SearchableProduct {
   tags?: string[];
   attributes?: Record<string, string | string[]>; // e.g. size: ['S', 'M', 'L'], color: 'Black'
   inStock: boolean;
-  rating?: number;
+  rating?: number | { value: number; count?: number };
   createdAt?: string;
   [key: string]: any;
 }

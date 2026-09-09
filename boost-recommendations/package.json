@@ -1,0 +1,36 @@
+{
+  "name": "@boostengine/recommendations",
+  "version": "1.0.0",
+  "description": "Amazon & Flipkart-style Frequently Bought Together bundles, Cross-sell, and Personalized AI recommendations for BoostEngine",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "node test-suite.cjs"
+  },
+  "keywords": [
+    "recommendations",
+    "frequently-bought-together",
+    "cross-sell",
+    "upsell",
+    "ecommerce",
+    "boostengine"
+  ],
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

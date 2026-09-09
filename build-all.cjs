@@ -3,6 +3,9 @@ const path = require('path');
 const fs = require('fs');
 
 const packages = [
+  'boost-core',
+  'boost-analytics',
+  'boost-collections',
   'boost-payments',
   'boost-shipping',
   'boost-notifications',
@@ -15,11 +18,14 @@ const packages = [
   'boost-search',
   'boost-wishlist',
   'boost-inventory',
+  'boost-deals',
+  'boost-recommendations',
+  'boost-loyalty',
   'boost-ui',
 ];
 
 console.log('=======================================================');
-console.log('  Building and Testing All 15 @boostengine Packages');
+console.log('  Building and Testing All 19 @boostengine Packages');
 console.log('=======================================================\n');
 
 let failed = [];

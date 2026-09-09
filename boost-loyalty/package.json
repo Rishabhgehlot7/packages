@@ -1,0 +1,36 @@
+{
+  "name": "@boostengine/loyalty",
+  "version": "1.0.0",
+  "description": "Amazon Pay Rewards & Flipkart SuperCoins loyalty rewards engine for BoostEngine",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "node test-suite.cjs"
+  },
+  "keywords": [
+    "loyalty",
+    "supercoins",
+    "rewards",
+    "amazon-pay",
+    "cashback",
+    "boostengine"
+  ],
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

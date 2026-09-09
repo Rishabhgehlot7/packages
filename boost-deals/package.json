@@ -1,0 +1,35 @@
+{
+  "name": "@boostengine/deals",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Lightning Deals, Flash Sales, and Countdown Timers for BoostEngine",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "node test-suite.cjs"
+  },
+  "keywords": [
+    "deals",
+    "lightning-deals",
+    "flash-sale",
+    "countdown",
+    "boostengine"
+  ],
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

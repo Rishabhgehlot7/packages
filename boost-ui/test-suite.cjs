@@ -18,14 +18,26 @@ function test(name, fn) {
   }
 }
 
-// Test 1: All Components Exported
-test('Verify all 6 core eCommerce components are exported', () => {
+// Test 1: All 15 eCommerce Components Exported
+test('Verify all 15 core eCommerce components are exported', () => {
+  // Original 6
   assert.ok(ui.CartDrawer, 'CartDrawer must be exported');
   assert.ok(ui.StickyAddToCart, 'StickyAddToCart must be exported');
   assert.ok(ui.PincodeChecker, 'PincodeChecker must be exported');
   assert.ok(ui.TrustBadges, 'TrustBadges must be exported');
   assert.ok(ui.OrderTimeline, 'OrderTimeline must be exported');
   assert.ok(ui.StarRating, 'StarRating must be exported');
+
+  // Newly Added Catalog & Layout Components
+  assert.ok(ui.ProductGallery, 'ProductGallery must be exported');
+  assert.ok(ui.VariantSelector, 'VariantSelector must be exported');
+  assert.ok(ui.ProductCard, 'ProductCard must be exported');
+  assert.ok(ui.QuantitySelector, 'QuantitySelector must be exported');
+  assert.ok(ui.ReviewBreakdownBars, 'ReviewBreakdownBars must be exported');
+  assert.ok(ui.AnnouncementBar, 'AnnouncementBar must be exported');
+  assert.ok(ui.Navbar, 'Navbar must be exported');
+  assert.ok(ui.Footer, 'Footer must be exported');
+  assert.ok(ui.MobileBottomBar, 'MobileBottomBar must be exported');
 });
 
 // Test 2: Next.js Client Directive Banner Check
@@ -40,7 +52,9 @@ test('Verify DTS declaration file exists and is populated', () => {
   assert.ok(fs.existsSync(dtsPath), 'dist/index.d.ts must exist');
   const dtsContent = fs.readFileSync(dtsPath, 'utf-8');
   assert.ok(dtsContent.includes('CartDrawer'));
-  assert.ok(dtsContent.includes('StickyAddToCart'));
+  assert.ok(dtsContent.includes('ProductGallery'));
+  assert.ok(dtsContent.includes('Navbar'));
+  assert.ok(dtsContent.includes('Footer'));
 });
 
 console.log(`\n🎉 All ${passed} tests in @boostengine/ui passed successfully!\n`);

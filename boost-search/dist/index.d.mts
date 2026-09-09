@@ -9,7 +9,10 @@ interface SearchableProduct {
     tags?: string[];
     attributes?: Record<string, string | string[]>;
     inStock: boolean;
-    rating?: number;
+    rating?: number | {
+        value: number;
+        count?: number;
+    };
     createdAt?: string;
     [key: string]: any;
 }

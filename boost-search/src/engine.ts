@@ -91,7 +91,8 @@ export class BoostSearchEngine {
       }
 
       // Rating filter
-      if (filters.minRating !== undefined && (item.rating || 0) < filters.minRating) {
+      const itemRating = typeof item.rating === 'object' ? item.rating?.value || 0 : item.rating || 0;
+      if (filters.minRating !== undefined && itemRating < filters.minRating) {
         return false;
       }
 
@@ -139,7 +140,11 @@ export class BoostSearchEngine {
     filtered.sort((a, b) => {
       if (sortBy === 'price_asc') return a.item.price - b.item.price;
       if (sortBy === 'price_desc') return b.item.price - a.item.price;
-      if (sortBy === 'rating') return (b.item.rating || 0) - (a.item.rating || 0);
+      if (sortBy === 'rating') {
+        const rA = typeof a.item.rating === 'object' ? a.item.rating?.value || 0 : a.item.rating || 0;
+        const rB = typeof b.item.rating === 'object' ? b.item.rating?.value || 0 : b.item.rating || 0;
+        return rB - rA;
+      }
       if (sortBy === 'newest') {
         const dateA = a.item.createdAt ? new Date(a.item.createdAt).getTime() : 0;
         const dateB = b.item.createdAt ? new Date(b.item.createdAt).getTime() : 0;

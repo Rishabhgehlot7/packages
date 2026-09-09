@@ -8,6 +8,7 @@ interface CartItem {
     compareAtPrice?: number;
     quantity: number;
     image?: string;
+    sku?: string;
     weightGrams?: number;
     hsnCode?: string;
     taxRate?: number;

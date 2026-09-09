@@ -1,0 +1,33 @@
+{
+  "name": "create-boost-app",
+  "version": "1.0.0",
+  "description": "Create a high-converting, production-ready D2C eCommerce store with Next.js, Indian GST math, Admin Panel, and 15 BoostEngine micro-packages in 60 seconds.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "create-boost-app",
+    "create-boost-store",
+    "ecommerce-generator",
+    "nextjs-ecommerce",
+    "d2c-store",
+    "shopify-alternative",
+    "woocommerce-alternative"
+  ],
+  "bin": {
+    "create-boost-app": "./bin/create-boost-app.js",
+    "create-boost-store": "./bin/create-boost-app.js"
+  },
+  "main": "./src/scaffolder.js",
+  "files": [
+    "bin",
+    "src",
+    "template",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test.cjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

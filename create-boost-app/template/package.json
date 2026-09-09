@@ -1,0 +1,45 @@
+{
+  "name": "boost-d2c-store",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@boostengine/analytics": "^1.0.0",
+    "@boostengine/auth": "^1.0.0",
+    "@boostengine/cart": "^1.0.0",
+    "@boostengine/collections": "^1.0.0",
+    "@boostengine/core": "^1.0.0",
+    "@boostengine/coupons": "^1.0.0",
+    "@boostengine/deals": "^1.0.0",
+    "@boostengine/inventory": "^1.0.0",
+    "@boostengine/invoicing": "^1.0.0",
+    "@boostengine/loyalty": "^1.0.0",
+    "@boostengine/notifications": "^1.0.0",
+    "@boostengine/payments": "^1.0.0",
+    "@boostengine/recommendations": "^1.0.0",
+    "@boostengine/reviews": "^1.0.0",
+    "@boostengine/search": "^1.0.0",
+    "@boostengine/seo": "^1.0.0",
+    "@boostengine/shipping": "^1.0.0",
+    "@boostengine/ui": "^1.0.0",
+    "@boostengine/wishlist": "^1.0.0",
+    "lucide-react": "^0.460.0",
+    "next": "^15.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.5.5",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
