@@ -29,32 +29,32 @@ function ProductsContent() {
   }, [searchQuery, selectedCategory, sortBy]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-5">
       {/* Header */}
-      <div className="border-b border-gray-100 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="border-b border-gray-100 pb-3 flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 uppercase tracking-widest mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">
+            <Sparkles className="w-3 h-3" />
             <span>Curated Catalog</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-950 uppercase">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-gray-950 uppercase">
             All Products
           </h1>
-          <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            Explore {searchResults.total} premium streetwear garments engineered for everyday luxury.
+          <p className="text-xs text-gray-500 mt-0.5">
+            Showing {searchResults.total} premium marketplace items.
           </p>
         </div>
 
         {/* Filter & Sort Controls */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-200 overflow-x-auto no-scrollbar max-w-full">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition whitespace-nowrap ${
                   selectedCategory === cat
-                    ? 'bg-black text-white shadow-sm'
+                    ? 'bg-black text-white shadow-xs'
                     : 'text-gray-600 hover:text-black hover:bg-gray-100'
                 }`}
               >
@@ -63,12 +63,12 @@ function ProductsContent() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-600">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-gray-400" />
+          <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-600">
+            <SlidersHorizontal className="w-3 h-3 text-gray-400" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SearchSortOption)}
-              className="bg-transparent text-xs font-bold text-gray-900 outline-none cursor-pointer"
+              className="bg-transparent text-[11px] font-bold text-gray-900 outline-none cursor-pointer"
             >
               <option value="relevance">Featured</option>
               <option value="price_asc">Price: Low to High</option>
@@ -79,14 +79,14 @@ function ProductsContent() {
         </div>
       </div>
 
-      {/* Product Cards Grid */}
+      {/* Product Cards Grid: 2-column mobile, 4-column desktop */}
       {searchResults.products.length === 0 ? (
-        <div className="text-center py-24 space-y-4">
-          <p className="text-base font-bold text-gray-700">No products found</p>
+        <div className="text-center py-16 space-y-3">
+          <p className="text-sm font-bold text-gray-700">No products found</p>
           <p className="text-xs text-gray-400">Try changing your category or search filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {searchResults.products.map((product: StoreProduct) => {
             const isWishlisted = wishlistItems.some((w) => w.productId === product.id);
             const totalStock =

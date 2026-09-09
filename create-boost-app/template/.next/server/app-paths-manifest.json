@@ -1,8 +1,7 @@
 {
-  "/api/admin/orders/route": "app/api/admin/orders/route.js",
-  "/api/admin/orders/[id]/route": "app/api/admin/orders/[id]/route.js",
   "/products/[id]/page": "app/products/[id]/page.js",
   "/checkout/page": "app/checkout/page.js",
   "/order-success/[orderId]/page": "app/order-success/[orderId]/page.js",
-  "/products/page": "app/products/page.js"
+  "/products/page": "app/products/page.js",
+  "/page": "app/page.js"
 }

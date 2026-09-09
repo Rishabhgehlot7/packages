@@ -100,66 +100,66 @@ export default function ProductDetailPage({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10 pb-24 md:pb-16">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 pb-20 md:pb-12">
       {/* Breadcrumbs & Navigation */}
       <div className="flex items-center justify-between">
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-black transition"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Home / {product.category} / {product.title}</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span className="truncate max-w-[280px] sm:max-w-md">Home / {product.category} / {product.title}</span>
         </Link>
       </div>
 
       {/* Main PDP Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left Column: Gallery & Badges */}
-        <div className="lg:col-span-6 space-y-4">
+        <div className="lg:col-span-6 space-y-3">
           <ProductGallery images={product.images} />
         </div>
 
         {/* Right Column: Information & Actions */}
-        <div className="lg:col-span-6 space-y-5">
+        <div className="lg:col-span-6 space-y-3.5 sm:space-y-4">
           {/* Brand, Title & Assured Badge */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                 {product.brand}
               </span>
               <AssuredBadge type="assured" />
             </div>
 
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-950 tracking-tight">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-black text-gray-950 tracking-tight">
               {product.title}
             </h1>
 
             {product.rating && (
-              <div className="flex items-center gap-2 pt-1">
-                <StarRating rating={product.rating.value} size={16} />
+              <div className="flex items-center gap-1.5 pt-0.5">
+                <StarRating rating={product.rating.value} size={14} />
                 <span className="text-xs font-bold text-gray-800">{product.rating.value.toFixed(1)}</span>
-                <span className="text-xs text-gray-500">({product.rating.count} ratings & reviews)</span>
+                <span className="text-[11px] text-gray-500">({product.rating.count} ratings)</span>
               </div>
             )}
           </div>
 
           {/* Pricing & Special Deal Tag */}
-          <div className="space-y-1 bg-gray-50 p-4 rounded-xl border border-gray-100">
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-black text-gray-950">₹{currentPrice.toLocaleString('en-IN')}</span>
+          <div className="space-y-1 bg-gray-50 p-3 rounded-xl border border-gray-100">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-2xl sm:text-3xl font-black text-gray-950">₹{currentPrice.toLocaleString('en-IN')}</span>
               {currentComparePrice && currentComparePrice > currentPrice && (
                 <>
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-xs sm:text-sm text-gray-400 line-through">
                     ₹{currentComparePrice.toLocaleString('en-IN')}
                   </span>
-                  <span className="text-xs font-extrabold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">
+                  <span className="text-[10px] sm:text-xs font-extrabold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded">
                     {Math.round(((currentComparePrice - currentPrice) / currentComparePrice) * 100)}% OFF
                   </span>
                 </>
               )}
             </div>
-            <p className="text-[11px] text-gray-500">
-              Inclusive of all taxes • Earn {Math.floor((currentPrice / 100) * 3)} SuperCoins on this purchase
+            <p className="text-[10px] sm:text-[11px] text-gray-500">
+              Inclusive of all taxes • Earn {Math.floor((currentPrice / 100) * 3)} SuperCoins
             </p>
           </div>
 

@@ -58,7 +58,7 @@ export const Navbar: React.FC = () => {
       />
 
       {/* Main Bar */}
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
+      <nav className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-13 sm:h-14 flex items-center justify-between gap-2.5 sm:gap-4">
         {/* Logo & Assured Badge */}
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-1.5">
@@ -179,16 +179,16 @@ export const Navbar: React.FC = () => {
       </nav>
 
       {/* Mobile Search Bar (Always visible on mobile) */}
-      <div className="sm:hidden px-4 pb-2.5">
+      <div className="sm:hidden px-3 pb-2">
         <div className="relative flex items-center">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
             placeholder="Search products, brands, deals..."
-            className="w-full bg-gray-100 text-xs pl-9 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-blue-600 focus:bg-white"
+            className="w-full bg-gray-100 text-xs pl-8 pr-3 py-1.5 rounded-full border border-gray-200 focus:outline-none focus:border-blue-600 focus:bg-white"
           />
         </div>
 
