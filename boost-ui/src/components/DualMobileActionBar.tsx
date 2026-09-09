@@ -24,23 +24,31 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
   className = '',
 }) => {
   return (
-    <div
-      className={`boost-dual-mobile-action-bar md:hidden ${className}`}
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#ffffff',
-        borderTop: '1px solid #e5e7eb',
-        padding: '8px 12px calc(8px + env(safe-area-inset-bottom, 0px))',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
-      }}
-    >
+    <>
+      <style>{`
+        @media (min-width: 768px) {
+          .boost-dual-mobile-action-bar {
+            display: none !important;
+          }
+        }
+      `}</style>
+      <div
+        className={`boost-dual-mobile-action-bar md:hidden ${className}`}
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#ffffff',
+          borderTop: '1px solid #e5e7eb',
+          padding: '8px 12px calc(8px + env(safe-area-inset-bottom, 0px))',
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
+        }}
+      >
       {/* Optional Wishlist heart button */}
       {onToggleWishlist && (
         <button
@@ -131,5 +139,6 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
         Buy Now
       </button>
     </div>
+    </>
   );
 };

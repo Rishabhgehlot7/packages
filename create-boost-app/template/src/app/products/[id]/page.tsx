@@ -114,8 +114,8 @@ export default function ProductDetailPage({
 
       {/* Main PDP Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* Left Column: Gallery & Badges */}
-        <div className="lg:col-span-6 space-y-3">
+        {/* Left Column: Gallery (Sticky on Big Screens like Amazon/Flipkart) */}
+        <div className="lg:col-span-6 space-y-3 lg:sticky lg:top-20 self-start">
           <ProductGallery images={product.images} />
         </div>
 
@@ -330,15 +330,17 @@ export default function ProductDetailPage({
         )}
       </section>
 
-      {/* Amazon / Flipkart Dual Mobile Sticky Action Bar */}
-      <DualMobileActionBar
-        price={currentPrice}
-        compareAtPrice={currentComparePrice}
-        isWishlisted={isWishlisted}
-        onAddToCart={() => addToCart(product, selectedVariantId, quantity)}
-        onBuyNow={handleBuyNow}
-        onToggleWishlist={() => toggleWishlist(product)}
-      />
+      {/* Mobile-Only Sticky Bottom Action Bar (Hidden on Big Screens/Desktop >= 768px) */}
+      <div className="block md:hidden">
+        <DualMobileActionBar
+          price={currentPrice}
+          compareAtPrice={currentComparePrice}
+          isWishlisted={isWishlisted}
+          onAddToCart={() => addToCart(product, selectedVariantId, quantity)}
+          onBuyNow={handleBuyNow}
+          onToggleWishlist={() => toggleWishlist(product)}
+        />
+      </div>
     </div>
   );
 }
