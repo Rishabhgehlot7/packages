@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/collections",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Production-ready Postman Collections (Schema v2.1.0) & Environments for Razorpay, Cashfree, PhonePe, Paytm, Stripe, EasyEcom WMS, Shiprocket, Delhivery & Shopify.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

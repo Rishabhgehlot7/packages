@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/payments",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Unified Multi-Gateway Payment Orchestration for Indian & Global eCommerce (Razorpay, Cashfree, PhonePe, Paytm, Stripe, COD) with smart routing, automatic fallbacks, signature verification, and React checkout hooks.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

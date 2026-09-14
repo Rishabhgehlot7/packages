@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "WordPress/Shopify-style modular plugin runtime & event hook architecture for BoostEngine eCommerce stores.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
