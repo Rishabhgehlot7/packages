@@ -1,64 +1,109 @@
-# @boostengine/search 🔍
+# @boostengine/search 🔎
 
-> **Lightning-Fast Typo-Tolerant Product Search & Multi-Faceted Filter Engine with Facet Aggregations & URL Query Sync for Modern eCommerce.**
+[![npm version](https://img.shields.io/npm/v/@boostengine/search.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/search)
+[![npm downloads](https://img.shields.io/npm/dm/@boostengine/search.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/search)
+[![license](https://img.shields.io/npm/l/@boostengine/search.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Typo Tolerant](https://img.shields.io/badge/Search-Typo%20Tolerant%20Fuzzy-blue.svg?style=flat-square)](https://github.com/boostengine/boostengine)
 
-Zero external dependencies, sub-millisecond execution, and works seamlessly in Node.js, Next.js server/client components, and React Native.
+> **Lightning-fast, typo-tolerant eCommerce product search and multi-faceted filter engine. Handles fuzzy keyword matching (Levenshtein distance), category facets, price ranges, stock filters, and instant URL query syncing.**
+
+Zero heavy search server dependencies like Elasticsearch or Meilisearch required for small to mid-scale catalogs. Operates 100% in-memory in Node.js, Next.js, and client-side browsers.
+
+---
+
+## 📸 Visual Search & Faceted Filtering UI Preview
+
+```text
+  [ Search Input: "hoddie" (Fuzzy typo matches "hoodie") ]
+  ─────────────────────────────────────────────────────────────────────────────
+  Faceted Filters (Auto-Aggregated):    Products Found: 18 Results
+  
+  Stock Status:                         ┌───────────────────┐ ┌───────────────────┐
+  [✓] In Stock Only (16)                │ [Product Image]   │ │ [Product Image]   │
+  [ ] Pre-Order (2)                     │ Cyberpunk Hoodie  │ │ Minimalist Hoodie │
+                                        │ ₹1,499  ~~₹2,499~~│ │ ₹1,299            │
+  Category:                             │ ⭐⭐⭐⭐⭐ (4.8)    │ │ ⭐⭐⭐⭐☆ (4.4)    │
+  • Streetwear Apparel (14)             └───────────────────┘ └───────────────────┘
+  • Accessories (4)
+                                        ┌───────────────────┐ ┌───────────────────┐
+  Color Swatches:                       │ [Product Image]   │ │ [Product Image]   │
+  (● Black: 12) (○ White: 4) (● Olive: 2│ Heavy Zip Jacket  │ │ Graphic Pullover  │
+                                        │ ₹1,899            │ │ ₹1,399            │
+  Price Range:                          │ ⭐⭐⭐⭐⭐ (4.9)    │ │ ⭐⭐⭐⭐☆ (4.2)    │
+  [ ₹500 ─────────────○─── ₹2,500 ]     └───────────────────┘ └───────────────────┘
+```
 
 ---
 
 ## 🌟 Key Features
 
-- **⚡ Typo-Tolerant Levenshtein Search**: Automatically matches products even if customers misspell terms (*"hoddie"* &rarr; *"Hoodie"*, *"shrt"* &rarr; *"Shirt"*).
-- **🎯 Multi-Faceted Filtering**: Price slider ranges, category selection, brand multi-select, variant attributes (Size, Color), in-stock only, and minimum star rating.
-- **📊 Real-Time Facet Aggregations**: Extracts live counts for brands, categories, and min/max price range from the current matched catalog.
-- **🔄 URL Query String Sync**: Built-in `serializeToQuery` and `parseFromQuery` for 1-line Next.js URL param synchronization (`?q=hoodie&category=Apparel&minPrice=500`).
-- **🚀 Zero Dependencies**: No heavy ElasticSearch or Algolia client needed for up to 50,000 in-memory items.
+- **🎯 Typo Tolerance & Fuzzy Search**: Handles customer typos (e.g. searching *"hoddie"* or *"tshrt"* accurately returns *"hoodie"* and *"t-shirt"*).
+- **📊 Facet Aggregations**: Automatically computes dynamic filter counts (e.g. `Apparel (18)`, `Accessories (4)`) for sidebar filters.
+- **🏷️ Multi-Field Querying**: Searches across product `title`, `description`, `tags`, `category`, and `sku`.
+- **⚡ In-Memory Execution**: Evaluates 10,000+ catalog items in under 2 milliseconds without any network latency.
 
 ---
 
 ## 📦 Installation
 
 ```bash
+# npm
 npm install @boostengine/search
+
+# pnpm
+pnpm add @boostengine/search
+
+# yarn
+yarn add @boostengine/search
 ```
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Quickstart Guide
 
 ```typescript
-import { BoostSearchEngine, SearchableProduct } from '@boostengine/search';
+import { createSearchEngine, type SearchableProduct } from '@boostengine/search';
 
 const catalog: SearchableProduct[] = [
-  { id: '1', title: 'Oversized Cyberpunk Hoodie', brand: 'Aesthetic Club', category: 'Hoodies', price: 2499, inStock: true, rating: 4.8 },
-  { id: '2', title: 'Minimalist Graphic Tee', brand: 'Aesthetic Club', category: 'T-Shirts', price: 799, inStock: true, rating: 4.5 },
-  { id: '3', title: 'Vintage Leather Jacket', brand: 'Retro Club', category: 'Jackets', price: 4999, inStock: false, rating: 4.9 },
+  {
+    id: 'prod_1',
+    title: 'Cyberpunk Heavyweight Hoodie',
+    description: 'Black oversized fleece hoodie',
+    category: 'Apparel',
+    tags: ['streetwear', 'winter', 'cotton'],
+    price: 1499,
+    inStock: true,
+  },
+  {
+    id: 'prod_2',
+    title: 'Minimalist Graphic Tee',
+    description: 'White organic cotton t-shirt',
+    category: 'Apparel',
+    tags: ['summer', 'casual'],
+    price: 699,
+    inStock: true,
+  },
 ];
 
-// 1. Perform Search with Filters
-const results = BoostSearchEngine.search(catalog, {
-  query: 'hoddie', // Typo handled automatically!
-  minPrice: 1000,
-  maxPrice: 3000,
-  inStockOnly: true,
-  sortBy: 'price_asc',
+// 1. Initialize engine with catalog
+const searchEngine = createSearchEngine(catalog);
+
+// 2. Perform fuzzy search with filters
+const results = searchEngine.search({
+  query: 'hoddie', // Typo intended
+  filters: {
+    category: ['Apparel'],
+    minPrice: 1000,
+    maxPrice: 2000,
+    inStockOnly: true,
+  },
+  sortBy: 'popularity',
 });
 
-console.log(results.total); // 1
-console.log(results.products[0].title); // 'Oversized Cyberpunk Hoodie'
-
-// 2. Access Aggregated Facets
-console.log(results.facets.categories); // [{ value: 'Hoodies', count: 1 }]
-console.log(results.facets.priceRange); // { min: 2499, max: 2499 }
-```
-
----
-
-## 🛠️ CLI Utilities
-
-```bash
-# Run interactive search demo
-npx @boostengine/search demo
+console.log(`Found ${results.totalHits} matching products:`);
+console.log(results.hits[0].title); // "Cyberpunk Heavyweight Hoodie"
+console.log(results.facets);        // Dynamic category & attribute counts
 ```
 
 ---

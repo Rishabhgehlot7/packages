@@ -1,0 +1,51 @@
+{
+  "name": "@boostengine/returns",
+  "version": "1.0.0",
+  "description": "Production-ready Returns, Exchanges, and Instant Refund Engine with Shiprocket & Delhivery reverse pickup integration for Next.js, Vite, and Node.js.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "node test-suite.cjs"
+  },
+  "keywords": [
+    "returns",
+    "refunds",
+    "replacement",
+    "exchanges",
+    "reverse-logistics",
+    "shiprocket",
+    "delhivery",
+    "ecommerce",
+    "nextjs",
+    "vite",
+    "react",
+    "d2c",
+    "boostengine"
+  ],
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-returns"
+  },
+  "homepage": "https://github.com/boostengine/boostengine#readme",
+  "sideEffects": false,
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

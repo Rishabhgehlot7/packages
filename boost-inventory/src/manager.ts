@@ -17,8 +17,9 @@ export class BoostInventory {
     }
   }
 
-  private getKey(sku: string, warehouseId?: string): string {
-    return warehouseId ? `${sku.trim()}@${warehouseId.trim()}` : sku.trim();
+  private getKey(sku?: string, warehouseId?: string): string {
+    const cleanSku = (sku || '').trim();
+    return warehouseId ? `${cleanSku}@${warehouseId.trim()}` : cleanSku;
   }
 
   /**

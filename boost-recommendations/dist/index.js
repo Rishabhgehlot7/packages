@@ -35,7 +35,7 @@ var RecommendationsEngine = class {
     const pool = catalog.filter((p) => p.id !== mainProduct.id && (p.stock === void 0 || p.stock > 0));
     const ranked = pool.map((item) => {
       let score = 0;
-      if (item.category.toLowerCase() === mainProduct.category.toLowerCase()) {
+      if ((item.category || "").toLowerCase() === (mainProduct.category || "").toLowerCase()) {
         score += 30;
       }
       if (mainProduct.tags && item.tags) {
@@ -73,7 +73,7 @@ var RecommendationsEngine = class {
     const pool = catalog.filter((p) => p.id !== targetProduct.id);
     const scored = pool.map((item) => {
       let score = 0;
-      if (item.category.toLowerCase() === targetProduct.category.toLowerCase()) {
+      if ((item.category || "").toLowerCase() === (targetProduct.category || "").toLowerCase()) {
         score += 50;
       }
       if (targetProduct.tags && item.tags) {

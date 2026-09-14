@@ -79,16 +79,16 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
             Product Inventory & Catalog
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-500">
             Manage SKUs, dynamic pricing tiers, HSN tax classifications, and product variants.
           </p>
         </div>
         <Link
           href="/admin/products/new"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/25 transition active:scale-95 w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Product</span>
@@ -96,15 +96,15 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-3.5 sm:p-4 bg-slate-900/90 border border-slate-800/80 rounded-2xl flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between shadow-sm">
+      <div className="p-3.5 sm:p-4 bg-white border border-slate-200/90 rounded-2xl flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between shadow-xs">
         <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
           <input
             type="text"
             placeholder="Search title, SKU, or brand..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+            className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:bg-white transition"
           />
         </div>
 
@@ -113,10 +113,10 @@ export default function AdminProductsPage() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80'
               }`}
             >
               {cat}
@@ -126,23 +126,23 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Catalog Container */}
-      <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
         {loading ? (
-          <div className="py-20 text-center text-slate-500 text-xs">
-            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <div className="py-20 text-center text-slate-400 text-xs">
+            <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             Loading live products from MongoDB...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-20 text-center text-slate-500 text-xs space-y-2">
-            <Package className="w-8 h-8 mx-auto text-slate-600" />
-            <p className="font-semibold">No products matched your search or filter.</p>
+          <div className="py-20 text-center text-slate-400 text-xs space-y-2">
+            <Package className="w-8 h-8 mx-auto text-slate-400" />
+            <p className="font-semibold text-slate-600">No products matched your search or filter.</p>
           </div>
         ) : (
           <>
-            {/* Desktop Table (>= 768px) */}
+            {/* Desktop & Tablet Table (>= 768px) */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-800/80 bg-slate-950/60">
+                <thead className="text-[10px] font-bold text-slate-500 uppercase border-b border-slate-200 bg-slate-50">
                   <tr>
                     <th className="py-3.5 px-5">Product Info</th>
                     <th className="py-3.5 px-5">Category</th>
@@ -153,11 +153,11 @@ export default function AdminProductsPage() {
                     <th className="py-3.5 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-100 font-medium">
                   {filtered.map((product, idx) => (
-                    <tr key={product.id || (product as any)._id || (product as any).slug || product.sku || idx} className="hover:bg-slate-800/30 transition">
+                    <tr key={product.id || (product as any)._id || (product as any).slug || product.sku || idx} className="hover:bg-slate-50/80 transition">
                       <td className="py-4 px-5 flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-700/60">
+                        <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden relative flex-shrink-0 border border-slate-200">
                           {product.images?.[0] ? (
                             <img
                               src={product.images[0]}
@@ -165,49 +165,49 @@ export default function AdminProductsPage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-500">
+                            <div className="w-full h-full flex items-center justify-center text-slate-400">
                               <Package className="w-5 h-5" />
                             </div>
                           )}
                         </div>
                         <div className="min-w-0 max-w-xs">
-                          <div className="font-bold text-white truncate text-xs">
+                          <div className="font-bold text-slate-900 truncate text-xs">
                             {product.title}
                           </div>
-                          <div className="text-[11px] text-indigo-400 font-semibold">
+                          <div className="text-[11px] text-indigo-600 font-semibold">
                             {product.brand}
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-4 px-5 text-slate-300 font-semibold">
+                      <td className="py-4 px-5 text-slate-600 font-semibold">
                         {product.category}
                       </td>
 
                       <td className="py-4 px-5">
-                        <span className="text-white font-black text-xs block">
+                        <span className="text-slate-900 font-black text-xs block">
                           ₹{product.price?.toLocaleString('en-IN') || 0}
                         </span>
                         {product.compareAtPrice && product.compareAtPrice > product.price ? (
-                          <span className="text-[10px] text-slate-500 line-through">
+                          <span className="text-[10px] text-slate-400 line-through">
                             ₹{product.compareAtPrice?.toLocaleString('en-IN') || 0}
                           </span>
                         ) : null}
                       </td>
 
-                      <td className="py-4 px-5 font-mono text-[11px] text-slate-400">
-                        <div className="font-bold text-slate-200">{product.sku}</div>
-                        <div className="text-[10px] text-slate-500">HSN: {product.hsnCode}</div>
+                      <td className="py-4 px-5 font-mono text-[11px] text-slate-500">
+                        <div className="font-bold text-slate-800">{product.sku}</div>
+                        <div className="text-[10px] text-slate-400">HSN: {product.hsnCode}</div>
                       </td>
 
-                      <td className="py-4 px-5 text-slate-400">
+                      <td className="py-4 px-5 text-slate-500">
                         {product.variants && product.variants.length > 0 ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 text-[11px] font-bold border border-indigo-500/20">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[11px] font-bold border border-indigo-200/80">
                             <Layers className="w-3 h-3" />
                             {product.variants.length} options
                           </span>
                         ) : (
-                          <span className="text-slate-600 text-[11px]">Single SKU</span>
+                          <span className="text-slate-400 text-[11px]">Single SKU</span>
                         )}
                       </td>
 
@@ -215,13 +215,13 @@ export default function AdminProductsPage() {
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase font-black ${
                             product.inStock
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-rose-50 text-rose-700 border border-rose-200'
                           }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              product.inStock ? 'bg-emerald-400' : 'bg-rose-400'
+                              product.inStock ? 'bg-emerald-500' : 'bg-rose-500'
                             }`}
                           />
                           {product.inStock ? 'In Stock' : 'Out of Stock'}
@@ -232,14 +232,14 @@ export default function AdminProductsPage() {
                         <Link
                           href={`/products/${product.id}`}
                           target="_blank"
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 inline-flex transition"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 inline-flex transition"
                           title="Preview on Storefront"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
                         <button
                           onClick={() => handleDelete(product.id, product.title)}
-                          className="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 inline-flex transition"
+                          className="p-1.5 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 inline-flex transition cursor-pointer"
                           title="Delete Product"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -252,11 +252,11 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Mobile Cards (< 768px) */}
-            <div className="md:hidden divide-y divide-slate-800/60">
+            <div className="md:hidden divide-y divide-slate-100">
               {filtered.map((product, idx) => (
                 <div key={product.id || (product as any)._id || (product as any).slug || product.sku || idx} className="p-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-xl bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-700/60">
+                    <div className="w-14 h-14 rounded-xl bg-slate-100 overflow-hidden relative flex-shrink-0 border border-slate-200">
                       {product.images?.[0] ? (
                         <img
                           src={product.images[0]}
@@ -264,25 +264,25 @@ export default function AdminProductsPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-500">
+                        <div className="w-full h-full flex items-center justify-center text-slate-400">
                           <Package className="w-6 h-6" />
                         </div>
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-white text-xs line-clamp-1">
+                      <div className="font-bold text-slate-900 text-xs line-clamp-1">
                         {product.title}
                       </div>
-                      <div className="text-[11px] text-indigo-400 font-semibold">
+                      <div className="text-[11px] text-indigo-600 font-semibold">
                         {product.brand} • {product.category}
                       </div>
                       <div className="flex items-baseline gap-1.5 pt-0.5">
-                        <span className="text-white font-black text-xs">
+                        <span className="text-slate-900 font-black text-xs">
                           ₹{product.price?.toLocaleString('en-IN') || 0}
                         </span>
                         {product.compareAtPrice && product.compareAtPrice > product.price ? (
-                          <span className="text-[10px] text-slate-500 line-through">
+                          <span className="text-[10px] text-slate-400 line-through">
                             ₹{product.compareAtPrice?.toLocaleString('en-IN') || 0}
                           </span>
                         ) : null}
@@ -290,12 +290,12 @@ export default function AdminProductsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-xs">
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
                     <span
                       className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                         product.inStock
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-rose-50 text-rose-700 border border-rose-200'
                       }`}
                     >
                       {product.inStock ? 'In Stock' : 'Out of Stock'}
@@ -305,14 +305,14 @@ export default function AdminProductsPage() {
                       <Link
                         href={`/products/${product.id}`}
                         target="_blank"
-                        className="p-1.5 text-slate-400 hover:text-white"
+                        className="p-1.5 text-slate-400 hover:text-slate-700"
                         title="Preview on Storefront"
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
                       <button
                         onClick={() => handleDelete(product.id, product.title)}
-                        className="p-1.5 text-rose-400 hover:text-rose-300"
+                        className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
                         title="Delete Product"
                       >
                         <Trash2 className="w-4 h-4" />

@@ -14,8 +14,20 @@
     "clarity",
     "nextjs",
     "vite",
-    "react"
+    "react",
+    "headless-analytics",
+    "conversion-tracking",
+    "server-side-events"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-analytics#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-analytics"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

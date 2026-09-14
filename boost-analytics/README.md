@@ -1,214 +1,114 @@
-# @boostengine/analytics
+# @boostengine/analytics 📊
 
-> Universal eCommerce Analytics & Pixel Tracker for **Next.js (App Router / Pages)** and **Vite (React)**.
+[![npm version](https://img.shields.io/npm/v/@boostengine/analytics.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/analytics)
+[![npm downloads](https://img.shields.io/npm/dm/@boostengine/analytics.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/analytics)
+[![license](https://img.shields.io/npm/l/@boostengine/analytics.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Multi-Pixel](https://img.shields.io/badge/Pixels-Meta%20%7C%20GA4%20%7C%20GTM%20%7C%20Clarity-orange.svg?style=flat-square)](https://github.com/boostengine/boostengine)
 
-Automatically integrates and unifies:
-* 🎯 **Meta (Facebook) Pixel** (`PageView`, `ViewContent`, `AddToCart`, `InitiateCheckout`, `Purchase`)
-* 📊 **Google Tag Manager (GTM) / GA4 eCommerce DataLayer** (`view_item`, `add_to_cart`, `begin_checkout`, `purchase`)
-* 🔍 **Microsoft Clarity** heatmaps & session recordings
-* 🛡️ **In-App Browser Error Shield** (Prevents Instagram/Facebook/WhatsApp WebViews from throwing unhandled Java bridge exceptions)
-* 🔁 **Purchase Event Deduplication** (Prevents duplicate revenue tracking on page refresh)
+> **Universal eCommerce analytics and pixel tracker for Next.js, React, and Vite. Fires unified events to Meta Pixel (Facebook), Google Analytics 4 (GA4), Google Tag Manager (GTM), and Microsoft Clarity with WebView error shielding.**
+
+Prevents Instagram / Facebook in-app browser script crashes. Zero manual `window.fbq` or `window.gtag` boilerplate.
+
+---
+
+## 📸 Unified Event Tracking Flow
+
+```text
+               Customer Clicks: [ Add to Cart - ₹1,499 ]
+                                   │
+                                   ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                     @boostengine/analytics                      │
+  ├─────────────────────────────────────────────────────────────────┤
+  │ trackAddToCart({ id: 'hoodie_01', price: 1499, currency: 'INR' })│
+  └───────────────┬─────────────────┬─────────────────┬─────────────┘
+                  │                 │                 │
+   ┌──────────────▼────────┐ ┌──────▼─────────┐ ┌─────▼──────────┐
+   │ Meta Pixel (fbq)      │ │ GA4 / GTM      │ │ MS Clarity     │
+   ├───────────────────────┤ ├────────────────┤ ├────────────────┤
+   │ fbq('track',          │ │ gtag('event',  │ │ Session tag &  │
+   │   'AddToCart', {...}) │ │ 'add_to_cart') │ │ funnel marked  │
+   └───────────────────────┘ └────────────────┘ └────────────────┘
+```
+
+---
+
+## 🌟 Key Highlights
+
+- **⚡ 1-Click Multi-Pixel Setup**: Inject Meta Pixel, GA4, GTM, and Microsoft Clarity tracking tags with a single `<BoostAnalyticsProvider />` component.
+- **🛡️ In-App Browser Shielding**: Prevents iOS & Android Instagram / Facebook WebViews from throwing unhandled script exceptions.
+- **🛒 E-commerce Standard Events**: Pre-built helpers for `trackPageView`, `trackViewContent`, `trackAddToCart`, `trackInitiateCheckout`, and `trackPurchase`.
+- **⚛️ Universal Framework Support**: Works seamlessly in Next.js 13/14/15 App Router, Next.js Pages Router, and Vite + React.
 
 ---
 
 ## 📦 Installation
 
 ```bash
+# npm
 npm install @boostengine/analytics
-# or
-yarn add @boostengine/analytics
-# or
+
+# pnpm
 pnpm add @boostengine/analytics
+
+# yarn
+yarn add @boostengine/analytics
 ```
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Quickstart Guide
 
-### 1. Next.js (App Router)
-
-In your root layout (`src/app/layout.tsx`):
+### 1. Root Provider Setup (`app/layout.tsx`)
 
 ```tsx
-import { BoostAnalytics } from '@boostengine/analytics';
+import { BoostAnalyticsProvider } from '@boostengine/analytics';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <BoostAnalytics
-          fbPixelId={process.env.NEXT_PUBLIC_FB_PIXEL_ID}
+      <head>
+        <BoostAnalyticsProvider
+          metaPixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID}
+          ga4MeasurementId={process.env.NEXT_PUBLIC_GA4_ID}
           gtmId={process.env.NEXT_PUBLIC_GTM_ID}
           clarityId={process.env.NEXT_PUBLIC_CLARITY_ID}
-          currency="INR"
-          defaultBrand="Your Brand"
         />
-        {children}
-      </body>
+      </head>
+      <body>{children}</body>
     </html>
   );
 }
 ```
 
-### 2. Vite (React)
+---
 
-In your main entry (`src/App.tsx` or `src/main.tsx`):
+### 2. Triggering Events Anywhere in Your Store
 
 ```tsx
-import React from 'react';
-import { BoostAnalytics } from '@boostengine/analytics';
+'use client';
 
-export default function App() {
-  return (
-    <BoostAnalytics
-      fbPixelId={import.meta.env.VITE_FB_PIXEL_ID}
-      gtmId={import.meta.env.VITE_GTM_ID}
-      clarityId={import.meta.env.VITE_CLARITY_ID}
-      currency="INR"
-      defaultBrand="Your Brand"
-    >
-      <YourAppRoutes />
-    </BoostAnalytics>
-  );
+import { useAnalytics } from '@boostengine/analytics';
+
+export default function ProductBuyButton({ product }: any) {
+  const { trackAddToCart, trackPurchase } = useAnalytics();
+
+  const handleAdd = () => {
+    trackAddToCart({
+      content_ids: [product.id],
+      content_name: product.title,
+      currency: 'INR',
+      value: product.price,
+    });
+  };
+
+  return <button onClick={handleAdd}>Add to Bag</button>;
 }
 ```
 
 ---
 
-## 🛒 eCommerce Tracking Events
-
-### 1. View Product (PDP)
-Call when a product page loads:
-
-```tsx
-'use client';
-import { trackViewItem } from '@boostengine/analytics';
-
-useEffect(() => {
-  trackViewItem({
-    id: product._id,
-    name: product.title,
-    price: product.price,
-    category: product.category,
-    brand: 'Your Brand',
-  });
-}, [product]);
-```
-
-### 2. Add to Cart
-Call inside your "Add to Cart" button handler:
-
-```tsx
-import { trackAddToCart } from '@boostengine/analytics';
-
-const onAddToCart = () => {
-  trackAddToCart({
-    id: product._id,
-    name: product.title,
-    price: product.price,
-    quantity: 1,
-    category: product.category,
-  });
-};
-```
-
-### 3. Begin Checkout
-Call when customer visits the checkout page:
-
-```tsx
-import { trackBeginCheckout } from '@boostengine/analytics';
-
-trackBeginCheckout({
-  totalValue: cartTotal,
-  items: cartItems.map((item) => ({
-    id: item.productId,
-    name: item.name,
-    price: item.price,
-    quantity: item.quantity,
-  })),
-});
-```
-
-### 4. Add Payment Info
-Call when customer chooses or submits payment method:
-
-```tsx
-import { trackAddPaymentInfo } from '@boostengine/analytics';
-
-trackAddPaymentInfo({
-  totalValue: orderTotal,
-  paymentMethod: 'Razorpay',
-  items: orderItems,
-});
-```
-
-### 5. Purchase / Order Confirmation
-Call on Order Success / Thank You page. **Automatically deduplicated** using sessionStorage so customer refreshes won't duplicate numbers in Meta Ads / GA4!
-
-```tsx
-import { trackPurchase } from '@boostengine/analytics';
-
-trackPurchase({
-  transaction_id: order.orderId,
-  value: order.totalAmount,
-  tax: order.taxAmount,
-  shipping: order.shippingCost,
-  coupon: order.couponCode,
-  items: order.items.map((item) => ({
-    id: item.productId,
-    name: item.name,
-    price: item.price,
-    quantity: item.quantity,
-  })),
-});
-```
-
-### 6. Custom Event
-Track any custom interaction:
-
-```tsx
-import { trackCustomEvent } from '@boostengine/analytics';
-
-trackCustomEvent('LeadFormSubmitted', { form_name: 'Contact' });
-```
-
----
-
-## 🎯 Real-Time Event Tester & Debugger (Test Mode)
-
-How do you or your marketing team know if events are actually firing? 
-
-Enable Test Mode to display a live, on-screen floating **Event Inspector Widget**:
-
-```tsx
-<BoostAnalytics
-  fbPixelId="123456789"
-  gtmId="GTM-XXXXX"
-  showDebugger={process.env.NODE_ENV === 'development'}
-/>
-```
-*(Or simply add `?boost_debug=1` to any URL in your browser!)*
-
-### What the Inspector Does:
-1. **Live Connection Health:** Displays whether Meta Pixel, GTM/GA4, and Clarity are active or blocked.
-2. **1-Click Test Triggers:** Click **"🛒 Test AddToCart"** or **"💳 Test Purchase"** to fire simulated events instantly and inspect them in your Meta Pixel Helper extension and GTM Preview!
-3. **Real-time Event Stream:** Shows every event, timestamp, channels triggered, and full expandable JSON payload.
-
----
-
-## ⚡ Framework & Browser Support
-
-| Framework / Tool | Support | Notes |
-| :--- | :--- | :--- |
-| **Next.js (App Router)** | ✅ 100% | Full SSR safety with `'use client'` |
-| **Next.js (Pages Router)** | ✅ 100% | Works in `_app.tsx` |
-| **Vite (React)** | ✅ 100% | Works in `App.tsx` / `main.tsx` |
-| **Remix / Astro** | ✅ 100% | Client component mode |
-| **In-App WebViews** | ✅ 100% | Java bridge error auto-shielded |
-
----
-
 ## 📄 License
-MIT © [Boost Engine](https://boostengine.in)
 
-
+MIT © [Boost Engine](https://github.com/boostengine)

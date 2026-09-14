@@ -1,62 +1,97 @@
 # @boostengine/seo 🔍
 
-> **Complete eCommerce SEO & Rich Snippets Engine: JSON-LD Structured Data, Google Merchant Center XML Feed Generator, Next.js OpenGraph Metadata & Sitemaps.**
+[![npm version](https://img.shields.io/npm/v/@boostengine/seo.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/seo)
+[![npm downloads](https://img.shields.io/npm/dm/@boostengine/seo.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/seo)
+[![license](https://img.shields.io/npm/l/@boostengine/seo.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Google Shopping](https://img.shields.io/badge/Google%20Merchant-XML%20Feed%20Ready-34a853.svg?style=flat-square)](https://merchants.google.com/)
 
-Zero external dependencies, lightning fast, and designed to dominate Google Search & Shopping rankings for modern eCommerce stores.
+> **High-converting eCommerce SEO and rich snippets engine. Generates Google-validated JSON-LD structured data (Product, Reviews, Breadcrumb, FAQ), Google Merchant Center XML shopping feeds, Meta / Facebook catalog feeds, and Next.js dynamic metadata.**
+
+Zero third-party dependencies. Built specifically to help eCommerce stores achieve top search positions and Google Shopping listings.
+
+---
+
+## 📸 Google Search Result Rich Snippet Preview
+
+When you use `@boostengine/seo`, Google displays enhanced search results with ratings, prices, and stock status:
+
+```text
+  Google Search: "buy heavyweight cyberpunk hoodie india"
+  ------------------------------------------------------------------------
+  Cyberpunk Heavyweight Hoodie | BoostStore India
+  https://booststore.in/products/cyberpunk-hoodie
+  ⭐⭐⭐⭐⭐ Rating: 4.8 · ‎142 reviews · ‎₹1,499.00 · ‎In stock
+  Pure 450 GSM French Terry cotton hoodie with cyber prints. Free delivery
+  over ₹999. 7-Day easy returns. Cash on Delivery available.
+
+  Sitelinks:
+  » Size Guide     » Customer Reviews     » Shipping Policy
+  ------------------------------------------------------------------------
+```
 
 ---
 
 ## 🌟 Key Features
 
-- **🏆 Schema.org JSON-LD Rich Snippets**:
-  - `Product` with Offers, InStock status, AggregateRating & Reviews.
-  - `BreadcrumbList` hierarchy for search result sitelinks.
-  - `Organization` & Store knowledge graph.
-  - `FAQPage` accordion rich snippets.
-- **🛍️ Google Merchant Center XML Feed**: Generate 100% compliant RSS 2.0 Shopping feeds (`<g:id>`, `<g:price>`, `<g:availability>`, `<g:image_link>`, etc.) in milliseconds.
-- **👥 Meta / Facebook Catalog CSV**: Automatically output product catalogs for Instagram Shop and Facebook Dynamic Product Ads (DPA).
-- **⚡ Next.js App Router Native**: 1-line dynamic `Metadata` generation with OpenGraph and Twitter Card tags.
-- **🗺️ XML Sitemap Generator**: Full support for `<urlset>` with priority, changefreq, and lastmod tags.
+- **🏆 Google Schema.org JSON-LD**:
+  - `Product`: Rich snippets with price, currency, availability, SKU, brand, and reviews.
+  - `AggregateRating`: Dynamic 5-star rating display directly in Google SERP.
+  - `BreadcrumbList`: Clean hierarchical URL sitelinks in Google search results.
+  - `FAQPage`: Interactive accordion rich snippets directly under search titles.
+- **🛍️ Google Merchant Center XML Feed**: Fast generation of 100% compliant RSS 2.0 XML feeds (`<g:id>`, `<g:price>`, `<g:availability>`, `<g:image_link>`, `<g:shipping>`) for Google Shopping Ads and free listings.
+- **👥 Meta / Facebook Catalog CSV**: Automatically output product catalog formats for Instagram Shopping and Facebook Dynamic Product Ads (DPA).
+- **⚡ Next.js App Router Native**: 1-line dynamic `generateMetadata()` helper with OpenGraph and Twitter Card tags.
+- **🗺️ XML Sitemap Generator**: Full support for `<urlset>` with automatic priority and changefreq calculation.
 
 ---
 
 ## 📦 Installation
 
 ```bash
+# npm
 npm install @boostengine/seo
+
+# pnpm
+pnpm add @boostengine/seo
+
+# yarn
+yarn add @boostengine/seo
 ```
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Quickstart Guide
 
-### 1. Rich Snippet in Next.js Product Page
+### 1. Next.js App Router Product Page (`app/products/[slug]/page.tsx`)
+
+Inject Google Rich Snippets in just a few lines:
 
 ```tsx
-// app/products/[slug]/page.tsx
-import { JsonLdGenerator, NextSeoHelper, SEOProduct } from '@boostengine/seo';
+import { JsonLdGenerator, NextSeoHelper, type SEOProduct } from '@boostengine/seo';
 
 const product: SEOProduct = {
-  id: 'prod_99',
-  title: 'Heavyweight Oversized Hoodie',
-  description: 'Pure 450 GSM French Terry cotton hoodie.',
-  url: 'https://myshop.com/products/oversized-hoodie',
-  images: ['https://myshop.com/images/hoodie-1.jpg'],
-  price: 2499,
+  id: 'prod_hoodie_01',
+  title: 'Cyberpunk Heavyweight Hoodie',
+  description: 'Pure 450 GSM French Terry cotton hoodie with premium print.',
+  url: 'https://booststore.in/products/cyberpunk-hoodie',
+  images: ['https://booststore.in/images/hoodie-front.jpg'],
+  price: 1499,
   currency: 'INR',
-  brand: 'Aesthetic Club',
+  brand: 'BoostStore',
   availability: 'in_stock',
-  rating: { value: 4.9, count: 48 },
+  rating: { value: 4.8, count: 142 },
 };
 
-// Generate Next.js App Router OpenGraph & Twitter tags
+// 1. Next.js OpenGraph & Twitter metadata
 export async function generateMetadata() {
   return NextSeoHelper.generateProductMetadata(product, {
-    siteName: 'Aesthetic Club',
-    twitterHandle: '@aestheticclub',
+    siteName: 'BoostStore',
+    twitterHandle: '@boostengine',
   });
 }
 
+// 2. Page component with injected Google JSON-LD
 export default function ProductPage() {
   const jsonLd = JsonLdGenerator.product(product);
 
@@ -68,8 +103,11 @@ export default function ProductPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <h1>{product.title}</h1>
-      {/* Rest of your product page UI */}
+      <main>
+        <h1>{product.title}</h1>
+        <p>₹{product.price}</p>
+        {/* Product UI Components */}
+      </main>
     </div>
   );
 }
@@ -77,23 +115,33 @@ export default function ProductPage() {
 
 ---
 
-### 2. Google Shopping Merchant Center Feed API Route
+### 2. Google Shopping Merchant Feed (`app/api/feeds/google-merchant/route.ts`)
 
-Serve a dynamic, up-to-date Google Merchant XML feed to connect Google Shopping Ads & Free Listings:
+Serve an automated XML feed for Google Merchant Center:
 
 ```typescript
-// app/api/feeds/google-merchant/route.ts
 import { ProductFeedGenerator } from '@boostengine/seo';
 
 export async function GET() {
-  // Fetch your live catalog from database
-  const products = await getProductsFromDatabase();
+  // Fetch products from your database or CMS
+  const products = [
+    {
+      id: 'prod_hoodie_01',
+      title: 'Cyberpunk Heavyweight Hoodie',
+      description: '450 GSM pure cotton hoodie',
+      link: 'https://booststore.in/products/cyberpunk-hoodie',
+      imageLink: 'https://booststore.in/images/hoodie-front.jpg',
+      price: '1499.00 INR',
+      availability: 'in_stock',
+      brand: 'BoostStore',
+    },
+  ];
 
   const xml = ProductFeedGenerator.googleMerchantXml(
     {
-      title: 'My D2C Store India',
-      link: 'https://myshop.com',
-      description: 'Official online shopping store',
+      title: 'BoostStore India Official Catalog',
+      link: 'https://booststore.in',
+      description: 'D2C apparel and street fashion',
     },
     products
   );
@@ -109,17 +157,16 @@ export async function GET() {
 
 ---
 
-### 3. XML Sitemap Route
+### 3. XML Sitemap Generator (`app/sitemap.xml/route.ts`)
 
 ```typescript
-// app/sitemap.xml/route.ts
 import { SitemapGenerator } from '@boostengine/seo';
 
 export async function GET() {
   const sitemapXml = SitemapGenerator.generateXml([
-    { loc: 'https://myshop.com', priority: 1.0, changefreq: 'daily' },
-    { loc: 'https://myshop.com/collections/all', priority: 0.8, changefreq: 'daily' },
-    { loc: 'https://myshop.com/products/hoodie', priority: 0.9, changefreq: 'weekly' },
+    { loc: 'https://booststore.in', priority: 1.0, changefreq: 'daily' },
+    { loc: 'https://booststore.in/collections/all', priority: 0.8, changefreq: 'daily' },
+    { loc: 'https://booststore.in/products/cyberpunk-hoodie', priority: 0.9, changefreq: 'weekly' },
   ]);
 
   return new Response(sitemapXml, {
@@ -135,7 +182,7 @@ export async function GET() {
 ## 🛠️ CLI Utilities
 
 ```bash
-# Run interactive live JSON-LD and feed demo
+# Run interactive SEO simulation & validate test feeds
 npx @boostengine/seo demo
 ```
 

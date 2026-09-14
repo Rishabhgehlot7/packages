@@ -10,10 +10,21 @@
     "phone-auth",
     "ecommerce-auth",
     "jwt",
-    "session",
     "nextjs-auth",
-    "guest-checkout"
+    "guest-checkout",
+    "stateless-auth",
+    "headless-auth",
+    "session-cookies"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-auth#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-auth"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-auth": "./bin/cli.cjs"
   },

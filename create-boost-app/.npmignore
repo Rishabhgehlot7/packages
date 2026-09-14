@@ -1,0 +1,10 @@
+template/node_modules
+template/.next
+template/.turbo
+template/*.tsbuildinfo
+template/.env.local
+template/.DS_Store
+node_modules
+.next
+.git
+*.log

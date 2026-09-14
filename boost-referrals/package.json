@@ -1,0 +1,52 @@
+{
+  "name": "@boostengine/referrals",
+  "version": "1.0.0",
+  "description": "Double-sided viral referral & reward engine with anti-fraud shield and 1-click WhatsApp social share for Next.js, Vite, and Node.js.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "node test-suite.cjs"
+  },
+  "keywords": [
+    "referral",
+    "refer-and-earn",
+    "viral-growth",
+    "rewards",
+    "supercoins",
+    "cashback",
+    "discount-codes",
+    "anti-fraud",
+    "ecommerce",
+    "nextjs",
+    "vite",
+    "react",
+    "d2c",
+    "boostengine"
+  ],
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-referrals"
+  },
+  "homepage": "https://github.com/boostengine/boostengine#readme",
+  "sideEffects": false,
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

@@ -22,10 +22,12 @@ const packages = [
   'boost-recommendations',
   'boost-loyalty',
   'boost-ui',
+  'boost-returns',
+  'boost-referrals',
 ];
 
 console.log('=======================================================');
-console.log('  Building and Testing All 19 @boostengine Packages');
+console.log('  Building and Testing All 21 @boostengine Packages');
 console.log('=======================================================\n');
 
 let failed = [];

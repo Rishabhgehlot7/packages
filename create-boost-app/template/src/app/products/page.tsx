@@ -17,16 +17,46 @@ function ProductsContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [sortBy, setSortBy] = useState<SearchSortOption>('relevance');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [liveProducts, setLiveProducts] = useState<StoreProduct[]>(PRODUCTS);
+  const [liveCategories, setLiveCategories] = useState<any[]>([]);
 
-  const categories = ['All', 'Hoodies', 'T-Shirts', 'Footwear', 'Electronics', 'Accessories'];
+  React.useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          fetch('/api/products'),
+          fetch('/api/categories'),
+        ]);
+        const prodData = await prodRes.json();
+        const catData = await catRes.json();
+
+        if (prodData.success && prodData.data && prodData.data.length > 0) {
+          setLiveProducts(prodData.data);
+        }
+        if (catData.success && catData.data && catData.data.length > 0) {
+          setLiveCategories(catData.data);
+        }
+      } catch (err) {
+        // Fallback
+      }
+    }
+    loadCatalog();
+  }, []);
+
+  const categories = [
+    'All',
+    ...(liveCategories.length > 0
+      ? Array.from(new Set(liveCategories.map((c: any) => c.name))).filter(Boolean)
+      : Array.from(new Set(liveProducts.map((p) => p.category))).filter(Boolean)),
+  ];
 
   const searchResults = useMemo(() => {
-    return BoostSearchEngine.search(PRODUCTS as any, {
+    return BoostSearchEngine.search(liveProducts as any, {
       query: searchQuery || undefined,
       category: selectedCategory === 'All' ? undefined : selectedCategory,
       sortBy,
     }) as any;
-  }, [searchQuery, selectedCategory, sortBy]);
+  }, [liveProducts, searchQuery, selectedCategory, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-5">

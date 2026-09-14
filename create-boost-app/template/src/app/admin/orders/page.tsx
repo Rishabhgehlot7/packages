@@ -108,28 +108,28 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
             Order Fulfillment Pipeline
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-500">
             Dispatch items, update tracking AWB numbers, and manage customer orders in real-time.
           </p>
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
           <input
             type="text"
             placeholder="Search Order #, customer..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 transition"
           />
         </div>
       </div>
 
       {/* Tabs Filter Ribbon */}
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1 border-b border-slate-800/80">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1 border-b border-slate-200">
         {tabs.map((tab) => {
           const count =
             tab.id === 'all'
@@ -141,16 +141,16 @@ export default function AdminOrdersPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
               <span>{tab.label}</span>
               <span
                 className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${
-                  isActive ? 'bg-indigo-800 text-white' : 'bg-slate-800 text-slate-400'
+                  isActive ? 'bg-indigo-800 text-white' : 'bg-slate-200 text-slate-600'
                 }`}
               >
                 {count}
@@ -161,23 +161,23 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Orders Container */}
-      <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
         {loading ? (
-          <div className="py-20 text-center text-slate-500 text-xs">
-            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <div className="py-20 text-center text-slate-400 text-xs">
+            <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             Loading orders from MongoDB...
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="py-20 text-center text-slate-500 text-xs space-y-2">
-            <Package className="w-8 h-8 mx-auto text-slate-600" />
-            <p className="font-semibold">No orders found in this category.</p>
+          <div className="py-20 text-center text-slate-400 text-xs space-y-2">
+            <Package className="w-8 h-8 mx-auto text-slate-400" />
+            <p className="font-semibold text-slate-600">No orders found in this category.</p>
           </div>
         ) : (
           <>
-            {/* Desktop Table (>= 768px) */}
+            {/* Desktop & Tablet Table (>= 768px) */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-800/80 bg-slate-950/60">
+                <thead className="text-[10px] font-bold text-slate-500 uppercase border-b border-slate-200 bg-slate-50">
                   <tr>
                     <th className="py-3.5 px-5">Order Details</th>
                     <th className="py-3.5 px-5">Customer & Shipping</th>
@@ -189,14 +189,14 @@ export default function AdminOrdersPage() {
                     <th className="py-3.5 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-100 font-medium">
                   {filteredOrders.map((order, idx) => (
-                    <tr key={order.id || order.orderNumber || (order as any)._id || idx} className="hover:bg-slate-800/30 transition">
+                    <tr key={order.id || order.orderNumber || (order as any)._id || idx} className="hover:bg-slate-50/80 transition">
                       <td className="py-4 px-5">
-                        <span className="font-mono font-black text-indigo-400 text-xs block">
+                        <span className="font-mono font-black text-indigo-600 text-xs block">
                           {order.orderNumber}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-normal">
+                        <span className="text-[10px] text-slate-400 font-normal">
                           {new Date(order.createdAt).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
@@ -206,16 +206,16 @@ export default function AdminOrdersPage() {
                         </span>
                       </td>
 
-                      <td className="py-4 px-5 text-slate-200">
-                        <div className="font-bold text-white">{order.customer?.name || 'Guest Shopper'}</div>
-                        <div className="text-[11px] text-slate-400">{order.customer?.phone || 'No phone'}</div>
-                        <div className="text-[10px] text-slate-500 truncate max-w-[180px]">
+                      <td className="py-4 px-5 text-slate-800">
+                        <div className="font-bold text-slate-900">{order.customer?.name || 'Guest Shopper'}</div>
+                        <div className="text-[11px] text-slate-500">{order.customer?.phone || 'No phone'}</div>
+                        <div className="text-[10px] text-slate-400 truncate max-w-[180px]">
                           {order.customer?.address?.city || 'India'}, {order.customer?.address?.state || ''}
                         </div>
                       </td>
 
-                      <td className="py-4 px-5 text-slate-300">
-                        <div className="font-bold text-white">
+                      <td className="py-4 px-5 text-slate-600">
+                        <div className="font-bold text-slate-800">
                           {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                         </div>
                         <div className="text-[10px] text-slate-400 truncate max-w-[160px]">
@@ -223,7 +223,7 @@ export default function AdminOrdersPage() {
                         </div>
                       </td>
 
-                      <td className="py-4 px-5 text-white font-black">
+                      <td className="py-4 px-5 text-slate-900 font-black">
                         ₹{(order.total ?? 0).toLocaleString('en-IN')}
                       </td>
 
@@ -232,8 +232,8 @@ export default function AdminOrdersPage() {
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] uppercase font-black w-fit ${
                               order.paymentStatus === 'paid'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
                             }`}
                           >
                             {order.paymentStatus}
@@ -244,16 +244,16 @@ export default function AdminOrdersPage() {
                         </div>
                       </td>
 
-                      <td className="py-4 px-5 text-slate-300">
+                      <td className="py-4 px-5 text-slate-600">
                         {order.trackingNumber ? (
                           <div>
-                            <div className="font-bold text-[11px] text-slate-200">{order.courier}</div>
-                            <div className="font-mono text-[10px] text-indigo-400">
+                            <div className="font-bold text-[11px] text-slate-800">{order.courier}</div>
+                            <div className="font-mono text-[10px] text-indigo-600">
                               {order.trackingNumber}
                             </div>
                           </div>
                         ) : (
-                          <span className="text-slate-600 text-[11px]">Unassigned</span>
+                          <span className="text-slate-400 text-[11px]">Unassigned</span>
                         )}
                       </td>
 
@@ -261,10 +261,10 @@ export default function AdminOrdersPage() {
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] uppercase font-black ${
                             order.orderStatus === 'delivered'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : order.orderStatus === 'shipped'
-                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                              : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                           }`}
                         >
                           {order.orderStatus}
@@ -275,7 +275,7 @@ export default function AdminOrdersPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenStatusModal(order)}
-                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg text-xs font-bold transition border border-slate-700/60 shadow-xs"
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-bold transition border border-slate-200 shadow-2xs cursor-pointer"
                         >
                           Update
                         </button>
@@ -287,34 +287,34 @@ export default function AdminOrdersPage() {
             </div>
 
             {/* Mobile Cards View (< 768px) */}
-            <div className="md:hidden divide-y divide-slate-800/60">
+            <div className="md:hidden divide-y divide-slate-100">
               {filteredOrders.map((order, idx) => (
                 <div key={order.id || order.orderNumber || (order as any)._id || idx} className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="font-mono text-xs font-black text-indigo-400 block">
+                      <span className="font-mono text-xs font-black text-indigo-600 block">
                         {order.orderNumber}
                       </span>
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-slate-400">
                         {new Date(order.createdAt).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'short',
                         })}
                       </span>
                     </div>
-                    <span className="text-sm font-black text-white">
+                    <span className="text-sm font-black text-slate-900">
                       ₹{(order.total ?? 0).toLocaleString('en-IN')}
                     </span>
                   </div>
 
-                  <div className="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60 text-xs space-y-1">
-                    <div className="font-bold text-white flex items-center justify-between">
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs space-y-1">
+                    <div className="font-bold text-slate-900 flex items-center justify-between">
                       <span>{order.customer?.name || 'Guest Shopper'}</span>
-                      <span className="text-[10px] text-slate-400 font-normal">
+                      <span className="text-[10px] text-slate-500 font-normal">
                         {order.customer?.phone || ''}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-400 truncate">
+                    <div className="text-[10px] text-slate-500 truncate">
                       {order.customer?.address?.city || 'India'}, {order.customer?.address?.state || ''} • {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                     </div>
                   </div>
@@ -324,13 +324,13 @@ export default function AdminOrdersPage() {
                       <span
                         className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                           order.paymentStatus === 'paid'
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
                         }`}
                       >
                         {order.paymentStatus}
                       </span>
-                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                         {order.orderStatus}
                       </span>
                     </div>
@@ -338,7 +338,7 @@ export default function AdminOrdersPage() {
                     <button
                       type="button"
                       onClick={() => handleOpenStatusModal(order)}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-xs"
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition shadow-xs cursor-pointer"
                     >
                       Update Status
                     </button>
@@ -352,21 +352,21 @@ export default function AdminOrdersPage() {
 
       {/* Dispatch / Status Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-base font-black text-slate-900">
                   Update Order #{selectedOrder.orderNumber}
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                   Update dispatch status and assign courier tracking.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -374,13 +374,13 @@ export default function AdminOrdersPage() {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                   Fulfillment Status
                 </label>
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white"
                 >
                   <option value="pending">Pending</option>
                   <option value="processing">Processing</option>
@@ -391,7 +391,7 @@ export default function AdminOrdersPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                   Courier Partner
                 </label>
                 <input
@@ -399,12 +399,12 @@ export default function AdminOrdersPage() {
                   value={courier}
                   onChange={(e) => setCourier(e.target.value)}
                   placeholder="e.g. Delhivery, Bluedart, DTDC"
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                   AWB Tracking Number
                 </label>
                 <input
@@ -412,7 +412,7 @@ export default function AdminOrdersPage() {
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
                   placeholder="e.g. DEL123456789IN"
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-indigo-600 focus:bg-white font-mono"
                 />
               </div>
             </div>
@@ -421,7 +421,7 @@ export default function AdminOrdersPage() {
               <button
                 type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white text-xs font-bold transition"
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-bold transition"
               >
                 Cancel
               </button>
@@ -429,7 +429,7 @@ export default function AdminOrdersPage() {
                 type="button"
                 disabled={updating}
                 onClick={handleUpdateStatus}
-                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/25 transition disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
               >
                 {updating ? 'Saving...' : 'Save Updates'}
               </button>

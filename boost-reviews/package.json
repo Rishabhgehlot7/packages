@@ -11,8 +11,19 @@
     "star-rating",
     "verified-buyer",
     "ecommerce-reviews",
-    "ugc"
+    "ugc",
+    "headless-reviews",
+    "customer-feedback"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-reviews#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-reviews"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-reviews": "./bin/cli.cjs"
   },

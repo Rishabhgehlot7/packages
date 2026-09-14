@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/loyalty",
   "version": "1.0.0",
-  "description": "Amazon Pay Rewards & Flipkart SuperCoins loyalty rewards engine for BoostEngine",
+  "description": "Flipkart SuperCoins & Amazon Pay style loyalty rewards, tier progression & checkout redemptions for Next.js, Vite, React, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
@@ -23,12 +24,25 @@
     "loyalty",
     "supercoins",
     "rewards",
-    "amazon-pay",
     "cashback",
+    "vip-tiers",
+    "reward-points",
+    "ecommerce",
+    "nextjs",
+    "vite",
+    "react",
+    "d2c",
     "boostengine"
   ],
-  "author": "BoostEngine Team",
+  "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-loyalty"
+  },
+  "homepage": "https://github.com/boostengine/boostengine#readme",
+  "sideEffects": false,
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"

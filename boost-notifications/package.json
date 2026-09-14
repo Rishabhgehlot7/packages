@@ -15,10 +15,20 @@
     "msg91",
     "resend",
     "ecommerce",
-    "order-notifications",
     "cart-recovery",
-    "otp"
+    "otp",
+    "headless-messaging",
+    "transactional-alerts"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-notifications#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-notifications"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-notifications": "./bin/cli.cjs"
   },

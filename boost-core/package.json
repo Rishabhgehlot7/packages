@@ -10,8 +10,19 @@
     "wordpress-hooks",
     "d2c-engine",
     "action-filters",
-    "micro-plugins"
+    "micro-plugins",
+    "headless-architecture",
+    "event-bus"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-core#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-core"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

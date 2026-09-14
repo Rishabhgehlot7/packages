@@ -17,26 +17,27 @@ import { Flame, Sparkles, Zap, ArrowRight, Tag, Heart, ChevronLeft, ChevronRight
 
 export default function HomePage() {
   const router = useRouter();
-  const { addToCart, toggleWishlist, wishlistItems, inventory, superCoins } = useStore();
+  const { addToCart, toggleWishlist, wishlistItems, inventory, superCoins, settings } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<SearchSortOption>('relevance');
 
-  // Dynamic Banners from MongoDB
+  // Dynamic Products & Banners & Categories from MongoDB
+  const [liveProducts, setLiveProducts] = useState<StoreProduct[]>(PRODUCTS);
   const [heroBanners, setHeroBanners] = useState<any[]>([]);
   const [activeBannerIdx, setActiveBannerIdx] = useState(0);
-
-  // Dynamic Categories
   const [apiCategories, setApiCategories] = useState<any[]>([]);
 
   React.useEffect(() => {
     async function fetchHomeData() {
       try {
-        const [bannersRes, catRes] = await Promise.all([
+        const [bannersRes, catRes, prodRes] = await Promise.all([
           fetch('/api/banners'),
           fetch('/api/categories'),
+          fetch('/api/products'),
         ]);
         const bannersData = await bannersRes.json();
         const catData = await catRes.json();
+        const prodData = await prodRes.json();
 
         if (bannersData.success && bannersData.hero && bannersData.hero.length > 0) {
           setHeroBanners(bannersData.hero);
@@ -47,8 +48,12 @@ export default function HomePage() {
         if (catData.success && catData.data && catData.data.length > 0) {
           setApiCategories(catData.data);
         }
+
+        if (prodData.success && prodData.data && prodData.data.length > 0) {
+          setLiveProducts(prodData.data);
+        }
       } catch (err) {
-        // Fallback to static
+        // Fallback
       }
     }
     fetchHomeData();
@@ -63,63 +68,65 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [heroBanners.length]);
 
-  const searchResults = BoostSearchEngine.search(PRODUCTS as any, {
+  const searchResults = BoostSearchEngine.search(liveProducts as any, {
     category: selectedCategory === 'All' ? undefined : selectedCategory,
     sortBy,
   }) as any;
 
-  // Visual Category Circles (Compact Amazon/Flipkart style)
+  // Dynamic Category Ribbon from MongoDB
   const visualCategories = [
-    { name: 'All', icon: '🛍️', bg: '#eff6ff' },
+    { name: 'All', icon: '🛍️' },
     ...(apiCategories.length > 0
-      ? apiCategories.slice(0, 6).map((c, i) => ({
+      ? apiCategories.map((c, i) => ({
           name: c.name,
-          icon: ['🧥', '👕', '🎒', '🎧', '👟', '🕶️'][i % 6],
-          bg: ['#fef3c7', '#fce7f3', '#e0e7ff', '#ecfdf5', '#f3e8ff', '#fff1f2'][i % 6],
+          icon: ['🧥', '👕', '🎒', '🎧', '👟', '🕶️', '⌚', '📦'][i % 8],
         }))
       : [
-          { name: 'Hoodies', icon: '🧥', bg: '#fef3c7' },
-          { name: 'T-Shirts', icon: '👕', bg: '#fce7f3' },
-          { name: 'Electronics', icon: '🎧', bg: '#e0e7ff' },
-          { name: 'Footwear', icon: '👟', bg: '#ecfdf5' },
-          { name: 'Accessories', icon: '🎒', bg: '#f3e8ff' },
+          { name: 'Hoodies', icon: '🧥' },
+          { name: 'T-Shirts', icon: '👕' },
+          { name: 'Footwear', icon: '👟' },
+          { name: 'Electronics', icon: '🎧' },
+          { name: 'Accessories', icon: '🎒' },
         ]),
   ];
 
+  const categoryFilterList = [
+    'All',
+    ...Array.from(new Set(apiCategories.map((c) => c.name))).filter(Boolean),
+  ];
+
   const [dealEndTimestamp] = useState<number>(() => Date.now() + 6 * 3600 * 1000 + 42 * 60 * 1000);
-  const dealProducts = PRODUCTS.slice(0, 4);
+
+  // Dynamic Deals: products with largest discount from live MongoDB catalog
+  const dealProducts = [...liveProducts]
+    .filter((p) => p.compareAtPrice && p.compareAtPrice > p.price)
+    .sort((a, b) => {
+      const discA = (a.compareAtPrice - a.price) / a.compareAtPrice;
+      const discB = (b.compareAtPrice - b.price) / b.compareAtPrice;
+      return discB - discA;
+    })
+    .slice(0, 4);
 
   return (
-    <div className="space-y-5 sm:space-y-6 pb-16">
-      {/* 1. Category Quick Ribbon (Compact icon bar) */}
-      <section className="bg-white border-b border-gray-100 py-2 shadow-2xs">
+    <div className="space-y-3.5 sm:space-y-5 pb-16">
+      {/* 1. Category Quick Ribbon (Ultra-Compact Amazon/Flipkart/Myntra Pill Strip) */}
+      <section className="bg-white border-b border-gray-100 py-1.5 shadow-2xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-start sm:justify-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar py-0.5">
             {visualCategories.map((cat) => {
               const isSelected = selectedCategory === cat.name;
               return (
                 <button
                   key={cat.name}
                   onClick={() => setSelectedCategory(cat.name)}
-                  className="flex flex-col items-center gap-1 flex-shrink-0 group cursor-pointer focus:outline-none"
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all flex-shrink-0 cursor-pointer ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-xs scale-102'
+                      : 'bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
+                  }`}
                 >
-                  <div
-                    className={`w-11 h-11 sm:w-13 sm:h-13 rounded-full flex items-center justify-center text-xl transition-all ${
-                      isSelected
-                        ? 'ring-2 ring-blue-600 shadow-xs scale-105'
-                        : 'group-hover:scale-105 border border-gray-100 shadow-2xs'
-                    }`}
-                    style={{ backgroundColor: cat.bg }}
-                  >
-                    <span>{cat.icon}</span>
-                  </div>
-                  <span
-                    className={`text-[10px] sm:text-[11px] font-semibold ${
-                      isSelected ? 'text-blue-600 font-bold' : 'text-gray-700 group-hover:text-black'
-                    }`}
-                  >
-                    {cat.name}
-                  </span>
+                  <span className="text-sm">{cat.icon}</span>
+                  <span className="text-[11px] sm:text-xs">{cat.name}</span>
                 </button>
               );
             })}
@@ -127,10 +134,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Compact Marketplace Hero Banner & Carousel */}
+      {/* 2. Space-Optimized Marketplace Hero Banner & Carousel */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {heroBanners.length > 0 ? (
-          <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[21/10] sm:aspect-[24/9] md:aspect-[28/9] bg-slate-950 group">
+          <div className="relative rounded-2xl overflow-hidden shadow-md aspect-[16/9] sm:aspect-[24/8] md:aspect-[28/8] bg-slate-950 group">
             {/* Carousel Slides */}
             {heroBanners.map((banner, idx) => {
               const isActive = idx === activeBannerIdx;
@@ -154,8 +161,8 @@ export default function HomePage() {
                   </picture>
 
                   {/* Gradient Overlay & Text Content */}
-                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/85 via-black/40 to-transparent flex items-end sm:items-center p-5 sm:p-8 md:p-12">
-                    <div className="max-w-xl space-y-2 sm:space-y-3">
+                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/80 via-black/35 to-transparent flex items-end sm:items-center p-4 sm:p-7 md:p-10">
+                    <div className="max-w-lg space-y-1.5 sm:space-y-2.5">
                       {banner.title && (
                         <h2 className="text-base sm:text-2xl md:text-3xl font-black tracking-tight text-white uppercase drop-shadow-md line-clamp-2">
                           {banner.title}
@@ -163,7 +170,7 @@ export default function HomePage() {
                       )}
                       <Link
                         href={banner.link || '/products'}
-                        className="inline-flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-4 py-2 rounded-full transition shadow-md cursor-pointer"
+                        className="inline-flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full transition shadow-md cursor-pointer"
                       >
                         <span>{banner.buttonText || 'Explore Collection'}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -182,7 +189,7 @@ export default function HomePage() {
                   onClick={() =>
                     setActiveBannerIdx((prev) => (prev - 1 + heroBanners.length) % heroBanners.length)
                   }
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 backdrop-blur cursor-pointer"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 backdrop-blur cursor-pointer"
                   aria-label="Previous banner"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -190,14 +197,14 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setActiveBannerIdx((prev) => (prev + 1) % heroBanners.length)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 backdrop-blur cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-20 backdrop-blur cursor-pointer"
                   aria-label="Next banner"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
                 {/* Dot Indicators */}
-                <div className="absolute bottom-3 right-4 sm:right-6 flex items-center gap-1.5 z-20">
+                <div className="absolute bottom-2.5 right-4 sm:right-6 flex items-center gap-1.5 z-20">
                   {heroBanners.map((_, i) => (
                     <button
                       key={i}
@@ -214,10 +221,10 @@ export default function HomePage() {
             )}
           </div>
         ) : (
-          <div className="relative rounded-2xl bg-gradient-to-r from-slate-950 via-indigo-950 to-blue-900 text-white py-6 sm:py-8 px-5 sm:px-8 overflow-hidden shadow-lg">
+          <div className="relative rounded-2xl bg-gradient-to-r from-slate-950 via-indigo-950 to-blue-900 text-white py-5 sm:py-7 px-4 sm:px-8 overflow-hidden shadow-md">
             <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]" />
 
-            <div className="max-w-xl space-y-2.5 sm:space-y-3 relative z-10">
+            <div className="max-w-xl space-y-2 sm:space-y-2.5 relative z-10">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 bg-yellow-400 text-black text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                   <Zap className="w-3 h-3 fill-black" />
@@ -226,7 +233,7 @@ export default function HomePage() {
                 <AssuredBadge type="assured" />
               </div>
 
-              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight uppercase">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight leading-tight uppercase">
                 India's Favorite <br className="hidden sm:inline" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-rose-300">
                   Premium Marketplace
@@ -237,17 +244,17 @@ export default function HomePage() {
                 100% genuine fashion & electronics. Same-day dispatch, No-Cost EMI & SuperCoins cashback!
               </p>
 
-              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
                 <a
                   href="#lightning-deals"
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-4 py-2 rounded-full transition shadow-sm flex items-center gap-1.5"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xs px-3.5 py-1.5 rounded-full transition shadow-xs flex items-center gap-1.5"
                 >
                   <span>Shop Deals</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </a>
                 <Link
                   href="/products"
-                  className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2 rounded-full border border-white/20 transition"
+                  className="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-3.5 py-1.5 rounded-full border border-white/20 transition"
                 >
                   All Products
                 </Link>
@@ -257,16 +264,58 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* 3. ⚡ Amazon / Flipkart Lightning Deals (Compact Grid) */}
-      <section id="lightning-deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-3 scroll-mt-20">
+      {/* 3. High-Conversion Trust & Value Propositions Strip (Big Player Standard) */}
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5 bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 shadow-2xs">
+          <div className="flex items-center gap-2 px-1.5 sm:px-2">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm flex-shrink-0">
+              ⚡
+            </div>
+            <div className="leading-tight">
+              <div className="text-[11px] font-bold text-slate-900">Fast Express Delivery</div>
+              <div className="text-[9px] text-slate-500">{settings.freeShippingThreshold ? `Free Above ₹${settings.freeShippingThreshold}` : 'Orders before 2 PM'}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-1.5 sm:px-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm flex-shrink-0">
+              🛡️
+            </div>
+            <div className="leading-tight">
+              <div className="text-[11px] font-bold text-slate-900">100% Genuine</div>
+              <div className="text-[9px] text-slate-500">Direct from Brands</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-1.5 sm:px-2">
+            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm flex-shrink-0">
+              🔄
+            </div>
+            <div className="leading-tight">
+              <div className="text-[11px] font-bold text-slate-900">7-Day Easy Returns</div>
+              <div className="text-[9px] text-slate-500">No Questions Asked</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-1.5 sm:px-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm flex-shrink-0">
+              💵
+            </div>
+            <div className="leading-tight">
+              <div className="text-[11px] font-bold text-slate-900">{settings.enableCod !== false ? 'Pay on Delivery' : 'Secure Payments'}</div>
+              <div className="text-[9px] text-slate-500">{settings.enableCod !== false ? 'Cash & UPI at Doorstep' : '100% Buyer Protection'}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. ⚡ Amazon / Flipkart Lightning Deals (Compact Grid) */}
+      <section id="lightning-deals" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-2.5 scroll-mt-20">
         <LightningDealsBar
           dealTitle="⚡ DEALS OF THE DAY"
           endsAt={dealEndTimestamp}
           percentageClaimed={84}
         />
 
-        {/* 2-column mobile, 4-column desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        {/* 2-col mobile, 4-col tablet & desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
           {dealProducts.map((product) => {
             const isWishlisted = wishlistItems.some((w) => w.productId === product.id);
             const discountPercent = Math.round(
@@ -276,15 +325,15 @@ export default function HomePage() {
             return (
               <div
                 key={product.id}
-                className="bg-white border border-amber-200 rounded-xl p-2.5 sm:p-3 shadow-2xs hover:shadow-sm transition flex flex-col justify-between"
+                className="bg-white border border-amber-200/90 rounded-xl p-2 sm:p-2.5 shadow-2xs hover:shadow-xs transition flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-1">
                     <span className="bg-red-600 text-white text-[9px] sm:text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
                       {discountPercent}% OFF
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-bold text-blue-600 hidden sm:inline">Assured</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[9px] sm:text-[10px] font-bold text-blue-600 hidden sm:inline">Assured</span>
                       <button
                         type="button"
                         onClick={(e) => {
@@ -296,7 +345,7 @@ export default function HomePage() {
                         aria-label="Wishlist"
                       >
                         <Heart
-                          size={15}
+                          size={14}
                           className={isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-400'}
                         />
                       </button>
@@ -305,7 +354,7 @@ export default function HomePage() {
 
                   <div
                     onClick={() => router.push(`/products/${product.id}`)}
-                    className="cursor-pointer space-y-1.5"
+                    className="cursor-pointer space-y-1"
                   >
                     <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center p-1">
                       <img
@@ -316,20 +365,20 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                      <span className="text-[9px] sm:text-[10px] font-bold text-blue-600 uppercase">
+                      <span className="text-[9px] font-bold text-blue-600 uppercase">
                         {product.brand}
                       </span>
                       <h3 className="text-xs font-bold text-gray-900 line-clamp-1 leading-snug">
                         {product.title}
                       </h3>
                       <div className="flex items-center gap-1 pt-0.5">
-                        <StarRating rating={product.rating.value} size={11} />
-                        <span className="text-[10px] text-gray-500">({product.rating.count})</span>
+                        <StarRating rating={product.rating.value} size={10} />
+                        <span className="text-[9px] text-gray-500">({product.rating.count})</span>
                       </div>
                     </div>
 
                     <div className="flex items-baseline gap-1.5 pt-0.5">
-                      <span className="text-sm sm:text-base font-black text-gray-950">
+                      <span className="text-xs sm:text-sm font-black text-gray-950">
                         ₹{product.price}
                       </span>
                       <span className="text-[10px] sm:text-xs text-gray-400 line-through">
@@ -339,10 +388,10 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="mt-2.5 pt-2 border-t border-gray-100 flex gap-1.5">
+                <div className="mt-2 pt-1.5 border-t border-gray-100 flex gap-1.5">
                   <button
                     onClick={() => addToCart(product)}
-                    className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[11px] font-bold py-1.5 rounded-lg transition"
+                    className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[10px] sm:text-[11px] font-bold py-1 sm:py-1.5 rounded-lg transition"
                   >
                     + Cart
                   </button>
@@ -351,7 +400,7 @@ export default function HomePage() {
                       addToCart(product);
                       router.push('/checkout');
                     }}
-                    className="flex-1 bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold py-1.5 rounded-lg transition"
+                    className="flex-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] sm:text-[11px] font-bold py-1 sm:py-1.5 rounded-lg transition"
                   >
                     Buy
                   </button>
@@ -362,55 +411,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. SuperCoins & Bank Offers Promo Strip (Compact) */}
+      {/* 5. SuperCoins & Bank Offers Promo Strip (Compact) */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-          <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl p-3.5 sm:p-4 shadow-2xs flex items-center justify-between">
-            <div className="space-y-1 max-w-xs">
-              <span className="text-[10px] font-black uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+          <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl p-3 sm:p-3.5 shadow-2xs flex items-center justify-between">
+            <div className="space-y-0.5 max-w-xs">
+              <span className="text-[9px] font-black uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-full">
                 🪙 SuperCoins Club
               </span>
-              <h3 className="text-sm font-black">Balance: {superCoins} Coins</h3>
-              <p className="text-[11px] text-amber-100 leading-tight">
+              <h3 className="text-xs sm:text-sm font-black">Balance: {superCoins} Coins</h3>
+              <p className="text-[10px] sm:text-[11px] text-amber-100 leading-tight">
                 1 Coin = ₹1 discount at checkout. Earn 4 coins per ₹100!
               </p>
             </div>
-            <div className="text-3xl select-none">🪙</div>
+            <div className="text-2xl sm:text-3xl select-none">🪙</div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-700 to-indigo-800 text-white rounded-xl p-3.5 sm:p-4 shadow-2xs flex items-center justify-between">
-            <div className="space-y-1 max-w-xs">
-              <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
+          <div className="bg-gradient-to-br from-blue-700 to-indigo-800 text-white rounded-xl p-3 sm:p-3.5 shadow-2xs flex items-center justify-between">
+            <div className="space-y-0.5 max-w-xs">
+              <span className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit">
                 <Tag className="w-2.5 h-2.5" />
                 Bank Offers
               </span>
-              <h3 className="text-sm font-black">10% Instant Card Discount</h3>
-              <p className="text-[11px] text-blue-100 leading-tight">
+              <h3 className="text-xs sm:text-sm font-black">10% Instant Card Discount</h3>
+              <p className="text-[10px] sm:text-[11px] text-blue-100 leading-tight">
                 Up to ₹1,500 off on HDFC & SBI cards + No Cost EMI above ₹3,000.
               </p>
             </div>
-            <div className="text-3xl select-none">💳</div>
+            <div className="text-2xl sm:text-3xl select-none">💳</div>
           </div>
         </div>
       </section>
 
-      {/* 5. Main Catalog Grid (Compact 2-col on mobile, 4-col on desktop) */}
-      <section id="catalog" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-3.5 scroll-mt-20">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-gray-100 pb-2.5">
+      {/* 6. Main Catalog Grid (Compact 2-col mobile, 3-col tablet, 4-col laptop, 5-col wide desktop) */}
+      <section id="catalog" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-3 scroll-mt-20">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-2">
           <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-black tracking-tight uppercase flex items-center gap-1.5">
+            <h2 className="text-sm sm:text-base font-black tracking-tight uppercase flex items-center gap-1.5">
               <span>Trending Catalog</span>
               <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
             </h2>
-            <span className="text-[11px] text-gray-500">({searchResults.total} items)</span>
+            <span className="text-[10px] sm:text-[11px] text-gray-500">({searchResults.total} items)</span>
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            {['All', 'Hoodies', 'T-Shirts', 'Electronics', 'Footwear', 'Accessories'].map((cat) => (
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0">
+            {categoryFilterList.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${
+                className={`px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold transition whitespace-nowrap cursor-pointer ${
                   selectedCategory === cat
                     ? 'bg-black text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -422,8 +471,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 2-col mobile, 3-col tablet, 4-col desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        {/* Responsive High-Density Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
           {searchResults.products.map((product: StoreProduct) => {
             const isWishlisted = wishlistItems.some((w) => w.productId === product.id);
             const totalStock = product.variants && product.variants.length > 0

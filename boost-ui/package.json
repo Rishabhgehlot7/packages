@@ -5,15 +5,30 @@
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
-    "ui",
+    "ecommerce-ui",
     "react-ecommerce",
+    "nextjs-ecommerce",
     "cart-drawer",
+    "product-gallery",
+    "variant-selector",
     "sticky-add-to-cart",
     "pincode-checker",
     "trust-badges",
     "order-timeline",
-    "nextjs-ui"
+    "headless-commerce",
+    "d2c",
+    "shopify-ui",
+    "nextjs-ui-components"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-ui": "./bin/cli.cjs"
   },

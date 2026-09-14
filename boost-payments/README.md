@@ -1,30 +1,84 @@
-# @boostengine/payments
+# @boostengine/payments 💳
 
-> **Unified Multi-Gateway Payment Orchestration Layer** for Indian & Global eCommerce. Seamlessly integrate **Razorpay, Cashfree, PhonePe, Paytm, Stripe, and Cash On Delivery (COD)** through a single unified API with smart routing, automatic fallbacks, Next.js App Router webhook helpers, and React checkout hooks.
+[![npm version](https://img.shields.io/npm/v/@boostengine/payments.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/payments)
+[![npm downloads](https://img.shields.io/npm/dm/@boostengine/payments.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/payments)
+[![license](https://img.shields.io/npm/l/@boostengine/payments.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Gateways](https://img.shields.io/badge/Gateways-Razorpay%20%7C%20Cashfree%20%7C%20PhonePe%20%7C%20Paytm%20%7C%20Stripe%20%7C%20COD-purple.svg?style=flat-square)](https://npmjs.com/package/@boostengine/payments)
+
+> **Unified multi-gateway payment orchestration for Indian and global eCommerce. Connect Razorpay, Cashfree, PhonePe, Paytm, Stripe, and Cash on Delivery (COD) with a single, unified API. Features automatic gateway failover, smart currency routing, Next.js webhook normalizers, and React checkout hooks.**
+
+Zero dependency bloat — uses native Node.js `crypto` and `fetch`. No need to install 6 separate heavy vendor SDKs.
 
 ---
 
-## ⚡ Key Highlights
+## 📸 Architecture & Payment Flow
 
-- 🔌 **Universal Checkout API**: Pass standard amounts (e.g. `1499.00`). Subunits (paise/cents) are normalized internally!
-- 🛡️ **High-Availability Fallback**: If your primary gateway is down or bank servers timeout, automatically failover to your secondary gateway!
-- 💱 **Smart Currency Routing**: Automatically route USD/EUR to Stripe and INR to Cashfree/Razorpay/PhonePe.
-- ⚡ **Next.js App Router Native**: 2-line webhook verification with `payments.verifyNextJsWebhook(req, { gateway: 'razorpay' })`.
-- 🏷️ **Normalized Webhook Events**: Standardized events like `'PAYMENT_SUCCESS'`, `'PAYMENT_FAILED'`, `'REFUND_PROCESSED'`.
-- ⚛️ **Client Checkout Hook**: `useBoostPayment()` hook to open Razorpay modals or Cashfree dropin with automatic SDK loading!
-- 🪶 **Zero Dependency Bloat**: Uses native Node.js `fetch` and `crypto`. No 10 heavy third-party vendor SDKs.
+```text
+  Customer Clicks "Pay Now" (₹1,499)
+                 │
+                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                 Smart Payment Orchestrator                  │
+  ├─────────────────────────────────────────────────────────────┤
+  │ Currency Routing:                                           │
+  │   - If INR  ──► Route to Cashfree / Razorpay / PhonePe      │
+  │   - If USD  ──► Route to Stripe                             │
+  │   - If COD  ──► Verify min/max limits & add handling fee    │
+  │                                                             │
+  │ High-Availability Failover:                                 │
+  │   [Cashfree Server 500] ──► Auto-retry with [Razorpay] ──► OK│
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │              Client Checkout Hook (`useBoostPayment`)        │
+  ├─────────────────────────────────────────────────────────────┤
+  │ Opens Razorpay Popup / Cashfree Dropin / PhonePe App / UPI  │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │              Next.js Webhook Handler (2 Lines)              │
+  ├─────────────────────────────────────────────────────────────┤
+  │ Validates HMAC-SHA256 signature and returns normalized event:│
+  │   'PAYMENT_SUCCESS' | 'PAYMENT_FAILED' | 'REFUND_PROCESSED' │
+  └─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🌟 Gateway Comparison
+
+| Gateway | Supported Currencies | Methods Supported | Best For |
+| :--- | :--- | :--- | :--- |
+| **Razorpay** | INR, USD, EUR + 90 more | UPI, Cards, NetBanking, Wallets, EMI | Reliable Indian D2C checkout |
+| **Cashfree** | INR | Instant UPI QR, Intent, NetBanking, Cards | Low transaction fees & high UPI success |
+| **PhonePe** | INR | PhonePe App, UPI Intent, QR Code | Fast mobile conversions in India |
+| **Stripe** | Global (135+ currencies) | Credit/Debit Cards, Apple Pay, Google Pay | International cross-border sales |
+| **Paytm** | INR | Paytm Wallet, UPI, Postpaid, NetBanking | Indian mobile users |
+| **Cash on Delivery** | Any | Pay in cash upon delivery | Tier 2/3 Indian cities |
 
 ---
 
 ## 📦 Installation
 
 ```bash
+# npm
 npm install @boostengine/payments
+
+# pnpm
+pnpm add @boostengine/payments
+
+# yarn
+yarn add @boostengine/payments
 ```
 
 ---
 
-## 🚀 1. Server-Side Setup (`lib/payments.ts`)
+## 🚀 Step-by-Step Integration Guide
+
+### Step 1: Initialize Payment Manager (`lib/payments.ts`)
 
 ```typescript
 import { createPaymentManager } from '@boostengine/payments';
@@ -56,11 +110,11 @@ export const payments = createPaymentManager({
     cod: {
       minOrderValue: 200,
       maxOrderValue: 10000,
-      extraFee: 49, // Rs. 49 COD handling charge
+      extraFee: 49, // ₹49 COD handling charge
     },
   },
 
-  // Smart Routing & Resilience
+  // Smart Routing & High Availability
   smartRouting: {
     currencyMap: {
       USD: 'stripe',
@@ -74,17 +128,19 @@ export const payments = createPaymentManager({
 
 ---
 
-## 💳 2. Unified Order Creation (Server Route)
+### Step 2: Create Order API Route (`app/api/checkout/route.ts`)
 
-Always pass standard human currency units (e.g. `1499.00`). Package handles paise/cents conversions automatically:
+Pass standard human amounts (e.g. `1499.00`). Paise and cents conversion is handled automatically!
 
 ```typescript
-// Next.js Route Handler / Express
-export async function POST(req: Request) {
-  const { amount, customer, chosenGateway } = await req.json();
+import { payments } from '@/lib/payments';
 
-  const order = await payments.createOrder({
-    amount: 1499.00, // Always in standard currency (e.g. Rs. 1499.00)
+export async function POST(req: Request) {
+  const { amount, customer, gateway } = await req.json();
+
+  // Create order with automatic fallback if primary gateway is down
+  const order = await payments.createOrderWithFallback({
+    amount: amount, // e.g. 1499
     currency: 'INR',
     receipt: `order_${Date.now()}`,
     customer: {
@@ -92,7 +148,7 @@ export async function POST(req: Request) {
       email: customer.email,
       phone: customer.phone,
     },
-    gateway: chosenGateway, // or let smartRouting decide
+    fallbackChain: gateway ? [gateway, 'razorpay'] : ['cashfree', 'razorpay'],
   });
 
   return Response.json(order);
@@ -101,9 +157,61 @@ export async function POST(req: Request) {
 
 ---
 
-## 🔥 3. Next.js App Router Webhook (`app/api/webhooks/[gateway]/route.ts`)
+### Step 3: Frontend Checkout Button (`components/CheckoutButton.tsx`)
 
-No manual stream parsing or signature math required:
+The `useBoostPayment` hook automatically injects the right vendor scripts on demand and displays payment modals:
+
+```tsx
+'use client';
+
+import { useBoostPayment } from '@boostengine/payments/react';
+import { useRouter } from 'next/navigation';
+
+export default function CheckoutButton({ cartTotal, customer }: any) {
+  const router = useRouter();
+  const { openPaymentModal, isProcessing } = useBoostPayment();
+
+  const handlePay = async (gateway: 'razorpay' | 'cashfree' | 'phonepe' | 'cod') => {
+    // 1. Create order on server
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ amount: cartTotal, customer, gateway }),
+    });
+    const order = await res.json();
+
+    // 2. Open popup modal or redirect
+    openPaymentModal({
+      order,
+      name: 'BoostStore',
+      description: 'Order Payment',
+      themeColor: '#4f46e5',
+      onSuccess: async (result) => {
+        router.push(`/order-success?id=${result.orderId}`);
+      },
+      onFailure: (err) => {
+        alert(`Payment failed: ${err.message}`);
+      },
+    });
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: '10px' }}>
+      <button disabled={isProcessing} onClick={() => handlePay('cashfree')}>
+        Pay Online (UPI / Card)
+      </button>
+      <button disabled={isProcessing} onClick={() => handlePay('cod')}>
+        Cash on Delivery
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+### Step 4: Next.js Universal Webhook Handler (`app/api/webhooks/[gateway]/route.ts`)
+
+Verify webhook signatures in 2 lines with standard normalized events:
 
 ```typescript
 import { payments } from '@/lib/payments';
@@ -120,11 +228,11 @@ export async function POST(
     return new Response('Invalid Signature', { status: 400 });
   }
 
-  // Use standardized normalized events across all gateways!
+  // Handle standardized events across all payment gateways!
   switch (result.normalizedEvent) {
     case 'PAYMENT_SUCCESS':
-      console.log(`✅ Order ${result.orderId} paid successfully! Amount: ${result.amount}`);
-      // Update database: Order status -> PAID
+      console.log(`✅ Order ${result.orderId} paid! Amount: ₹${result.amount}`);
+      // TODO: Update Order status to 'PAID' in database
       break;
 
     case 'PAYMENT_FAILED':
@@ -132,7 +240,7 @@ export async function POST(
       break;
 
     case 'REFUND_PROCESSED':
-      console.log(`🔄 Refund processed for payment ${result.paymentId}`);
+      console.log(`🔄 Refund completed for ${result.paymentId}`);
       break;
   }
 
@@ -142,113 +250,20 @@ export async function POST(
 
 ---
 
-## ⚛️ 4. Frontend Checkout Hook (`useBoostPayment`)
+## 🛠️ CLI Utilities
 
-Automatically detects gateway, dynamically loads required vendor script, and triggers modals or redirects:
-
-```tsx
-'use client';
-
-import { useBoostPayment } from '@boostengine/payments/react';
-import { useRouter } from 'next/navigation';
-
-export default function CheckoutButton({ cartTotal, customer }) {
-  const router = useRouter();
-  const { openPaymentModal, isProcessing } = useBoostPayment();
-
-  const handleCheckout = async (gateway: 'razorpay' | 'cashfree' | 'phonepe' | 'cod') => {
-    // 1. Call your server API to create order
-    const res = await fetch('/api/orders/create', {
-      method: 'POST',
-      body: JSON.stringify({ amount: cartTotal, customer, chosenGateway: gateway }),
-    });
-    const order = await res.json();
-
-    // 2. Open checkout modal / redirect automatically
-    openPaymentModal({
-      order,
-      name: 'Boost Engine Store',
-      description: 'Order Checkout',
-      themeColor: '#4f46e5',
-      onSuccess: async (response) => {
-        // Automatically called when Razorpay modal succeeds or COD is chosen
-        router.push(`/order-confirmed?id=${response.orderId}`);
-      },
-      onFailure: (err) => {
-        alert(err.message);
-      },
-    });
-  };
-
-  return (
-    <div className="flex gap-2">
-      <button disabled={isProcessing} onClick={() => handleCheckout('razorpay')}>
-        Pay with Razorpay
-      </button>
-      <button disabled={isProcessing} onClick={() => handleCheckout('cashfree')}>
-        Pay with Cashfree
-      </button>
-      <button disabled={isProcessing} onClick={() => handleCheckout('cod')}>
-        Cash On Delivery
-      </button>
-    </div>
-  );
-}
-```
-
----
-
-## 🛡️ 5. High-Availability Fallback Checkout
-
-If your primary payment gateway experiences bank server outages or 500 errors, automatic fallback routes the order through the next available gateway:
-
-```typescript
-const order = await payments.createOrderWithFallback({
-  amount: 1499.00,
-  currency: 'INR',
-  receipt: `order_${Date.now()}`,
-  customer: {
-    name: 'Aman Sharma',
-    email: 'aman@example.com',
-    phone: '9876543210',
-  },
-  fallbackChain: ['razorpay', 'cashfree', 'phonepe'],
-});
-```
-
----
-
-## 🧰 Explicit TypeScript Type Exports
-
-```typescript
-import type {
-  PaymentOrderResult,
-  VerificationResult,
-  RefundResult,
-  WebhookResult,
-  SupportedGateway,
-  NormalizedWebhookEvent,
-  CreateOrderOptions,
-  BoostPaymentOpenOptions,
-} from '@boostengine/payments';
-```
-
----
-
-## 🛠️ CLI Tool
+Test and configure payment credentials quickly:
 
 ```bash
-# List all 6 supported gateways
+# List supported gateways and their status
 npx @boostengine/payments list
 
-# Generate .env.payments.example template
+# Generate .env.payments template
 npx @boostengine/payments init-env
-
-# Compute quick SHA-256 hash
-npx @boostengine/payments hash "my_test_payload"
 ```
 
 ---
 
 ## 📄 License
-MIT © Boost Engine Team
+
+MIT © [Boost Engine](https://github.com/boostengine)

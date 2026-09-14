@@ -14,7 +14,8 @@ var BoostInventory = class {
     }
   }
   getKey(sku, warehouseId) {
-    return warehouseId ? `${sku.trim()}@${warehouseId.trim()}` : sku.trim();
+    const cleanSku = (sku || "").trim();
+    return warehouseId ? `${cleanSku}@${warehouseId.trim()}` : cleanSku;
   }
   /**
    * Sets or updates stock quantity for an SKU

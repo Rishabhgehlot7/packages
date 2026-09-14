@@ -11,8 +11,19 @@
     "nextjs-ecommerce",
     "d2c-store",
     "shopify-alternative",
-    "woocommerce-alternative"
+    "woocommerce-alternative",
+    "headless-storefront",
+    "nextjs-starter"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/create-boost-app#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/create-boost-app"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "create-boost-app": "./bin/create-boost-app.js",
     "create-boost-store": "./bin/create-boost-app.js"

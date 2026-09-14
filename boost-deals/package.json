@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/deals",
   "version": "1.0.0",
-  "description": "Enterprise-grade Lightning Deals, Flash Sales, and Countdown Timers for BoostEngine",
+  "description": "Amazon-style Lightning Deals, Flash Sales, and Countdown Urgency Timers for Next.js, Vite, React, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
@@ -23,11 +24,24 @@
     "deals",
     "lightning-deals",
     "flash-sale",
-    "countdown",
+    "countdown-timer",
+    "urgency-marketing",
+    "ecommerce",
+    "nextjs",
+    "vite",
+    "react",
+    "d2c",
     "boostengine"
   ],
-  "author": "BoostEngine Team",
+  "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-deals"
+  },
+  "homepage": "https://github.com/boostengine/boostengine#readme",
+  "sideEffects": false,
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"

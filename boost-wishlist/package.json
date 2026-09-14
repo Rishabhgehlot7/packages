@@ -9,9 +9,19 @@
     "save-for-later",
     "ecommerce-wishlist",
     "price-drop",
-    "guest-wishlist",
-    "cart-integration"
+    "cart-integration",
+    "headless-wishlist",
+    "saved-items"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-wishlist#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-wishlist"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-wishlist": "./bin/cli.cjs"
   },

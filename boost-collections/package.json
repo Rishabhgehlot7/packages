@@ -22,8 +22,18 @@
     "warehouse-management",
     "india-ecommerce",
     "api-testing",
-    "rest-api"
+    "rest-api",
+    "ecommerce-api-collections"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-collections#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-collections"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-collections": "./bin/cli.cjs"
   },

@@ -13,8 +13,21 @@
     "google-shopping-feed",
     "nextjs-seo",
     "opengraph",
-    "sitemap"
+    "sitemap",
+    "rich-snippets",
+    "structured-data",
+    "ecommerce-seo-optimization",
+    "merchant-return-policy"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-seo#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-seo"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-seo": "./bin/cli.cjs"
   },

@@ -13,8 +13,19 @@
     "tiered-discounts",
     "cart-rules",
     "best-coupon",
-    "free-shipping"
+    "free-shipping",
+    "headless-coupons",
+    "voucher-codes"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-coupons#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-coupons"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-coupons": "./bin/cli.cjs"
   },

@@ -25,7 +25,7 @@ export class RecommendationsEngine {
     // Complementary scoring: Prefer products in same category or matching tags
     const ranked = pool.map((item) => {
       let score = 0;
-      if (item.category.toLowerCase() === mainProduct.category.toLowerCase()) {
+      if ((item.category || '').toLowerCase() === (mainProduct.category || '').toLowerCase()) {
         score += 30;
       }
       if (mainProduct.tags && item.tags) {
@@ -75,7 +75,7 @@ export class RecommendationsEngine {
 
     const scored: RecommendationScore[] = pool.map((item) => {
       let score = 0;
-      if (item.category.toLowerCase() === targetProduct.category.toLowerCase()) {
+      if ((item.category || '').toLowerCase() === (targetProduct.category || '').toLowerCase()) {
         score += 50;
       }
       if (targetProduct.tags && item.tags) {

@@ -11,8 +11,19 @@
     "multi-warehouse",
     "stock-reservation",
     "ecommerce-inventory",
-    "variant-matrix"
+    "variant-matrix",
+    "headless-inventory",
+    "stock-sync"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-inventory#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-inventory"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-inventory": "./bin/cli.cjs"
   },

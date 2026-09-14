@@ -23,6 +23,8 @@
     "@boostengine/notifications": "^1.0.0",
     "@boostengine/payments": "^1.0.0",
     "@boostengine/recommendations": "^1.0.0",
+    "@boostengine/referrals": "^1.0.0",
+    "@boostengine/returns": "^1.0.0",
     "@boostengine/reviews": "^1.0.0",
     "@boostengine/search": "^1.0.0",
     "@boostengine/seo": "^1.0.0",

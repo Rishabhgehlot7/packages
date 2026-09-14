@@ -14,6 +14,31 @@ export interface IOrderItem {
   hsnCode?: string;
 }
 
+export interface IOrderReturnDetails {
+  reason: string;
+  comments?: string;
+  items: Array<{ productId: string; quantity: number; title: string; price: number }>;
+  requestedAt: Date;
+  refundMode: 'wallet' | 'original';
+  refundAmount: number;
+  pickupAwb?: string;
+  status: 'requested' | 'approved' | 'rejected' | 'picked_up' | 'refunded';
+}
+
+export interface IOrderShippingDetails {
+  awb: string;
+  courierName: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
+  liveTimeline?: Array<{
+    status: string;
+    description: string;
+    location: string;
+    timestamp: Date;
+    isCompleted: boolean;
+  }>;
+}
+
 export interface IOrderDocument extends Document {
   id: string;
   orderId?: string;
@@ -43,6 +68,13 @@ export interface IOrderDocument extends Document {
   razorpaySignature?: string;
   trackingNumber?: string;
   courier?: string;
+  shippingDetails?: IOrderShippingDetails;
+  returnStatus?: 'none' | 'requested' | 'approved' | 'rejected' | 'picked_up' | 'refunded';
+  returnDetails?: IOrderReturnDetails;
+  gstDetails?: {
+    buyerGstin?: string;
+    companyName?: string;
+  };
   metadata?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
@@ -109,6 +141,51 @@ const OrderSchema = new Schema<IOrderDocument>(
     razorpaySignature: { type: String },
     trackingNumber: { type: String },
     courier: { type: String },
+    shippingDetails: {
+      awb: { type: String },
+      courierName: { type: String },
+      trackingUrl: { type: String },
+      estimatedDelivery: { type: String },
+      liveTimeline: [
+        {
+          status: String,
+          description: String,
+          location: String,
+          timestamp: Date,
+          isCompleted: Boolean,
+        },
+      ],
+    },
+    returnStatus: {
+      type: String,
+      enum: ['none', 'requested', 'approved', 'rejected', 'picked_up', 'refunded'],
+      default: 'none',
+    },
+    returnDetails: {
+      reason: String,
+      comments: String,
+      items: [
+        {
+          productId: String,
+          quantity: Number,
+          title: String,
+          price: Number,
+        },
+      ],
+      requestedAt: Date,
+      refundMode: { type: String, enum: ['wallet', 'original'], default: 'wallet' },
+      refundAmount: Number,
+      pickupAwb: String,
+      status: {
+        type: String,
+        enum: ['requested', 'approved', 'rejected', 'picked_up', 'refunded'],
+        default: 'requested',
+      },
+    },
+    gstDetails: {
+      buyerGstin: String,
+      companyName: String,
+    },
     metadata: { type: Map, of: Schema.Types.Mixed, default: {} },
   },
   {

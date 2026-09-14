@@ -22,10 +22,13 @@ const packages = [
   'boost-recommendations',
   'boost-loyalty',
   'boost-ui',
+  'boost-returns',
+  'boost-referrals',
+  'create-boost-app',
 ];
 
 console.log('=======================================================');
-console.log('  Publishing All 19 @boostengine Packages to NPM');
+console.log('  Publishing All 21 @boostengine Packages to NPM');
 console.log('=======================================================\n');
 
 for (const pkg of packages) {

@@ -6,6 +6,7 @@ import { Navbar } from '../components/Navbar';
 import { GlobalCartDrawer } from '../components/GlobalCartDrawer';
 import { Footer } from '../components/Footer';
 import { MobileBottomNav } from '../components/MobileBottomNav';
+import { AiShoppingAssistant } from '../components/AiShoppingAssistant';
 
 export const metadata: Metadata = {
   title: 'Boost D2C Store | High Converting Modern Streetwear',
@@ -25,6 +26,7 @@ export default function RootLayout({
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <GlobalCartDrawer />
+          <AiShoppingAssistant />
           <Footer />
           <MobileBottomNav />
         </StoreProvider>

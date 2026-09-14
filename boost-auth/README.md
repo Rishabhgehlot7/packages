@@ -1,123 +1,164 @@
-# @boostengine/auth 🚀
+# @boostengine/auth 🔐
 
-> **Frictionless Phone OTP, Stateless Sessions & Guest-to-Customer Merge Engine for Modern eCommerce & Next.js.**
+[![npm version](https://img.shields.io/npm/v/@boostengine/auth.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/auth)
+[![npm downloads](https://img.shields.io/npm/dm/@boostengine/auth.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/auth)
+[![license](https://img.shields.io/npm/l/@boostengine/auth.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Stateless](https://img.shields.io/badge/Architecture-100%25%20Stateless%20(Zero--Redis)-blueviolet.svg?style=flat-square)](https://nodejs.org/)
 
-Zero external dependencies (uses native Node `crypto`), blazing fast, and designed specifically for high-converting Indian & global D2C checkout flows.
+> **Frictionless phone OTP login, stateless HMAC verification tokens, session cookies, and guest-to-customer cart merger for modern eCommerce.**
+
+Zero external dependencies (built exclusively with native Node.js `crypto`). Works seamlessly with Next.js App Router, Express, Fastify, and Remix.
+
+---
+
+## 📸 Passwordless OTP & Guest Cart Flow
+
+```text
+  Customer Enters Phone (+91 98765 43210)
+                     │
+                     ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                 Stateless Token Generator                   │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 1. Generates 6-digit OTP (e.g. 492810)                      │
+  │ 2. Computes HMAC-SHA256 Stateless Verification Token        │
+  │    (Contains encrypted timestamp + phone signature)         │
+  │    *NO REDIS OR DATABASE WRITE REQUIRED!*                   │
+  └────────────────────────────┬────────────────────────────────┘
+                               │
+                               ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                 SMS / WhatsApp Dispatch                     │
+  ├─────────────────────────────────────────────────────────────┤
+  │ "Your BoostStore verification code is 492810. Valid for 5m" │
+  └────────────────────────────┬────────────────────────────────┘
+                               │
+                               ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │           Customer Submits OTP & Token Verification         │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 1. Cryptographic HMAC validation confirms authenticity      │
+  │ 2. Issues HttpOnly Secure Session Cookie (`boost_session`)  │
+  │ 3. Merges anonymous Guest Cart items with saved user cart   │
+  └─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🌟 Key Features
 
-- **📱 Frictionless Phone OTP**: Generate numeric OTPs with cryptographically secure stateless HMAC tokens. **No Redis or database needed** to verify OTPs!
-- **🍪 Next.js App Router Native**: Complete `Set-Cookie` header generators with `HttpOnly`, `Secure`, and `SameSite` flags.
-- **🔄 Guest Cart Merge Engine**: Automatically merge guest cart items into authenticated customer accounts on login with quantity de-duplication.
-- **🛡️ Stateless JWT Sessions**: Zero-database auth tokens signed with HMAC-SHA256 with expiry and tamper verification.
-- **⚡ Zero Dependency**: Built exclusively with native Node.js standard library.
+- **📱 Stateless Phone OTP**: Verify OTPs cryptographically using HMAC signatures without storing OTPs in Redis, memcached, or PostgreSQL.
+- **🍪 Next.js App Router Native**: Pre-built `Set-Cookie` header generators with `HttpOnly`, `SameSite=lax`, and `Secure` flags.
+- **🔄 Guest Cart Merge Engine**: Merges anonymous visitor cart items into customer accounts after login, automatically de-duplicating line items.
+- **🛡️ Tamper-Proof Sessions**: High-performance JWT-like stateless sessions signed with HMAC-SHA256.
+- **🪶 Zero Dependency Bloat**: No external crypto libraries, completely native Node.js.
 
 ---
 
 ## 📦 Installation
 
 ```bash
+# npm
 npm install @boostengine/auth
+
+# pnpm
+pnpm add @boostengine/auth
+
+# yarn
+yarn add @boostengine/auth
 ```
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Quickstart Guide
 
-### 1. Initialize Auth Manager
+### 1. Initialize Auth Manager (`lib/auth.ts`)
 
 ```typescript
 import { BoostAuth } from '@boostengine/auth';
 
 export const auth = new BoostAuth({
-  secret: process.env.BOOST_AUTH_SECRET!, // min 16 characters
+  secret: process.env.BOOST_AUTH_SECRET || 'a_very_long_random_secret_string_32_chars',
   sessionExpirySeconds: 30 * 24 * 60 * 60, // 30 days
   cookieName: 'boost_session',
 });
 ```
 
-*(Tip: Generate a high-entropy secret by running `npx @boostengine/auth generate-secret`)*
+*(Tip: Generate a production-ready secret with `npx @boostengine/auth generate-secret`)*
 
 ---
 
-### 2. Passwordless Phone Login Flow
+### 2. Send Phone OTP (`app/api/auth/send-otp/route.ts`)
 
-#### Step A: Send OTP (API Route)
 ```typescript
-// app/api/auth/send-otp/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { notifications } from '@/lib/notifications'; // @boostengine/notifications
 
 export async function POST(req: Request) {
   const { phone } = await req.json();
 
-  const otpRes = auth.generateOTP({ phone, expirySeconds: 300 });
+  // Generate OTP and stateless verification token
+  const otpResult = auth.generateOTP({ phone, expirySeconds: 300 });
 
-  // Send via WhatsApp or SMS in 1 line
-  await notifications.send({
-    channel: 'whatsapp',
-    recipient: phone,
-    content: `Your verification code is ${otpRes.otp}. Valid for 5 minutes.`,
-  });
+  // Send OTP via SMS or WhatsApp (e.g. using @boostengine/notifications)
+  console.log(`[DEV] Send OTP ${otpResult.otp} to ${phone}`);
 
-  // Return the stateless verificationToken back to the client
+  // Return the stateless verification token to the client
   return NextResponse.json({
     success: true,
-    verificationToken: otpRes.verificationToken,
+    verificationToken: otpResult.verificationToken,
   });
 }
 ```
 
-#### Step B: Verify OTP & Issue Session Cookie (API Route)
+---
+
+### 3. Verify OTP & Set Session Cookie (`app/api/auth/verify-otp/route.ts`)
+
 ```typescript
-// app/api/auth/verify-otp/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
 export async function POST(req: Request) {
   const { phone, otp, verificationToken } = await req.json();
 
-  const verify = auth.verifyOTP({ phone, otp, verificationToken });
-  if (!verify.success) {
-    return NextResponse.json({ error: verify.error }, { status: 400 });
+  // Validate OTP cryptographically
+  const verification = auth.verifyOTP({ phone, otp, verificationToken });
+  if (!verification.success) {
+    return NextResponse.json({ error: verification.error }, { status: 400 });
   }
 
-  // Fetch or upsert user from your DB
-  const user = { id: 'usr_123', phone, role: 'customer' as const };
+  // Create session for authenticated customer
+  const customer = { id: `cust_${Date.now()}`, phone, role: 'customer' as const };
+  const session = auth.createSession(customer);
 
-  // Issue session token & cookie
-  const session = auth.createSession(user);
-
-  const response = NextResponse.json({ success: true, user });
-  response.headers.set('Set-Cookie', session.cookie.headerString);
-  return response;
+  const res = NextResponse.json({ success: true, customer });
+  res.headers.set('Set-Cookie', session.cookie.headerString);
+  return res;
 }
 ```
 
 ---
 
-### 3. Merging Guest Cart on Login
-
-When a guest user logs in during checkout, easily merge their browser cart with their saved database cart:
+### 4. Merging Guest Cart Upon Login
 
 ```typescript
 const guestCart = [
-  { productId: 'prod_hoodie', variantId: 'L', quantity: 1, price: 1499 },
+  { productId: 'hoodie_01', variantId: 'L', quantity: 1, price: 1499 },
 ];
 
-const userDbCart = [
-  { productId: 'prod_hoodie', variantId: 'L', quantity: 1, price: 1499 },
-  { productId: 'prod_tshirt', variantId: 'M', quantity: 2, price: 499 },
+const savedUserCart = [
+  { productId: 'hoodie_01', variantId: 'L', quantity: 1, price: 1499 },
+  { productId: 'tee_02', variantId: 'M', quantity: 1, price: 499 },
 ];
 
-const mergeResult = auth.mergeGuestCart(guestCart, userDbCart);
+// Automatically consolidates quantities and recalculates subtotals
+const merged = auth.mergeGuestCart(guestCart, savedUserCart);
 
-console.log(mergeResult.mergedItems);
-// prod_hoodie quantity is now 2!
-// subtotal: Rs 3,996
+console.log(merged.mergedItems);
+// hoodie_01 quantity is now 2!
+// subtotal is now ₹3,497
 ```
 
 ---
@@ -125,10 +166,10 @@ console.log(mergeResult.mergedItems);
 ## 🛠️ CLI Utilities
 
 ```bash
-# Generate high entropy random secret
+# Generate high entropy 256-bit secret key
 npx @boostengine/auth generate-secret
 
-# Run interactive demo simulation
+# Run interactive terminal simulation
 npx @boostengine/auth demo
 ```
 

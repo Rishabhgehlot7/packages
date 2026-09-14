@@ -1,83 +1,122 @@
-# @boostengine/core
+# @boostengine/core ⚡
 
-WordPress/Shopify-style modular plugin runtime & event hook architecture for Next.js & React eCommerce stores.
+[![npm version](https://img.shields.io/npm/v/@boostengine/core.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/core)
+[![npm downloads](https://img.shields.io/npm/dm/@boostengine/core.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/core)
+[![license](https://img.shields.io/npm/l/@boostengine/core.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Plugin Architecture](https://img.shields.io/badge/Architecture-WordPress%2FShopify%20Hooks-violet.svg?style=flat-square)](https://github.com/boostengine/boostengine)
 
-## 🚀 Features
+> **Modular plugin runtime and event hook architecture for Next.js, React, and Node.js eCommerce stores. Enables hot-swappable micro-plugins, actions, and filters without touching core checkout or page templates.**
 
-- **WordPress Action & Filter System**: `addAction`, `doAction`, `addFilter`, and `applyFilters`.
-- **Plugin Lifecycle Hooks**: `onInit`, `onActivate`, `onDeactivate`, `onOrderCreated`, `onProductViewed`, `onCartUpdated`.
-- **Zero-Friction Plugin Toggle**: Hot-activate or deactivate any `@boostengine/*` package without rewriting page templates.
-- **Runtime Settings Injection**: Pass and update per-plugin configurations dynamically from the Admin Panel.
+---
+
+## 📸 Core Event Bus & Plugin Architecture
+
+```text
+                     [ Storefront Action / Checkout Event ]
+                                       │
+                                       ▼
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                      @boostengine/core                              │
+    ├─────────────────────────────────────────────────────────────────────┤
+    │ Event Bus & Action Dispatcher:                                      │
+    │   boostCore.notifyOrderCreated(order)                               │
+    └──────────────────┬─────────────────┬──────────────────┬─────────────┘
+                       │                 │                  │
+        ┌──────────────▼──────┐   ┌──────▼────────┐   ┌─────▼──────────┐
+        │ WhatsApp Alert      │   │ Loyalty Engine│   │ Inventory Sync │
+        │ Plugin              │   │ Plugin        │   │ Plugin         │
+        ├─────────────────────┤   ├───────────────┤   ├────────────────┤
+        │ Sends instant order │   │ Awards points │   │ Decrements SKU │
+        │ receipt to customer │   │ to user wallet│   │ stock in DB    │
+        └─────────────────────┘   └───────────────┘   └────────────────┘
+```
+
+---
+
+## 🌟 Key Features
+
+- **🪝 WordPress & Shopify-style Hooks**: `addAction`, `doAction`, `addFilter`, and `applyFilters` to alter prices, shipping rates, or order payloads on the fly.
+- **🔌 Hot-Swappable Plugins**: Enable or disable packages (`@boostengine/loyalty`, `@boostengine/notifications`, `@boostengine/deals`) with runtime toggles.
+- **⚡ Lifecycle Event Listeners**: Native events for `onInit`, `onActivate`, `onOrderCreated`, `onProductViewed`, and `onCartUpdated`.
+- **⚙️ Dynamic Settings Injection**: Inject administrative settings into plugins without rebuilding code.
 
 ---
 
 ## 📦 Installation
 
 ```bash
+# npm
 npm install @boostengine/core
-# or
+
+# pnpm
 pnpm add @boostengine/core
+
+# yarn
+yarn add @boostengine/core
 ```
 
 ---
 
-## 🛠️ Usage Example: Writing a BoostEngine Plugin
+## 🚀 Quickstart Guide
+
+### 1. Creating a Custom Plugin
 
 ```typescript
 import { BoostPlugin, boostCore, BOOST_HOOKS } from '@boostengine/core';
 
-// 1. Define a Plugin
+// Define your custom plugin
 export const WhatsAppAlertsPlugin: BoostPlugin = {
   id: 'boost-whatsapp-alerts',
   name: 'WhatsApp Order Updates',
   version: '1.0.0',
-  description: 'Sends instant WhatsApp receipt upon order completion.',
+  description: 'Sends instant WhatsApp notification when an order is completed.',
   category: 'sales',
   defaultSettings: {
-    sendTemplate: 'order_confirmed_v1',
     supportNumber: '+919876543210',
   },
 
   async onInit(context) {
-    console.log('WhatsApp Plugin Initialized with config:', context.config);
+    console.log('WhatsApp Plugin Initialized with settings:', context.config);
   },
 
   async onOrderCreated(order, context) {
-    console.log(`Sending WhatsApp alert to ${order.customer.phone} for Order #${order.orderNumber}`);
+    console.log(`Sending WhatsApp receipt to ${order.customer.phone} for Order #${order.orderNumber}`);
   },
 };
 
-// 2. Register Plugin
+// Register your plugin
 boostCore.register(WhatsAppAlertsPlugin);
-
-// 3. Trigger Lifecycle Event
-await boostCore.notifyOrderCreated({
-  orderNumber: 'BOOST-1001',
-  customer: { phone: '+919876543210' },
-  total: 2499,
-});
 ```
 
 ---
 
-## 🪝 WordPress-Style Filters & Actions
+### 2. Modifying Values with Filters
+
+Filters allow plugins to modify data before it is rendered or stored:
 
 ```typescript
 import { boostCore, BOOST_HOOKS } from '@boostengine/core';
 
 // Intercept & Modify shipping rates dynamically
 boostCore.hooks.addFilter(BOOST_HOOKS.FILTER_SHIPPING_RATES, async (rates, cart) => {
-  if (cart.subtotal > 999) {
-    return [{ courier: 'Free Express Courier', price: 0, estimatedDays: '2-3 days' }];
+  // If order is above ₹999, offer free shipping
+  if (cart.subtotal >= 999) {
+    return [{ courier: 'Free Express Delivery', price: 0, estimatedDays: '2 Days' }];
   }
   return rates;
 });
 
-// Calculate final shipping
-const finalRates = await boostCore.hooks.applyFilters(BOOST_HOOKS.FILTER_SHIPPING_RATES, defaultRates, currentCart);
+// Execute the filter in your checkout flow
+const finalRates = await boostCore.hooks.applyFilters(
+  BOOST_HOOKS.FILTER_SHIPPING_RATES,
+  defaultRates,
+  currentCart
+);
 ```
 
 ---
 
 ## 📄 License
-MIT © Boost Engine Team
+
+MIT © [Boost Engine](https://github.com/boostengine)

@@ -24,10 +24,12 @@ export const Navbar: React.FC = () => {
     customerTier,
     deliveryLocation,
     setDeliveryLocation,
+    settings,
   } = useStore();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<typeof PRODUCTS>([]);
+  const [liveCatalog, setLiveCatalog] = useState<any[]>(PRODUCTS);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [newPincode, setNewPincode] = useState(deliveryLocation.pincode);
@@ -39,19 +41,27 @@ export const Navbar: React.FC = () => {
   const [hoveredCategory, setHoveredCategory] = useState<any | null>(null);
 
   React.useEffect(() => {
-    async function loadCategories() {
+    async function loadData() {
       try {
-        const res = await fetch('/api/categories');
-        const data = await res.json();
-        if (data.success && data.data && data.data.length > 0) {
-          setCategoriesTree(data.data);
-          setHoveredCategory(data.data[0]);
+        const [catRes, prodRes] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/products')
+        ]);
+        const catData = await catRes.json();
+        const prodData = await prodRes.json();
+
+        if (catData.success && catData.data && catData.data.length > 0) {
+          setCategoriesTree(catData.data);
+          setHoveredCategory(catData.data[0]);
+        }
+        if (prodData.success && prodData.data && prodData.data.length > 0) {
+          setLiveCatalog(prodData.data);
         }
       } catch (err) {
         // Fallback
       }
     }
-    loadCategories();
+    loadData();
   }, []);
 
   React.useEffect(() => {
@@ -74,7 +84,7 @@ export const Navbar: React.FC = () => {
       setSearchResults([]);
       return;
     }
-    const res = BoostSearchEngine.search(PRODUCTS as any, { query: val });
+    const res = BoostSearchEngine.search(liveCatalog as any, { query: val });
     setSearchResults(res.products.slice(0, 5) as any);
   };
 
@@ -88,23 +98,33 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
-      <AnnouncementBar
-        messages={[
-          '⚡ MEGA SAVINGS: Up to 50% OFF + Extra 10% Instant Bank Discount',
-          '🔥 FREE Express 1-Day Delivery on orders above ₹999'
-        ]}
-        couponCode="BOOST200"
-        closable={false}
-      />
-
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100 shadow-2xs">
       {/* Main Bar */}
-      <nav className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-13 sm:h-14 flex items-center justify-between gap-2.5 sm:gap-4">
+      <nav className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-12 sm:h-14 flex items-center justify-between gap-2.5 sm:gap-4">
         {/* Logo & Assured Badge */}
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-1.5">
             <span className="text-xl sm:text-2xl font-black tracking-tighter text-black uppercase">
-              BOOST<span className="text-blue-600">.</span>MARKET
+              {settings.storeName ? (
+                <>
+                  {settings.storeName.includes(' ') ? (
+                    <>
+                      {settings.storeName.split(' ')[0]}
+                      <span className="text-blue-600">.</span>
+                      {settings.storeName.split(' ').slice(1).join(' ')}
+                    </>
+                  ) : (
+                    <>
+                      {settings.storeName}
+                      <span className="text-blue-600">.</span>STORE
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  BOOST<span className="text-blue-600">.</span>MARKET
+                </>
+              )}
             </span>
           </Link>
           <div className="hidden lg:block">
@@ -268,17 +288,18 @@ export const Navbar: React.FC = () => {
             All Products
           </Link>
 
-          {/* SuperCoins Pill (Flipkart style) */}
-          <div
-            className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold px-2.5 py-1.5 rounded-full cursor-default"
-            title={`You have ${superCoins} SuperCoins (${customerTier} Tier)`}
+          {/* SuperCoins & Customer Account Hub Link */}
+          <Link
+            href="/account"
+            className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-bold px-2.5 py-1.5 rounded-full transition shadow-xs"
+            title={`Account: ${superCoins} SuperCoins (${customerTier} Tier)`}
           >
             <span className="text-sm">🪙</span>
             <span className="hidden xs:inline">{superCoins}</span>
             <span className="text-[10px] bg-amber-200 text-amber-900 px-1 rounded uppercase font-extrabold hidden md:inline">
               {customerTier}
             </span>
-          </div>
+          </Link>
 
           {/* Wishlist Button */}
           <Link

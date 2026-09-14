@@ -16,8 +16,19 @@
     "awb",
     "tracking",
     "pincode-serviceability",
-    "ndr"
+    "ndr",
+    "headless-shipping",
+    "delivery-tracking"
   ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-shipping#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-shipping"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
   "bin": {
     "boost-shipping": "./bin/cli.cjs"
   },

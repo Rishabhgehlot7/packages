@@ -56,11 +56,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #f3f4f6',
+        borderRadius: '14px',
+        border: '1px solid #e2e8f0',
         overflow: 'hidden',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        boxShadow: isHovered ? '0 10px 25px rgba(0,0,0,0.06)' : 'none',
+        boxShadow: isHovered ? '0 10px 25px rgba(0,0,0,0.06)' : '0 1px 2px rgba(0,0,0,0.04)',
         fontFamily: 'inherit',
       }}
     >
@@ -69,8 +69,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         style={{
           position: 'relative',
           width: '100%',
-          aspectRatio: '4/5',
-          backgroundColor: '#f9fafb',
+          aspectRatio: '1/1',
+          backgroundColor: '#f8fafc',
           overflow: 'hidden',
           cursor: onClick ? 'pointer' : 'default',
         }}
@@ -83,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transition: 'transform 0.4s ease',
+            transition: 'transform 0.3s ease',
             transform: isHovered ? 'scale(1.04)' : 'scale(1)',
           }}
         />
@@ -93,14 +93,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div
             style={{
               position: 'absolute',
-              top: '10px',
-              left: '10px',
-              backgroundColor: '#000000',
+              top: '8px',
+              left: '8px',
+              backgroundColor: '#dc2626',
               color: '#ffffff',
-              fontSize: '10px',
+              fontSize: '9px',
               fontWeight: 800,
-              padding: '3px 8px',
-              borderRadius: '6px',
+              padding: '2px 6px',
+              borderRadius: '4px',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
             }}
@@ -114,14 +114,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div
             style={{
               position: 'absolute',
-              bottom: '10px',
-              left: '10px',
+              bottom: '8px',
+              left: '8px',
               backgroundColor: 'rgba(220, 38, 38, 0.9)',
               color: '#ffffff',
-              fontSize: '10px',
+              fontSize: '9px',
               fontWeight: 800,
-              padding: '3px 8px',
-              borderRadius: '6px',
+              padding: '2px 6px',
+              borderRadius: '4px',
               backdropFilter: 'blur(4px)',
             }}
           >
@@ -141,27 +141,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             }}
             style={{
               position: 'absolute',
-              top: '10px',
-              right: '10px',
-              width: '32px',
-              height: '32px',
+              top: '8px',
+              right: '8px',
+              width: '28px',
+              height: '28px',
               borderRadius: '999px',
               backgroundColor: '#ffffff',
-              border: 'none',
+              border: '1px solid #f1f5f9',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
               cursor: 'pointer',
               padding: 0,
             }}
           >
             <svg
-              width="16"
-              height="16"
+              width="14"
+              height="14"
               viewBox="0 0 24 24"
               fill={isWishlisted ? '#f43f5e' : 'none'}
-              stroke={isWishlisted ? '#f43f5e' : '#4b5563'}
+              stroke={isWishlisted ? '#f43f5e' : '#64748b'}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -173,9 +173,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Details & Actions */}
-      <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+      <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
         {brand && (
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '9px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
             {brand}
           </span>
         )}
@@ -183,9 +183,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <h3
           onClick={onClick}
           style={{
-            fontSize: '13px',
+            fontSize: '12px',
             fontWeight: 700,
-            color: '#111827',
+            color: '#0f172a',
             margin: 0,
             cursor: onClick ? 'pointer' : 'default',
             whiteSpace: 'nowrap',
@@ -197,13 +197,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </h3>
 
         {rating !== undefined && (
-          <StarRating rating={rating} reviewCount={reviewCount} size={13} />
+          <StarRating rating={rating} reviewCount={reviewCount} size={11} />
         )}
 
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '2px' }}>
-          <span style={{ fontSize: '15px', fontWeight: 800, color: '#111827' }}>₹{price}</span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '1px' }}>
+          <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>₹{price}</span>
           {compareAtPrice && compareAtPrice > price && (
-            <span style={{ fontSize: '12px', color: '#9ca3af', textDecoration: 'line-through' }}>
+            <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>
               ₹{compareAtPrice}
             </span>
           )}
@@ -221,12 +221,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             style={{
               marginTop: '4px',
               width: '100%',
-              backgroundColor: inStock ? '#000000' : '#9ca3af',
+              backgroundColor: inStock ? '#2563eb' : '#94a3b8',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
-              padding: '8px',
-              fontSize: '12px',
+              padding: '6px',
+              fontSize: '11px',
               fontWeight: 700,
               cursor: inStock ? 'pointer' : 'not-allowed',
               transition: 'background-color 0.15s ease',
