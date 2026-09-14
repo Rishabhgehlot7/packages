@@ -12,6 +12,11 @@ templates/backend-express/dist
 templates/expo-mobile/node_modules
 templates/expo-mobile/.expo
 
+# Test scripts and temporary outputs
+test.cjs
+test-output
+test-pair-output
+
 # Root ignores
 node_modules
 .git

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DEMO_PRODUCTS, Product } from '../data/products';
 
 const storeName = import.meta.env.VITE_STORE_NAME || '{{BRAND_TITLE}}';
@@ -17,7 +17,26 @@ const PINCODE_MAP: Record<string, { city: string; state: string }> = {
 };
 
 export default function HomePage() {
-  const [products] = useState<Product[]>(DEMO_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+  const [isLiveApi, setIsLiveApi] = useState<boolean>(false);
+
+  useEffect(() => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+    fetch(`${apiBase}/products`)
+      .then((res) => {
+        if (!res.ok) throw new Error('API offline');
+        return res.json();
+      })
+      .then((data) => {
+        if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+          setProducts(data.products);
+          setIsLiveApi(true);
+        }
+      })
+      .catch(() => {
+        // Silently fallback to built-in curated DEMO_PRODUCTS
+      });
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<Array<{ product: Product; quantity: number }>>([]);
@@ -96,8 +115,13 @@ export default function HomePage() {
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#fafafa', minHeight: '100vh', color: '#111' }}>
       {/* ── Top Announcement Banner ── */}
-      <div style={{ backgroundColor: '#0f172a', color: '#f8fafc', padding: '10px 16px', textAlign: 'center', fontSize: 13, fontWeight: 500 }}>
-        ⚡ FLASH SALE: Use code <span style={{ color: '#fbbf24', fontWeight: 700 }}>BOOST20</span> for 20% OFF | Free Express Delivery Pan-India 🇮🇳
+      <div style={{ backgroundColor: '#0f172a', color: '#f8fafc', padding: '10px 16px', textAlign: 'center', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span>⚡ FLASH SALE: Use code <span style={{ color: '#fbbf24', fontWeight: 700 }}>BOOST20</span> for 20% OFF | Free Express Delivery Pan-India 🇮🇳</span>
+        {isLiveApi && (
+          <span style={{ backgroundColor: '#065f46', color: '#34d399', padding: '2px 8px', borderRadius: 9999, fontSize: 11, fontWeight: 600 }}>
+            ● API Connected (:3001)
+          </span>
+        )}
       </div>
 
       {/* ── Sticky Header ── */}

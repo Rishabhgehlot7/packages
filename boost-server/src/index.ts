@@ -479,12 +479,16 @@ export function createBoostApiRouter(config: BoostServerConfig = {}): Router {
     router.use(`${prefix}/notifications`, buildNotificationsRoutes());
   }
 
-  // Health check route
-  router.get(`${prefix}/health`, (_req: Request, res: Response) => {
+  // Health check & liveness routes (supports /health and /ping)
+  const healthHandler = (_req: Request, res: Response) => {
     res.status(200).json({
+      status: 'ok',
       success: true,
       service: '@boostengine/server',
       version: '1.0.0',
+      uptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString(),
+      mockMode: isMock(config),
       modules: {
         payments: isEnabled(config, 'payments'),
         shipping: isEnabled(config, 'shipping'),
@@ -496,7 +500,10 @@ export function createBoostApiRouter(config: BoostServerConfig = {}): Router {
         notifications: isEnabled(config, 'notifications'),
       },
     });
-  });
+  };
+
+  router.get(`${prefix}/health`, healthHandler);
+  router.get(`${prefix}/ping`, healthHandler);
 
   return router;
 }

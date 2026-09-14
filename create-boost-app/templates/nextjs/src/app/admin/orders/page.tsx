@@ -272,13 +272,25 @@ export default function AdminOrdersPage() {
                       </td>
 
                       <td className="py-4 px-5 text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenStatusModal(order)}
-                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-bold transition border border-slate-200 shadow-2xs cursor-pointer"
-                        >
-                          Update
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <a
+                            href={`/api/admin/orders/${order.id}/invoice`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold transition border border-indigo-200/80 shadow-2xs inline-flex items-center gap-1 cursor-pointer"
+                            title="Print GST Tax Invoice"
+                          >
+                            <span>🧾</span>
+                            <span className="hidden sm:inline">Invoice</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenStatusModal(order)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-bold transition border border-slate-200 shadow-2xs cursor-pointer"
+                          >
+                            Update
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -418,6 +430,15 @@ export default function AdminOrdersPage() {
             </div>
 
             <div className="flex gap-2 pt-2">
+              <a
+                href={`/api/admin/orders/${selectedOrder.id}/invoice`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2.5 px-3.5 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <span>🧾</span>
+                <span>Print Invoice</span>
+              </a>
               <button
                 type="button"
                 onClick={() => setSelectedOrder(null)}
