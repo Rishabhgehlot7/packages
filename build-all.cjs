@@ -24,6 +24,7 @@ const packages = [
   'boost-ui',
   'boost-returns',
   'boost-referrals',
+  'boost-server',
 ];
 
 console.log('=======================================================');

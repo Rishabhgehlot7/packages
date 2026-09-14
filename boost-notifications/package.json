@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/notifications",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Unified Multi-Channel eCommerce Messaging Engine (WhatsApp, SMS, Email) with pre-built transactional templates for Order Confirmation, Live Tracking, Cart Recovery & COD OTP.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

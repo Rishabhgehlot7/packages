@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/deals",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Amazon-style Lightning Deals, Flash Sales, and Countdown Urgency Timers for Next.js, Vite, React, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

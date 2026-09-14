@@ -1,79 +1,241 @@
-# create-boost-app 🚀
+# create-boost-app
 
-[![npm version](https://img.shields.io/npm/v/create-boost-app.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/create-boost-app)
-[![license](https://img.shields.io/npm/l/create-boost-app.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15%20App%20Router-black.svg?style=flat-square)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+> **1-command scaffold tool for BoostEngine eCommerce projects**  
+> Generate a full-stack D2C store, Vite SPA, Express API backend, or Expo mobile app in seconds.
 
-> **The official 1-command CLI generator for launching high-converting Next.js D2C eCommerce stores with Indian GST compliance, Razorpay, Delhivery, Admin Panel, and 21 modular BoostEngine micro-packages in under 60 seconds.**
+[![npm version](https://img.shields.io/npm/v/create-boost-app)](https://www.npmjs.com/package/create-boost-app)
+[![license](https://img.shields.io/npm/l/create-boost-app)](./LICENSE)
 
 ---
 
-## 📸 What's Generated? (Storefront & Admin Preview)
-
-```text
-  Customer Storefront (localhost:3000)      Shopify-Style Admin (localhost:3000/admin)
-  ┌─────────────────────────────────┐       ┌──────────────────────────────────────┐
-  │ [Navbar]   Search    Bag (2)    │       │ 📊 DASHBOARD   ₹2,48,900 Sales (142) │
-  │ ⚡ Flash Deal (Ends in 02:45:12) │       │ 📦 PRODUCTS    Stock, Variants, SEO  │
-  │ [Hero Media] New Winter Drop    │       │ 🚚 ORDERS      Delhivery / Thermal   │
-  │ [Products Grid with Quick Buy]  │       │ ↩️ RETURNS     Doorstep Reverse QC   │
-  │ [Cart Drawer with Free Ship Bar]│       │ 🎁 REFERRALS   Double-sided viral    │
-  │ [Razorpay / Cashfree / COD Flow]│       │ 🔌 PLUGINS     WordPress-style Hub   │
-  └─────────────────────────────────┘       └──────────────────────────────────────┘
-```
-
----
-
-## ⚡ Instant Usage (1 Command)
-
-Generate a brand new production-ready eCommerce store in your terminal:
+## Quick Start
 
 ```bash
-npx create-boost-app my-store
-# or
-npx create-boost-store my-store
+npx create-boost-app
 ```
 
-The interactive CLI will ask you for:
-1. **Store Name**: e.g., `streetwear-india`
-2. **Brand Title**: e.g., `Cyberpunk Streetwear`
+Interactive CLI aapse project name, brand title aur template puchega. 
+Ab aap **Standalone** ya **Paired (Frontend + Backend)** dono scaffold kar sakte hain!
 
 ---
 
-## 🌟 Complete Included Features
+## Choose Your Template / Stack
 
-### 1. 🌐 Modern D2C Storefront
-- **Instant Search**: Typo-tolerant in-memory catalog search (`@boostengine/search`).
-- **Product Experience**: Multi-angle image zoom gallery, color/size swatch pills, and pincode delivery checkers (`@boostengine/ui`, `@boostengine/shipping`).
-- **Cart & Tax Engine**: Automatic Indian GST (intra-state CGST+SGST vs inter-state IGST) with Free Shipping progress meter (`@boostengine/cart`).
-- **Payments**: 1-click Razorpay, Cashfree, PhonePe, and COD checkout (`@boostengine/payments`).
-- **Customer Account**: Doorstep returns timeline (`@boostengine/returns`) and viral WhatsApp referral links (`@boostengine/referrals`).
+### 🚀 Paired Stacks & Suites (Recommended)
+Ek hi command se connected sibling folders ban jate hain:
 
-### 2. ⚡ Shopify-Style Admin Panel (`/admin`)
-- **Live Metrics**: Real-time sales, order conversion rate, and average order value (AOV).
-- **Order Pipeline**: Manifest generation, thermal shipping label printing, and courier partner dispatch.
-- **Returns & QC Management**: Inspect return requests, trigger reverse pickups, and issue refunds in 1 click.
-- **Micro-Plugins Hub**: Toggle all `@boostengine/*` packages on or off without writing any code.
+```bash
+# 🌐 Web Store + 📱 Mobile App (creates my-store-web/ and my-store-app/)
+npx create-boost-app my-store --template web+app
+
+# ⚡ Vite Storefront + 🖥️ Express API (creates my-store/ and my-store-api/)
+npx create-boost-app my-store --template vite+express
+
+# 📱 Expo Mobile App + 🖥️ Express API (creates my-app/ and my-app-api/)
+npx create-boost-app my-app --template expo+express
+
+# 👑 3-in-1 Complete Suite: Web Store + Mobile App + Express API (creates 3 folders)
+npx create-boost-app my-store --template omnichannel
+```
 
 ---
 
-## 🚀 Running Your New Store
+### 🏪 Standalone Templates
 
+```bash
+# Next.js 15 Full-Stack Store (Storefront + Admin in 1 project)
+npx create-boost-app my-store --template nextjs
+
+# Vite + React Storefront only (if you already have a backend)
+npx create-boost-app my-store --template vite
+
+# Express API Backend only
+npx create-boost-app my-api --template backend-express
+
+# Expo React Native Mobile App only
+npx create-boost-app my-app --template expo-mobile
+```
+
+---
+
+## Interactive Menu Structure
+
+Jab aap bina `--template` flag ke run karenge:
+
+```
+Choose a stack:
+
+  ── Full-Stack Standalone ──
+  1. Next.js 15 — Full-Stack Store + Admin Panel (1 folder)
+
+  ── Paired Stacks & Suites (Recommended) ──
+  2. Next.js Web Store + Expo Mobile App [WEB + APP] (2 folders: web/ + app/)
+  3. Vite Store + Express API [PAIRED] (2 folders: store/ + store-api/)
+  4. Expo Mobile + Express API [PAIRED] (2 folders: app/ + app-api/)
+  5. Web Store + Mobile App + Express API [3-IN-1 SUITE] (3 folders: web/ + app/ + api/)
+
+  ── Standalone (Advanced) ──
+  6. Vite Store only (frontend, no backend)
+  7. Express API only (backend, no frontend)
+  8. Expo Mobile only (mobile, no backend)
+```
+
+---
+
+## Templates Detail
+
+### 🔗 Paired: `vite+express`
+- Frontend: `my-store/` (Vite + React 18 SPA)
+- Backend: `my-store-api/` (Node.js/Express + `@boostengine/server`)
+- Dono folders sibling banenge, `.env.local` auto-configure hoga.
+
+### 🔗 Paired: `expo+express`
+- Mobile: `my-app/` (Expo SDK 51 + React Native)
+- Backend: `my-app-api/` (Express API pre-wired with payments & cart)
+- Mobile clients ke liye ready backend setup.
+
+---
+
+### 🏪 `nextjs` — Full-Stack Store (Standalone)
+
+The most complete template. Includes everything:
+
+| Feature | Description |
+|---------|-------------|
+| Storefront | Product listing, PDP, checkout flow |
+| Admin Panel | `/admin` dashboard (Shopify-style) |
+| Plugin Hub | WordPress-style hot-pluggable extensions |
+| Indian GST | HSN codes, GSTIN validation, PDF invoices |
+| Payments | Razorpay + PhonePe + COD |
+| Logistics | Shiprocket + Pincode checker |
+
+**After scaffold:**
 ```bash
 cd my-store
 npm install
 npm run dev
+# Open http://localhost:3000
 ```
-
-Open in your browser:
-- **Customer Storefront**: [http://localhost:3000](http://localhost:3000)
-- **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
-- **Plugins Manager**: [http://localhost:3000/admin/plugins](http://localhost:3000/admin/plugins)
 
 ---
 
-## 📄 License
+### ⚡ `vite` — Vite + React SPA
+
+A lightweight storefront built with Vite and React 18. Great for:
+- Custom storefronts where you already have a backend
+- Headless commerce projects
+- Fast prototypes
+
+**After scaffold:**
+```bash
+cd my-store
+npm install
+npm run dev
+# Open http://localhost:3000
+```
+
+---
+
+### 🖥️ `backend-express` — Express API Server
+
+A production-ready Node.js/Express server with **all eCommerce API routes pre-built** via `@boostengine/server`.
+
+You get these routes out of the box:
+
+```
+GET  /api/health
+POST /api/payments/create-order
+POST /api/payments/verify
+POST /api/auth/send-otp
+POST /api/auth/verify-otp
+GET  /api/cart
+POST /api/cart/add
+POST /api/shipping/create-shipment
+GET  /api/shipping/track/:awb
+POST /api/coupons/validate
+POST /api/returns/initiate
+POST /api/invoicing/generate
+POST /api/notifications/whatsapp
+```
+
+**After scaffold:**
+```bash
+cd my-api
+npm install
+# Fill in .env.local with your API keys
+npm run dev
+# API running at http://localhost:3001/api/health
+```
+
+---
+
+### 📱 `expo-mobile` — Expo React Native App
+
+A mobile eCommerce app template built with Expo SDK 51 and React Native.
+
+**After scaffold:**
+```bash
+cd my-app
+npm install
+npx expo start
+# Scan QR with Expo Go app on your phone
+```
+
+---
+
+## What Gets Generated
+
+Every template includes:
+- ✅ `package.json` with all `@boostengine/*` packages pre-configured
+- ✅ `.env.example` with all required environment variables listed
+- ✅ `.env.local` auto-created from example (ready to fill in)
+- ✅ `README.md` customized with your brand name and next steps
+
+---
+
+## Non-Interactive Mode
+
+Skip all prompts by passing arguments directly:
+
+```bash
+npx create-boost-app my-project --template backend-express
+# Only asks for brand title, skips all other prompts
+```
+
+---
+
+## After Scaffolding
+
+1. **Fill in your API keys** in `.env.local`
+2. **Run `npm install`**
+3. **Run `npm run dev`** (or `npx expo start` for mobile)
+
+All `@boostengine/*` packages are already installed and wired up. Just add your credentials and go!
+
+---
+
+## All @boostengine Packages
+
+| Package | What it does |
+|---------|-------------|
+| `@boostengine/server` | All-in-one Express API router |
+| `@boostengine/payments` | Razorpay, PhonePe, COD |
+| `@boostengine/auth` | Phone OTP authentication |
+| `@boostengine/cart` | Cart & session management |
+| `@boostengine/shipping` | Shiprocket & logistics |
+| `@boostengine/invoicing` | GST PDF invoices |
+| `@boostengine/coupons` | Discount & coupon engine |
+| `@boostengine/returns` | Returns & refund flow |
+| `@boostengine/notifications` | WhatsApp, Email, SMS |
+| `@boostengine/search` | Product search & filters |
+| `@boostengine/wishlist` | Wishlist management |
+| `@boostengine/reviews` | Reviews & ratings |
+| `@boostengine/seo` | SEO meta & JSON-LD |
+| `@boostengine/analytics` | Store analytics |
+| `@boostengine/ui` | UI component library |
+
+---
+
+## License
 
 MIT © [Boost Engine](https://github.com/boostengine)

@@ -1,10 +1,19 @@
-template/node_modules
-template/.next
-template/.turbo
-template/*.tsbuildinfo
-template/.env.local
-template/.DS_Store
+# Ignore heavy build artifacts inside templates (not needed in published package)
+templates/nextjs/node_modules
+templates/nextjs/.next
+templates/nextjs/.turbo
+templates/nextjs/*.tsbuildinfo
+templates/nextjs/.env.local
+templates/nextjs/package-lock.json
+templates/vite-store/node_modules
+templates/vite-store/dist
+templates/backend-express/node_modules
+templates/backend-express/dist
+templates/expo-mobile/node_modules
+templates/expo-mobile/.expo
+
+# Root ignores
 node_modules
-.next
 .git
 *.log
+.DS_Store

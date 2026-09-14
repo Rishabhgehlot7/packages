@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/shipping",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Unified Multi-Carrier Logistics & Shipping Engine for Indian eCommerce (Shiprocket, Delhivery, Shadowfax, Bluedart) with rate comparison, auto-AWB, live tracking & NDR actions.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

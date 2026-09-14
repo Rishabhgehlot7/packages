@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/analytics",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Universal eCommerce Analytics & Pixel Tracker for Next.js, React, and Vite with Meta Pixel, GTM, GA4, Clarity & WebView error shielding.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

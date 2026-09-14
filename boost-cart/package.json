@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/cart",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "High-performance eCommerce Cart Calculation Engine with Indian GST (CGST/SGST/IGST), Free Shipping Threshold Progress, Multi-Tax Rates & Prepaid Discounts.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

@@ -1,0 +1,65 @@
+{
+  "name": "@boostengine/server",
+  "version": "1.0.0",
+  "description": "Plug-and-Play Headless eCommerce API Router for Express, Fastify, and Node.js. 1-line auto-mount for Payments, Logistics, Returns, Coupons, Phone Auth, and GST Invoicing.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "ecommerce-server",
+    "express-ecommerce",
+    "headless-api",
+    "payment-webhooks",
+    "shipping-api",
+    "otp-auth",
+    "gst-invoicing",
+    "boostengine"
+  ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-server#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-server"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "@boostengine/auth": "^1.0.0",
+    "@boostengine/cart": "^1.0.0",
+    "@boostengine/coupons": "^1.0.0",
+    "@boostengine/invoicing": "^1.0.0",
+    "@boostengine/notifications": "^1.0.0",
+    "@boostengine/payments": "^1.1.0",
+    "@boostengine/returns": "^1.0.0",
+    "@boostengine/shipping": "^1.0.0"
+  },
+  "peerDependencies": {
+    "express": ">=4.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.19.43",
+    "express": "^5.2.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
