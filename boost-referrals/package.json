@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/referrals",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Double-sided viral referral & reward engine with anti-fraud shield and 1-click WhatsApp social share for Next.js, Vite, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

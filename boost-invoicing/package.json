@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/invoicing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Enterprise GST Tax Invoice & 4x6 Thermal Shipping Label Generator with HSN Tax Breakdown, Amount in Words & Barcodes for eCommerce.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

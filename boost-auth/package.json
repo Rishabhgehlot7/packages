@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/auth",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Frictionless Phone OTP & 1-Click eCommerce Identity Engine for Next.js and Node.js with session cookies, guest checkout merging, and phone auth.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

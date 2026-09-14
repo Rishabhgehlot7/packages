@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/ui",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Pre-Built High-Converting eCommerce UI Components for Next.js & React: Cart Drawer, Mobile Sticky Buy Bar, Pincode Delivery Checker, Trust Badges & Order Timeline.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

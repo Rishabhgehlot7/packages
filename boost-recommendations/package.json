@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/recommendations",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Amazon & Flipkart-style Frequently Bought Together (FBT) bundles, cross-sell, and upsell recommendation engine for Next.js, Vite, and React.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

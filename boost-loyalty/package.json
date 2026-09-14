@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/loyalty",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Flipkart SuperCoins & Amazon Pay style loyalty rewards, tier progression & checkout redemptions for Next.js, Vite, React, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
