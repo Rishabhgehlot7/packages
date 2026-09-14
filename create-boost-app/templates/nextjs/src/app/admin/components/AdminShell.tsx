@@ -22,6 +22,7 @@ import {
   Users,
   Star,
   BarChart3,
+  Code2,
 } from 'lucide-react';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -120,13 +121,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       ],
     },
     {
-      group: 'EXTENSIONS',
+      group: 'EXTENSIONS & DEV',
       items: [
         {
           href: '/admin/plugins',
           label: 'Plugins Hub',
           icon: Blocks,
           badge: 'Modular',
+          exact: false,
+        },
+        {
+          href: '/admin/dev',
+          label: 'Dev Cheat-Sheet',
+          icon: Code2,
+          badge: 'SDK',
           exact: false,
         },
       ],
@@ -158,6 +166,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     if (pathname?.startsWith('/admin/reviews')) return 'Reviews Moderation';
     if (pathname?.startsWith('/admin/banners')) return 'Banners & Media';
     if (pathname?.startsWith('/admin/plugins')) return 'Plugins Hub';
+    if (pathname?.startsWith('/admin/dev')) return 'Developer Engine Cheat-Sheet';
     if (pathname?.startsWith('/admin/settings')) return 'Store Settings';
     return 'Admin Control';
   };

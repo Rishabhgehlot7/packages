@@ -2,7 +2,7 @@
 
 const path = require('path');
 const readline = require('readline');
-const { scaffoldProject, scaffoldPair, TEMPLATES, PAIRS } = require('../src/scaffolder');
+const { scaffoldProject, scaffoldPair, TEMPLATES, PAIRS, FEATURES, FEATURE_PRESETS } = require('../src/scaffolder');
 
 // ─── Banner ────────────────────────────────────────────────────────────────────
 const banner = `
@@ -22,10 +22,14 @@ console.log(banner);
 const args = process.argv.slice(2);
 let templateFlag = null;
 let projectNameArg = null;
+let featuresFlag = null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--template' && args[i + 1]) {
     templateFlag = args[i + 1];
+    i++;
+  } else if (args[i] === '--features' && args[i + 1]) {
+    featuresFlag = args[i + 1];
     i++;
   } else if (!args[i].startsWith('--')) {
     projectNameArg = args[i];
@@ -126,6 +130,36 @@ function resolveFlag(flag) {
   const byKey = MENU.find(m => m.key === normalized);
   if (byKey) return byKey;
   return null;
+}
+
+// ─── Feature & Plugin Selector ───────────────────────────────────────────────
+async function askFeatures() {
+  console.log('\n\x1b[1mConfigure Features & Plugins:\x1b[0m\n');
+  console.log('  \x1b[33m1\x1b[0m. 👑 \x1b[1mFull D2C Suite\x1b[0m \x1b[90m(All 15 plugins pre-installed — Recommended)\x1b[0m');
+  console.log('  \x1b[33m2\x1b[0m. ⚡ \x1b[1mEssential Commerce\x1b[0m \x1b[90m(Payments, Shipping, Phone Auth, GST Invoices, Coupons, Search)\x1b[0m');
+  console.log('  \x1b[33m3\x1b[0m. 🛠️  \x1b[1mCustom Selection\x1b[0m \x1b[90m(Pick individual plugins)\x1b[0m\n');
+
+  const choice = await ask('Feature preset (1, 2, or 3)', '1');
+  if (choice === '2' || choice.toLowerCase() === 'essentials') {
+    return 'essentials';
+  }
+  if (choice === '3' || choice.toLowerCase() === 'custom') {
+    console.log('\n\x1b[1mAvailable Plugins:\x1b[0m');
+    const featureKeys = Object.keys(FEATURES);
+    featureKeys.forEach((key, idx) => {
+      console.log(`  \x1b[33m${idx + 1}\x1b[0m. ${FEATURES[key].name}`);
+    });
+    console.log('');
+    const input = await ask('Enter plugin numbers separated by commas (e.g. 1,2,4)', '1,2,3,4,5,8');
+    const selectedIndices = input
+      .split(',')
+      .map(s => parseInt(s.trim(), 10))
+      .filter(n => !isNaN(n) && n >= 1 && n <= featureKeys.length);
+    const selectedKeys = selectedIndices.map(n => featureKeys[n - 1]);
+    return selectedKeys.length > 0 ? selectedKeys : 'essentials';
+  }
+
+  return 'all';
 }
 
 // ─── Success Output ───────────────────────────────────────────────────────────
@@ -230,20 +264,35 @@ async function main() {
         console.log('Valid options: ' + MENU.map(m => m.key).join(', ') + '\n');
         process.exit(1);
       }
-      console.log(`\x1b[36m  Using: ${menuItem.display}\x1b[0m`);
+      console.log(`\x1b[36m  Using stack: ${menuItem.display}\x1b[0m`);
     } else {
       menuItem = await askMenu();
     }
 
+    // 4. Feature selection
+    let features;
+    if (featuresFlag) {
+      if (featuresFlag === 'all' || featuresFlag === 'essentials') {
+        features = featuresFlag;
+      } else {
+        features = featuresFlag.split(',').map(f => f.trim().toLowerCase()).filter(f => FEATURES[f]);
+        if (features.length === 0) features = 'all';
+      }
+      console.log(`\x1b[36m  Features: ${Array.isArray(features) ? features.join(', ') : features}\x1b[0m`);
+    } else {
+      features = await askFeatures();
+    }
+
     const cwd = process.cwd();
 
-    // ── PAIR ──────────────────────────────────────────────────────────────────
+    // ── PAIR / SUITE ──────────────────────────────────────────────────────────
     if (menuItem.type === 'pair') {
-      console.log(`\n\x1b[36m⚡ Scaffolding pair: ${PAIRS[menuItem.key].label}...\x1b[0m\n`);
+      console.log(`\n\x1b[36m⚡ Scaffolding ${PAIRS[menuItem.key].label}...\x1b[0m\n`);
 
       const result = scaffoldPair(cwd, menuItem.key, {
         storeName: projectName,
         brandTitle,
+        features,
       });
 
       printPairSuccess(result, projectName, brandTitle);
@@ -257,6 +306,7 @@ async function main() {
         storeName: projectName,
         brandTitle,
         template: menuItem.key,
+        features,
       });
 
       printStandaloneSuccess(result, projectName, brandTitle);

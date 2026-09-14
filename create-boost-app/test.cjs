@@ -40,6 +40,7 @@ try {
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/products/new/page.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/orders/page.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/plugins/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/dev/page.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/settings/page.tsx')), true);
 
   // Admin API checks
@@ -129,13 +130,41 @@ try {
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'complete-store-api', 'package.json')), true);
   console.log('✅ omnichannel 3-in-1 suite verified: complete-store-web/ + app/ + api/ created!');
 
-  // Cleanup pair test
-  fs.rmSync(pairTestBase, { recursive: true, force: true });
+  // ── Test Feature Filtering & boost.config.json ───────────────────────────
+  console.log('🧪 Testing custom feature selection filtering in scaffoldProject...');
+  const customFeatDir = path.join(pairTestBase, 'custom-store');
+  const customResult = scaffoldProject(customFeatDir, {
+    storeName: 'custom-store',
+    brandTitle: 'Custom Store',
+    template: 'nextjs',
+    features: ['payments', 'shipping'],
+  });
 
-  console.log('\n🎉 ALL create-boost-app tests (Standalone, Pairs & 3-in-1 Suites) passed successfully!');
+  assert.strictEqual(Boolean(customResult), true);
+  const customPkg = JSON.parse(fs.readFileSync(path.join(customFeatDir, 'package.json'), 'utf8'));
+  assert.strictEqual(Boolean(customPkg.dependencies['@boostengine/payments']), true);
+  assert.strictEqual(Boolean(customPkg.dependencies['@boostengine/shipping']), true);
+  assert.strictEqual(Boolean(customPkg.dependencies['@boostengine/notifications']), false);
+  assert.strictEqual(Boolean(customPkg.dependencies['@boostengine/reviews']), false);
+
+  const boostCfg = JSON.parse(fs.readFileSync(path.join(customFeatDir, 'boost.config.json'), 'utf8'));
+  assert.strictEqual(boostCfg.features.payments.enabled, true);
+  assert.strictEqual(boostCfg.features.shipping.enabled, true);
+  assert.strictEqual(boostCfg.features.reviews.enabled, false);
+  console.log('✅ Custom feature filtering & boost.config.json verified!');
+
+  // Cleanup pair test
+  try {
+    fs.rmSync(pairTestBase, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+  } catch (e) {
+    // Ignore cleanup lock if Windows Defender/search indexer temporarily holds handle
+  }
+
+  console.log('\n🎉 ALL create-boost-app tests (Standalone, Pairs, 3-in-1 Suites & Feature Filtering) passed successfully!');
 } catch (err) {
   console.error('❌ Scaffolder test failed:', err);
   process.exit(1);
 }
+
 
 

@@ -71,6 +71,90 @@ const PAIRS = {
   },
 };
 
+// ─── Available Feature Plugins ────────────────────────────────────────────────
+const FEATURES = {
+  'payments': {
+    pkg: '@boostengine/payments',
+    name: '💳 Payments (Razorpay, PhonePe, COD)',
+    default: true,
+  },
+  'shipping': {
+    pkg: '@boostengine/shipping',
+    name: '🚚 Shipping & Tracking (Shiprocket)',
+    default: true,
+  },
+  'auth': {
+    pkg: '@boostengine/auth',
+    name: '🔐 Phone OTP Authentication',
+    default: true,
+  },
+  'invoicing': {
+    pkg: '@boostengine/invoicing',
+    name: '🧾 Indian GST Invoicing & PDFs',
+    default: true,
+  },
+  'coupons': {
+    pkg: '@boostengine/coupons',
+    name: '🎟️ Coupons & Discounts Engine',
+    default: true,
+  },
+  'returns': {
+    pkg: '@boostengine/returns',
+    name: '🔄 Returns & Refund Flow',
+    default: false,
+  },
+  'notifications': {
+    pkg: '@boostengine/notifications',
+    name: '💬 WhatsApp & SMS Alerts',
+    default: false,
+  },
+  'search': {
+    pkg: '@boostengine/search',
+    name: '🔍 Instant Product Search & Filters',
+    default: true,
+  },
+  'wishlist': {
+    pkg: '@boostengine/wishlist',
+    name: '💖 Customer Wishlist',
+    default: false,
+  },
+  'reviews': {
+    pkg: '@boostengine/reviews',
+    name: '⭐ Reviews & Ratings',
+    default: false,
+  },
+  'loyalty': {
+    pkg: '@boostengine/loyalty',
+    name: '🎁 Loyalty Points & Rewards',
+    default: false,
+  },
+  'deals': {
+    pkg: '@boostengine/deals',
+    name: '⚡ Flash Deals & Offers',
+    default: false,
+  },
+  'recommendations': {
+    pkg: '@boostengine/recommendations',
+    name: '🤖 AI Recommendations',
+    default: false,
+  },
+  'referrals': {
+    pkg: '@boostengine/referrals',
+    name: '🤝 Referral & Affiliate Engine',
+    default: false,
+  },
+  'analytics': {
+    pkg: '@boostengine/analytics',
+    name: '📊 Store Analytics & Events',
+    default: false,
+  },
+};
+
+const FEATURE_PRESETS = {
+  'all': Object.keys(FEATURES),
+  'essentials': ['payments', 'shipping', 'auth', 'invoicing', 'coupons', 'search'],
+};
+
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
@@ -167,14 +251,56 @@ function scaffoldProject(targetDir, options = {}) {
     replacePlaceholders(path.join(targetDir, relPath), replacements);
   });
 
-  // 3. Create .env.local from .env.example
+  // 3. Filter package.json dependencies based on selected features
+  const selectedFeatureKeys = options.features === 'all' || !options.features
+    ? Object.keys(FEATURES)
+    : (Array.isArray(options.features) ? options.features : (FEATURE_PRESETS[options.features] || Object.keys(FEATURES)));
+
+  const pkgPath = path.join(targetDir, 'package.json');
+  if (fs.existsSync(pkgPath)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      pkg.name = storeName.toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+      if (options.features && options.features !== 'all') {
+        const allowedPkgs = new Set(selectedFeatureKeys.map(k => FEATURES[k] && FEATURES[k].pkg).filter(Boolean));
+        if (pkg.dependencies) {
+          for (const depName of Object.keys(pkg.dependencies)) {
+            const isOptionalFeature = Object.values(FEATURES).some(f => f.pkg === depName);
+            if (isOptionalFeature && !allowedPkgs.has(depName)) {
+              delete pkg.dependencies[depName];
+            }
+          }
+        }
+      }
+      fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
+    } catch (e) {}
+  }
+
+  // 4. Generate boost.config.json
+  const boostConfig = {
+    storeName,
+    brandTitle,
+    framework: templateConfig.framework,
+    template,
+    features: {},
+  };
+  for (const [key, feat] of Object.entries(FEATURES)) {
+    boostConfig.features[key] = {
+      name: feat.name,
+      package: feat.pkg,
+      enabled: selectedFeatureKeys.includes(key),
+    };
+  }
+  fs.writeFileSync(path.join(targetDir, 'boost.config.json'), JSON.stringify(boostConfig, null, 2), 'utf8');
+
+  // 5. Create .env.local from .env.example
   const envExamplePath = path.join(targetDir, '.env.example');
   const envLocalPath   = path.join(targetDir, '.env.local');
   if (fs.existsSync(envExamplePath) && !fs.existsSync(envLocalPath)) {
     fs.copyFileSync(envExamplePath, envLocalPath);
   }
 
-  // 4. Generate README
+  // 6. Generate README
   const readme = generateReadme(brandTitle, templateConfig, storeName, template);
   fs.writeFileSync(path.join(targetDir, 'README.md'), readme);
 
@@ -186,6 +312,7 @@ function scaffoldProject(targetDir, options = {}) {
     template,
     framework: templateConfig.framework,
     type: templateConfig.type,
+    features: selectedFeatureKeys,
   };
 }
 
@@ -200,7 +327,7 @@ function scaffoldProject(targetDir, options = {}) {
  *
  * @param {string} baseDir   - Parent directory where both folders are created
  * @param {string} pair      - Key from PAIRS ('vite+express' | 'expo+express')
- * @param {{ storeName: string, brandTitle: string }} options
+ * @param {{ storeName: string, brandTitle: string, features?: string|string[] }} options
  * @returns {{ frontend: object, backend: object }}
  */
 function scaffoldPair(baseDir, pair, options = {}) {
@@ -226,6 +353,7 @@ function scaffoldPair(baseDir, pair, options = {}) {
       storeName:  projName,
       brandTitle: brandTitle + (p.titleSuffix || ''),
       template:   p.template,
+      features:   options.features,
     });
     results[p.key] = result;
   }
@@ -277,4 +405,4 @@ function getNextSteps(template, projectName) {
 }
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
-module.exports = { scaffoldProject, scaffoldPair, TEMPLATES, PAIRS };
+module.exports = { scaffoldProject, scaffoldPair, TEMPLATES, PAIRS, FEATURES, FEATURE_PRESETS };

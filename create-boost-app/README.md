@@ -82,6 +82,34 @@ Choose a stack:
 
 ---
 
+## 🧩 Feature & Plugin Selection (Interactive or Flags)
+
+Aapko saare 15 plugins lene ki jarurat nahi hai! CLI aapse puchega:
+
+```
+Configure Features & Plugins:
+
+  1. 👑 Full D2C Suite (All 15 plugins pre-installed — Recommended)
+  2. ⚡ Essential Commerce (Payments, Shipping, Phone Auth, GST, Coupons, Search)
+  3. 🛠️ Custom Selection (Pick individual plugins via comma-separated numbers)
+```
+
+Direct flags ke through bhi select kar sakte hain:
+```bash
+# All features (default)
+npx create-boost-app my-store --features all
+
+# Only essential plugins
+npx create-boost-app my-store --features essentials
+
+# Custom specific plugins
+npx create-boost-app my-store --features payments,shipping,auth
+```
+
+Har project me `boost.config.json` generate hota hai jo track karta hai ki kaunse plugins active hain!
+
+---
+
 ## Templates Detail
 
 ### 🔗 Paired: `vite+express`

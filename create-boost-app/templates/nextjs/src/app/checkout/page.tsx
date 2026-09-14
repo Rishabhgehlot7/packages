@@ -290,6 +290,25 @@ export default function CheckoutPage() {
         return;
       }
 
+      if (rzpData.mock) {
+        // Mock test mode: complete verification and route immediately to order-success!
+        try {
+          await fetch('/api/payments/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: rzpData.order.id,
+              razorpay_payment_id: 'pay_mock_' + Date.now(),
+              razorpay_signature: 'sig_mock_verified',
+              boostOrderId: createdOrderId,
+            }),
+          });
+        } catch (e) {}
+        clearCart();
+        router.push(`/order-success/${createdOrderId}`);
+        return;
+      }
+
       const options = {
         key: rzpData.key,
         amount: rzpData.order.amount,
