@@ -11,6 +11,8 @@ export interface IAdBannerDocument extends Document {
   updatedAt: Date;
 }
 
+export type IAdBanner = IAdBannerDocument;
+
 const AdBannerSchema: Schema = new Schema(
   {
     text: { type: String, required: true, trim: true },

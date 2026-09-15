@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       .split(/\s+/)
       .filter((w) => w.length > 2 && !['bhai', 'mujhe', 'chahiye', 'kuch', 'under', 'wala', 'wali', 'best', 'good', 'show', 'options', 'please'].includes(w));
 
-    let matchedProducts: StoreProduct[] = initialProducts.filter((p) => {
+    let matchedProducts: StoreProduct[] = initialProducts.filter((p: any) => {
       // Budget check
       const effectivePrice = p.salePrice || p.price;
       if (maxBudget !== null && effectivePrice > maxBudget) {

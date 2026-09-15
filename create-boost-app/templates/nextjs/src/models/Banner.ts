@@ -21,6 +21,8 @@ export interface IBannerDocument extends Document {
   updatedAt: Date;
 }
 
+export type IBanner = IBannerDocument;
+
 const BannerSchema: Schema = new Schema(
   {
     title: { type: String, trim: true, default: '' },

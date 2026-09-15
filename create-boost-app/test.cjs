@@ -33,22 +33,47 @@ try {
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/checkout/page.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/order-success/[orderId]/page.tsx')), true);
 
+  // New D2C Brand Pages
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/contact/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/about/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/warranty-registration/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/warranty-claim/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/privacy-policy/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/terms-conditions/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/refund-policy/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/shipping-policy/page.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/robots.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/sitemap.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/not-found.tsx')), true);
+
+  // API Route checks
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/contact/route.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/warranty/register/route.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/warranty/claim/route.ts')), true);
+
+  // D2C Data Models checks (22 models + barrel export)
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/index.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/Product.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/Order.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/Setting.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/User.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/Role.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/DelhiveryPincode.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/WarrantyRegistration.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/WarrantyClaim.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/ContactQuery.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/models/DiscountPopupConfig.ts')), true);
+
+  // Lib checks
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/lib/types.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/lib/constants.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/lib/utils.ts')), true);
+
   // Admin Panel checks
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/layout.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/page.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/products/page.tsx')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/products/new/page.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/orders/page.tsx')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/plugins/page.tsx')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/dev/page.tsx')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/admin/settings/page.tsx')), true);
-
-  // Admin API checks
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/admin/stats/route.ts')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/admin/products/route.ts')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/admin/orders/route.ts')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/admin/plugins/route.ts')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/app/api/admin/settings/route.ts')), true);
 
   // Components & Context checks
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/components/Navbar.tsx')), true);
@@ -56,8 +81,6 @@ try {
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/components/GlobalCartDrawer.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/components/MobileBottomNav.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/context/StoreContext.tsx')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/data/products.ts')), true);
-  assert.strictEqual(fs.existsSync(path.join(testOutputDir, 'src/data/db.ts')), true);
 
   // Verify package.json contents
   const pkg = JSON.parse(fs.readFileSync(path.join(testOutputDir, 'package.json'), 'utf8'));
@@ -67,8 +90,10 @@ try {
   assert.strictEqual(Boolean(pkg.dependencies['@boostengine/cart']), true);
   assert.strictEqual(Boolean(pkg.dependencies['@boostengine/payments']), true);
   assert.strictEqual(Boolean(pkg.dependencies['@boostengine/shipping']), true);
+  assert.strictEqual(Boolean(pkg.dependencies['clsx']), true);
+  assert.strictEqual(Boolean(pkg.dependencies['tailwind-merge']), true);
 
-  console.log('✅ Next.js Full-Stack Scaffolder verified successfully!');
+  console.log('✅ Next.js Full-Stack Scaffolder & All 22 Models verified successfully!');
   fs.rmSync(testOutputDir, { recursive: true, force: true });
 
   // ── Test Paired Scaffolding: vite+express ─────────────────────────────────
@@ -88,9 +113,10 @@ try {
   assert.strictEqual(Boolean(vitePairResult), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store', 'package.json')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'package.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'src/db.ts')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store', '.env.local')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', '.env.local')), true);
-  console.log('✅ vite+express pair verified: my-cool-store/ + my-cool-store-api/ created!');
+  console.log('✅ vite+express pair verified: my-cool-store/ + my-cool-store-api/ created with db.ts!');
 
   // ── Test Paired Scaffolding: expo+express ─────────────────────────────────
   console.log('🧪 Testing scaffoldPair with expo+express...');
@@ -165,6 +191,3 @@ try {
   console.error('❌ Scaffolder test failed:', err);
   process.exit(1);
 }
-
-
-

@@ -11,6 +11,7 @@ export interface StoreProduct {
   brand: string;
   category: string;
   tags: string[];
+  image?: string;
   images: string[];
   media?: Array<{ type: 'image' | 'video'; url: string }>;
   inStock: boolean;
@@ -222,3 +223,6 @@ export const PRODUCTS: StoreProduct[] = [
     ],
   },
 ];
+
+export const initialProducts = PRODUCTS;
+

@@ -12,6 +12,8 @@ export interface IReviewDocument extends Document {
   updatedAt: Date;
 }
 
+export type IReview = IReviewDocument;
+
 const ReviewSchema: Schema = new Schema(
   {
     productId: { type: String, required: true, index: true },

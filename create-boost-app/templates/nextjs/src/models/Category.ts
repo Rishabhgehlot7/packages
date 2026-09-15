@@ -15,6 +15,8 @@ export interface ICategoryDocument extends Document {
   updatedAt: Date;
 }
 
+export type ICategory = ICategoryDocument;
+
 const CategorySchema: Schema = new Schema(
   {
     name: { type: String, required: true, trim: true },

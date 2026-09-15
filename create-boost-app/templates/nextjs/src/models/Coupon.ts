@@ -23,6 +23,8 @@ export interface ICouponDocument extends Document {
   updatedAt: Date;
 }
 
+export type ICoupon = ICouponDocument;
+
 const CouponSchema: Schema = new Schema(
   {
     code: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },

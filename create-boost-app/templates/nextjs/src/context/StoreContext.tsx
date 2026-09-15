@@ -26,6 +26,7 @@ interface StoreContextType {
   cartSummary: CartSummary;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  setIsCartDrawerOpen: (open: boolean) => void;
   addToCart: (product: StoreProduct, variantId?: string, quantity?: number) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
@@ -401,6 +402,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         cartSummary,
         isCartOpen,
         setIsCartOpen,
+        setIsCartDrawerOpen: setIsCartOpen,
         addToCart,
         updateQuantity,
         removeFromCart,

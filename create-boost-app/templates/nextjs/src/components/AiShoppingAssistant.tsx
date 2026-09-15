@@ -207,11 +207,19 @@ export function AiShoppingAssistant() {
                               addToCart({
                                 id: prod.id,
                                 title: prod.title,
+                                description: '',
+                                brand: 'Boost',
+                                category: prod.category || 'General',
+                                tags: [],
+                                inStock: true,
+                                hsnCode: '0000',
+                                taxRate: 18,
+                                sku: prod.id,
                                 price: prod.price,
                                 compareAtPrice: prod.compareAtPrice,
+                                images: [prod.image],
                                 image: prod.image,
-                                quantity: 1,
-                              });
+                              } as any, undefined, 1);
                               setIsCartDrawerOpen(true);
                             }}
                             className="bg-gray-900 hover:bg-black text-white text-[11px] font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm transition"

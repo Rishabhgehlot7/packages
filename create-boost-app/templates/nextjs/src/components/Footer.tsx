@@ -33,9 +33,10 @@ export const Footer: React.FC = () => {
   const shippingThreshold = settings.freeShippingThreshold || 999;
 
   return (
-    <footer className="bg-white text-slate-600 py-10 border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-sm">
-        <div>
+    <footer className="bg-white text-slate-600 py-12 border-t border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 text-sm">
+        {/* Brand Column */}
+        <div className="sm:col-span-2 md:col-span-1">
           <span className="text-xl font-black text-slate-900 tracking-tighter uppercase">{storeName}</span>
           <p className="mt-2.5 text-xs text-slate-500 leading-relaxed">
             India's favorite next-generation eCommerce store with instant checkout, live order tracking, and COD available.
@@ -52,6 +53,7 @@ export const Footer: React.FC = () => {
           )}
         </div>
 
+        {/* Shop Categories */}
         <div>
           <h4 className="text-slate-900 font-bold text-xs uppercase tracking-wider mb-3">Shop Categories</h4>
           <ul className="space-y-2 text-xs">
@@ -74,32 +76,44 @@ export const Footer: React.FC = () => {
           </ul>
         </div>
 
+        {/* Customer Care & Warranty */}
         <div>
-          <h4 className="text-slate-900 font-bold text-xs uppercase tracking-wider mb-3">Admin & Control</h4>
+          <h4 className="text-slate-900 font-bold text-xs uppercase tracking-wider mb-3">Customer Support</h4>
           <ul className="space-y-2 text-xs">
-            <li><Link href="/admin" className="hover:text-blue-600 transition">Dashboard Overview</Link></li>
-            <li><Link href="/admin/products" className="hover:text-blue-600 transition">Product Manager</Link></li>
-            <li><Link href="/admin/orders" className="hover:text-blue-600 transition">Orders & Shipping</Link></li>
-            <li><Link href="/admin/plugins" className="hover:text-blue-600 transition">WordPress Plugins Hub</Link></li>
+            <li><Link href="/about" className="hover:text-blue-600 transition">About Us</Link></li>
+            <li><Link href="/contact" className="hover:text-blue-600 transition">Contact Us</Link></li>
+            <li><Link href="/warranty-registration" className="hover:text-blue-600 transition">Warranty Registration</Link></li>
+            <li><Link href="/warranty-claim" className="hover:text-blue-600 transition">File Warranty Claim</Link></li>
+            <li><Link href="/orders" className="hover:text-blue-600 transition">Track Order</Link></li>
           </ul>
         </div>
 
+        {/* Store Policies */}
         <div>
-          <h4 className="text-slate-900 font-bold text-xs uppercase tracking-wider mb-3">Store Policies</h4>
+          <h4 className="text-slate-900 font-bold text-xs uppercase tracking-wider mb-3">Policies & Legal</h4>
+          <ul className="space-y-2 text-xs">
+            <li><Link href="/privacy-policy" className="hover:text-blue-600 transition">Privacy Policy</Link></li>
+            <li><Link href="/terms-conditions" className="hover:text-blue-600 transition">Terms & Conditions</Link></li>
+            <li><Link href="/shipping-policy" className="hover:text-blue-600 transition">Shipping Policy</Link></li>
+            <li><Link href="/refund-policy" className="hover:text-blue-600 transition">Return & Refund Policy</Link></li>
+          </ul>
+        </div>
+
+        {/* Admin & Trust */}
+        <div>
+          <h4 className="text-slate-900 font-bold text-xs uppercase tracking-wider mb-3">Store Guarantees</h4>
           <ul className="space-y-2 text-xs">
             <li><span className="text-slate-700 font-medium">Free Express Delivery above ₹{shippingThreshold}</span></li>
-            <li><span className="text-slate-600">{settings.enableCod !== false ? 'Cash on Delivery (COD) Available' : '100% Secure Online Payment'}</span></li>
-            <li><span className="text-slate-600">7-Day No-Questions Return Policy</span></li>
-            {settings.gstin && (
-              <li><span className="text-slate-500 font-mono text-[11px]">GSTIN: {settings.gstin}</span></li>
-            )}
+            <li><span className="text-slate-600">{settings.enableCod !== false ? 'COD Available Across India' : '100% Secure Online Payment'}</span></li>
+            <li><span className="text-slate-600">7-Day No-Questions Return</span></li>
+            <li className="pt-2"><Link href="/admin" className="font-semibold text-blue-600 hover:underline">Staff / Admin Portal →</Link></li>
           </ul>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
         <p>© {new Date().getFullYear()} {storeName}. All rights reserved.</p>
-        <p className="mt-2 sm:mt-0 font-mono text-[11px] text-slate-400">Powered by BoostEngine Dynamic Architecture</p>
+        <p className="mt-2 sm:mt-0 font-mono text-[11px] text-slate-400">Powered by BoostEngine Enterprise D2C Architecture</p>
       </div>
     </footer>
   );
