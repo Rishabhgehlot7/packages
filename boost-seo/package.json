@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/seo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "High-converting eCommerce SEO Engine: JSON-LD Rich Snippets (Product, Breadcrumbs, FAQ), Google Merchant Center XML Feed Generator, Next.js OpenGraph Metadata & Sitemaps.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",

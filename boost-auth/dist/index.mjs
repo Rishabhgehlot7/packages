@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 // src/manager.ts
 var TokenManager = class {
   constructor(secret) {
+    this.consumedTokens = /* @__PURE__ */ new Set();
     if (!secret || secret.trim().length < 16) {
       throw new Error("[@boostengine/auth] secret must be at least 16 characters long.");
     }
@@ -61,35 +62,57 @@ var TokenManager = class {
     }
   }
   /**
-   * Generates a stateless HMAC hash of phone + OTP + salt + expiry
+   * Generates a stateless HMAC hash of phone + OTP + nonce + expiry
    */
-  createStatelessOtpToken(phone, otp, expiresAt) {
-    const data = `${phone.trim()}:${otp.trim()}:${expiresAt}`;
+  createStatelessOtpToken(phone, otp, expiresAt, customNonce) {
+    const nonce = customNonce || crypto.randomBytes(8).toString("hex");
+    const data = `${phone.trim()}:${otp.trim()}:${expiresAt}:${nonce}`;
     const hash = crypto.createHmac("sha256", this.secret).update(data).digest("hex");
-    return Buffer.from(`${expiresAt}:${hash}`).toString("base64url");
+    return Buffer.from(`${expiresAt}:${nonce}:${hash}`).toString("base64url");
   }
   /**
-   * Verifies an OTP against a stateless token without needing DB/Redis
+   * Verifies an OTP against a stateless token with anti-replay shield
    */
-  verifyStatelessOtp(phone, otp, token) {
+  verifyStatelessOtp(phone, otp, token, options = { preventReplay: true }) {
     try {
+      if (options.preventReplay && this.consumedTokens.has(token)) {
+        return { valid: false, error: "OTP token has already been consumed (replay attempt detected)" };
+      }
       const decoded = Buffer.from(token, "base64url").toString("utf-8");
-      const [expiresAtStr, expectedHash] = decoded.split(":");
-      const expiresAt = parseInt(expiresAtStr, 10);
+      const parts = decoded.split(":");
+      let expiresAt;
+      let nonce = "";
+      let expectedHash;
+      if (parts.length === 3) {
+        expiresAt = parseInt(parts[0], 10);
+        nonce = parts[1];
+        expectedHash = parts[2];
+      } else if (parts.length === 2) {
+        expiresAt = parseInt(parts[0], 10);
+        expectedHash = parts[1];
+      } else {
+        return { valid: false, error: "Invalid verification token format" };
+      }
       const now = Math.floor(Date.now() / 1e3);
       if (isNaN(expiresAt) || expiresAt < now) {
         return { valid: false, error: "OTP has expired" };
       }
-      const data = `${phone.trim()}:${otp.trim()}:${expiresAt}`;
+      const data = nonce ? `${phone.trim()}:${otp.trim()}:${expiresAt}:${nonce}` : `${phone.trim()}:${otp.trim()}:${expiresAt}`;
       const actualHash = crypto.createHmac("sha256", this.secret).update(data).digest("hex");
       const hashBuffer = Buffer.from(actualHash);
       const expectedBuffer = Buffer.from(expectedHash);
       if (hashBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(hashBuffer, expectedBuffer)) {
         return { valid: false, error: "Incorrect OTP" };
       }
+      if (options.preventReplay) {
+        this.consumedTokens.add(token);
+        if (this.consumedTokens.size > 1e4) {
+          this.consumedTokens.clear();
+        }
+      }
       return { valid: true };
     } catch (err) {
-      return { valid: false, error: "Invalid verification token" };
+      return { valid: false, error: err.message || "Invalid verification token" };
     }
   }
 };
@@ -120,9 +143,9 @@ var BoostAuth = class {
     const expirySec = params.expirySeconds || this.config.otpExpirySeconds;
     let otp = "";
     const digits = "0123456789";
-    const randomBytes2 = crypto.randomBytes(length);
+    const randomBytes3 = crypto.randomBytes(length);
     for (let i = 0; i < length; i++) {
-      otp += digits[randomBytes2[i] % 10];
+      otp += digits[randomBytes3[i] % 10];
     }
     const expiresAt = Math.floor(Date.now() / 1e3) + expirySec;
     const verificationToken = this.tokenManager.createStatelessOtpToken(params.phone, otp, expiresAt);

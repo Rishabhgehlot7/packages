@@ -40,11 +40,27 @@ interface StockReservation {
     quantity: number;
     expiresAt: number;
 }
+interface InventoryStorageAdapter {
+    getStock(key: string): Promise<StockLevel | null> | StockLevel | null;
+    setStock(key: string, stock: StockLevel): Promise<void> | void;
+    getReservations(key: string): Promise<StockReservation[]> | StockReservation[];
+    setReservations(key: string, reservations: StockReservation[]): Promise<void> | void;
+}
 
-declare class BoostInventory {
+declare class InMemoryInventoryStorageAdapter implements InventoryStorageAdapter {
     private stockMap;
     private reservations;
-    constructor(initialStock?: StockLevel[]);
+    getStock(key: string): StockLevel | null;
+    setStock(key: string, stock: StockLevel): void;
+    getReservations(key: string): StockReservation[];
+    setReservations(key: string, reservations: StockReservation[]): void;
+}
+declare class BoostInventory {
+    private storage;
+    constructor(options?: StockLevel[] | {
+        initialStock?: StockLevel[];
+        storage?: InventoryStorageAdapter;
+    });
     private getKey;
     /**
      * Sets or updates stock quantity for an SKU
@@ -82,4 +98,4 @@ declare class BoostInventory {
 }
 declare function createBoostInventory(initialStock?: StockLevel[]): BoostInventory;
 
-export { type AllocationItem, type AllocationResult, BoostInventory, type StockLevel, type StockReservation, type StockUrgencyInfo, type Warehouse, createBoostInventory };
+export { type AllocationItem, type AllocationResult, BoostInventory, InMemoryInventoryStorageAdapter, type InventoryStorageAdapter, type StockLevel, type StockReservation, type StockUrgencyInfo, type Warehouse, createBoostInventory };

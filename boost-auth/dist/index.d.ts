@@ -154,14 +154,17 @@ declare class TokenManager {
         payload?: T;
         error?: string;
     };
+    private consumedTokens;
     /**
-     * Generates a stateless HMAC hash of phone + OTP + salt + expiry
+     * Generates a stateless HMAC hash of phone + OTP + nonce + expiry
      */
-    createStatelessOtpToken(phone: string, otp: string, expiresAt: number): string;
+    createStatelessOtpToken(phone: string, otp: string, expiresAt: number, customNonce?: string): string;
     /**
-     * Verifies an OTP against a stateless token without needing DB/Redis
+     * Verifies an OTP against a stateless token with anti-replay shield
      */
-    verifyStatelessOtp(phone: string, otp: string, token: string): {
+    verifyStatelessOtp(phone: string, otp: string, token: string, options?: {
+        preventReplay?: boolean;
+    }): {
         valid: boolean;
         error?: string;
     };

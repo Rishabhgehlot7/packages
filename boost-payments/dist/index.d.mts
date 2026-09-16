@@ -24,12 +24,15 @@ declare abstract class BasePaymentAdapter {
      */
     protected getHeader(headers: Record<string, string | string[] | undefined>, name: string): string | undefined;
     /**
-     * Helper to perform HTTP JSON requests with standard error extraction.
+     * Helper to perform HTTP JSON requests with standard error extraction, timeouts, and idempotency.
      */
     protected fetchJson<T = any>(url: string, options?: {
         method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
         headers?: Record<string, string>;
         body?: any;
+        timeoutMs?: number;
+        idempotencyKey?: string;
+        retries?: number;
     }): Promise<T>;
 }
 

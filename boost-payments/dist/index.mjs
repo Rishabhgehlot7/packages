@@ -11,14 +11,17 @@ var BasePaymentAdapter = class {
     return direct;
   }
   /**
-   * Helper to perform HTTP JSON requests with standard error extraction.
+   * Helper to perform HTTP JSON requests with standard error extraction, timeouts, and idempotency.
    */
   async fetchJson(url, options = {}) {
-    const { method = "GET", headers = {}, body } = options;
+    const { method = "GET", headers = {}, body, timeoutMs = 15e3, idempotencyKey, retries = 0 } = options;
     const requestHeaders = {
       Accept: "application/json",
       ...headers
     };
+    if (idempotencyKey) {
+      requestHeaders["Idempotency-Key"] = idempotencyKey;
+    }
     let serializedBody;
     if (body !== void 0) {
       if (typeof body === "string") {
@@ -30,23 +33,52 @@ var BasePaymentAdapter = class {
         serializedBody = JSON.stringify(body);
       }
     }
-    const res = await fetch(url, {
-      method,
-      headers: requestHeaders,
-      body: serializedBody
-    });
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
+    let attempt = 0;
+    const maxAttempts = Math.max(1, retries + 1);
+    while (attempt < maxAttempts) {
+      attempt++;
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : void 0;
+      const timeoutId = controller && timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : void 0;
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: requestHeaders,
+          body: serializedBody,
+          signal: controller?.signal
+        });
+        if (timeoutId) clearTimeout(timeoutId);
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+        if (!res.ok) {
+          if ((res.status === 502 || res.status === 503 || res.status === 504) && attempt < maxAttempts) {
+            const delay = Math.min(2e3, 300 * Math.pow(2, attempt));
+            await new Promise((r) => setTimeout(r, delay));
+            continue;
+          }
+          const errMsg = data?.message || data?.error?.description || data?.error?.message || data?.description || (typeof data === "string" ? data : `HTTP ${res.status} ${res.statusText}`);
+          throw new Error(`[${this.name.toUpperCase()} API Error] ${errMsg}`);
+        }
+        return data;
+      } catch (err) {
+        if (timeoutId) clearTimeout(timeoutId);
+        const isTimeout = err.name === "AbortError" || err.message?.includes("aborted");
+        if (isTimeout) {
+          throw new Error(`[${this.name.toUpperCase()} API Error] Request timed out after ${timeoutMs}ms.`);
+        }
+        if (attempt < maxAttempts) {
+          const delay = Math.min(2e3, 300 * Math.pow(2, attempt));
+          await new Promise((r) => setTimeout(r, delay));
+          continue;
+        }
+        throw err;
+      }
     }
-    if (!res.ok) {
-      const errMsg = data?.message || data?.error?.description || data?.error?.message || data?.description || (typeof data === "string" ? data : `HTTP ${res.status} ${res.statusText}`);
-      throw new Error(`[${this.name.toUpperCase()} API Error] ${errMsg}`);
-    }
-    return data;
+    throw new Error(`[${this.name.toUpperCase()} API Error] Request failed after ${maxAttempts} attempts.`);
   }
 };
 function hmacSha256(data, secret) {

@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/returns",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Production-ready Returns, Exchanges, and Instant Refund Engine with Shiprocket & Delhivery reverse pickup integration for Next.js, Vite, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

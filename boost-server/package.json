@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Plug-and-Play Headless eCommerce API Router for Express, Fastify, and Node.js. 1-line auto-mount for Payments, Logistics, Returns, Coupons, Phone Auth, and GST Invoicing.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
