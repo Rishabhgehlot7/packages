@@ -43,7 +43,7 @@ for (const pkg of packages) {
   console.log(`-------------------------------------------------------`);
 
   try {
-    execFileSync(npmCmd, ['publish', '--access', 'public'], { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, ['publish', '--access', 'public'], { cwd: pkgDir, stdio: 'inherit', shell: true });
     console.log(`>>> PUBLISHED: ${pkg} <<<`);
   } catch (err) {
     console.log(`>>> Note: ${pkg} might already be published or need otp/auth.`);

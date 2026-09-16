@@ -31,10 +31,10 @@ for (const pkg of packagesToPublish) {
   if (otp) publishArgs.push(`--otp=${otp}`);
 
   try {
-    execFileSync(npmCmd, publishArgs, { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, publishArgs, { cwd: pkgDir, stdio: 'inherit', shell: true });
     console.log(`🎉 SUCCESS: Published ${pkgName}@${version}`);
   } catch (err) {
-    console.log(`⚠️ Failed to publish ${pkgName}@${version}. Please check if you are logged in (npm login) or need OTP.`);
+    console.log(`⚠️ Failed to publish ${pkgName}@${version}: ${err.message}`);
   }
 }
 

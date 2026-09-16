@@ -75,6 +75,7 @@ for (const pkg of packages) {
     remoteVersion = execFileSync(npmCmd, ['view', pkgName, 'version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'ignore'],
+      shell: true,
     }).trim();
     console.log(`   Remote NPM: v${remoteVersion}`);
   } catch {
@@ -84,7 +85,11 @@ for (const pkg of packages) {
   // Bump if version matches remote
   if (remoteVersion && currentVersion === remoteVersion) {
     try {
-      execFileSync(npmCmd, ['version', 'patch', '--no-git-tag-version'], { cwd: pkgDir, stdio: 'inherit' });
+      execFileSync(npmCmd, ['version', 'patch', '--no-git-tag-version'], {
+        cwd: pkgDir,
+        stdio: 'inherit',
+        shell: true,
+      });
       const updated = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'));
       currentVersion = updated.version;
       console.log(`   ✅ Bumped to: v${currentVersion}`);
@@ -96,11 +101,15 @@ for (const pkg of packages) {
   // Publish with OTP safely with parameterized arguments
   try {
     console.log(`   🚀 Publishing ${pkgName}@${currentVersion} --otp=${otp}`);
-    execFileSync(npmCmd, ['publish', '--access', 'public', `--otp=${otp}`], { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, ['publish', '--access', 'public', `--otp=${otp}`], {
+      cwd: pkgDir,
+      stdio: 'inherit',
+      shell: true,
+    });
     console.log(`   🎉 SUCCESS: Published ${pkgName}@${currentVersion}`);
     successCount++;
-  } catch {
-    console.log(`   ⚠️ Publish failed for ${pkgName} (version may already exist)`);
+  } catch (err) {
+    console.log(`   ⚠️ Publish failed for ${pkgName}: ${err.message}`);
     failCount++;
   }
 }

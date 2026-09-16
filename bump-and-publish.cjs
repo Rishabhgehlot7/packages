@@ -55,17 +55,22 @@ for (const pkg of packages) {
     remoteVersion = execFileSync(npmCmd, ['view', pkgName, 'version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'ignore'],
+      shell: true,
     }).trim();
     console.log(`   Remote NPM version: v${remoteVersion}`);
   } catch (e) {
     console.log(`   Package not yet published on NPM (brand new).`);
   }
 
-  // If already published and local version matches or is <= remote, bump patch
+  // If already published and local version matches remote, bump patch
   if (remoteVersion && currentVersion === remoteVersion) {
     try {
       console.log(`   ⬆️ Bumping patch version (e.g. v${currentVersion} -> patch)...`);
-      execFileSync(npmCmd, ['version', 'patch', '--no-git-tag-version'], { cwd: pkgDir, stdio: 'inherit' });
+      execFileSync(npmCmd, ['version', 'patch', '--no-git-tag-version'], {
+        cwd: pkgDir,
+        stdio: 'inherit',
+        shell: true,
+      });
       const updatedJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'));
       currentVersion = updatedJson.version;
       console.log(`   ✅ Bumped to: v${currentVersion}`);
@@ -77,11 +82,15 @@ for (const pkg of packages) {
   // Publish
   try {
     console.log(`   🚀 Publishing ${pkgName}@${currentVersion} to NPM...`);
-    execFileSync(npmCmd, ['publish', '--access', 'public'], { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, ['publish', '--access', 'public'], {
+      cwd: pkgDir,
+      stdio: 'inherit',
+      shell: true,
+    });
     console.log(`   🎉 SUCCESS: Published ${pkgName}@${currentVersion}`);
     successCount++;
   } catch (pubErr) {
-    console.log(`   ⚠️ Publish skipped or failed for ${pkgName} (check npm login or version)`);
+    console.log(`   ⚠️ Publish skipped or failed for ${pkgName}: ${pubErr.message}`);
     failCount++;
   }
 }
