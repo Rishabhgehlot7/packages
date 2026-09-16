@@ -1,8 +1,8 @@
 'use client';
 'use strict';
 
+var React3 = require('react');
 var jsxRuntime = require('react/jsx-runtime');
-var React2 = require('react');
 
 function _interopNamespace(e) {
   if (e && e.__esModule) return e;
@@ -22,7 +22,7 @@ function _interopNamespace(e) {
   return Object.freeze(n);
 }
 
-var React2__namespace = /*#__PURE__*/_interopNamespace(React2);
+var React3__namespace = /*#__PURE__*/_interopNamespace(React3);
 
 // src/components/CartDrawer.tsx
 var CartDrawer = ({
@@ -34,15 +34,54 @@ var CartDrawer = ({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
-  className = ""
+  className = "",
+  onTabSync
 }) => {
+  const [isCheckingOut, setIsCheckingOut] = React3__namespace.useState(false);
+  React3__namespace.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+  React3__namespace.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleStorage = (e) => {
+      if (e.key === "boost_cart" || e.key === "cart_items") {
+        onTabSync?.();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [onTabSync]);
   if (!isOpen) return null;
   const amountRemaining = Math.max(0, freeShippingThreshold - subtotal);
   const progressPercent = Math.min(100, Math.round(subtotal / freeShippingThreshold * 100));
   const isFreeShippingUnlocked = amountRemaining === 0;
+  const handleCheckoutClick = async () => {
+    if (isCheckingOut) return;
+    try {
+      setIsCheckingOut(true);
+      await Promise.resolve(onCheckout());
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
   return /* @__PURE__ */ jsxRuntime.jsx(
     "div",
     {
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": "Shopping Cart Drawer",
       className: `boost-cart-drawer-backdrop ${className}`,
       style: {
         position: "fixed",
@@ -79,6 +118,7 @@ var CartDrawer = ({
                 "button",
                 {
                   onClick: onClose,
+                  "aria-label": "Close Cart Drawer",
                   style: { background: "transparent", border: "none", fontSize: "20px", cursor: "pointer", color: "#6b7280" },
                   children: "\u2715"
                 }
@@ -130,7 +170,8 @@ var CartDrawer = ({
                 /* @__PURE__ */ jsxRuntime.jsx(
                   "button",
                   {
-                    onClick: () => onUpdateQuantity(item.id, item.quantity - 1),
+                    onClick: () => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1)),
+                    "aria-label": "Decrease Quantity",
                     style: { padding: "4px 8px", border: "none", background: "#f9fafb", cursor: "pointer", fontSize: "12px" },
                     children: "-"
                   }
@@ -140,6 +181,7 @@ var CartDrawer = ({
                   "button",
                   {
                     onClick: () => onUpdateQuantity(item.id, item.quantity + 1),
+                    "aria-label": "Increase Quantity",
                     style: { padding: "4px 8px", border: "none", background: "#f9fafb", cursor: "pointer", fontSize: "12px" },
                     children: "+"
                   }
@@ -149,6 +191,7 @@ var CartDrawer = ({
                 "button",
                 {
                   onClick: () => onRemoveItem(item.id),
+                  "aria-label": "Remove item from cart",
                   style: { background: "transparent", border: "none", color: "#9ca3af", cursor: "pointer", fontSize: "14px" },
                   children: "\u{1F5D1}\uFE0F"
                 }
@@ -165,19 +208,22 @@ var CartDrawer = ({
               /* @__PURE__ */ jsxRuntime.jsx(
                 "button",
                 {
-                  onClick: onCheckout,
+                  onClick: handleCheckoutClick,
+                  disabled: isCheckingOut,
                   style: {
                     width: "100%",
-                    backgroundColor: "#000000",
+                    backgroundColor: isCheckingOut ? "#374151" : "#000000",
                     color: "#ffffff",
                     border: "none",
                     borderRadius: "8px",
                     padding: "14px",
                     fontSize: "15px",
                     fontWeight: 700,
-                    cursor: "pointer"
+                    cursor: isCheckingOut ? "not-allowed" : "pointer",
+                    opacity: isCheckingOut ? 0.8 : 1,
+                    transition: "all 0.2s ease"
                   },
-                  children: "Proceed to Checkout \u2192"
+                  children: isCheckingOut ? "Securing Order..." : "Proceed to Checkout \u2192"
                 }
               )
             ] })
@@ -197,7 +243,30 @@ var StickyAddToCart = ({
   inStock = true,
   className = ""
 }) => {
-  const [quantity, setQuantity] = React2__namespace.useState(1);
+  const [quantity, setQuantity] = React3__namespace.useState(1);
+  const [isAdding, setIsAdding] = React3__namespace.useState(false);
+  const [isBuying, setIsBuying] = React3__namespace.useState(false);
+  const [addedFeedback, setAddedFeedback] = React3__namespace.useState(false);
+  const handleAddToCart = async () => {
+    if (!inStock || isAdding || isBuying) return;
+    try {
+      setIsAdding(true);
+      await Promise.resolve(onAddToCart(quantity));
+      setAddedFeedback(true);
+      setTimeout(() => setAddedFeedback(false), 1500);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+  const handleBuyNow = async () => {
+    if (!inStock || isAdding || isBuying || !onBuyNow) return;
+    try {
+      setIsBuying(true);
+      await Promise.resolve(onBuyNow(quantity));
+    } finally {
+      setIsBuying(false);
+    }
+  };
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
@@ -247,6 +316,8 @@ var StickyAddToCart = ({
               "button",
               {
                 onClick: () => setQuantity(Math.max(1, quantity - 1)),
+                "aria-label": "Decrease quantity",
+                disabled: isAdding || isBuying,
                 style: { padding: "6px 10px", border: "none", background: "#f9fafb", cursor: "pointer", fontSize: "14px", fontWeight: 600 },
                 children: "-"
               }
@@ -256,6 +327,8 @@ var StickyAddToCart = ({
               "button",
               {
                 onClick: () => setQuantity(quantity + 1),
+                "aria-label": "Increase quantity",
+                disabled: isAdding || isBuying,
                 style: { padding: "6px 10px", border: "none", background: "#f9fafb", cursor: "pointer", fontSize: "14px", fontWeight: 600 },
                 children: "+"
               }
@@ -264,38 +337,41 @@ var StickyAddToCart = ({
           /* @__PURE__ */ jsxRuntime.jsx(
             "button",
             {
-              onClick: () => onAddToCart(quantity),
-              disabled: !inStock,
+              onClick: handleAddToCart,
+              disabled: !inStock || isAdding || isBuying,
               style: {
-                backgroundColor: inStock ? "#000000" : "#9ca3af",
+                backgroundColor: !inStock ? "#9ca3af" : addedFeedback ? "#16a34a" : "#000000",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "6px",
                 padding: "10px 16px",
                 fontSize: "13px",
                 fontWeight: 700,
-                cursor: inStock ? "pointer" : "not-allowed",
-                whiteSpace: "nowrap"
+                cursor: inStock && !isAdding && !isBuying ? "pointer" : "not-allowed",
+                whiteSpace: "nowrap",
+                transition: "background-color 0.2s ease"
               },
-              children: inStock ? "Add to Cart" : "Sold Out"
+              children: !inStock ? "Sold Out" : isAdding ? "Adding..." : addedFeedback ? "Added! \u2713" : "Add to Cart"
             }
           ),
           onBuyNow && inStock && /* @__PURE__ */ jsxRuntime.jsx(
             "button",
             {
-              onClick: () => onBuyNow(quantity),
+              onClick: handleBuyNow,
+              disabled: isAdding || isBuying,
               style: {
-                backgroundColor: "#2563eb",
+                backgroundColor: isBuying ? "#1d4ed8" : "#2563eb",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "6px",
                 padding: "10px 16px",
                 fontSize: "13px",
                 fontWeight: 700,
-                cursor: "pointer",
-                whiteSpace: "nowrap"
+                cursor: !isAdding && !isBuying ? "pointer" : "not-allowed",
+                whiteSpace: "nowrap",
+                transition: "background-color 0.2s ease"
               },
-              children: "Buy Now"
+              children: isBuying ? "Processing..." : "Buy Now"
             }
           )
         ] })
@@ -308,10 +384,18 @@ var PincodeChecker = ({
   defaultPincode = "",
   className = ""
 }) => {
-  const [pincode, setPincode] = React2__namespace.useState(defaultPincode);
-  const [loading, setLoading] = React2__namespace.useState(false);
-  const [result, setResult] = React2__namespace.useState(null);
-  const [error, setError] = React2__namespace.useState(null);
+  const [pincode, setPincode] = React3__namespace.useState(defaultPincode);
+  const [loading, setLoading] = React3__namespace.useState(false);
+  const [result, setResult] = React3__namespace.useState(null);
+  const [error, setError] = React3__namespace.useState(null);
+  const activeRequestIdRef = React3__namespace.useRef(0);
+  const isMountedRef = React3__namespace.useRef(true);
+  React3__namespace.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   const handleCheck = async () => {
     const clean = pincode.trim();
     if (!/^\d{6}$/.test(clean)) {
@@ -319,27 +403,39 @@ var PincodeChecker = ({
       setResult(null);
       return;
     }
+    const currentReqId = ++activeRequestIdRef.current;
     setError(null);
     setLoading(true);
     try {
       if (onCheck) {
-        const res = await onCheck(clean);
-        setResult(res);
+        const timeoutPromise = new Promise(
+          (_, reject) => setTimeout(() => reject(new Error("Pincode check timed out. Please try again.")), 1e4)
+        );
+        const res = await Promise.race([Promise.resolve(onCheck(clean)), timeoutPromise]);
+        if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+          setResult(res);
+        }
       } else {
         const deliveryDate = /* @__PURE__ */ new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 3);
         const options = { weekday: "short", month: "short", day: "numeric" };
-        setResult({
-          isServiceable: true,
-          estimatedDeliveryDate: deliveryDate.toLocaleDateString("en-IN", options),
-          isCodAvailable: true,
-          courier: "Express Courier"
-        });
+        if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+          setResult({
+            isServiceable: true,
+            estimatedDeliveryDate: deliveryDate.toLocaleDateString("en-IN", options),
+            isCodAvailable: true,
+            courier: "Express Courier"
+          });
+        }
       }
     } catch (err) {
-      setError(err.message || "Failed to verify pincode");
+      if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+        setError(err.message || "Failed to verify pincode");
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   };
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { margin: "14px 0", fontFamily: "inherit" }, className: `boost-pincode-checker ${className}`, children: [
@@ -560,9 +656,9 @@ var ProductGallery = ({
   enableZoom = true,
   className = ""
 }) => {
-  const [selectedIndex, setSelectedIndex] = React2__namespace.useState(0);
-  const [isHovered, setIsHovered] = React2__namespace.useState(false);
-  const [zoomPos, setZoomPos] = React2__namespace.useState({ x: 0, y: 0 });
+  const [selectedIndex, setSelectedIndex] = React3__namespace.useState(0);
+  const [isHovered, setIsHovered] = React3__namespace.useState(false);
+  const [zoomPos, setZoomPos] = React3__namespace.useState({ x: 0, y: 0 });
   if (!images || images.length === 0) {
     return /* @__PURE__ */ jsxRuntime.jsx(
       "div",
@@ -812,7 +908,7 @@ var ProductCard = ({
   onClick,
   className = ""
 }) => {
-  const [isHovered, setIsHovered] = React2__namespace.useState(false);
+  const [isHovered, setIsHovered] = React3__namespace.useState(false);
   const mainImage = images[0] || "";
   const secondaryImage = images[1] || mainImage;
   const currentImage = isHovered && secondaryImage ? secondaryImage : mainImage;
@@ -1330,11 +1426,11 @@ var AnnouncementBar = ({
   onClose,
   className = ""
 }) => {
-  const [isVisible, setIsVisible] = React2__namespace.useState(true);
-  const [copied, setCopied] = React2__namespace.useState(false);
-  const [currentIdx, setCurrentIdx] = React2__namespace.useState(0);
+  const [isVisible, setIsVisible] = React3__namespace.useState(true);
+  const [copied, setCopied] = React3__namespace.useState(false);
+  const [currentIdx, setCurrentIdx] = React3__namespace.useState(0);
   const messageList = Array.isArray(messages) ? messages : [messages];
-  React2__namespace.useEffect(() => {
+  React3__namespace.useEffect(() => {
     if (messageList.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIdx((prev) => (prev + 1) % messageList.length);
@@ -1495,9 +1591,9 @@ var Navbar = ({
   sticky = true,
   className = ""
 }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = React2__namespace.useState(false);
-  const [localSearch, setLocalSearch] = React2__namespace.useState(searchValue || "");
-  React2__namespace.useEffect(() => {
+  const [mobileMenuOpen, setMobileMenuOpen] = React3__namespace.useState(false);
+  const [localSearch, setLocalSearch] = React3__namespace.useState(searchValue || "");
+  React3__namespace.useEffect(() => {
     if (searchValue !== void 0) {
       setLocalSearch(searchValue);
     }
@@ -1928,8 +2024,8 @@ var Footer = ({
   copyrightYear = (/* @__PURE__ */ new Date()).getFullYear(),
   className = ""
 }) => {
-  const [email, setEmail] = React2__namespace.useState("");
-  const [subscribed, setSubscribed] = React2__namespace.useState(false);
+  const [email, setEmail] = React3__namespace.useState("");
+  const [subscribed, setSubscribed] = React3__namespace.useState(false);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email || !email.includes("@")) return;
@@ -2291,13 +2387,13 @@ var LightningDealsBar = ({
   badgeColor = "#ef4444",
   className = ""
 }) => {
-  const [timeLeft, setTimeLeft] = React2__namespace.useState({
+  const [timeLeft, setTimeLeft] = React3__namespace.useState({
     hours: 0,
     minutes: 0,
     seconds: 0,
     isExpired: false
   });
-  React2__namespace.useEffect(() => {
+  React3__namespace.useEffect(() => {
     const end = new Date(endsAt).getTime();
     const update = () => {
       const now = Date.now();
@@ -2489,7 +2585,7 @@ var FrequentlyBoughtTogether = ({
   className = ""
 }) => {
   const allItems = [mainProduct, ...suggestedItems];
-  const [selectedIds, setSelectedIds] = React2__namespace.useState(
+  const [selectedIds, setSelectedIds] = React3__namespace.useState(
     allItems.map((i) => i.id)
   );
   const toggleItem = (id) => {
@@ -2565,7 +2661,7 @@ var FrequentlyBoughtTogether = ({
             },
             children: allItems.map((item, index) => {
               const isSelected = selectedIds.includes(item.id);
-              return /* @__PURE__ */ jsxRuntime.jsxs(React2__namespace.Fragment, { children: [
+              return /* @__PURE__ */ jsxRuntime.jsxs(React3__namespace.Fragment, { children: [
                 index > 0 && /* @__PURE__ */ jsxRuntime.jsx(
                   "span",
                   {
@@ -2762,7 +2858,7 @@ var BankOffersAccordion = ({
   offers = DEFAULT_OFFERS,
   className = ""
 }) => {
-  const [expanded, setExpanded] = React2__namespace.useState(false);
+  const [expanded, setExpanded] = React3__namespace.useState(false);
   const displayedOffers = expanded ? offers : offers.slice(0, 2);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",

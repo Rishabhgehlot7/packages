@@ -16,8 +16,9 @@ interface CartDrawerProps {
     freeShippingThreshold?: number;
     onUpdateQuantity: (id: string, quantity: number) => void;
     onRemoveItem: (id: string) => void;
-    onCheckout: () => void;
+    onCheckout: () => Promise<void> | void;
     className?: string;
+    onTabSync?: () => void;
 }
 declare const CartDrawer: React.FC<CartDrawerProps>;
 
@@ -26,8 +27,8 @@ interface StickyAddToCartProps {
     price: number;
     compareAtPrice?: number;
     image?: string;
-    onAddToCart: (quantity: number) => void;
-    onBuyNow?: (quantity: number) => void;
+    onAddToCart: (quantity: number) => Promise<void> | void;
+    onBuyNow?: (quantity: number) => Promise<void> | void;
     inStock?: boolean;
     className?: string;
 }
