@@ -5,15 +5,43 @@ import {
   AllocationItem,
   AllocationResult,
   StockReservation,
+  InventoryStorageAdapter,
 } from './types';
 
-export class BoostInventory {
+export class InMemoryInventoryStorageAdapter implements InventoryStorageAdapter {
   private stockMap = new Map<string, StockLevel>();
   private reservations = new Map<string, StockReservation[]>();
 
-  constructor(initialStock: StockLevel[] = []) {
-    for (const item of initialStock) {
-      this.setStock(item);
+  getStock(key: string): StockLevel | null {
+    return this.stockMap.get(key) || null;
+  }
+  setStock(key: string, stock: StockLevel): void {
+    this.stockMap.set(key, stock);
+  }
+  getReservations(key: string): StockReservation[] {
+    return this.reservations.get(key) || [];
+  }
+  setReservations(key: string, reservations: StockReservation[]): void {
+    this.reservations.set(key, reservations);
+  }
+}
+
+export class BoostInventory {
+  private storage: InventoryStorageAdapter;
+
+  constructor(options: StockLevel[] | { initialStock?: StockLevel[]; storage?: InventoryStorageAdapter } = []) {
+    if (Array.isArray(options)) {
+      this.storage = new InMemoryInventoryStorageAdapter();
+      for (const item of options) {
+        this.setStock(item);
+      }
+    } else {
+      this.storage = options.storage || new InMemoryInventoryStorageAdapter();
+      if (options.initialStock) {
+        for (const item of options.initialStock) {
+          this.setStock(item);
+        }
+      }
     }
   }
 
@@ -27,7 +55,7 @@ export class BoostInventory {
    */
   setStock(stock: StockLevel): void {
     const key = this.getKey(stock.sku, stock.warehouseId);
-    this.stockMap.set(key, {
+    this.storage.setStock(key, {
       ...stock,
       reserved: stock.reserved || 0,
       lowStockThreshold: stock.lowStockThreshold ?? 5,
@@ -39,8 +67,9 @@ export class BoostInventory {
    */
   getStock(sku: string, warehouseId?: string): StockLevel | null {
     const key = this.getKey(sku, warehouseId);
-    return this.stockMap.get(key) || null;
+    return (this.storage.getStock(key) as StockLevel | null) || null;
   }
+
 
   /**
    * Calculates Low Stock Urgency details and high-converting marketing badge
@@ -138,7 +167,7 @@ export class BoostInventory {
       });
     }
 
-    this.reservations.set(reservationId, reservedEntries);
+    this.storage.setReservations(reservationId, reservedEntries);
 
     return { success: true, reservationId };
   }
@@ -147,17 +176,18 @@ export class BoostInventory {
    * Releases reserved stock (e.g. if customer abandons checkout or payment fails)
    */
   releaseReservation(reservationId: string): boolean {
-    const entries = this.reservations.get(reservationId);
-    if (!entries) return false;
+    const entries = this.storage.getReservations(reservationId) as StockReservation[] | undefined;
+    if (!entries || entries.length === 0) return false;
 
     for (const entry of entries) {
       const stock = this.getStock(entry.sku);
       if (stock && stock.reserved) {
         stock.reserved = Math.max(0, stock.reserved - entry.quantity);
+        this.setStock(stock);
       }
     }
 
-    this.reservations.delete(reservationId);
+    this.storage.setReservations(reservationId, []);
     return true;
   }
 
@@ -165,20 +195,22 @@ export class BoostInventory {
    * Permanently deducts stock when payment succeeds
    */
   confirmDeduction(reservationId: string): boolean {
-    const entries = this.reservations.get(reservationId);
-    if (!entries) return false;
+    const entries = this.storage.getReservations(reservationId) as StockReservation[] | undefined;
+    if (!entries || entries.length === 0) return false;
 
     for (const entry of entries) {
       const stock = this.getStock(entry.sku);
       if (stock) {
         stock.quantity = Math.max(0, stock.quantity - entry.quantity);
         stock.reserved = Math.max(0, (stock.reserved || 0) - entry.quantity);
+        this.setStock(stock);
       }
     }
 
-    this.reservations.delete(reservationId);
+    this.storage.setReservations(reservationId, []);
     return true;
   }
+
 
   /**
    * Intelligent Multi-Warehouse Allocation

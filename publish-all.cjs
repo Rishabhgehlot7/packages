@@ -1,6 +1,8 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
+const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 const packages = [
   'boost-core',
@@ -41,7 +43,7 @@ for (const pkg of packages) {
   console.log(`-------------------------------------------------------`);
 
   try {
-    execSync('npm publish --access public', { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, ['publish', '--access', 'public'], { cwd: pkgDir, stdio: 'inherit' });
     console.log(`>>> PUBLISHED: ${pkg} <<<`);
   } catch (err) {
     console.log(`>>> Note: ${pkg} might already be published or need otp/auth.`);

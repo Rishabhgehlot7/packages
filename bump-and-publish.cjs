@@ -1,6 +1,8 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
+const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 const packages = [
   'boost-core',
@@ -47,10 +49,13 @@ for (const pkg of packages) {
   console.log(`\n-----------------------------------------------------------------`);
   console.log(`📦 Processing: ${pkgName} (Current local: v${currentVersion})`);
 
-  // Check remote version on NPM
+  // Check remote version on NPM safely using parameterized argument array
   let remoteVersion = null;
   try {
-    remoteVersion = execSync(`npm view ${pkgName} version`, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+    remoteVersion = execFileSync(npmCmd, ['view', pkgName, 'version'], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+    }).trim();
     console.log(`   Remote NPM version: v${remoteVersion}`);
   } catch (e) {
     console.log(`   Package not yet published on NPM (brand new).`);
@@ -60,7 +65,7 @@ for (const pkg of packages) {
   if (remoteVersion && currentVersion === remoteVersion) {
     try {
       console.log(`   ⬆️ Bumping patch version (e.g. v${currentVersion} -> patch)...`);
-      execSync('npm version patch --no-git-tag-version', { cwd: pkgDir, stdio: 'inherit' });
+      execFileSync(npmCmd, ['version', 'patch', '--no-git-tag-version'], { cwd: pkgDir, stdio: 'inherit' });
       const updatedJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'));
       currentVersion = updatedJson.version;
       console.log(`   ✅ Bumped to: v${currentVersion}`);
@@ -72,7 +77,7 @@ for (const pkg of packages) {
   // Publish
   try {
     console.log(`   🚀 Publishing ${pkgName}@${currentVersion} to NPM...`);
-    execSync('npm publish --access public', { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, ['publish', '--access', 'public'], { cwd: pkgDir, stdio: 'inherit' });
     console.log(`   🎉 SUCCESS: Published ${pkgName}@${currentVersion}`);
     successCount++;
   } catch (pubErr) {

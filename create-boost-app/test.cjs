@@ -112,11 +112,16 @@ try {
 
   assert.strictEqual(Boolean(vitePairResult), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store', 'package.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store', 'src/components/ProductDetailPage.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store', 'src/components/CartPage.tsx')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'package.json')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'src/db.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'src/routes/products.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'src/routes/orders.ts')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', 'src/models/Product.ts')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store', '.env.local')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-store-api', '.env.local')), true);
-  console.log('✅ vite+express pair verified: my-cool-store/ + my-cool-store-api/ created with db.ts!');
+  console.log('✅ vite+express pair verified: rich PDP, Cart, routes & models present!');
 
   // ── Test Paired Scaffolding: expo+express ─────────────────────────────────
   console.log('🧪 Testing scaffoldPair with expo+express...');
@@ -127,8 +132,13 @@ try {
 
   assert.strictEqual(Boolean(expoPairResult), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app', 'package.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app', 'App.tsx')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app', 'app.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app', 'babel.config.js')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app', 'tsconfig.json')), true);
+  assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app', 'src/data/products.ts')), true);
   assert.strictEqual(fs.existsSync(path.join(pairTestBase, 'my-cool-app-api', 'package.json')), true);
-  console.log('✅ expo+express pair verified: my-cool-app/ + my-cool-app-api/ created!');
+  console.log('✅ expo+express pair verified: App.tsx, app.json, babel & products data created!');
 
   // ── Test Paired Scaffolding: web+app ─────────────────────────────────────
   console.log('🧪 Testing scaffoldPair with web+app (Next.js Web + Expo App)...');

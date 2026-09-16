@@ -5,8 +5,8 @@ export interface StickyAddToCartProps {
   price: number;
   compareAtPrice?: number;
   image?: string;
-  onAddToCart: (quantity: number) => void;
-  onBuyNow?: (quantity: number) => void;
+  onAddToCart: (quantity: number) => Promise<void> | void;
+  onBuyNow?: (quantity: number) => Promise<void> | void;
   inStock?: boolean;
   className?: string;
 }
@@ -22,6 +22,31 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
   className = '',
 }) => {
   const [quantity, setQuantity] = React.useState(1);
+  const [isAdding, setIsAdding] = React.useState(false);
+  const [isBuying, setIsBuying] = React.useState(false);
+  const [addedFeedback, setAddedFeedback] = React.useState(false);
+
+  const handleAddToCart = async () => {
+    if (!inStock || isAdding || isBuying) return;
+    try {
+      setIsAdding(true);
+      await Promise.resolve(onAddToCart(quantity));
+      setAddedFeedback(true);
+      setTimeout(() => setAddedFeedback(false), 1500);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!inStock || isAdding || isBuying || !onBuyNow) return;
+    try {
+      setIsBuying(true);
+      await Promise.resolve(onBuyNow(quantity));
+    } finally {
+      setIsBuying(false);
+    }
+  };
 
   return (
     <div
@@ -68,6 +93,8 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #d1d5db', borderRadius: '6px', overflow: 'hidden' }}>
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            aria-label="Decrease quantity"
+            disabled={isAdding || isBuying}
             style={{ padding: '6px 10px', border: 'none', background: '#f9fafb', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}
           >
             -
@@ -77,6 +104,8 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
           </span>
           <button
             onClick={() => setQuantity(quantity + 1)}
+            aria-label="Increase quantity"
+            disabled={isAdding || isBuying}
             style={{ padding: '6px 10px', border: 'none', background: '#f9fafb', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}
           >
             +
@@ -85,39 +114,42 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
 
         {/* Action Buttons */}
         <button
-          onClick={() => onAddToCart(quantity)}
-          disabled={!inStock}
+          onClick={handleAddToCart}
+          disabled={!inStock || isAdding || isBuying}
           style={{
-            backgroundColor: inStock ? '#000000' : '#9ca3af',
+            backgroundColor: !inStock ? '#9ca3af' : addedFeedback ? '#16a34a' : '#000000',
             color: '#ffffff',
             border: 'none',
             borderRadius: '6px',
             padding: '10px 16px',
             fontSize: '13px',
             fontWeight: 700,
-            cursor: inStock ? 'pointer' : 'not-allowed',
+            cursor: inStock && !isAdding && !isBuying ? 'pointer' : 'not-allowed',
             whiteSpace: 'nowrap',
+            transition: 'background-color 0.2s ease',
           }}
         >
-          {inStock ? 'Add to Cart' : 'Sold Out'}
+          {!inStock ? 'Sold Out' : isAdding ? 'Adding...' : addedFeedback ? 'Added! ✓' : 'Add to Cart'}
         </button>
 
         {onBuyNow && inStock && (
           <button
-            onClick={() => onBuyNow(quantity)}
+            onClick={handleBuyNow}
+            disabled={isAdding || isBuying}
             style={{
-              backgroundColor: '#2563eb',
+              backgroundColor: isBuying ? '#1d4ed8' : '#2563eb',
               color: '#ffffff',
               border: 'none',
               borderRadius: '6px',
               padding: '10px 16px',
               fontSize: '13px',
               fontWeight: 700,
-              cursor: 'pointer',
+              cursor: !isAdding && !isBuying ? 'pointer' : 'not-allowed',
               whiteSpace: 'nowrap',
+              transition: 'background-color 0.2s ease',
             }}
           >
-            Buy Now
+            {isBuying ? 'Processing...' : 'Buy Now'}
           </button>
         )}
       </div>

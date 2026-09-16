@@ -17,8 +17,9 @@ export interface CartDrawerProps {
   freeShippingThreshold?: number;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
-  onCheckout: () => void;
+  onCheckout: () => Promise<void> | void;
   className?: string;
+  onTabSync?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -31,15 +32,65 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onCheckout,
   className = '',
+  onTabSync,
 }) => {
+  const [isCheckingOut, setIsCheckingOut] = React.useState(false);
+
+  // Keyboard accessibility (Escape key) & Body scroll locking
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  // Multi-tab synchronization
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'boost_cart' || e.key === 'cart_items') {
+        onTabSync?.();
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [onTabSync]);
+
   if (!isOpen) return null;
 
   const amountRemaining = Math.max(0, freeShippingThreshold - subtotal);
   const progressPercent = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
   const isFreeShippingUnlocked = amountRemaining === 0;
 
+  const handleCheckoutClick = async () => {
+    if (isCheckingOut) return; // Concurrency mutex: Prevent duplicate double-clicks
+    try {
+      setIsCheckingOut(true);
+      await Promise.resolve(onCheckout());
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Shopping Cart Drawer"
       className={`boost-cart-drawer-backdrop ${className}`}
       style={{
         position: 'fixed',
@@ -72,6 +123,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           </h2>
           <button
             onClick={onClose}
+            aria-label="Close Cart Drawer"
             style={{ background: 'transparent', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#6b7280' }}
           >
             ✕
@@ -138,7 +190,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   {/* Quantity controls */}
                   <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #d1d5db', borderRadius: '6px' }}>
                     <button
-                      onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                      aria-label="Decrease Quantity"
                       style={{ padding: '4px 8px', border: 'none', background: '#f9fafb', cursor: 'pointer', fontSize: '12px' }}
                     >
                       -
@@ -148,6 +201,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </span>
                     <button
                       onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                      aria-label="Increase Quantity"
                       style={{ padding: '4px 8px', border: 'none', background: '#f9fafb', cursor: 'pointer', fontSize: '12px' }}
                     >
                       +
@@ -156,6 +210,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                   <button
                     onClick={() => onRemoveItem(item.id)}
+                    aria-label="Remove item from cart"
                     style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '14px' }}
                   >
                     🗑️
@@ -175,20 +230,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
 
             <button
-              onClick={onCheckout}
+              onClick={handleCheckoutClick}
+              disabled={isCheckingOut}
               style={{
                 width: '100%',
-                backgroundColor: '#000000',
+                backgroundColor: isCheckingOut ? '#374151' : '#000000',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '14px',
                 fontSize: '15px',
                 fontWeight: 700,
-                cursor: 'pointer',
+                cursor: isCheckingOut ? 'not-allowed' : 'pointer',
+                opacity: isCheckingOut ? 0.8 : 1,
+                transition: 'all 0.2s ease',
               }}
             >
-              Proceed to Checkout →
+              {isCheckingOut ? 'Securing Order...' : 'Proceed to Checkout →'}
             </button>
           </div>
         )}

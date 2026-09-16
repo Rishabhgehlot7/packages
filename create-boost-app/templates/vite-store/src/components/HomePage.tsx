@@ -31,7 +31,6 @@ import {
   UserIcon,
   PhoneIcon,
   MailIcon,
-  MessageSquareIcon,
 } from './Icons';
 
 const storeName = import.meta.env.VITE_STORE_NAME || '{{BRAND_TITLE}}';

@@ -91,31 +91,61 @@ export class TokenManager {
     }
   }
 
+  private consumedTokens = new Set<string>();
+
   /**
-   * Generates a stateless HMAC hash of phone + OTP + salt + expiry
+   * Generates a stateless HMAC hash of phone + OTP + nonce + expiry
    */
-  createStatelessOtpToken(phone: string, otp: string, expiresAt: number): string {
-    const data = `${phone.trim()}:${otp.trim()}:${expiresAt}`;
+  createStatelessOtpToken(phone: string, otp: string, expiresAt: number, customNonce?: string): string {
+    const nonce = customNonce || crypto.randomBytes(8).toString('hex');
+    const data = `${phone.trim()}:${otp.trim()}:${expiresAt}:${nonce}`;
     const hash = crypto.createHmac('sha256', this.secret).update(data).digest('hex');
-    // Pack expiry and hash into a single token string
-    return Buffer.from(`${expiresAt}:${hash}`).toString('base64url');
+    // Pack expiry, nonce, and hash into a single token string
+    return Buffer.from(`${expiresAt}:${nonce}:${hash}`).toString('base64url');
   }
 
   /**
-   * Verifies an OTP against a stateless token without needing DB/Redis
+   * Verifies an OTP against a stateless token with anti-replay shield
    */
-  verifyStatelessOtp(phone: string, otp: string, token: string): { valid: boolean; error?: string } {
+  verifyStatelessOtp(
+    phone: string,
+    otp: string,
+    token: string,
+    options: { preventReplay?: boolean } = { preventReplay: true }
+  ): { valid: boolean; error?: string } {
     try {
+      if (options.preventReplay && this.consumedTokens.has(token)) {
+        return { valid: false, error: 'OTP token has already been consumed (replay attempt detected)' };
+      }
+
       const decoded = Buffer.from(token, 'base64url').toString('utf-8');
-      const [expiresAtStr, expectedHash] = decoded.split(':');
-      const expiresAt = parseInt(expiresAtStr, 10);
+      const parts = decoded.split(':');
+      
+      let expiresAt: number;
+      let nonce = '';
+      let expectedHash: string;
+
+      if (parts.length === 3) {
+        // Modern format with nonce
+        expiresAt = parseInt(parts[0], 10);
+        nonce = parts[1];
+        expectedHash = parts[2];
+      } else if (parts.length === 2) {
+        // Legacy format fallback
+        expiresAt = parseInt(parts[0], 10);
+        expectedHash = parts[1];
+      } else {
+        return { valid: false, error: 'Invalid verification token format' };
+      }
 
       const now = Math.floor(Date.now() / 1000);
       if (isNaN(expiresAt) || expiresAt < now) {
         return { valid: false, error: 'OTP has expired' };
       }
 
-      const data = `${phone.trim()}:${otp.trim()}:${expiresAt}`;
+      const data = nonce
+        ? `${phone.trim()}:${otp.trim()}:${expiresAt}:${nonce}`
+        : `${phone.trim()}:${otp.trim()}:${expiresAt}`;
       const actualHash = crypto.createHmac('sha256', this.secret).update(data).digest('hex');
 
       const hashBuffer = Buffer.from(actualHash);
@@ -125,9 +155,18 @@ export class TokenManager {
         return { valid: false, error: 'Incorrect OTP' };
       }
 
+      if (options.preventReplay) {
+        this.consumedTokens.add(token);
+        // Automatic cleanup when set exceeds 10,000 to prevent memory growth
+        if (this.consumedTokens.size > 10000) {
+          this.consumedTokens.clear();
+        }
+      }
+
       return { valid: true };
     } catch (err: any) {
-      return { valid: false, error: 'Invalid verification token' };
+      return { valid: false, error: err.message || 'Invalid verification token' };
     }
   }
 }
+

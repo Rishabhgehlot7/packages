@@ -1,4 +1,4 @@
-export { BoostInventory, createBoostInventory } from './manager';
+export { BoostInventory, createBoostInventory, InMemoryInventoryStorageAdapter } from './manager';
 export type {
   StockLevel,
   StockUrgencyInfo,
@@ -6,4 +6,6 @@ export type {
   AllocationItem,
   AllocationResult,
   StockReservation,
+  InventoryStorageAdapter,
 } from './types';
+

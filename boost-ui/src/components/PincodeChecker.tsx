@@ -23,6 +23,16 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
   const [result, setResult] = React.useState<PincodeCheckResult | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
+  const activeRequestIdRef = React.useRef(0);
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const handleCheck = async () => {
     const clean = pincode.trim();
     if (!/^\d{6}$/.test(clean)) {
@@ -31,29 +41,44 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
       return;
     }
 
+    const currentReqId = ++activeRequestIdRef.current;
     setError(null);
     setLoading(true);
 
     try {
       if (onCheck) {
-        const res = await onCheck(clean);
-        setResult(res);
+        // Network resilience: 10-second timeout guard against hung connections
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Pincode check timed out. Please try again.')), 10000)
+        );
+        const res = await Promise.race([Promise.resolve(onCheck(clean)), timeoutPromise]);
+
+        // Guard against stale responses or unmounted component
+        if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+          setResult(res);
+        }
       } else {
         // Default realistic estimator
         const deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 3);
         const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
-        setResult({
-          isServiceable: true,
-          estimatedDeliveryDate: deliveryDate.toLocaleDateString('en-IN', options),
-          isCodAvailable: true,
-          courier: 'Express Courier',
-        });
+        if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+          setResult({
+            isServiceable: true,
+            estimatedDeliveryDate: deliveryDate.toLocaleDateString('en-IN', options),
+            isCodAvailable: true,
+            courier: 'Express Courier',
+          });
+        }
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to verify pincode');
+      if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+        setError(err.message || 'Failed to verify pincode');
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   };
 

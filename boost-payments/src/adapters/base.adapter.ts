@@ -50,7 +50,7 @@ export abstract class BasePaymentAdapter {
   }
 
   /**
-   * Helper to perform HTTP JSON requests with standard error extraction.
+   * Helper to perform HTTP JSON requests with standard error extraction, timeouts, and idempotency.
    */
   protected async fetchJson<T = any>(
     url: string,
@@ -58,13 +58,20 @@ export abstract class BasePaymentAdapter {
       method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
       headers?: Record<string, string>;
       body?: any;
+      timeoutMs?: number;
+      idempotencyKey?: string;
+      retries?: number;
     } = {}
   ): Promise<T> {
-    const { method = 'GET', headers = {}, body } = options;
+    const { method = 'GET', headers = {}, body, timeoutMs = 15000, idempotencyKey, retries = 0 } = options;
     const requestHeaders: Record<string, string> = {
       Accept: 'application/json',
       ...headers,
     };
+
+    if (idempotencyKey) {
+      requestHeaders['Idempotency-Key'] = idempotencyKey;
+    }
 
     let serializedBody: string | undefined;
     if (body !== undefined) {
@@ -78,30 +85,70 @@ export abstract class BasePaymentAdapter {
       }
     }
 
-    const res = await fetch(url, {
-      method,
-      headers: requestHeaders,
-      body: serializedBody,
-    });
+    let attempt = 0;
+    const maxAttempts = Math.max(1, retries + 1);
 
-    const text = await res.text();
-    let data: any;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
+    while (attempt < maxAttempts) {
+      attempt++;
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : undefined;
+      const timeoutId = controller && timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: requestHeaders,
+          body: serializedBody,
+          signal: controller?.signal,
+        });
+
+        if (timeoutId) clearTimeout(timeoutId);
+
+        const text = await res.text();
+        let data: any;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+
+        if (!res.ok) {
+          // Retry on 502, 503, 504 if attempts remain
+          if ((res.status === 502 || res.status === 503 || res.status === 504) && attempt < maxAttempts) {
+            const delay = Math.min(2000, 300 * Math.pow(2, attempt));
+            await new Promise((r) => setTimeout(r, delay));
+            continue;
+          }
+
+          const errMsg =
+            data?.message ||
+            data?.error?.description ||
+            data?.error?.message ||
+            data?.description ||
+            (typeof data === 'string' ? data : `HTTP ${res.status} ${res.statusText}`);
+          throw new Error(`[${this.name.toUpperCase()} API Error] ${errMsg}`);
+        }
+
+        return data as T;
+      } catch (err: any) {
+        if (timeoutId) clearTimeout(timeoutId);
+
+        const isTimeout = err.name === 'AbortError' || err.message?.includes('aborted');
+        if (isTimeout) {
+          throw new Error(`[${this.name.toUpperCase()} API Error] Request timed out after ${timeoutMs}ms.`);
+        }
+
+        // Retry on network errors if attempts remain
+        if (attempt < maxAttempts) {
+          const delay = Math.min(2000, 300 * Math.pow(2, attempt));
+          await new Promise((r) => setTimeout(r, delay));
+          continue;
+        }
+
+        throw err;
+      }
     }
 
-    if (!res.ok) {
-      const errMsg =
-        data?.message ||
-        data?.error?.description ||
-        data?.error?.message ||
-        data?.description ||
-        (typeof data === 'string' ? data : `HTTP ${res.status} ${res.statusText}`);
-      throw new Error(`[${this.name.toUpperCase()} API Error] ${errMsg}`);
-    }
-
-    return data as T;
+    throw new Error(`[${this.name.toUpperCase()} API Error] Request failed after ${maxAttempts} attempts.`);
   }
 }
+

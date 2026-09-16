@@ -41,3 +41,11 @@ export interface StockReservation {
   quantity: number;
   expiresAt: number; // Unix timestamp in seconds
 }
+
+export interface InventoryStorageAdapter {
+  getStock(key: string): Promise<StockLevel | null> | StockLevel | null;
+  setStock(key: string, stock: StockLevel): Promise<void> | void;
+  getReservations(key: string): Promise<StockReservation[]> | StockReservation[];
+  setReservations(key: string, reservations: StockReservation[]): Promise<void> | void;
+}
+

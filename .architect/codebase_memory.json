@@ -1,0 +1,2623 @@
+{
+  "version": "1.0.0",
+  "projectName": "packages",
+  "workspaceRoot": "e:\\boost engine mobile apps\\04_Client_Projects\\Ecom-app\\packages",
+  "lastSyncedAt": "2026-09-16T05:35:56.824Z",
+  "totalFilesIndexed": 459,
+  "stack": {
+    "projectName": "packages",
+    "primaryType": "TypeScript + JavaScript + HTML/CSS Project",
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "HTML/CSS"
+    ],
+    "frameworks": [],
+    "databasesOrOrm": [],
+    "stateManagement": [],
+    "networkingRealtime": [],
+    "testingTools": [],
+    "scripts": {}
+  },
+  "entrypoints": [],
+  "layerSummary": {
+    "API & Routing": {
+      "count": 37,
+      "description": "Routes, Controllers, Endpoints, API Handlers"
+    },
+    "Data Models & Persistence": {
+      "count": 26,
+      "description": "Database Models, Schemas, Entities, Migrations"
+    },
+    "Business Logic & Domain Services": {
+      "count": 6,
+      "description": "Core Services, Domain Managers, Business Rules"
+    },
+    "UI Presentation Layer": {
+      "count": 76,
+      "description": "Screens, Views, Components, Pages, Widgets"
+    },
+    "Utilities & Shared Helpers": {
+      "count": 11,
+      "description": "Utility functions, Helpers, Client Wrappers"
+    },
+    "Config & Environment": {
+      "count": 57,
+      "description": "Configuration files, Environment loaders, Constants"
+    }
+  },
+  "rules": [
+    "Strict TypeScript: Prefer explicit types/interfaces over `any`; use zod/valibot for runtime payload validation.",
+    "Network Resilience: Never use bare fetch() without AbortController timeout and exponential backoff retry.",
+    "Zero-Downtime Migration: Never alter database column names in-place; follow expand-and-contract deployment."
+  ],
+  "sessionDecisions": [
+    {
+      "timestamp": "2026-09-16T05:35:56.824Z",
+      "title": "Initial Codebase Memory Baseline Established",
+      "rationale": "Workspace indexed to enable zero-token fast boot across sessions.",
+      "affectedFiles": [],
+      "pendingTasks": []
+    }
+  ],
+  "fileCatalog": [
+    {
+      "path": "create-boost-app/templates/backend-express/src/models/index.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.1",
+      "summary": "index module"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/models/Order.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "2.2",
+      "summary": "Order module"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/models/Product.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.3",
+      "summary": "Product module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/AbandonedCheckout.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "3.7",
+      "summary": "AbandonedCheckout module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/AdBanner.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.9",
+      "summary": "AdBanner module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Banner.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.7",
+      "summary": "Banner module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Category.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.5",
+      "summary": "Category module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/ContactQuery.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.9",
+      "summary": "ContactQuery module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Counter.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.4",
+      "summary": "Counter module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Coupon.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.7",
+      "summary": "Coupon module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/DelhiveryPincode.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.6",
+      "summary": "DelhiveryPincode module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/DiscountPopupConfig.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.1",
+      "summary": "DiscountPopupConfig module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/index.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.7",
+      "summary": "index module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Order.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "8.4",
+      "summary": "Order module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Product.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "6.3",
+      "summary": "Product module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/PuzzleAttempt.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.6",
+      "summary": "PuzzleAttempt module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Review.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.0",
+      "summary": "Review module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Role.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.6",
+      "summary": "Role module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Setting.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "11.5",
+      "summary": "Setting module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/SpinAttempt.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.7",
+      "summary": "SpinAttempt module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Subscriber.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.6",
+      "summary": "Subscriber module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/Tag.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.5",
+      "summary": "Tag module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/UrlPath.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "0.6",
+      "summary": "UrlPath module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/User.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "3.8",
+      "summary": "User module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/WarrantyClaim.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "2.3",
+      "summary": "WarrantyClaim module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/models/WarrantyRegistration.ts",
+      "layer": "Data Models & Persistence",
+      "sizeKb": "1.6",
+      "summary": "WarrantyRegistration module"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/auth.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.8",
+      "summary": "export authRouter"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/coupons.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.5",
+      "summary": "export couponsRouter"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/orders.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.6",
+      "summary": "fn computeIndianGst | export ordersRouter"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/payments.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.7",
+      "summary": "export paymentsRouter"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/products.ts",
+      "layer": "API & Routing",
+      "sizeKb": "4.3",
+      "summary": "export productsRouter | export DEMO_CATALOG"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/shipping.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.8",
+      "summary": "export shippingRouter"
+    },
+    {
+      "path": "create-boost-app/templates/backend-express/src/routes/support.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.0",
+      "summary": "export supportRouter"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/ad-banner/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "0.6",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/ad-banner/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.1",
+      "summary": "fn GET | fn PUT"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/banners/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.6",
+      "summary": "fn GET | fn POST | fn PATCH"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/categories/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.9",
+      "summary": "fn GET | fn POST | fn PATCH"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/orders/[id]/invoice/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.6",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/orders/[id]/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.2",
+      "summary": "fn GET | fn PATCH"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/orders/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "4.2",
+      "summary": "fn GET | fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/plugins/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.6",
+      "summary": "fn GET | fn PATCH"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/products/[id]/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.5",
+      "summary": "fn GET | fn PUT | fn DELETE"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/products/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "7.2",
+      "summary": "fn GET | fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/settings/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.7",
+      "summary": "fn GET | fn PUT"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/stats/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.5",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/admin/upload/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.2",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/ai/assistant/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.5",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/auth/otp/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.8",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/banners/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.4",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/categories/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.3",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/contact/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.0",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/coupons/validate/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.0",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/notifications/whatsapp/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.9",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/orders/[id]/invoice/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.6",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/orders/[id]/return/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.5",
+      "summary": "Class: frictionless | fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/payments/create-order/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.0",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/payments/verify/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "3.1",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/products/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "5.7",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/reviews/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.7",
+      "summary": "fn GET | fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/settings/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.0",
+      "summary": "fn GET"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/shipping/calculate/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "2.4",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/warranty/claim/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.5",
+      "summary": "fn POST"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/api/warranty/register/route.ts",
+      "layer": "API & Routing",
+      "sizeKb": "1.4",
+      "summary": "fn POST"
+    },
+    {
+      "path": "boost-analytics/src/components/AnalyticsDebugger.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "11.4",
+      "summary": "fn AnalyticsDebugger"
+    },
+    {
+      "path": "boost-analytics/src/components/BoostAnalytics.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "4.0",
+      "summary": "fn BoostAnalytics"
+    },
+    {
+      "path": "boost-analytics/src/components/InAppShield.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "1.3",
+      "summary": "fn InAppShield"
+    },
+    {
+      "path": "boost-analytics/src/components/index.ts",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "0.1",
+      "summary": "index module"
+    },
+    {
+      "path": "boost-ui/src/components/AnnouncementBar.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "4.7",
+      "summary": "export AnnouncementBar"
+    },
+    {
+      "path": "boost-ui/src/components/AssuredBadge.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "3.0",
+      "summary": "export AssuredBadge"
+    },
+    {
+      "path": "boost-ui/src/components/BankOffersAccordion.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.3",
+      "summary": "Component: <DEFAULT_OFFERS /> | export BankOffersAccordion"
+    },
+    {
+      "path": "boost-ui/src/components/CartDrawer.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "9.3",
+      "summary": "export CartDrawer"
+    },
+    {
+      "path": "boost-ui/src/components/DualMobileActionBar.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "4.1",
+      "summary": "export DualMobileActionBar"
+    },
+    {
+      "path": "boost-ui/src/components/Footer.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "7.9",
+      "summary": "export Footer"
+    },
+    {
+      "path": "boost-ui/src/components/FrequentlyBoughtTogether.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "7.5",
+      "summary": "export FrequentlyBoughtTogether"
+    },
+    {
+      "path": "boost-ui/src/components/LightningDealsBar.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.2",
+      "summary": "export LightningDealsBar"
+    },
+    {
+      "path": "boost-ui/src/components/MobileBottomBar.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.8",
+      "summary": "export MobileBottomBar"
+    },
+    {
+      "path": "boost-ui/src/components/Navbar.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "13.2",
+      "summary": "export Navbar"
+    },
+    {
+      "path": "boost-ui/src/components/OrderTimeline.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "2.7",
+      "summary": "Component: <STAGES /> | export OrderTimeline"
+    },
+    {
+      "path": "boost-ui/src/components/PincodeChecker.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "4.8",
+      "summary": "export PincodeChecker"
+    },
+    {
+      "path": "boost-ui/src/components/ProductCard.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "6.8",
+      "summary": "export ProductCard"
+    },
+    {
+      "path": "boost-ui/src/components/ProductGallery.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "4.7",
+      "summary": "export ProductGallery"
+    },
+    {
+      "path": "boost-ui/src/components/QuantitySelector.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "3.9",
+      "summary": "export QuantitySelector"
+    },
+    {
+      "path": "boost-ui/src/components/ReviewBreakdownBars.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.3",
+      "summary": "export ReviewBreakdownBars"
+    },
+    {
+      "path": "boost-ui/src/components/StarRating.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "2.0",
+      "summary": "export StarRating"
+    },
+    {
+      "path": "boost-ui/src/components/StickyAddToCart.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.2",
+      "summary": "export StickyAddToCart"
+    },
+    {
+      "path": "boost-ui/src/components/TrustBadges.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "2.7",
+      "summary": "export TrustBadges"
+    },
+    {
+      "path": "boost-ui/src/components/VariantSelector.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.2",
+      "summary": "export VariantSelector"
+    },
+    {
+      "path": "create-boost-app/templates/expo-mobile/src/screens/HomeScreen.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "9.3",
+      "summary": "Component: <PRODUCTS /> | fn HomeScreen"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/app/admin/components/AdminShell.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "17.1",
+      "summary": "fn AdminShell"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/components/AdBanner.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "2.6",
+      "summary": "fn AdBanner | fn fetchAdBanner"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/components/AiShoppingAssistant.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "12.1",
+      "summary": "Component: <QUICK_PROMPTS /> | fn AiShoppingAssistant"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/components/Footer.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "5.7",
+      "summary": "fn loadCategories | export Footer"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/components/GlobalCartDrawer.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "0.8",
+      "summary": "export GlobalCartDrawer"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/components/MobileBottomNav.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "1.4",
+      "summary": "export MobileBottomNav"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/components/Navbar.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "19.3",
+      "summary": "fn loadData | export Navbar"
+    },
+    {
+      "path": "create-boost-app/templates/vite-store/src/components/CartPage.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "25.5",
+      "summary": "Component: <PINCODE_MAP /> | fn CartPage"
+    },
+    {
+      "path": "create-boost-app/templates/vite-store/src/components/HomePage.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "106.4",
+      "summary": "Component: <PINCODE_MAP /> | fn HomePage"
+    },
+    {
+      "path": "create-boost-app/templates/vite-store/src/components/Icons.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "12.1",
+      "summary": "export ZapIcon | export SearchIcon | export CloseIcon"
+    },
+    {
+      "path": "create-boost-app/templates/vite-store/src/components/ProductDetailPage.tsx",
+      "layer": "UI Presentation Layer",
+      "sizeKb": "14.9",
+      "summary": "Component: <PINCODE_MAP /> | fn ProductDetailPage"
+    },
+    {
+      "path": "boost-analytics/src/utils/dedupe.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "0.4",
+      "summary": "fn isEventDuplicate"
+    },
+    {
+      "path": "boost-payments/src/utils/crypto.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "1.1",
+      "summary": "fn hmacSha256 | fn sha256 | fn base64Encode"
+    },
+    {
+      "path": "boost-payments/src/utils/errors.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "1.2",
+      "summary": "Class: PaymentError | Class: GatewayNotConfiguredError | Class: SignatureVerificationError"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/constants.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "1.4",
+      "summary": "export INDIAN_STATES"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/db.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "2.5",
+      "summary": "fn dbConnect"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/geo.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "3.1",
+      "summary": "fn getCityFromPincode"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/mail.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "4.5",
+      "summary": "fn sendOrderConfirmationEmail"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/s3.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "2.1",
+      "summary": "fn uploadToS3 | fn deleteFromS3"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/sms.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "0.9",
+      "summary": "fn sendOrderSMS"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/types.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "1.1",
+      "summary": "types module"
+    },
+    {
+      "path": "create-boost-app/templates/nextjs/src/lib/utils.ts",
+      "layer": "Utilities & Shared Helpers",
+      "sizeKb": "1.5",
+      "summary": "fn cn | fn hexToHsl"
+    },
+    {
+      "path": "boost-analytics/package-lock.json",
+      "layer": "General",
+      "sizeKb": "48.4",
+      "summary": "package-lock module"
+    },
+    {
+      "path": "boost-analytics/package.json",
+      "layer": "General",
+      "sizeKb": "1.6",
+      "summary": "package module"
+    },
+    {
+      "path": "boost-analytics/src/index.ts",
+      "layer": "General",
+      "sizeKb": "0.1",
+      "summary": "index module"
+    },
+    {
+      "path": "boost-analytics/src/tracker.ts",
+      "layer": "General",
+      "sizeKb": "14.4",
+      "summary": "fn onAnalyticsEvent | fn recordLog | fn initAnalytics"
+    },
+    {
+      "path": "boost-analytics/src/types.ts",
+      "layer": "General",
+      "sizeKb": "3.1",
+      "summary": "types module"
+    },
+    {
+      "path": "boost-analytics/tsconfig.json",
+      "layer": "Config & Environment",
+      "sizeKb": "0.4",
+      "summary": "tsconfig module"
+    },
+    {
+      "path": "boost-analytics/tsup.config.ts",
+      "layer": "Config & Environment",
+      "sizeKb": "0.8",
+      "summary": "tsup.config module"
+    },
+    {
+      "path": "boost-auth/package-lock.json",
+      "layer": "General",
+      "sizeKb": "45.8",
+      "summary": "package-lock module"
+    },
+    {
+      "path": "boost-auth/package.json",
+      "layer": "General",
+      "sizeKb": "1.4",
+      "summary": "package module"
+    },
+    {
+      "path": "boost-auth/src/index.ts",
+      "layer": "General",
+      "sizeKb": "0.3",
+      "summary": "index module"
+    }
+  ],
+  "fileSnapshots": {
+    ".gitignore": {
+      "mtime": 1788982323184.856,
+      "size": 222
+    },
+    "boost-analytics/package-lock.json": {
+      "mtime": 1789376265656.398,
+      "size": 49568
+    },
+    "boost-analytics/package.json": {
+      "mtime": 1789376265629.8064,
+      "size": 1667
+    },
+    "boost-analytics/publish.bat": {
+      "mtime": 1788890308795.3179,
+      "size": 998
+    },
+    "boost-analytics/README.md": {
+      "mtime": 1789372984778.3777,
+      "size": 4939
+    },
+    "boost-analytics/scripts/add-use-client.cjs": {
+      "mtime": 1788891213937.2742,
+      "size": 609
+    },
+    "boost-analytics/src/components/AnalyticsDebugger.tsx": {
+      "mtime": 1788891207403.4849,
+      "size": 11705
+    },
+    "boost-analytics/src/components/BoostAnalytics.tsx": {
+      "mtime": 1788890207943.9624,
+      "size": 4063
+    },
+    "boost-analytics/src/components/InAppShield.tsx": {
+      "mtime": 1788889059645.927,
+      "size": 1330
+    },
+    "boost-analytics/src/components/index.ts": {
+      "mtime": 1788890041531.8247,
+      "size": 102
+    },
+    "boost-analytics/src/index.ts": {
+      "mtime": 1788890048217.9895,
+      "size": 82
+    },
+    "boost-analytics/src/tracker.ts": {
+      "mtime": 1788891190777.8518,
+      "size": 14741
+    },
+    "boost-analytics/src/types.ts": {
+      "mtime": 1788891144669.6323,
+      "size": 3141
+    },
+    "boost-analytics/src/utils/dedupe.ts": {
+      "mtime": 1788889044038.9658,
+      "size": 434
+    },
+    "boost-analytics/test-suite.cjs": {
+      "mtime": 1788891253509.7732,
+      "size": 9583
+    },
+    "boost-analytics/tsconfig.json": {
+      "mtime": 1788889029647.2534,
+      "size": 428
+    },
+    "boost-analytics/tsup.config.ts": {
+      "mtime": 1788891222717.2007,
+      "size": 834
+    },
+    "boost-auth/package-lock.json": {
+      "mtime": 1789376313775.3813,
+      "size": 46852
+    },
+    "boost-auth/package.json": {
+      "mtime": 1789376313769.272,
+      "size": 1396
+    },
+    "boost-auth/publish.bat": {
+      "mtime": 1788896345798.7385,
+      "size": 433
+    },
+    "boost-auth/README.md": {
+      "mtime": 1789372821566.7087,
+      "size": 7388
+    },
+    "boost-auth/src/index.ts": {
+      "mtime": 1788896327344.7312,
+      "size": 307
+    },
+    "boost-auth/src/manager.ts": {
+      "mtime": 1788896323883.9312,
+      "size": 7283
+    },
+    "boost-auth/src/tokens.ts": {
+      "mtime": 1789457279947.679,
+      "size": 5684
+    },
+    "boost-auth/src/types.ts": {
+      "mtime": 1788896307957.7134,
+      "size": 2105
+    },
+    "boost-auth/test-suite.cjs": {
+      "mtime": 1788896335077.5605,
+      "size": 5315
+    },
+    "boost-auth/tsconfig.json": {
+      "mtime": 1788896277156.6455,
+      "size": 348
+    },
+    "boost-auth/tsup.config.ts": {
+      "mtime": 1788896282561.8743,
+      "size": 349
+    },
+    "boost-cart/package-lock.json": {
+      "mtime": 1789376321197.4019,
+      "size": 46852
+    },
+    "boost-cart/package.json": {
+      "mtime": 1789376321192.066,
+      "size": 1476
+    },
+    "boost-cart/publish.bat": {
+      "mtime": 1788896419473.6462,
+      "size": 433
+    },
+    "boost-cart/README.md": {
+      "mtime": 1789372753973.2527,
+      "size": 8472
+    },
+    "boost-cart/src/cart.ts": {
+      "mtime": 1788896396936.841,
+      "size": 7654
+    },
+    "boost-cart/src/gst.ts": {
+      "mtime": 1788896388060.6353,
+      "size": 3610
+    },
+    "boost-cart/src/index.ts": {
+      "mtime": 1788896401405.1233,
+      "size": 351
+    },
+    "boost-cart/src/types.ts": {
+      "mtime": 1788979618961.8032,
+      "size": 2044
+    },
+    "boost-cart/test-suite.cjs": {
+      "mtime": 1788896409051.9226,
+      "size": 5201
+    },
+    "boost-cart/tsconfig.json": {
+      "mtime": 1788896369088.5684,
+      "size": 364
+    },
+    "boost-cart/tsup.config.ts": {
+      "mtime": 1788896844344.8188,
+      "size": 349
+    },
+    "boost-collections/collections/cashfree.collection.json": {
+      "mtime": 1788893642751.2427,
+      "size": 29396
+    },
+    "boost-collections/collections/delhivery.collection.json": {
+      "mtime": 1788893735257.8157,
+      "size": 11169
+    },
+    "boost-collections/collections/easyecom.collection.json": {
+      "mtime": 1788893721063.9983,
+      "size": 10799
+    },
+    "boost-collections/collections/paytm.collection.json": {
+      "mtime": 1788893755240.3604,
+      "size": 6738
+    },
+    "boost-collections/collections/phonepe.collection.json": {
+      "mtime": 1788893684199.148,
+      "size": 16483
+    },
+    "boost-collections/collections/razorpay.collection.json": {
+      "mtime": 1788893666983.2705,
+      "size": 28477
+    },
+    "boost-collections/collections/shiprocket.collection.json": {
+      "mtime": 1788893708528.7112,
+      "size": 19168
+    },
+    "boost-collections/collections/shopify.collection.json": {
+      "mtime": 1788893536950.3406,
+      "size": 13081
+    },
+    "boost-collections/collections/stripe.collection.json": {
+      "mtime": 1788893559036.8308,
+      "size": 9885
+    },
+    "boost-collections/environments/cashfree.env.json": {
+      "mtime": 1788893583375.4475,
+      "size": 1486
+    },
+    "boost-collections/environments/delhivery.env.json": {
+      "mtime": 1788893361027.4126,
+      "size": 684
+    },
+    "boost-collections/environments/easyecom.env.json": {
+      "mtime": 1788892463545.168,
+      "size": 668
+    },
+    "boost-collections/environments/paytm.env.json": {
+      "mtime": 1788893761248.709,
+      "size": 1086
+    },
+    "boost-collections/environments/phonepe.env.json": {
+      "mtime": 1788893590838.8618,
+      "size": 2638
+    },
+    "boost-collections/environments/razorpay.env.json": {
+      "mtime": 1788893577538.1316,
+      "size": 1460
+    },
+    "boost-collections/environments/shiprocket.env.json": {
+      "mtime": 1788893347097.0142,
+      "size": 1304
+    },
+    "boost-collections/environments/shopify.env.json": {
+      "mtime": 1788893375240.4768,
+      "size": 686
+    },
+    "boost-collections/environments/stripe.env.json": {
+      "mtime": 1788893331724.7817,
+      "size": 705
+    },
+    "boost-collections/package-lock.json": {
+      "mtime": 1789376273865.2964,
+      "size": 46873
+    },
+    "boost-collections/package.json": {
+      "mtime": 1789376273862.7444,
+      "size": 1763
+    },
+    "boost-collections/publish.bat": {
+      "mtime": 1788893934498.5535,
+      "size": 1196
+    },
+    "boost-collections/README.md": {
+      "mtime": 1789373016729.393,
+      "size": 3307
+    },
+    "boost-collections/scripts/sync-upstream.cjs": {
+      "mtime": 1788893951480.8643,
+      "size": 7953
+    },
+    "boost-collections/src/index.ts": {
+      "mtime": 1788893781920.4907,
+      "size": 7573
+    },
+    "boost-collections/src/types.ts": {
+      "mtime": 1788893766549.0315,
+      "size": 1575
+    },
+    "boost-collections/test-suite.cjs": {
+      "mtime": 1788893790083.2993,
+      "size": 4705
+    },
+    "boost-collections/tsconfig.json": {
+      "mtime": 1788892906259.484,
+      "size": 453
+    },
+    "boost-collections/tsup.config.ts": {
+      "mtime": 1788892510013.6243,
+      "size": 307
+    },
+    "boost-core/package-lock.json": {
+      "mtime": 1789376261706.0315,
+      "size": 46792
+    },
+    "boost-core/package.json": {
+      "mtime": 1789376261680.1907,
+      "size": 1244
+    },
+    "boost-core/README.md": {
+      "mtime": 1789372864545.4763,
+      "size": 5388
+    },
+    "boost-core/src/index.ts": {
+      "mtime": 1788975969856.4297,
+      "size": 8827
+    },
+    "boost-core/test-suite.cjs": {
+      "mtime": 1788975981507.1714,
+      "size": 1963
+    },
+    "boost-core/tsup.config.ts": {
+      "mtime": 1788975957014.773,
+      "size": 349
+    },
+    "boost-coupons/package-lock.json": {
+      "mtime": 1789376306530.5686,
+      "size": 46861
+    },
+    "boost-coupons/package.json": {
+      "mtime": 1789376306524.558,
+      "size": 1432
+    },
+    "boost-coupons/publish.bat": {
+      "mtime": 1788896255465.5266,
+      "size": 1190
+    },
+    "boost-coupons/README.md": {
+      "mtime": 1789372883456.457,
+      "size": 5213
+    },
+    "boost-coupons/src/engine.ts": {
+      "mtime": 1788896230359.6487,
+      "size": 5574
+    },
+    "boost-coupons/src/index.ts": {
+      "mtime": 1788896236304.0857,
+      "size": 92
+    },
+    "boost-coupons/src/types.ts": {
+      "mtime": 1788896222269.306,
+      "size": 1665
+    },
+    "boost-coupons/test-suite.cjs": {
+      "mtime": 1788896243514.893,
+      "size": 2812
+    },
+    "boost-coupons/tsconfig.json": {
+      "mtime": 1788896210293.2207,
+      "size": 348
+    },
+    "boost-coupons/tsup.config.ts": {
+      "mtime": 1788896215245.608,
+      "size": 349
+    },
+    "boost-deals/package-lock.json": {
+      "mtime": 1789376373891.5872,
+      "size": 46114
+    },
+    "boost-deals/package.json": {
+      "mtime": 1789376373886.588,
+      "size": 1176
+    },
+    "boost-deals/README.md": {
+      "mtime": 1789372623145.7268,
+      "size": 5549
+    },
+    "boost-deals/src/engine.ts": {
+      "mtime": 1788980478947.18,
+      "size": 2196
+    },
+    "boost-deals/src/index.ts": {
+      "mtime": 1788980497446.9868,
+      "size": 51
+    },
+    "boost-deals/src/types.ts": {
+      "mtime": 1788980457956.763,
+      "size": 796
+    },
+    "boost-deals/test-suite.cjs": {
+      "mtime": 1788980648305.7812,
+      "size": 1221
+    },
+    "boost-deals/tsconfig.json": {
+      "mtime": 1788980942239.9285,
+      "size": 364
+    },
+    "boost-inventory/package-lock.json": {
+      "mtime": 1789376366444.4712,
+      "size": 46867
+    },
+    "boost-inventory/package.json": {
+      "mtime": 1789376366418.0166,
+      "size": 1414
+    },
+    "boost-inventory/publish.bat": {
+      "mtime": 1788897361206.2605,
+      "size": 438
+    },
+    "boost-inventory/README.md": {
+      "mtime": 1789372933716.7498,
+      "size": 5651
+    },
+    "boost-inventory/src/index.ts": {
+      "mtime": 1789457340877.7874,
+      "size": 264
+    },
+    "boost-inventory/src/manager.ts": {
+      "mtime": 1789457330209.5662,
+      "size": 7331
+    },
+    "boost-inventory/src/types.ts": {
+      "mtime": 1789457307223.4536,
+      "size": 1261
+    },
+    "boost-inventory/test-suite.cjs": {
+      "mtime": 1788897351578.2534,
+      "size": 3214
+    },
+    "boost-inventory/tsconfig.json": {
+      "mtime": 1788897321523.1497,
+      "size": 364
+    },
+    "boost-inventory/tsup.config.ts": {
+      "mtime": 1788897326324.8708,
+      "size": 349
+    },
+    "boost-invoicing/package-lock.json": {
+      "mtime": 1789376343480.974,
+      "size": 46867
+    },
+    "boost-invoicing/package.json": {
+      "mtime": 1789376343476.5967,
+      "size": 1418
+    },
+    "boost-invoicing/publish.bat": {
+      "mtime": 1788897172384.1204,
+      "size": 438
+    },
+    "boost-invoicing/README.md": {
+      "mtime": 1789372950016.2935,
+      "size": 5625
+    },
+    "boost-invoicing/src/index.ts": {
+      "mtime": 1788897154213.8652,
+      "size": 232
+    },
+    "boost-invoicing/src/invoice.ts": {
+      "mtime": 1788897149723.438,
+      "size": 15609
+    },
+    "boost-invoicing/src/types.ts": {
+      "mtime": 1788897126784.046,
+      "size": 1416
+    },
+    "boost-invoicing/src/utils.ts": {
+      "mtime": 1788897886757.197,
+      "size": 2926
+    },
+    "boost-invoicing/test-suite.cjs": {
+      "mtime": 1788897894152.0195,
+      "size": 3544
+    },
+    "boost-invoicing/tsconfig.json": {
+      "mtime": 1788897115984.3635,
+      "size": 364
+    },
+    "boost-invoicing/tsup.config.ts": {
+      "mtime": 1788897120974.1414,
+      "size": 349
+    },
+    "boost-loyalty/package-lock.json": {
+      "mtime": 1789376381566.4536,
+      "size": 46118
+    },
+    "boost-loyalty/package.json": {
+      "mtime": 1789376381560.9526,
+      "size": 1204
+    },
+    "boost-loyalty/README.md": {
+      "mtime": 1789372641976.1848,
+      "size": 5351
+    },
+    "boost-loyalty/src/engine.ts": {
+      "mtime": 1788980721641.492,
+      "size": 3265
+    },
+    "boost-loyalty/src/index.ts": {
+      "mtime": 1788980725237.8022,
+      "size": 51
+    },
+    "boost-loyalty/src/types.ts": {
+      "mtime": 1788980715575.5916,
+      "size": 674
+    },
+    "boost-loyalty/test-suite.cjs": {
+      "mtime": 1788980730736.9958,
+      "size": 1482
+    },
+    "boost-loyalty/tsconfig.json": {
+      "mtime": 1788980711208.4883,
+      "size": 364
+    },
+    "boost-notifications/package-lock.json": {
+      "mtime": 1789376299192.5786,
+      "size": 46879
+    },
+    "boost-notifications/package.json": {
+      "mtime": 1789376299186.8247,
+      "size": 1515
+    },
+    "boost-notifications/publish.bat": {
+      "mtime": 1788896189297.405,
+      "size": 1208
+    },
+    "boost-notifications/README.md": {
+      "mtime": 1789373001651.4084,
+      "size": 3513
+    },
+    "boost-notifications/src/adapters/email.adapter.ts": {
+      "mtime": 1788896156101.9087,
+      "size": 1659
+    },
+    "boost-notifications/src/adapters/sms.adapter.ts": {
+      "mtime": 1788896150347.0544,
+      "size": 1688
+    },
+    "boost-notifications/src/adapters/whatsapp.adapter.ts": {
+      "mtime": 1788896144598.5454,
+      "size": 2038
+    },
+    "boost-notifications/src/index.ts": {
+      "mtime": 1788896169874.4827,
+      "size": 226
+    },
+    "boost-notifications/src/manager.ts": {
+      "mtime": 1788896164460.8574,
+      "size": 4364
+    },
+    "boost-notifications/src/types.ts": {
+      "mtime": 1788896138994.5217,
+      "size": 1557
+    },
+    "boost-notifications/test-suite.cjs": {
+      "mtime": 1788896177014.4702,
+      "size": 2391
+    },
+    "boost-notifications/tsconfig.json": {
+      "mtime": 1788896128124.3398,
+      "size": 348
+    },
+    "boost-notifications/tsup.config.ts": {
+      "mtime": 1788896133784.4502,
+      "size": 349
+    },
+    "boost-payments/package-lock.json": {
+      "mtime": 1789376282325.5864,
+      "size": 49141
+    },
+    "boost-payments/package.json": {
+      "mtime": 1789376282322.157,
+      "size": 1902
+    },
+    "boost-payments/publish.bat": {
+      "mtime": 1788894195171.3271,
+      "size": 1193
+    },
+    "boost-payments/README.md": {
+      "mtime": 1789372774140.4094,
+      "size": 9979
+    },
+    "boost-payments/src/adapters/base.adapter.ts": {
+      "mtime": 1789457291722.2014,
+      "size": 4759
+    },
+    "boost-payments/src/adapters/cashfree.adapter.ts": {
+      "mtime": 1788894721306.108,
+      "size": 7076
+    },
+    "boost-payments/src/adapters/cod.adapter.ts": {
+      "mtime": 1788894752980.372,
+      "size": 2659
+    },
+    "boost-payments/src/adapters/paytm.adapter.ts": {
+      "mtime": 1788894746597.4617,
+      "size": 4921
+    },
+    "boost-payments/src/adapters/phonepe.adapter.ts": {
+      "mtime": 1788894730262.8098,
+      "size": 6666
+    },
+    "boost-payments/src/adapters/razorpay.adapter.ts": {
+      "mtime": 1788894712586.673,
+      "size": 6382
+    },
+    "boost-payments/src/adapters/stripe.adapter.ts": {
+      "mtime": 1788894738443.9326,
+      "size": 6309
+    },
+    "boost-payments/src/index.ts": {
+      "mtime": 1788894893541.0925,
+      "size": 729
+    },
+    "boost-payments/src/manager.ts": {
+      "mtime": 1788894764378.684,
+      "size": 8001
+    },
+    "boost-payments/src/react/index.ts": {
+      "mtime": 1788894774432.21,
+      "size": 5886
+    },
+    "boost-payments/src/react/react.d.ts": {
+      "mtime": 1788894882830.1604,
+      "size": 375
+    },
+    "boost-payments/src/types.ts": {
+      "mtime": 1788894704576.036,
+      "size": 5634
+    },
+    "boost-payments/src/utils/crypto.ts": {
+      "mtime": 1788894101531.0151,
+      "size": 1163
+    },
+    "boost-payments/src/utils/errors.ts": {
+      "mtime": 1788894105832.8281,
+      "size": 1259
+    },
+    "boost-payments/test-suite.cjs": {
+      "mtime": 1788894815862.6646,
+      "size": 7828
+    },
+    "boost-payments/tsconfig.json": {
+      "mtime": 1788894909442.7988,
+      "size": 348
+    },
+    "boost-payments/tsup.config.ts": {
+      "mtime": 1788894900018.6855,
+      "size": 921
+    },
+    "boost-recommendations/package-lock.json": {
+      "mtime": 1789376377671.011,
+      "size": 46134
+    },
+    "boost-recommendations/package.json": {
+      "mtime": 1789376377644.3918,
+      "size": 1260
+    },
+    "boost-recommendations/README.md": {
+      "mtime": 1789372666951.0554,
+      "size": 7826
+    },
+    "boost-recommendations/src/engine.ts": {
+      "mtime": 1789158533728.2356,
+      "size": 4391
+    },
+    "boost-recommendations/src/index.ts": {
+      "mtime": 1788980688651.7256,
+      "size": 51
+    },
+    "boost-recommendations/src/types.ts": {
+      "mtime": 1788980678942.8472,
+      "size": 728
+    },
+    "boost-recommendations/test-suite.cjs": {
+      "mtime": 1788980694810.5537,
+      "size": 2036
+    },
+    "boost-recommendations/tsconfig.json": {
+      "mtime": 1788980674955.2527,
+      "size": 364
+    },
+    "boost-referrals/package-lock.json": {
+      "mtime": 1789373419373.0027,
+      "size": 46122
+    },
+    "boost-referrals/package.json": {
+      "mtime": 1789373419343.377,
+      "size": 1251
+    },
+    "boost-referrals/README.md": {
+      "mtime": 1789372596436.201,
+      "size": 6851
+    },
+    "boost-referrals/src/engine.ts": {
+      "mtime": 1789367792553.573,
+      "size": 4374
+    },
+    "boost-referrals/src/index.ts": {
+      "mtime": 1789367797548.482,
+      "size": 51
+    },
+    "boost-referrals/src/types.ts": {
+      "mtime": 1789367784175.0527,
+      "size": 1478
+    },
+    "boost-referrals/test-suite.cjs": {
+      "mtime": 1789367803647.455,
+      "size": 2913
+    },
+    "boost-referrals/tsconfig.json": {
+      "mtime": 1789367778853.0408,
+      "size": 388
+    },
+    "boost-returns/package-lock.json": {
+      "mtime": 1789373414453.172,
+      "size": 46118
+    },
+    "boost-returns/package.json": {
+      "mtime": 1789373414438.7063,
+      "size": 1243
+    },
+    "boost-returns/README.md": {
+      "mtime": 1789372574852.5786,
+      "size": 8659
+    },
+    "boost-returns/src/engine.ts": {
+      "mtime": 1789367749888.4136,
+      "size": 6979
+    },
+    "boost-returns/src/index.ts": {
+      "mtime": 1789367754300.101,
+      "size": 51
+    },
+    "boost-returns/src/types.ts": {
+      "mtime": 1789367736627.257,
+      "size": 3028
+    },
+    "boost-returns/test-suite.cjs": {
+      "mtime": 1789367763040.3845,
+      "size": 3639
+    },
+    "boost-returns/tsconfig.json": {
+      "mtime": 1789367730310.2446,
+      "size": 388
+    },
+    "boost-reviews/package-lock.json": {
+      "mtime": 1789376335918.8657,
+      "size": 46861
+    },
+    "boost-reviews/package.json": {
+      "mtime": 1789376335913.3206,
+      "size": 1409
+    },
+    "boost-reviews/publish.bat": {
+      "mtime": 1788896548427.17,
+      "size": 436
+    },
+    "boost-reviews/README.md": {
+      "mtime": 1789372899564.7908,
+      "size": 4185
+    },
+    "boost-reviews/src/engine.ts": {
+      "mtime": 1788896528455.3088,
+      "size": 5215
+    },
+    "boost-reviews/src/index.ts": {
+      "mtime": 1788896532482.0393,
+      "size": 172
+    },
+    "boost-reviews/src/types.ts": {
+      "mtime": 1788896521464.422,
+      "size": 1084
+    },
+    "boost-reviews/test-suite.cjs": {
+      "mtime": 1788896539624.834,
+      "size": 3921
+    },
+    "boost-reviews/tsconfig.json": {
+      "mtime": 1788896510681.1724,
+      "size": 364
+    },
+    "boost-reviews/tsup.config.ts": {
+      "mtime": 1788896852557.531,
+      "size": 349
+    },
+    "boost-search/package-lock.json": {
+      "mtime": 1789376351136.9192,
+      "size": 46858
+    },
+    "boost-search/package.json": {
+      "mtime": 1789376351132.1443,
+      "size": 1404
+    },
+    "boost-search/publish.bat": {
+      "mtime": 1788897242463.8645,
+      "size": 435
+    },
+    "boost-search/README.md": {
+      "mtime": 1789372916850.5715,
+      "size": 5054
+    },
+    "boost-search/src/engine.ts": {
+      "mtime": 1788979684715.2026,
+      "size": 9690
+    },
+    "boost-search/src/fuzzy.ts": {
+      "mtime": 1788897208621.7646,
+      "size": 1580
+    },
+    "boost-search/src/index.ts": {
+      "mtime": 1788897223492.962,
+      "size": 219
+    },
+    "boost-search/src/types.ts": {
+      "mtime": 1788979661715.709,
+      "size": 1236
+    },
+    "boost-search/test-suite.cjs": {
+      "mtime": 1788897231000.481,
+      "size": 3889
+    },
+    "boost-search/tsconfig.json": {
+      "mtime": 1788897193148.8894,
+      "size": 364
+    },
+    "boost-search/tsup.config.ts": {
+      "mtime": 1788897198811.0808,
+      "size": 349
+    },
+    "boost-seo/package-lock.json": {
+      "mtime": 1789376328446.7231,
+      "size": 46849
+    },
+    "boost-seo/package.json": {
+      "mtime": 1789376328419.9778,
+      "size": 1518
+    },
+    "boost-seo/publish.bat": {
+      "mtime": 1788896493299.2842,
+      "size": 432
+    },
+    "boost-seo/README.md": {
+      "mtime": 1789536761447.6138,
+      "size": 6377
+    },
+    "boost-seo/src/feeds.ts": {
+      "mtime": 1788896461096.6562,
+      "size": 3713
+    },
+    "boost-seo/src/index.ts": {
+      "mtime": 1788896476207.6123,
+      "size": 408
+    },
+    "boost-seo/src/jsonld.ts": {
+      "mtime": 1788896454525.4912,
+      "size": 4249
+    },
+    "boost-seo/src/next.ts": {
+      "mtime": 1788896472329.4841,
+      "size": 1454
+    },
+    "boost-seo/src/sitemap.ts": {
+      "mtime": 1788896466493.2166,
+      "size": 832
+    },
+    "boost-seo/src/types.ts": {
+      "mtime": 1788896447433.6667,
+      "size": 1280
+    },
+    "boost-seo/test-suite.cjs": {
+      "mtime": 1788896484060.5598,
+      "size": 5450
+    },
+    "boost-seo/tsconfig.json": {
+      "mtime": 1788896437140.74,
+      "size": 364
+    },
+    "boost-seo/tsup.config.ts": {
+      "mtime": 1788896848854.176,
+      "size": 349
+    },
+    "boost-server/.npmignore": {
+      "mtime": 1789376460680.1904,
+      "size": 34
+    },
+    "boost-server/package-lock.json": {
+      "mtime": 1789376534623.4673,
+      "size": 82994
+    },
+    "boost-server/package.json": {
+      "mtime": 1789376551910.2278,
+      "size": 1800
+    },
+    "boost-server/README.md": {
+      "mtime": 1789375992181.215,
+      "size": 6992
+    },
+    "boost-server/src/index.ts": {
+      "mtime": 1789382344148.9436,
+      "size": 18187
+    },
+    "boost-server/test-suite.cjs": {
+      "mtime": 1789376452941.3262,
+      "size": 3978
+    },
+    "boost-server/tsconfig.json": {
+      "mtime": 1789375351068.3333,
+      "size": 358
+    },
+    "boost-server/tsup.config.ts": {
+      "mtime": 1789376433609.008,
+      "size": 374
+    },
+    "boost-shipping/package-lock.json": {
+      "mtime": 1789376291340.2422,
+      "size": 46864
+    },
+    "boost-shipping/package.json": {
+      "mtime": 1789376291335.1436,
+      "size": 1520
+    },
+    "boost-shipping/publish.bat": {
+      "mtime": 1788896107276.1006,
+      "size": 1193
+    },
+    "boost-shipping/README.md": {
+      "mtime": 1789372800270.2795,
+      "size": 7806
+    },
+    "boost-shipping/src/adapters/base.adapter.ts": {
+      "mtime": 1788896043141.0112,
+      "size": 2121
+    },
+    "boost-shipping/src/adapters/delhivery.adapter.ts": {
+      "mtime": 1788896063544.2627,
+      "size": 6980
+    },
+    "boost-shipping/src/adapters/shadowfax.adapter.ts": {
+      "mtime": 1788896071995.8862,
+      "size": 4475
+    },
+    "boost-shipping/src/adapters/shiprocket.adapter.ts": {
+      "mtime": 1788896053881.662,
+      "size": 8114
+    },
+    "boost-shipping/src/index.ts": {
+      "mtime": 1788896086832.0178,
+      "size": 274
+    },
+    "boost-shipping/src/manager.ts": {
+      "mtime": 1788896081490.1848,
+      "size": 5212
+    },
+    "boost-shipping/src/types.ts": {
+      "mtime": 1788896036825.4866,
+      "size": 3790
+    },
+    "boost-shipping/test-suite.cjs": {
+      "mtime": 1788896094839.8179,
+      "size": 3588
+    },
+    "boost-shipping/tsconfig.json": {
+      "mtime": 1788896024884.233,
+      "size": 348
+    },
+    "boost-shipping/tsup.config.ts": {
+      "mtime": 1788896030461.0774,
+      "size": 349
+    },
+    "boost-ui/package-lock.json": {
+      "mtime": 1789376385457.0366,
+      "size": 49248
+    },
+    "boost-ui/package.json": {
+      "mtime": 1789376385453.2075,
+      "size": 1859
+    },
+    "boost-ui/publish.bat": {
+      "mtime": 1788897454180.431,
+      "size": 431
+    },
+    "boost-ui/README.md": {
+      "mtime": 1789372734238.9333,
+      "size": 14426
+    },
+    "boost-ui/src/components/AnnouncementBar.tsx": {
+      "mtime": 1788899940152.6248,
+      "size": 4816
+    },
+    "boost-ui/src/components/AssuredBadge.tsx": {
+      "mtime": 1788980781216.4424,
+      "size": 3021
+    },
+    "boost-ui/src/components/BankOffersAccordion.tsx": {
+      "mtime": 1788980775083.4263,
+      "size": 5396
+    },
+    "boost-ui/src/components/CartDrawer.tsx": {
+      "mtime": 1789536727580.7292,
+      "size": 9479
+    },
+    "boost-ui/src/components/DualMobileActionBar.tsx": {
+      "mtime": 1788982896823.8484,
+      "size": 4198
+    },
+    "boost-ui/src/components/Footer.tsx": {
+      "mtime": 1788899961479.4631,
+      "size": 8080
+    },
+    "boost-ui/src/components/FrequentlyBoughtTogether.tsx": {
+      "mtime": 1788980767550.2756,
+      "size": 7710
+    },
+    "boost-ui/src/components/LightningDealsBar.tsx": {
+      "mtime": 1788980758769.6458,
+      "size": 5285
+    },
+    "boost-ui/src/components/MobileBottomBar.tsx": {
+      "mtime": 1788899969507.336,
+      "size": 5988
+    },
+    "boost-ui/src/components/Navbar.tsx": {
+      "mtime": 1788899953621.5815,
+      "size": 13495
+    },
+    "boost-ui/src/components/OrderTimeline.tsx": {
+      "mtime": 1788897428567.7783,
+      "size": 2778
+    },
+    "boost-ui/src/components/PincodeChecker.tsx": {
+      "mtime": 1789536750137.4082,
+      "size": 4887
+    },
+    "boost-ui/src/components/ProductCard.tsx": {
+      "mtime": 1789157828913.0398,
+      "size": 6969
+    },
+    "boost-ui/src/components/ProductGallery.tsx": {
+      "mtime": 1788899883797.7249,
+      "size": 4863
+    },
+    "boost-ui/src/components/QuantitySelector.tsx": {
+      "mtime": 1788899926272.1118,
+      "size": 3952
+    },
+    "boost-ui/src/components/ReviewBreakdownBars.tsx": {
+      "mtime": 1788899933186.3694,
+      "size": 5417
+    },
+    "boost-ui/src/components/StarRating.tsx": {
+      "mtime": 1788897433492.9976,
+      "size": 2007
+    },
+    "boost-ui/src/components/StickyAddToCart.tsx": {
+      "mtime": 1789536740496.755,
+      "size": 5375
+    },
+    "boost-ui/src/components/TrustBadges.tsx": {
+      "mtime": 1788897398038.4834,
+      "size": 2784
+    },
+    "boost-ui/src/components/VariantSelector.tsx": {
+      "mtime": 1788976920027.467,
+      "size": 5285
+    },
+    "boost-ui/src/index.ts": {
+      "mtime": 1788980796983.256,
+      "size": 3079
+    },
+    "boost-ui/src/react.d.ts": {
+      "mtime": 1788897386262.6794,
+      "size": 237
+    },
+    "boost-ui/test-suite.cjs": {
+      "mtime": 1788899983280.4329,
+      "size": 2515
+    },
+    "boost-ui/tsconfig.json": {
+      "mtime": 1788897380361.8145,
+      "size": 388
+    },
+    "boost-ui/tsup.config.ts": {
+      "mtime": 1788976993006.32,
+      "size": 871
+    },
+    "boost-wishlist/package-lock.json": {
+      "mtime": 1789376358949.1353,
+      "size": 46864
+    },
+    "boost-wishlist/package.json": {
+      "mtime": 1789376358922.109,
+      "size": 1355
+    },
+    "boost-wishlist/publish.bat": {
+      "mtime": 1788897303377.0022,
+      "size": 437
+    },
+    "boost-wishlist/README.md": {
+      "mtime": 1789372967480.0293,
+      "size": 3788
+    },
+    "boost-wishlist/src/index.ts": {
+      "mtime": 1788897284606.8853,
+      "size": 142
+    },
+    "boost-wishlist/src/manager.ts": {
+      "mtime": 1788897279471.832,
+      "size": 4505
+    },
+    "boost-wishlist/src/types.ts": {
+      "mtime": 1788897273293.282,
+      "size": 524
+    },
+    "boost-wishlist/test-suite.cjs": {
+      "mtime": 1788897292249.4763,
+      "size": 3156
+    },
+    "boost-wishlist/tsconfig.json": {
+      "mtime": 1788897264137.9766,
+      "size": 364
+    },
+    "boost-wishlist/tsup.config.ts": {
+      "mtime": 1788897268626.199,
+      "size": 349
+    },
+    "build-all.bat": {
+      "mtime": 1788896730051.9846,
+      "size": 42
+    },
+    "build-all.cjs": {
+      "mtime": 1789380041459.181,
+      "size": 2377
+    },
+    "bump-and-publish-otp.cjs": {
+      "mtime": 1789536698995.1155,
+      "size": 3644
+    },
+    "bump-and-publish.bat": {
+      "mtime": 1789373161694.7974,
+      "size": 264
+    },
+    "bump-and-publish.cjs": {
+      "mtime": 1789536688870.4683,
+      "size": 3164
+    },
+    "check-dependencies.cjs": {
+      "mtime": 1789381636813.6562,
+      "size": 2038
+    },
+    "check-downloads.cjs": {
+      "mtime": 1789535233615.2825,
+      "size": 1975
+    },
+    "create-boost-app/.npmignore": {
+      "mtime": 1789382530823.7654,
+      "size": 572
+    },
+    "create-boost-app/package-lock.json": {
+      "mtime": 1789373423688.0576,
+      "size": 409
+    },
+    "create-boost-app/package.json": {
+      "mtime": 1789382540928.0698,
+      "size": 1301
+    },
+    "create-boost-app/README.md": {
+      "mtime": 1789380601721.7715,
+      "size": 7255
+    },
+    "create-boost-app/src/scaffolder.js": {
+      "mtime": 1789381651622.3428,
+      "size": 14302
+    },
+    "create-boost-app/templates/backend-express/.dockerignore": {
+      "mtime": 1789382372117.048,
+      "size": 63
+    },
+    "create-boost-app/templates/backend-express/.env.example": {
+      "mtime": 1789386087645.6934,
+      "size": 1697
+    },
+    "create-boost-app/templates/backend-express/Dockerfile": {
+      "mtime": 1789382366841.8242,
+      "size": 719
+    },
+    "create-boost-app/templates/backend-express/ecosystem.config.js": {
+      "mtime": 1789382360295.212,
+      "size": 402
+    },
+    "create-boost-app/templates/backend-express/package-lock.json": {
+      "mtime": 1789452843497.7234,
+      "size": 73830
+    },
+    "create-boost-app/templates/backend-express/package.json": {
+      "mtime": 1789452456399.7305,
+      "size": 809
+    },
+    "create-boost-app/templates/backend-express/src/db.ts": {
+      "mtime": 1789386047545.0347,
+      "size": 745
+    },
+    "create-boost-app/templates/backend-express/src/models/index.ts": {
+      "mtime": 1789452535277.9902,
+      "size": 120
+    },
+    "create-boost-app/templates/backend-express/src/models/Order.ts": {
+      "mtime": 1789452530824.9834,
+      "size": 2216
+    },
+    "create-boost-app/templates/backend-express/src/models/Product.ts": {
+      "mtime": 1789452524368.2043,
+      "size": 1294
+    },
+    "create-boost-app/templates/backend-express/src/routes/auth.ts": {
+      "mtime": 1789452495583.6384,
+      "size": 1816
+    },
+    "create-boost-app/templates/backend-express/src/routes/coupons.ts": {
+      "mtime": 1789452501398.725,
+      "size": 1517
+    },
+    "create-boost-app/templates/backend-express/src/routes/orders.ts": {
+      "mtime": 1789452476784.4817,
+      "size": 3662
+    },
+    "create-boost-app/templates/backend-express/src/routes/payments.ts": {
+      "mtime": 1789452484542.4473,
+      "size": 1698
+    },
+    "create-boost-app/templates/backend-express/src/routes/products.ts": {
+      "mtime": 1789452467734.6533,
+      "size": 4445
+    },
+    "create-boost-app/templates/backend-express/src/routes/shipping.ts": {
+      "mtime": 1789452489830.4497,
+      "size": 1812
+    },
+    "create-boost-app/templates/backend-express/src/routes/support.ts": {
+      "mtime": 1789452508862.3591,
+      "size": 3041
+    },
+    "create-boost-app/templates/backend-express/src/server.ts": {
+      "mtime": 1789452516496.6382,
+      "size": 3688
+    },
+    "create-boost-app/templates/backend-express/tsconfig.json": {
+      "mtime": 1789376099818.7644,
+      "size": 287
+    },
+    "create-boost-app/templates/expo-mobile/app.json": {
+      "mtime": 1789452574492.9026,
+      "size": 445
+    },
+    "create-boost-app/templates/expo-mobile/App.tsx": {
+      "mtime": 1789452627727.1667,
+      "size": 37518
+    },
+    "create-boost-app/templates/expo-mobile/babel.config.js": {
+      "mtime": 1789452579716.283,
+      "size": 108
+    },
+    "create-boost-app/templates/expo-mobile/package-lock.json": {
+      "mtime": 1789452818766.7385,
+      "size": 529866
+    },
+    "create-boost-app/templates/expo-mobile/package.json": {
+      "mtime": 1789452568274.424,
+      "size": 670
+    },
+    "create-boost-app/templates/expo-mobile/src/data/products.ts": {
+      "mtime": 1789452595153.6318,
+      "size": 2434
+    },
+    "create-boost-app/templates/expo-mobile/src/screens/HomeScreen.tsx": {
+      "mtime": 1789381335405.203,
+      "size": 9525
+    },
+    "create-boost-app/templates/expo-mobile/tsconfig.json": {
+      "mtime": 1789452767389.0679,
+      "size": 474
+    },
+    "create-boost-app/templates/nextjs/.env.example": {
+      "mtime": 1788982147387.9036,
+      "size": 788
+    },
+    "create-boost-app/templates/nextjs/.npmignore": {
+      "mtime": 1789370757870.333,
+      "size": 108
+    },
+    "create-boost-app/templates/nextjs/next-env.d.ts": {
+      "mtime": 1788978477052.0415,
+      "size": 262
+    },
+    "create-boost-app/templates/nextjs/next.config.ts": {
+      "mtime": 1789386578885.5173,
+      "size": 803
+    },
+    "create-boost-app/templates/nextjs/package-lock.json": {
+      "mtime": 1789381766970.5334,
+      "size": 109941
+    },
+    "create-boost-app/templates/nextjs/package.json": {
+      "mtime": 1789386262869.294,
+      "size": 1566
+    },
+    "create-boost-app/templates/nextjs/postcss.config.mjs": {
+      "mtime": 1788978846072.434,
+      "size": 81
+    },
+    "create-boost-app/templates/nextjs/src/app/about/page.tsx": {
+      "mtime": 1789386317411.2207,
+      "size": 4207
+    },
+    "create-boost-app/templates/nextjs/src/app/account/page.tsx": {
+      "mtime": 1789367896441.4995,
+      "size": 17723
+    },
+    "create-boost-app/templates/nextjs/src/app/account/referrals/page.tsx": {
+      "mtime": 1789367882832.146,
+      "size": 10341
+    },
+    "create-boost-app/templates/nextjs/src/app/account/returns/page.tsx": {
+      "mtime": 1789367871779.9648,
+      "size": 14327
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/banners/page.tsx": {
+      "mtime": 1789157354177.9578,
+      "size": 31304
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/categories/page.tsx": {
+      "mtime": 1789157303489.8347,
+      "size": 31375
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/components/AdminShell.tsx": {
+      "mtime": 1789381461318.066,
+      "size": 17558
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/coupons/page.tsx": {
+      "mtime": 1789367925534.4507,
+      "size": 14862
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/customers/page.tsx": {
+      "mtime": 1789367936366.0803,
+      "size": 9334
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/dev/page.tsx": {
+      "mtime": 1789381446443.3203,
+      "size": 18053
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/layout.tsx": {
+      "mtime": 1788984172140.0828,
+      "size": 219
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/orders/page.tsx": {
+      "mtime": 1789382482121.986,
+      "size": 20467
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/page.tsx": {
+      "mtime": 1789157209086.635,
+      "size": 15615
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/plugins/page.tsx": {
+      "mtime": 1789157373715.2478,
+      "size": 12141
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/products/new/page.tsx": {
+      "mtime": 1789157416588.6094,
+      "size": 14662
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/products/page.tsx": {
+      "mtime": 1789157231856.7944,
+      "size": 14841
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/reports/page.tsx": {
+      "mtime": 1789367959360.0425,
+      "size": 7866
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/returns/page.tsx": {
+      "mtime": 1789367911175.6301,
+      "size": 14393
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/reviews/page.tsx": {
+      "mtime": 1789367949178.751,
+      "size": 11591
+    },
+    "create-boost-app/templates/nextjs/src/app/admin/settings/page.tsx": {
+      "mtime": 1789157396174.1877,
+      "size": 14972
+    },
+    "create-boost-app/templates/nextjs/src/app/api/ad-banner/route.ts": {
+      "mtime": 1788984882173.0664,
+      "size": 610
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/ad-banner/route.ts": {
+      "mtime": 1788984888433.7725,
+      "size": 2104
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/banners/route.ts": {
+      "mtime": 1788984877182.4617,
+      "size": 3732
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/categories/route.ts": {
+      "mtime": 1788984864737.373,
+      "size": 3976
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/orders/route.ts": {
+      "mtime": 1788983810994.7495,
+      "size": 4260
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/orders/[id]/invoice/route.ts": {
+      "mtime": 1789382459366.6826,
+      "size": 3639
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/orders/[id]/route.ts": {
+      "mtime": 1788983696311.835,
+      "size": 2263
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/plugins/route.ts": {
+      "mtime": 1789382435556.9844,
+      "size": 2636
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/products/route.ts": {
+      "mtime": 1788988138763.0874,
+      "size": 7346
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/products/[id]/route.ts": {
+      "mtime": 1788983706445.9827,
+      "size": 2567
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/settings/route.ts": {
+      "mtime": 1788987707092.035,
+      "size": 1701
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/stats/route.ts": {
+      "mtime": 1788983713791.4126,
+      "size": 1497
+    },
+    "create-boost-app/templates/nextjs/src/app/api/admin/upload/route.ts": {
+      "mtime": 1788982702813.6523,
+      "size": 1240
+    },
+    "create-boost-app/templates/nextjs/src/app/api/ai/assistant/route.ts": {
+      "mtime": 1789386765804.9417,
+      "size": 3546
+    },
+    "create-boost-app/templates/nextjs/src/app/api/auth/otp/route.ts": {
+      "mtime": 1789153651257.1362,
+      "size": 2892
+    },
+    "create-boost-app/templates/nextjs/src/app/api/banners/route.ts": {
+      "mtime": 1788984870287.021,
+      "size": 1454
+    },
+    "create-boost-app/templates/nextjs/src/app/api/categories/route.ts": {
+      "mtime": 1788984856781.8865,
+      "size": 1348
+    },
+    "create-boost-app/templates/nextjs/src/app/api/contact/route.ts": {
+      "mtime": 1789386299063.7485,
+      "size": 1028
+    },
+    "create-boost-app/templates/nextjs/src/app/api/coupons/validate/route.ts": {
+      "mtime": 1788987715022.7734,
+      "size": 3109
+    },
+    "create-boost-app/templates/nextjs/src/app/api/notifications/whatsapp/route.ts": {
+      "mtime": 1789017562799.6536,
+      "size": 2983
+    },
+    "create-boost-app/templates/nextjs/src/app/api/orders/[id]/invoice/route.ts": {
+      "mtime": 1789017449464.5002,
+      "size": 3660
+    },
+    "create-boost-app/templates/nextjs/src/app/api/orders/[id]/return/route.ts": {
+      "mtime": 1789017473826.17,
+      "size": 2603
+    },
+    "create-boost-app/templates/nextjs/src/app/api/payments/create-order/route.ts": {
+      "mtime": 1789381361323.366,
+      "size": 2005
+    },
+    "create-boost-app/templates/nextjs/src/app/api/payments/verify/route.ts": {
+      "mtime": 1789381366786.869,
+      "size": 3189
+    },
+    "create-boost-app/templates/nextjs/src/app/api/products/route.ts": {
+      "mtime": 1789158752621.2825,
+      "size": 5801
+    },
+    "create-boost-app/templates/nextjs/src/app/api/reviews/route.ts": {
+      "mtime": 1788987721990.9634,
+      "size": 2762
+    },
+    "create-boost-app/templates/nextjs/src/app/api/settings/route.ts": {
+      "mtime": 1789158108340.086,
+      "size": 2033
+    },
+    "create-boost-app/templates/nextjs/src/app/api/shipping/calculate/route.ts": {
+      "mtime": 1789017716096.7346,
+      "size": 2488
+    },
+    "create-boost-app/templates/nextjs/src/app/api/warranty/claim/route.ts": {
+      "mtime": 1789386366415.7322,
+      "size": 1501
+    },
+    "create-boost-app/templates/nextjs/src/app/api/warranty/register/route.ts": {
+      "mtime": 1789386361216.3855,
+      "size": 1467
+    },
+    "create-boost-app/templates/nextjs/src/app/checkout/page.tsx": {
+      "mtime": 1789381381584.5918,
+      "size": 47199
+    },
+    "create-boost-app/templates/nextjs/src/app/contact/page.tsx": {
+      "mtime": 1789386308527.5713,
+      "size": 8343
+    },
+    "create-boost-app/templates/nextjs/src/app/globals.css": {
+      "mtime": 1788976424403.045,
+      "size": 286
+    },
+    "create-boost-app/templates/nextjs/src/app/layout.tsx": {
+      "mtime": 1789367850859.2898,
+      "size": 1215
+    },
+    "create-boost-app/templates/nextjs/src/app/not-found.tsx": {
+      "mtime": 1789386288858.651,
+      "size": 1317
+    },
+    "create-boost-app/templates/nextjs/src/app/order-success/[orderId]/page.tsx": {
+      "mtime": 1788979646496.8982,
+      "size": 2323
+    },
+    "create-boost-app/templates/nextjs/src/app/orders/[id]/invoice/page.tsx": {
+      "mtime": 1789017455733.0933,
+      "size": 3072
+    },
+    "create-boost-app/templates/nextjs/src/app/orders/[id]/return/page.tsx": {
+      "mtime": 1789017765218.8796,
+      "size": 13628
+    },
+    "create-boost-app/templates/nextjs/src/app/orders/[id]/track/page.tsx": {
+      "mtime": 1789017436479.416,
+      "size": 12508
+    },
+    "create-boost-app/templates/nextjs/src/app/page.tsx": {
+      "mtime": 1789158229540.4783,
+      "size": 24731
+    },
+    "create-boost-app/templates/nextjs/src/app/privacy-policy/page.tsx": {
+      "mtime": 1789386329753.8079,
+      "size": 2359
+    },
+    "create-boost-app/templates/nextjs/src/app/products/page.tsx": {
+      "mtime": 1789158308317.6174,
+      "size": 7443
+    },
+    "create-boost-app/templates/nextjs/src/app/products/[id]/page.tsx": {
+      "mtime": 1789158761652.9214,
+      "size": 21867
+    },
+    "create-boost-app/templates/nextjs/src/app/refund-policy/page.tsx": {
+      "mtime": 1789386342540.8098,
+      "size": 2360
+    },
+    "create-boost-app/templates/nextjs/src/app/robots.ts": {
+      "mtime": 1789386278698.0662,
+      "size": 319
+    },
+    "create-boost-app/templates/nextjs/src/app/shipping-policy/page.tsx": {
+      "mtime": 1789386348497.0479,
+      "size": 2327
+    },
+    "create-boost-app/templates/nextjs/src/app/sitemap.ts": {
+      "mtime": 1789386283616.5093,
+      "size": 1099
+    },
+    "create-boost-app/templates/nextjs/src/app/terms-conditions/page.tsx": {
+      "mtime": 1789386336280.4119,
+      "size": 2273
+    },
+    "create-boost-app/templates/nextjs/src/app/warranty-claim/page.tsx": {
+      "mtime": 1789386386970.234,
+      "size": 9404
+    },
+    "create-boost-app/templates/nextjs/src/app/warranty-registration/page.tsx": {
+      "mtime": 1789386376038.1548,
+      "size": 9576
+    },
+    "create-boost-app/templates/nextjs/src/app/wishlist/page.tsx": {
+      "mtime": 1788983032408.1555,
+      "size": 4978
+    },
+    "create-boost-app/templates/nextjs/src/components/AdBanner.tsx": {
+      "mtime": 1789157790441.8828,
+      "size": 2620
+    },
+    "create-boost-app/templates/nextjs/src/components/AiShoppingAssistant.tsx": {
+      "mtime": 1789386788404.9192,
+      "size": 12368
+    },
+    "create-boost-app/templates/nextjs/src/components/Footer.tsx": {
+      "mtime": 1789386400595.6345,
+      "size": 5858
+    },
+    "create-boost-app/templates/nextjs/src/components/GlobalCartDrawer.tsx": {
+      "mtime": 1788979212815.4756,
+      "size": 864
+    },
+    "create-boost-app/templates/nextjs/src/components/MobileBottomNav.tsx": {
+      "mtime": 1788983570653.2314,
+      "size": 1465
+    },
+    "create-boost-app/templates/nextjs/src/components/Navbar.tsx": {
+      "mtime": 1789158279568.281,
+      "size": 19791
+    },
+    "create-boost-app/templates/nextjs/src/context/StoreContext.tsx": {
+      "mtime": 1789386779921.2637,
+      "size": 13312
+    },
+    "create-boost-app/templates/nextjs/src/data/db.ts": {
+      "mtime": 1788983774193.3167,
+      "size": 10777
+    },
+    "create-boost-app/templates/nextjs/src/data/products.ts": {
+      "mtime": 1789386759236.9028,
+      "size": 9316
+    },
+    "create-boost-app/templates/nextjs/src/lib/constants.ts": {
+      "mtime": 1789386248767.064,
+      "size": 1467
+    },
+    "create-boost-app/templates/nextjs/src/lib/db.ts": {
+      "mtime": 1788985060845.8481,
+      "size": 2585
+    },
+    "create-boost-app/templates/nextjs/src/lib/geo.ts": {
+      "mtime": 1789017710201.1118,
+      "size": 3167
+    },
+    "create-boost-app/templates/nextjs/src/lib/mail.ts": {
+      "mtime": 1788982275997.206,
+      "size": 4622
+    },
+    "create-boost-app/templates/nextjs/src/lib/s3.ts": {
+      "mtime": 1788982195602.6433,
+      "size": 2190
+    },
+    "create-boost-app/templates/nextjs/src/lib/sms.ts": {
+      "mtime": 1788982212312.5393,
+      "size": 968
+    },
+    "create-boost-app/templates/nextjs/src/lib/types.ts": {
+      "mtime": 1789386254405.224,
+      "size": 1090
+    },
+    "create-boost-app/templates/nextjs/src/lib/utils.ts": {
+      "mtime": 1789386574507.278,
+      "size": 1564
+    },
+    "create-boost-app/templates/nextjs/src/models/AbandonedCheckout.ts": {
+      "mtime": 1789386644865.7688,
+      "size": 3820
+    },
+    "create-boost-app/templates/nextjs/src/models/AdBanner.ts": {
+      "mtime": 1789386606902.6958,
+      "size": 921
+    },
+    "create-boost-app/templates/nextjs/src/models/Banner.ts": {
+      "mtime": 1789386612173.096,
+      "size": 1731
+    },
+    "create-boost-app/templates/nextjs/src/models/Category.ts": {
+      "mtime": 1789386600759.938,
+      "size": 1502
+    },
+    "create-boost-app/templates/nextjs/src/models/ContactQuery.ts": {
+      "mtime": 1789386651374.286,
+      "size": 878
+    },
+    "create-boost-app/templates/nextjs/src/models/Counter.ts": {
+      "mtime": 1789385961168.4219,
+      "size": 365
+    },
+    "create-boost-app/templates/nextjs/src/models/Coupon.ts": {
+      "mtime": 1789386617308.1482,
+      "size": 1782
+    },
+    "create-boost-app/templates/nextjs/src/models/DelhiveryPincode.ts": {
+      "mtime": 1789385897389.195,
+      "size": 625
+    },
+    "create-boost-app/templates/nextjs/src/models/DiscountPopupConfig.ts": {
+      "mtime": 1789385921325.3374,
+      "size": 1169
+    },
+    "create-boost-app/templates/nextjs/src/models/index.ts": {
+      "mtime": 1789386008345.495,
+      "size": 1724
+    },
+    "create-boost-app/templates/nextjs/src/models/Order.ts": {
+      "mtime": 1789386680259.427,
+      "size": 8578
+    },
+    "create-boost-app/templates/nextjs/src/models/Product.ts": {
+      "mtime": 1789386636184.3655,
+      "size": 6436
+    },
+    "create-boost-app/templates/nextjs/src/models/PuzzleAttempt.ts": {
+      "mtime": 1789385929353.2559,
+      "size": 596
+    },
+    "create-boost-app/templates/nextjs/src/models/Review.ts": {
+      "mtime": 1789386622937.4055,
+      "size": 1058
+    },
+    "create-boost-app/templates/nextjs/src/models/Role.ts": {
+      "mtime": 1789386687839.4387,
+      "size": 586
+    },
+    "create-boost-app/templates/nextjs/src/models/Setting.ts": {
+      "mtime": 1789386724888.7566,
+      "size": 11791
+    },
+    "create-boost-app/templates/nextjs/src/models/SpinAttempt.ts": {
+      "mtime": 1789385925345.907,
+      "size": 728
+    },
+    "create-boost-app/templates/nextjs/src/models/Subscriber.ts": {
+      "mtime": 1789385947769.6943,
+      "size": 576
+    },
+    "create-boost-app/templates/nextjs/src/models/Tag.ts": {
+      "mtime": 1789386692560.4988,
+      "size": 461
+    },
+    "create-boost-app/templates/nextjs/src/models/UrlPath.ts": {
+      "mtime": 1789385956961.957,
+      "size": 655
+    },
+    "create-boost-app/templates/nextjs/src/models/User.ts": {
+      "mtime": 1789386705628.8406,
+      "size": 3908
+    },
+    "create-boost-app/templates/nextjs/src/models/WarrantyClaim.ts": {
+      "mtime": 1789386717149.735,
+      "size": 2311
+    },
+    "create-boost-app/templates/nextjs/src/models/WarrantyRegistration.ts": {
+      "mtime": 1789386710768.0095,
+      "size": 1623
+    },
+    "create-boost-app/templates/nextjs/tailwind.config.ts": {
+      "mtime": 1788976363373.306,
+      "size": 356
+    },
+    "create-boost-app/templates/nextjs/tsconfig.json": {
+      "mtime": 1788976350808.2065,
+      "size": 576
+    },
+    "create-boost-app/templates/nextjs/tsconfig.tsbuildinfo": {
+      "mtime": 1789386803364.7014,
+      "size": 317534
+    },
+    "create-boost-app/templates/vite-store/.dockerignore": {
+      "mtime": 1789382422991.6423,
+      "size": 49
+    },
+    "create-boost-app/templates/vite-store/.env.example": {
+      "mtime": 1789376030615.8218,
+      "size": 125
+    },
+    "create-boost-app/templates/vite-store/Dockerfile": {
+      "mtime": 1789382415712.6953,
+      "size": 389
+    },
+    "create-boost-app/templates/vite-store/index.html": {
+      "mtime": 1789376040411.28,
+      "size": 302
+    },
+    "create-boost-app/templates/vite-store/nginx.conf": {
+      "mtime": 1789382410648.5952,
+      "size": 752
+    },
+    "create-boost-app/templates/vite-store/package-lock.json": {
+      "mtime": 1789381773116.4822,
+      "size": 61067
+    },
+    "create-boost-app/templates/vite-store/package.json": {
+      "mtime": 1789381665988.2964,
+      "size": 810
+    },
+    "create-boost-app/templates/vite-store/src/components/CartPage.tsx": {
+      "mtime": 1789384759383.639,
+      "size": 26065
+    },
+    "create-boost-app/templates/vite-store/src/components/HomePage.tsx": {
+      "mtime": 1789452884795.3962,
+      "size": 108936
+    },
+    "create-boost-app/templates/vite-store/src/components/Icons.tsx": {
+      "mtime": 1789384664118.9197,
+      "size": 12410
+    },
+    "create-boost-app/templates/vite-store/src/components/ProductDetailPage.tsx": {
+      "mtime": 1789452904169.2224,
+      "size": 15268
+    },
+    "create-boost-app/templates/vite-store/src/data/products.ts": {
+      "mtime": 1789452873038.2449,
+      "size": 3483
+    },
+    "create-boost-app/templates/vite-store/src/index.css": {
+      "mtime": 1789384681551.646,
+      "size": 3657
+    },
+    "create-boost-app/templates/vite-store/src/main.tsx": {
+      "mtime": 1789452654272.3728,
+      "size": 724
+    },
+    "create-boost-app/templates/vite-store/src/vite-env.d.ts": {
+      "mtime": 1789382649120.9434,
+      "size": 200
+    },
+    "create-boost-app/templates/vite-store/tsconfig.json": {
+      "mtime": 1789382653360.507,
+      "size": 552
+    },
+    "create-boost-app/templates/vite-store/vite.config.ts": {
+      "mtime": 1789376023419.341,
+      "size": 169
+    },
+    "create-boost-app/test.cjs": {
+      "mtime": 1789452678570.6133,
+      "size": 12901
+    },
+    "install-all.bat": {
+      "mtime": 1789381696375.2134,
+      "size": 637
+    },
+    "install-all.cjs": {
+      "mtime": 1789381691291.7583,
+      "size": 2822
+    },
+    "publish-all.bat": {
+      "mtime": 1788896734945.1316,
+      "size": 44
+    },
+    "publish-all.cjs": {
+      "mtime": 1789536817187.659,
+      "size": 1620
+    },
+    "publish-create-boost-app.bat": {
+      "mtime": 1789378008026.3943,
+      "size": 940
+    },
+    "publish-with-otp.bat": {
+      "mtime": 1789376580682.0928,
+      "size": 373
+    },
+    "push-to-github.bat": {
+      "mtime": 1788898324496.388,
+      "size": 1843
+    },
+    "README.md": {
+      "mtime": 1789372687452.1533,
+      "size": 15482
+    }
+  }
+}

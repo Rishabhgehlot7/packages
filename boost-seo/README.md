@@ -97,10 +97,10 @@ export default function ProductPage() {
 
   return (
     <div>
-      {/* Inject Google Rich Snippet JSON-LD */}
+      {/* Inject Google Rich Snippet JSON-LD safely */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(JSON.stringify(jsonLd).replace(/</g, '\\u003c')) }}
       />
 
       <main>

@@ -8,9 +8,11 @@
  *   publish-with-otp.bat
  */
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
+const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 const otp = process.argv[2];
 if (!otp || !/^\d{6}$/.test(otp)) {
@@ -67,10 +69,10 @@ for (const pkg of packages) {
   console.log(`\n-----------------------------------------------------------------`);
   console.log(`📦 Processing: ${pkgName} (Local: v${currentVersion})`);
 
-  // Check remote version
+  // Check remote version safely with parameterized arguments
   let remoteVersion = null;
   try {
-    remoteVersion = execSync(`npm view ${pkgName} version`, {
+    remoteVersion = execFileSync(npmCmd, ['view', pkgName, 'version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'ignore'],
     }).trim();
@@ -82,7 +84,7 @@ for (const pkg of packages) {
   // Bump if version matches remote
   if (remoteVersion && currentVersion === remoteVersion) {
     try {
-      execSync('npm version patch --no-git-tag-version', { cwd: pkgDir, stdio: 'inherit' });
+      execFileSync(npmCmd, ['version', 'patch', '--no-git-tag-version'], { cwd: pkgDir, stdio: 'inherit' });
       const updated = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'));
       currentVersion = updated.version;
       console.log(`   ✅ Bumped to: v${currentVersion}`);
@@ -91,10 +93,10 @@ for (const pkg of packages) {
     }
   }
 
-  // Publish with OTP
+  // Publish with OTP safely with parameterized arguments
   try {
     console.log(`   🚀 Publishing ${pkgName}@${currentVersion} --otp=${otp}`);
-    execSync(`npm publish --access public --otp=${otp}`, { cwd: pkgDir, stdio: 'inherit' });
+    execFileSync(npmCmd, ['publish', '--access', 'public', `--otp=${otp}`], { cwd: pkgDir, stdio: 'inherit' });
     console.log(`   🎉 SUCCESS: Published ${pkgName}@${currentVersion}`);
     successCount++;
   } catch {

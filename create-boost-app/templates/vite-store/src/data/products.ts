@@ -1,16 +1,20 @@
 export interface Product {
   id: string;
   title: string;
+  slug?: string;
   description: string;
   price: number;
   compareAtPrice: number;
   category: string;
   image: string;
+  images?: string[];
   rating: number;
   reviewsCount: number;
   tags: string[];
   inStock: boolean;
   sizes?: string[];
+  colors?: string[];
+  hsn?: string;
 }
 
 export const DEMO_PRODUCTS: Product[] = [
