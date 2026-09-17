@@ -137,3 +137,82 @@ productsRouter.get('/:idOrSlug', (req: Request, res: Response) => {
 
   return res.json({ success: true, product });
 });
+
+// POST /api/products - Create new product (Admin)
+productsRouter.post('/', (req: Request, res: Response) => {
+  const { title, price, compareAtPrice, category, image, description, sizes, inStock } = req.body;
+
+  if (!title || !price || !category) {
+    return res.status(400).json({ success: false, error: 'Title, price, and category are required' });
+  }
+
+  const id = 'prod_' + (DEMO_CATALOG.length + 1) + '_' + Date.now().toString().slice(-4);
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+  const newProduct: ProductItem = {
+    id,
+    title,
+    slug,
+    price: Number(price),
+    compareAtPrice: compareAtPrice ? Number(compareAtPrice) : Number(price) * 1.3,
+    category,
+    image: image || 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
+    images: [image || 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80'],
+    description: description || 'Premium heavyweight garment tailored for high-performance everyday wear.',
+    rating: 5.0,
+    reviewsCount: 1,
+    inStock: inStock !== undefined ? Boolean(inStock) : true,
+    hsn: '6109',
+    gstRate: 18,
+    sizes: Array.isArray(sizes) && sizes.length ? sizes : ['S', 'M', 'L', 'XL'],
+    colors: ['Onyx Black'],
+  };
+
+  DEMO_CATALOG.unshift(newProduct);
+
+  return res.status(201).json({
+    success: true,
+    message: 'Product created successfully',
+    product: newProduct,
+  });
+});
+
+// PUT /api/products/:id - Update product (Admin)
+productsRouter.put('/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = DEMO_CATALOG.findIndex((p) => p.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, error: 'Product not found' });
+  }
+
+  DEMO_CATALOG[index] = {
+    ...DEMO_CATALOG[index],
+    ...req.body,
+    id: DEMO_CATALOG[index].id, // protect id
+  };
+
+  return res.json({
+    success: true,
+    message: 'Product updated successfully',
+    product: DEMO_CATALOG[index],
+  });
+});
+
+// DELETE /api/products/:id - Delete product (Admin)
+productsRouter.delete('/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = DEMO_CATALOG.findIndex((p) => p.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, error: 'Product not found' });
+  }
+
+  const deleted = DEMO_CATALOG.splice(index, 1)[0];
+  return res.json({
+    success: true,
+    message: 'Product deleted successfully',
+    product: deleted,
+  });
+});
+

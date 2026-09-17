@@ -1,0 +1,66 @@
+{
+  "name": "@boostengine/communications",
+  "version": "1.0.2",
+  "description": "Enterprise All-In-One Omnichannel Communications Engine (WhatsApp, SMS, Voice, OTP, RCS, Email) with intelligent multi-tier fallback for modern eCommerce.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "cpaas",
+    "communications",
+    "omnichannel",
+    "whatsapp",
+    "sms",
+    "otp",
+    "voice",
+    "rcs",
+    "email",
+    "msg91",
+    "gupshup",
+    "exotel",
+    "interakt",
+    "wati",
+    "fast2sms",
+    "2factor",
+    "twilio",
+    "resend",
+    "ecommerce-alerts",
+    "headless-messaging",
+    "ai",
+    "llm",
+    "agentic",
+    "cursorrules"
+  ],
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-communications#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boostengine/boostengine.git",
+    "directory": "packages/boost-communications"
+  },
+  "bugs": {
+    "url": "https://github.com/boostengine/boostengine/issues"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

@@ -501,26 +501,49 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Link
-                to="/"
-                onClick={() => setOrderSuccess(null)}
-                style={{
-                  backgroundColor: '#0f172a',
-                  color: '#ffffff',
-                  padding: '13px 0',
-                  borderRadius: 12,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
-              >
-                <span>Continue Shopping</span>
-                <ArrowRightIcon size={16} />
-              </Link>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <Link
+                  to={`/orders/${orderSuccess.orderId}`}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#e11d48',
+                    color: '#ffffff',
+                    padding: '13px 0',
+                    borderRadius: 12,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span>Track Live Consignment</span>
+                  <ArrowRightIcon size={16} />
+                </Link>
+
+                <Link
+                  to="/"
+                  onClick={() => setOrderSuccess(null)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#0f172a',
+                    color: '#ffffff',
+                    padding: '13px 0',
+                    borderRadius: 12,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span>Continue Shopping</span>
+                </Link>
+              </div>
             </div>
           </div>
         )}

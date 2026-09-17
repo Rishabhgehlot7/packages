@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { DEMO_PRODUCTS, Product } from '../data/products';
 import {
   ZapIcon,
@@ -33,7 +34,7 @@ import {
   MailIcon,
 } from './Icons';
 
-const storeName = import.meta.env.VITE_STORE_NAME || '{{BRAND_TITLE}}';
+const storeName = import.meta.env.VITE_STORE_NAME || 'BOOST ENGINE';
 
 const PINCODE_MAP: Record<string, { city: string; state: string; days: string }> = {
   '11': { city: 'New Delhi', state: 'Delhi', days: 'Tomorrow, by 2 PM' },
@@ -153,7 +154,7 @@ export default function HomePage() {
 
   // Check live API
   useEffect(() => {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+    const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
     fetch(`${apiBase}/products`)
       .then((res) => {
         if (!res.ok) throw new Error('API offline');
@@ -336,7 +337,7 @@ export default function HomePage() {
             }}
           >
             <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }}></span>
-            Live API :3001
+            Live API Connected
           </span>
         )}
       </div>
@@ -531,6 +532,45 @@ export default function HomePage() {
                 {totalCartCount}
               </span>
             </button>
+
+            <Link
+              to="/orders"
+              title="Track Orders"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f1f5f9',
+                color: '#334155',
+                padding: '9px 14px',
+                borderRadius: 9999,
+                fontSize: 13,
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <PackageIcon size={15} />
+              <span>Orders</span>
+            </Link>
+
+            <Link
+              to="/admin"
+              title="Command Center"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#e11d48',
+                color: '#fff',
+                padding: '9px 14px',
+                borderRadius: 9999,
+                fontSize: 13,
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span>Admin</span>
+            </Link>
           </div>
         </div>
       </header>

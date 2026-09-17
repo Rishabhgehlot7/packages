@@ -13,7 +13,7 @@ import {
   LockIcon,
 } from './Icons';
 
-const storeName = import.meta.env.VITE_STORE_NAME || '{{BRAND_TITLE}}';
+const storeName = import.meta.env.VITE_STORE_NAME || 'BOOST ENGINE';
 
 const PINCODE_MAP: Record<string, { city: string; state: string; days: string }> = {
   '11': { city: 'New Delhi', state: 'Delhi', days: 'Tomorrow, by 2 PM' },
@@ -114,6 +114,9 @@ export default function ProductDetailPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <Link to="/" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Catalog</Link>
+            <Link to="/wishlist" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Wishlist</Link>
+            <Link to="/orders" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Orders</Link>
+            <Link to="/admin" style={{ color: '#f43f5e', textDecoration: 'none', fontSize: 13, fontWeight: 700 }}>Admin</Link>
             <Link to="/cart" style={{ backgroundColor: '#0284c7', color: '#fff', textDecoration: 'none', padding: '8px 16px', borderRadius: 9999, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShoppingBagIcon size={16} />
               <span>Bag ({cartCount})</span>
