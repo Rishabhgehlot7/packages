@@ -56,36 +56,43 @@ export const AddressForm: React.FC<AddressFormProps> = ({
   const inputStyle: React.CSSProperties = {
     width: '100%',
     boxSizing: 'border-box',
-    padding: '9px 12px',
+    padding: '10px 14px',
     fontSize: '13px',
-    border: '1px solid #cbd5e1',
-    borderRadius: '6px',
+    border: '1px solid var(--boost-border, #cbd5e1)',
+    borderRadius: 'var(--boost-radius, 10px)',
+    backgroundColor: 'var(--boost-bg, #ffffff)',
+    color: 'var(--boost-text, #0f172a)',
     outline: 'none',
+    transition: 'border-color 0.15s ease',
   };
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
     fontSize: '12px',
     fontWeight: 600,
-    color: '#334155',
-    marginBottom: '4px',
+    color: 'var(--boost-text, #334155)',
+    marginBottom: '6px',
   };
 
   return (
     <div
+      className="boost-address-form"
       style={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '10px',
-        padding: '24px',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        backgroundColor: 'var(--boost-surface, #ffffff)',
+        border: '1px solid var(--boost-border, #e2e8f0)',
+        borderRadius: 'var(--boost-radius, 16px)',
+        padding: 'clamp(16px, 3vw, 24px)',
+        fontFamily: 'inherit',
+        boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))',
+        boxSizing: 'border-box',
+        width: '100%',
         ...style,
       }}
     >
-      <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: '0 0 20px' }}>{title}</h3>
+      <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--boost-text, #0f172a)', margin: '0 0 20px' }}>{title}</h3>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>Full Name *</label>
             <input
@@ -111,7 +118,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>Pincode *</label>
             <input
@@ -125,7 +132,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
             />
           </div>
 
-          <div>
+          <div style={{ gridColumn: 'span 1' }}>
             <label style={labelStyle}>Flat / House No. / Building *</label>
             <input
               type="text"
@@ -150,7 +157,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>City / Town *</label>
             <input
@@ -178,22 +185,23 @@ export const AddressForm: React.FC<AddressFormProps> = ({
 
         <div>
           <label style={labelStyle}>Address Type</label>
-          <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
             {(['home', 'work', 'other'] as const).map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => handleChange('addressType', type)}
                 style={{
-                  padding: '6px 14px',
+                  padding: '7px 16px',
                   fontSize: '12px',
                   fontWeight: 600,
                   textTransform: 'capitalize',
-                  borderRadius: '6px',
-                  border: `1px solid ${formData.addressType === type ? '#0f172a' : '#cbd5e1'}`,
-                  backgroundColor: formData.addressType === type ? '#0f172a' : '#ffffff',
-                  color: formData.addressType === type ? '#ffffff' : '#475569',
+                  borderRadius: 'var(--boost-radius, 8px)',
+                  border: `1px solid ${formData.addressType === type ? 'var(--boost-primary, #2563eb)' : 'var(--boost-border, #cbd5e1)'}`,
+                  backgroundColor: formData.addressType === type ? 'var(--boost-primary, #2563eb)' : 'var(--boost-surface, #ffffff)',
+                  color: formData.addressType === type ? '#ffffff' : 'var(--boost-text-muted, #475569)',
                   cursor: 'pointer',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 {type}
@@ -210,23 +218,23 @@ export const AddressForm: React.FC<AddressFormProps> = ({
             onChange={(e) => handleChange('isDefault', e.target.checked)}
             style={{ cursor: 'pointer' }}
           />
-          <label htmlFor="default-address-checkbox" style={{ fontSize: '13px', color: '#475569', cursor: 'pointer' }}>
+          <label htmlFor="default-address-checkbox" style={{ fontSize: '13px', color: 'var(--boost-text-muted, #475569)', cursor: 'pointer' }}>
             Make this my default shipping address
           </label>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
           <button
             type="submit"
             disabled={loading}
             style={{
-              flex: 1,
-              padding: '11px',
-              backgroundColor: '#0f172a',
+              flex: '1 1 200px',
+              padding: '13px',
+              backgroundColor: 'var(--boost-primary, #2563eb)',
               color: '#ffffff',
               fontSize: '14px',
-              fontWeight: 600,
-              borderRadius: '6px',
+              fontWeight: 700,
+              borderRadius: 'var(--boost-radius, 12px)',
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1,
@@ -234,11 +242,13 @@ export const AddressForm: React.FC<AddressFormProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
+              boxShadow: 'var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.35))',
+              transition: 'all 0.15s ease',
             }}
           >
             {loading && (
               <svg
-                style={{ animation: 'spin 1s linear infinite', width: '16px', height: '16px' }}
+                style={{ animation: 'boost-spin 1s linear infinite', width: '16px', height: '16px' }}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -256,14 +266,15 @@ export const AddressForm: React.FC<AddressFormProps> = ({
               type="button"
               onClick={onCancel}
               style={{
-                padding: '11px 18px',
-                backgroundColor: '#ffffff',
-                color: '#475569',
+                padding: '13px 20px',
+                backgroundColor: 'transparent',
+                color: 'var(--boost-text-muted, #475569)',
                 fontSize: '14px',
-                fontWeight: 500,
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                fontWeight: 600,
+                borderRadius: 'var(--boost-radius, 12px)',
+                border: '1px solid var(--boost-border, #cbd5e1)',
                 cursor: 'pointer',
+                transition: 'all 0.15s ease',
               }}
             >
               Cancel

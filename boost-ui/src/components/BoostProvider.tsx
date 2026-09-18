@@ -70,8 +70,14 @@ if (typeof document !== 'undefined') {
         --boost-text: #0f172a;
         --boost-text-muted: #64748b;
         --boost-border: #e2e8f0;
-        --boost-radius: 8px;
+        --boost-radius: 12px;
         --boost-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --boost-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+        --boost-shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.08);
+        --boost-shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.12);
+        --boost-shadow-glow: 0 0 24px rgba(37, 99, 235, 0.22);
+        --boost-glass-bg: rgba(255, 255, 255, 0.82);
+        --boost-glass-border: rgba(226, 232, 240, 0.8);
       }
       @keyframes boost-spin {
         from { transform: rotate(0deg); }
@@ -100,6 +106,10 @@ if (typeof document !== 'undefined') {
       @keyframes boost-scaleIn {
         from { opacity: 0; transform: scale(0.95); }
         to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes boost-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
       }
     `;
     document.head.appendChild(style);
@@ -157,6 +167,7 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
 
   // Inject CSS Variables for zero-config theming
   const cssVariables = React.useMemo(() => {
+    const isDark = resolvedMode === 'dark';
     return `
       :root {
         --boost-primary: ${currentTokens.primary};
@@ -168,6 +179,12 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
         --boost-border: ${currentTokens.border};
         --boost-radius: ${currentTokens.radius};
         --boost-font: ${currentTokens.fontFamily};
+        --boost-shadow-sm: ${isDark ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.05)'};
+        --boost-shadow-md: ${isDark ? '0 4px 16px -2px rgba(0, 0, 0, 0.4)' : '0 4px 16px -2px rgba(0, 0, 0, 0.08)'};
+        --boost-shadow-lg: ${isDark ? '0 12px 32px -4px rgba(0, 0, 0, 0.55)' : '0 12px 32px -4px rgba(0, 0, 0, 0.12)'};
+        --boost-shadow-glow: 0 0 24px ${isDark ? 'rgba(59, 130, 246, 0.35)' : 'rgba(37, 99, 235, 0.22)'};
+        --boost-glass-bg: ${isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)'};
+        --boost-glass-border: ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)'};
       }
       @keyframes boost-spin {
         from { transform: rotate(0deg); }
@@ -197,12 +214,16 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
         from { opacity: 0; transform: scale(0.95); }
         to { opacity: 1; transform: scale(1); }
       }
+      @keyframes boost-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
       @keyframes boost-countdown {
         from { width: 100%; }
         to { width: 0%; }
       }
     `;
-  }, [currentTokens]);
+  }, [currentTokens, resolvedMode]);
 
   return (
     <BoostThemeContext.Provider

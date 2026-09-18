@@ -33,20 +33,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   return (
     <div
       style={{
-        maxWidth: '400px',
+        maxWidth: '420px',
         width: '100%',
         margin: '0 auto',
-        padding: '32px 24px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        padding: 'clamp(24px, 5vw, 40px) clamp(18px, 4vw, 32px)',
+        backgroundColor: 'var(--boost-surface, #ffffff)',
+        border: '1px solid var(--boost-border, #e2e8f0)',
+        borderRadius: 'var(--boost-radius, 16px)',
+        boxShadow: 'var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))',
+        fontFamily: 'inherit',
+        boxSizing: 'border-box',
+        transition: 'all 0.2s ease',
       }}
     >
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>{title}</h2>
-        <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>{subtitle}</p>
+      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <h2 style={{ fontSize: 'clamp(20px, 3vw, 24px)', fontWeight: 700, color: 'var(--boost-text, #0f172a)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>{title}</h2>
+        <p style={{ fontSize: '14px', color: 'var(--boost-muted, #64748b)', margin: 0, lineHeight: 1.5 }}>{subtitle}</p>
       </div>
 
       {errorMessage && (
@@ -54,28 +56,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '10px 14px',
-            marginBottom: '16px',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
-            color: '#dc2626',
+            gap: '10px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: 'var(--boost-radius, 10px)',
+            color: '#ef4444',
             fontSize: '13px',
+            fontWeight: 500,
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <span>{errorMessage}</span>
+          <span style={{ lineHeight: 1.4 }}>{errorMessage}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)', marginBottom: '8px' }}>
             Email or Phone
           </label>
           <input
@@ -87,18 +90,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '10px 14px',
+              padding: '12px 14px',
               fontSize: '14px',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              color: 'var(--boost-text, #0f172a)',
+              backgroundColor: 'var(--boost-bg, #ffffff)',
+              border: '1px solid var(--boost-border, #cbd5e1)',
+              borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',
+              transition: 'all 0.2s ease',
             }}
           />
         </div>
 
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Password</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)' }}>Password</label>
             {onForgotPassword && (
               <button
                 type="button"
@@ -106,11 +112,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#2563eb',
+                  color: 'var(--boost-primary, #3b82f6)',
                   fontSize: '12px',
-                  fontWeight: 500,
+                  fontWeight: 600,
                   cursor: 'pointer',
                   padding: 0,
+                  transition: 'opacity 0.15s ease',
                 }}
               >
                 Forgot password?
@@ -127,37 +134,42 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               style={{
                 width: '100%',
                 boxSizing: 'border-box',
-                padding: '10px 38px 10px 14px',
+                padding: '12px 42px 12px 14px',
                 fontSize: '14px',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
+                color: 'var(--boost-text, #0f172a)',
+                backgroundColor: 'var(--boost-bg, #ffffff)',
+                border: '1px solid var(--boost-border, #cbd5e1)',
+                borderRadius: 'var(--boost-radius, 10px)',
                 outline: 'none',
+                transition: 'all 0.2s ease',
               }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
               style={{
                 position: 'absolute',
-                right: '10px',
+                right: '12px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 background: 'none',
                 border: 'none',
-                color: '#64748b',
+                color: 'var(--boost-muted, #64748b)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                padding: 0,
+                padding: '4px',
+                borderRadius: '4px',
               }}
             >
               {showPassword ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
                   <line x1="1" y1="1" x2="23" y2="23" />
                 </svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
@@ -166,15 +178,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <input
             type="checkbox"
             id="login-remember"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
-            style={{ cursor: 'pointer' }}
+            style={{
+              width: '16px',
+              height: '16px',
+              accentColor: 'var(--boost-primary, #3b82f6)',
+              cursor: 'pointer',
+            }}
           />
-          <label htmlFor="login-remember" style={{ fontSize: '13px', color: '#475569', cursor: 'pointer' }}>
+          <label htmlFor="login-remember" style={{ fontSize: '13px', color: 'var(--boost-text, #475569)', cursor: 'pointer', userSelect: 'none' }}>
             Remember for 30 days
           </label>
         </div>
@@ -184,16 +201,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           disabled={loading}
           style={{
             width: '100%',
-            padding: '11px',
-            backgroundColor: '#0f172a',
+            padding: '13px 20px',
+            backgroundColor: 'var(--boost-primary, #0f172a)',
             color: '#ffffff',
             fontSize: '14px',
             fontWeight: 600,
-            borderRadius: '6px',
+            borderRadius: 'var(--boost-radius, 10px)',
             border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1,
-            transition: 'background-color 0.15s ease',
+            opacity: loading ? 0.75 : 1,
+            boxShadow: 'var(--boost-shadow-sm, 0 2px 8px rgba(0,0,0,0.1))',
+            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -217,7 +235,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       </form>
 
       {onRegisterClick && (
-        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#64748b' }}>
+        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', color: 'var(--boost-muted, #64748b)' }}>
           Don't have an account?{' '}
           <button
             type="button"
@@ -225,10 +243,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             style={{
               background: 'none',
               border: 'none',
-              color: '#2563eb',
+              color: 'var(--boost-primary, #2563eb)',
               fontWeight: 600,
               cursor: 'pointer',
               padding: 0,
+              marginLeft: '4px',
             }}
           >
             Sign up

@@ -28,16 +28,20 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         bottom: 0,
         left: 0,
         right: 0,
-        height: '60px',
-        backgroundColor: '#ffffff',
-        borderTop: '1px solid #e2e8f0',
+        minHeight: '60px',
+        backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.7))',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         zIndex: 999,
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.04)',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+        paddingTop: '6px',
+        boxShadow: 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
+        fontFamily: 'inherit',
+        boxSizing: 'border-box',
         ...style,
       }}
     >
@@ -59,13 +63,24 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               cursor: 'pointer',
               position: 'relative',
               padding: '6px 0',
-              color: isActive ? '#0f172a' : '#64748b',
-              transition: 'color 0.15s ease',
+              color: isActive ? 'var(--boost-primary, #0f172a)' : 'var(--boost-muted, #64748b)',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px 14px',
+                borderRadius: '999px',
+                backgroundColor: isActive ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                transition: 'background-color 0.2s ease',
+              }}
+            >
               {item.icon || (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? 2.2 : 1.8}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? 2.3 : 1.8}>
                   <circle cx="12" cy="12" r="9" />
                 </svg>
               )}
@@ -73,8 +88,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 <span
                   style={{
                     position: 'absolute',
-                    top: '-4px',
-                    right: '-8px',
+                    top: '-2px',
+                    right: '-4px',
                     minWidth: '16px',
                     height: '16px',
                     borderRadius: '8px',
@@ -86,6 +101,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: '0 4px',
+                    boxShadow: '0 2px 5px rgba(239, 68, 68, 0.4)',
                   }}
                 >
                   {item.badge}
@@ -95,9 +111,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             <span
               style={{
                 fontSize: '11px',
-                fontWeight: isActive ? 600 : 400,
-                marginTop: '4px',
-                letterSpacing: '-0.2px',
+                fontWeight: isActive ? 600 : 500,
+                marginTop: '3px',
+                letterSpacing: '-0.01em',
               }}
             >
               {item.label}

@@ -2,6 +2,7 @@ import * as React from 'react';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
+  variant?: 'elevated' | 'outlined' | 'glass';
 }
 
 export type CardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
@@ -11,19 +12,30 @@ export type CardContentProps = React.HTMLAttributes<HTMLDivElement>;
 export type CardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ hoverable = false, className = '', style, children, ...props }, ref) => {
+  ({ hoverable = false, variant = 'elevated', className = '', style, children, ...props }, ref) => {
+    const isGlass = variant === 'glass';
+    const isOutlined = variant === 'outlined';
+
     return (
       <div
         ref={ref}
-        className={`boost-card ${className}`}
+        className={`boost-card ${hoverable ? 'boost-card-hoverable' : ''} ${className}`}
         style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+          backgroundColor: isGlass
+            ? 'var(--boost-glass-bg, rgba(255, 255, 255, 0.8))'
+            : 'var(--boost-surface, #ffffff)',
+          backdropFilter: isGlass ? 'blur(12px)' : undefined,
+          WebkitBackdropFilter: isGlass ? 'blur(12px)' : undefined,
+          border: `1px solid ${isGlass ? 'var(--boost-glass-border, rgba(226, 232, 240, 0.8))' : 'var(--boost-border, #e2e8f0)'}`,
+          borderRadius: 'var(--boost-radius, 16px)',
+          boxShadow: isOutlined
+            ? 'none'
+            : 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))',
           overflow: 'hidden',
-          transition: hoverable ? 'transform 0.2s ease, box-shadow 0.2s ease' : 'none',
+          transition: hoverable ? 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
           fontFamily: 'inherit',
+          width: '100%',
+          boxSizing: 'border-box',
           ...style,
         }}
         {...props}
@@ -36,31 +48,84 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
 Card.displayName = 'Card';
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ className = '', style, children, ...props }) => (
-  <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', ...style }} className={className} {...props}>
+  <div
+    style={{
+      padding: 'clamp(14px, 2.5vw, 20px) clamp(16px, 3vw, 24px)',
+      borderBottom: '1px solid var(--boost-border, #f1f5f9)',
+      boxSizing: 'border-box',
+      ...style,
+    }}
+    className={className}
+    {...props}
+  >
     {children}
   </div>
 );
 
 export const CardTitle: React.FC<CardTitleProps> = ({ className = '', style, children, ...props }) => (
-  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#0f172a', ...style }} className={className} {...props}>
+  <h3
+    style={{
+      margin: 0,
+      fontSize: 'clamp(16px, 1.8vw, 19px)',
+      fontWeight: 700,
+      color: 'var(--boost-text, #0f172a)',
+      letterSpacing: '-0.015em',
+      ...style,
+    }}
+    className={className}
+    {...props}
+  >
     {children}
   </h3>
 );
 
 export const CardDescription: React.FC<CardDescriptionProps> = ({ className = '', style, children, ...props }) => (
-  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b', lineHeight: 1.5, ...style }} className={className} {...props}>
+  <p
+    style={{
+      margin: '4px 0 0 0',
+      fontSize: '13px',
+      color: 'var(--boost-text-muted, #64748b)',
+      lineHeight: 1.55,
+      ...style,
+    }}
+    className={className}
+    {...props}
+  >
     {children}
   </p>
 );
 
 export const CardContent: React.FC<CardContentProps> = ({ className = '', style, children, ...props }) => (
-  <div style={{ padding: '20px 24px', ...style }} className={className} {...props}>
+  <div
+    style={{
+      padding: 'clamp(14px, 2.5vw, 24px) clamp(16px, 3vw, 24px)',
+      boxSizing: 'border-box',
+      color: 'var(--boost-text, #0f172a)',
+      ...style,
+    }}
+    className={className}
+    {...props}
+  >
     {children}
   </div>
 );
 
 export const CardFooter: React.FC<CardFooterProps> = ({ className = '', style, children, ...props }) => (
-  <div style={{ padding: '16px 24px', borderTop: '1px solid #f1f5f9', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', ...style }} className={className} {...props}>
+  <div
+    style={{
+      padding: 'clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px)',
+      borderTop: '1px solid var(--boost-border, #f1f5f9)',
+      backgroundColor: 'var(--boost-surface, #f8fafc)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      gap: '10px',
+      boxSizing: 'border-box',
+      ...style,
+    }}
+    className={className}
+    {...props}
+  >
     {children}
   </div>
 );

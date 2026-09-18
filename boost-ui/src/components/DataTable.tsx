@@ -68,12 +68,22 @@ export function DataTable<T extends Record<string, any>>({
       </div>
       )}
 
-      <div style={{ width: '100%', overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left', color: '#334155' }}>
+      <div
+        style={{
+          width: '100%',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: 'var(--boost-radius, 12px)',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))',
+        }}
+      >
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left', color: 'var(--boost-text, #334155)', minWidth: '480px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+            <tr style={{ backgroundColor: 'var(--boost-bg, #f8fafc)', borderBottom: '1px solid var(--boost-border, #e2e8f0)' }}>
               {columns.map((col, idx) => (
-                <th key={idx} style={{ padding: '12px 16px', fontWeight: 600, color: '#0f172a', textAlign: col.align || 'left', width: col.width }}>
+                <th key={idx} style={{ padding: '13px 16px', fontWeight: 700, color: 'var(--boost-text, #0f172a)', textAlign: col.align || 'left', width: col.width, whiteSpace: 'nowrap' }}>
                   {col.header}
                 </th>
               ))}
@@ -82,13 +92,13 @@ export function DataTable<T extends Record<string, any>>({
           <tbody>
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                <td colSpan={columns.length} style={{ padding: '36px', textAlign: 'center', color: 'var(--boost-text-muted, #94a3b8)' }}>
                   No records matching your search
                 </td>
               </tr>
             ) : (
               paginatedData.map((row, rIdx) => (
-                <tr key={rIdx} style={{ borderBottom: rIdx === paginatedData.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                <tr key={rIdx} style={{ borderBottom: rIdx === paginatedData.length - 1 ? 'none' : '1px solid var(--boost-border, #f1f5f9)', transition: 'background-color 0.1s ease' }}>
                   {columns.map((col, cIdx) => {
                     const accessor = col.accessor;
                     const content = typeof accessor === 'function'
@@ -97,7 +107,7 @@ export function DataTable<T extends Record<string, any>>({
                         ? row[accessor]
                         : '';
                     return (
-                      <td key={cIdx} style={{ padding: '12px 16px', textAlign: col.align || 'left' }}>
+                      <td key={cIdx} style={{ padding: '13px 16px', textAlign: col.align || 'left' }}>
                         {content}
                       </td>
                     );
@@ -110,7 +120,7 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

@@ -35,26 +35,27 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       switch (variant) {
         case 'primary':
           return {
-            backgroundColor: '#2563eb',
+            backgroundColor: 'var(--boost-primary, #2563eb)',
             color: '#ffffff',
             border: '1px solid transparent',
+            boxShadow: '0 1px 3px rgba(37, 99, 235, 0.2)',
           };
         case 'secondary':
           return {
-            backgroundColor: '#f1f5f9',
-            color: '#0f172a',
-            border: '1px solid #e2e8f0',
+            backgroundColor: 'var(--boost-surface, #f1f5f9)',
+            color: 'var(--boost-text, #0f172a)',
+            border: '1px solid var(--boost-border, #e2e8f0)',
           };
         case 'outline':
           return {
             backgroundColor: 'transparent',
-            color: '#0f172a',
-            border: '1px solid #cbd5e1',
+            color: 'var(--boost-text, #0f172a)',
+            border: '1px solid var(--boost-border, #cbd5e1)',
           };
         case 'ghost':
           return {
             backgroundColor: 'transparent',
-            color: '#0f172a',
+            color: 'var(--boost-text, #0f172a)',
             border: '1px solid transparent',
           };
         case 'destructive':
@@ -62,11 +63,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             backgroundColor: '#dc2626',
             color: '#ffffff',
             border: '1px solid transparent',
+            boxShadow: '0 1px 3px rgba(220, 38, 38, 0.25)',
           };
         case 'link':
           return {
             backgroundColor: 'transparent',
-            color: '#2563eb',
+            color: 'var(--boost-primary, #2563eb)',
             border: 'none',
             padding: 0,
             textDecoration: 'underline',
@@ -81,22 +83,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       switch (size) {
         case 'sm':
           return {
-            padding: '6px 12px',
+            padding: '6px 14px',
             fontSize: '12px',
-            borderRadius: '4px',
+            borderRadius: 'var(--boost-radius, 8px)',
           };
         case 'lg':
           return {
-            padding: '12px 24px',
-            fontSize: '16px',
-            borderRadius: '8px',
+            padding: '13px 26px',
+            fontSize: '15px',
+            borderRadius: 'var(--boost-radius, 12px)',
           };
         case 'md':
         default:
           return {
-            padding: '9px 16px',
+            padding: '9px 18px',
             fontSize: '14px',
-            borderRadius: '6px',
+            borderRadius: 'var(--boost-radius, 10px)',
           };
       }
     };

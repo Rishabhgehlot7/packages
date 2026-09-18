@@ -42,7 +42,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       className={`boost-hero-section ${className}`}
       style={{
         position: 'relative',
-        padding: '72px 24px',
+        padding: 'clamp(48px, 8vw, 96px) clamp(16px, 4vw, 32px)',
         overflow: 'hidden',
         width: '100%',
         boxSizing: 'border-box',
@@ -54,16 +54,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div
           style={{
             position: 'absolute',
-            top: '10%',
-            left: isCenter ? '50%' : '20%',
+            top: '5%',
+            left: isCenter ? '50%' : '30%',
             transform: 'translateX(-50%)',
-            width: '450px',
-            height: '450px',
+            width: 'clamp(280px, 45vw, 600px)',
+            height: 'clamp(280px, 45vw, 600px)',
             borderRadius: '50%',
             background: glowColor,
-            filter: 'blur(120px)',
+            filter: 'blur(clamp(60px, 10vw, 120px))',
             pointerEvents: 'none',
             zIndex: 0,
+            animation: 'boost-pulse 6s ease-in-out infinite alternate',
           }}
         />
       )}
@@ -77,13 +78,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           display: 'flex',
           flexDirection: isCenter ? 'column' : 'row',
           flexWrap: 'wrap',
-          alignItems: isCenter ? 'center' : 'center',
-          justifyContent: 'space-between',
-          gap: '48px',
+          alignItems: 'center',
+          justifyContent: isCenter ? 'center' : 'space-between',
+          gap: 'clamp(32px, 5vw, 56px)',
           textAlign: isCenter ? 'center' : 'left',
         }}
       >
-        <div style={{ maxWidth: isCenter ? '820px' : '620px', width: '100%' }}>
+        <div style={{ maxWidth: isCenter ? '820px' : '620px', width: '100%', flex: isCenter ? 'none' : '1 1 300px' }}>
           {badge && (
             <div
               style={{
@@ -93,11 +94,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 padding: '6px 14px',
                 borderRadius: '9999px',
                 backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                border: '1px solid rgba(37, 99, 235, 0.2)',
+                border: '1px solid rgba(37, 99, 235, 0.22)',
                 color: 'var(--boost-primary, #2563eb)',
                 fontSize: '13px',
                 fontWeight: 600,
                 marginBottom: '20px',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
               }}
             >
               {badge}
@@ -106,12 +109,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           <h1
             style={{
-              fontSize: 'clamp(32px, 5vw, 56px)',
+              fontSize: 'clamp(32px, 5.2vw, 60px)',
               fontWeight: 800,
-              lineHeight: 1.15,
-              letterSpacing: '-0.03em',
+              lineHeight: 1.12,
+              letterSpacing: '-0.035em',
               margin: '0 0 20px 0',
-              color: 'inherit',
+              color: 'var(--boost-text, #0f172a)',
             }}
           >
             {title}
@@ -120,8 +123,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {description && (
             <p
               style={{
-                fontSize: 'clamp(16px, 2vw, 20px)',
-                lineHeight: 1.6,
+                fontSize: 'clamp(15px, 2vw, 19px)',
+                lineHeight: 1.65,
                 color: 'var(--boost-text-muted, #64748b)',
                 margin: '0 0 32px 0',
                 maxWidth: isCenter ? '700px' : '100%',
@@ -138,7 +141,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '14px',
+                gap: '12px',
                 justifyContent: isCenter ? 'center' : 'flex-start',
                 alignItems: 'center',
               }}
@@ -148,16 +151,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   type="button"
                   onClick={primaryAction.onClick}
                   style={{
-                    padding: '12px 26px',
-                    borderRadius: 'var(--boost-radius, 8px)',
+                    padding: '13px 28px',
+                    borderRadius: 'var(--boost-radius, 12px)',
                     backgroundColor: 'var(--boost-primary, #2563eb)',
                     color: '#ffffff',
                     fontSize: '15px',
                     fontWeight: 600,
                     border: 'none',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-                    transition: 'transform 0.15s ease, background-color 0.15s ease',
+                    boxShadow: 'var(--boost-shadow-glow, 0 4px 16px rgba(37, 99, 235, 0.35))',
+                    transition: 'all 0.15s ease',
                   }}
                 >
                   {primaryAction.label}
@@ -169,15 +172,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   type="button"
                   onClick={secondaryAction.onClick}
                   style={{
-                    padding: '12px 26px',
-                    borderRadius: 'var(--boost-radius, 8px)',
-                    backgroundColor: 'transparent',
-                    color: 'inherit',
+                    padding: '13px 28px',
+                    borderRadius: 'var(--boost-radius, 12px)',
+                    backgroundColor: 'var(--boost-surface, transparent)',
+                    color: 'var(--boost-text, inherit)',
                     fontSize: '15px',
                     fontWeight: 600,
                     border: '1px solid var(--boost-border, #cbd5e1)',
                     cursor: 'pointer',
-                    transition: 'background-color 0.15s ease',
+                    transition: 'all 0.15s ease',
                   }}
                 >
                   {secondaryAction.label}
@@ -190,12 +193,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {media && (
           <div
             style={{
-              flex: 1,
+              flex: isCenter ? 'none' : '1 1 320px',
               width: '100%',
-              maxWidth: isCenter ? '900px' : '520px',
+              maxWidth: isCenter ? '900px' : '540px',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
+              borderRadius: 'var(--boost-radius, 16px)',
+              overflow: 'hidden',
             }}
           >
             {media}

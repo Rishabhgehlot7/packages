@@ -30,8 +30,8 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
       className={`boost-feature-grid ${className}`}
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${columns === 2 ? '340px' : '280px'}), 1fr))`,
-        gap: '24px',
+        gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${columns === 2 ? '320px' : '260px'}), 1fr))`,
+        gap: 'clamp(16px, 2.5vw, 28px)',
         width: '100%',
         boxSizing: 'border-box',
         ...style,
@@ -44,30 +44,32 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
           className="boost-feature-card"
           style={{
             boxSizing: 'border-box',
-            padding: '28px',
-            borderRadius: 'var(--boost-radius, 12px)',
+            padding: 'clamp(20px, 3vw, 28px)',
+            borderRadius: 'var(--boost-radius, 16px)',
             backgroundColor: 'var(--boost-surface, #f8fafc)',
             border: '1px solid var(--boost-border, #e2e8f0)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: align === 'center' ? 'center' : 'flex-start',
             textAlign: align,
-            transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+            transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.25s ease',
           }}
         >
           {feature.icon && (
             <div
               style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                width: '52px',
+                height: '52px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(59, 130, 246, 0.05))',
+                border: '1px solid rgba(37, 99, 235, 0.18)',
                 color: 'var(--boost-primary, #2563eb)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '18px',
                 fontSize: '22px',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.1)',
               }}
             >
               {feature.icon}

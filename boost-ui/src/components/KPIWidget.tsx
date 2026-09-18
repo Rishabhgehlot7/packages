@@ -31,15 +31,16 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
     <div
       className={`boost-kpi-widget ${className}`}
       style={{
-        padding: '24px',
-        borderRadius: 'var(--boost-radius, 14px)',
+        padding: 'clamp(16px, 3.5vw, 24px)',
+        borderRadius: 'var(--boost-radius, 16px)',
         backgroundColor: 'var(--boost-surface, #ffffff)',
         border: '1px solid var(--boost-border, #e2e8f0)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+        boxShadow: 'var(--boost-shadow-sm, 0 4px 12px rgba(0, 0, 0, 0.04))',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         ...style,
       }}
       {...props}
@@ -49,14 +50,15 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '16px',
+          marginBottom: '14px',
         }}
       >
         <span
           style={{
-            fontSize: '14px',
-            fontWeight: 500,
-            color: 'var(--boost-text-muted, #64748b)',
+            fontSize: '13px',
+            fontWeight: 600,
+            color: 'var(--boost-muted, #64748b)',
+            letterSpacing: '-0.01em',
           }}
         >
           {title}
@@ -66,13 +68,14 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
             style={{
               width: '36px',
               height: '36px',
-              borderRadius: '8px',
-              backgroundColor: 'rgba(37, 99, 235, 0.08)',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(59, 130, 246, 0.08)',
               color: 'var(--boost-primary, #2563eb)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '18px',
+              flexShrink: 0,
             }}
           >
             {icon}
@@ -83,10 +86,11 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
       <div style={{ marginBottom: '12px' }}>
         <div
           style={{
-            fontSize: '32px',
+            fontSize: 'clamp(24px, 4vw, 32px)',
             fontWeight: 800,
             color: 'var(--boost-text, #0f172a)',
-            lineHeight: 1.1,
+            lineHeight: 1.15,
+            letterSpacing: '-0.02em',
           }}
         >
           {value}
@@ -111,8 +115,8 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
                 gap: '3px',
                 fontSize: '12px',
                 fontWeight: 700,
-                padding: '2px 6px',
-                borderRadius: '4px',
+                padding: '3px 8px',
+                borderRadius: '999px',
                 backgroundColor: isPositive ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
                 color: isPositive ? '#16a34a' : '#dc2626',
               }}

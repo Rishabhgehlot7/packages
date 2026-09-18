@@ -45,7 +45,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             style={{
               fontSize: '13px',
               fontWeight: 600,
-              color: '#334155',
+              color: 'var(--boost-text, #334155)',
+              letterSpacing: '-0.01em',
             }}
           >
             {label}
@@ -66,7 +67,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 position: 'absolute',
                 left: '12px',
                 display: 'inline-flex',
-                color: '#64748b',
+                color: 'var(--boost-muted, #64748b)',
                 pointerEvents: 'none',
               }}
             >
@@ -80,15 +81,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             style={{
               width: '100%',
-              paddingTop: '8px',
-              paddingBottom: '8px',
-              paddingLeft: leftIcon ? '36px' : '12px',
-              paddingRight: rightIcon ? '36px' : '12px',
+              paddingTop: '10px',
+              paddingBottom: '10px',
+              paddingLeft: leftIcon ? '38px' : '14px',
+              paddingRight: rightIcon ? '38px' : '14px',
               fontSize: '14px',
-              color: '#0f172a',
-              backgroundColor: disabled ? '#f8fafc' : '#ffffff',
-              border: `1px solid ${error ? '#ef4444' : '#cbd5e1'}`,
-              borderRadius: '6px',
+              color: 'var(--boost-text, #0f172a)',
+              backgroundColor: disabled ? 'rgba(0, 0, 0, 0.03)' : 'var(--boost-bg, #ffffff)',
+              border: `1px solid ${error ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
+              borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',
               transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
               boxSizing: 'border-box',
@@ -103,7 +104,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 position: 'absolute',
                 right: '12px',
                 display: 'inline-flex',
-                color: '#64748b',
+                color: 'var(--boost-muted, #64748b)',
               }}
             >
               {rightIcon}
@@ -112,11 +113,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error ? (
-          <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 500 }}>
+          <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}>
             {error}
           </span>
         ) : helperText ? (
-          <span style={{ fontSize: '12px', color: '#64748b' }}>
+          <span style={{ fontSize: '12px', color: 'var(--boost-muted, #64748b)' }}>
             {helperText}
           </span>
         ) : null}

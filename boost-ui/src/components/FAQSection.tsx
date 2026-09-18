@@ -155,11 +155,12 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
               <div
                 key={idx}
                 style={{
-                  borderRadius: 'var(--boost-radius, 10px)',
-                  border: '1px solid var(--boost-border, #e2e8f0)',
+                  borderRadius: 'var(--boost-radius, 14px)',
+                  border: isOpen ? '1px solid var(--boost-primary, #2563eb)' : '1px solid var(--boost-border, #e2e8f0)',
                   backgroundColor: 'var(--boost-surface, #f8fafc)',
                   overflow: 'hidden',
-                  transition: 'border-color 0.2s ease',
+                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  boxShadow: isOpen ? '0 4px 16px rgba(37, 99, 235, 0.08)' : 'none',
                 }}
               >
                 <button
@@ -167,7 +168,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
                   onClick={() => toggleItem(idx)}
                   style={{
                     width: '100%',
-                    padding: '20px 24px',
+                    padding: 'clamp(14px, 2.5vw, 20px) clamp(16px, 3vw, 24px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -176,38 +177,56 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
                     border: 'none',
                     textAlign: 'left',
                     cursor: 'pointer',
-                    color: 'var(--boost-text, #0f172a)',
-                    fontSize: '16px',
+                    color: isOpen ? 'var(--boost-primary, #2563eb)' : 'var(--boost-text, #0f172a)',
+                    fontSize: 'clamp(14px, 1.6vw, 16px)',
                     fontWeight: 600,
+                    transition: 'color 0.15s ease',
                   }}
                 >
                   <span>{item.question}</span>
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
+                  <span
                     style={{
-                      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s ease',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '9999px',
+                      backgroundColor: isOpen ? 'rgba(37, 99, 235, 0.1)' : 'transparent',
+                      color: isOpen ? 'var(--boost-primary, #2563eb)' : 'var(--boost-text-muted, #64748b)',
                       flexShrink: 0,
+                      transition: 'all 0.2s ease',
                     }}
                   >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{
+                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                      }}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </span>
                 </button>
 
                 {isOpen && (
                   <div
                     style={{
-                      padding: '0 24px 20px 24px',
+                      padding: '0 clamp(16px, 3vw, 24px) clamp(14px, 2.5vw, 20px) clamp(16px, 3vw, 24px)',
                       color: 'var(--boost-text-muted, #64748b)',
                       fontSize: '14px',
                       lineHeight: 1.65,
                       borderTop: '1px solid var(--boost-border, #e2e8f0)',
-                      paddingTop: '16px',
+                      paddingTop: '14px',
+                      animation: 'boost-fadeIn 0.2s ease',
                     }}
                   >
                     {item.answer}

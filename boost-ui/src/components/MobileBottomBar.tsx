@@ -36,7 +36,7 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
   const barItems = items || defaultItems;
 
   const renderIcon = (type: MobileBottomBarItem['icon'], isActive: boolean) => {
-    const stroke = isActive ? '#111827' : '#6b7280';
+    const stroke = isActive ? 'var(--boost-primary, #0f172a)' : 'var(--boost-muted, #64748b)';
     const strokeWidth = isActive ? '2.3' : '1.8';
 
     switch (type) {
@@ -97,15 +97,15 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
         left: 0,
         right: 0,
         zIndex: 50,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderTop: '1px solid #f3f4f6',
+        backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.9))',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.7))',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        padding: '8px 4px calc(8px + env(safe-area-inset-bottom, 0px))',
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)',
+        padding: '6px 4px calc(6px + env(safe-area-inset-bottom, 8px))',
+        boxShadow: 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
       }}
     >
       {barItems.map((item) => {

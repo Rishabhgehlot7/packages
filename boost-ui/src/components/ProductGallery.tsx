@@ -66,112 +66,201 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     aspectRatio: aspectRatio === 'portrait' ? '4/5' : aspectRatio === 'square' ? '1/1' : '16/9',
   };
 
-  const isThumbnailsLeft = layout === 'thumbnails-left';
+    const [isMobile, setIsMobile] = React.useState(false);
 
-  return (
-    <div
-      className={`boost-product-gallery ${className}`}
-      style={{
-        display: 'flex',
-        flexDirection: isThumbnailsLeft ? 'row-reverse' : 'column',
-        gap: '12px',
-        fontFamily: 'inherit',
-      }}
-    >
-      {/* Main Image Showcase */}
+    React.useEffect(() => {
+      if (typeof window === 'undefined') return;
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const isThumbnailsLeft = layout === 'thumbnails-left' && !isMobile;
+
+    const handlePrev = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : normalizedImages.length - 1));
+    };
+
+    const handleNext = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setSelectedIndex((prev) => (prev < normalizedImages.length - 1 ? prev + 1 : 0));
+    };
+
+    return (
       <div
+        className={`boost-product-gallery ${className}`}
         style={{
-          ...ratioStyle,
-          position: 'relative',
+          display: 'flex',
+          flexDirection: isThumbnailsLeft ? 'row-reverse' : 'column',
+          gap: 'clamp(8px, 1.5vw, 14px)',
+          fontFamily: 'inherit',
           width: '100%',
-          flex: isThumbnailsLeft ? '1 1 0%' : undefined,
-          minWidth: 0,
-          boxSizing: 'border-box',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          backgroundColor: '#f9fafb',
-          border: '1px solid #f3f4f6',
-          cursor: enableZoom ? 'crosshair' : 'default',
         }}
-        onMouseEnter={() => enableZoom && setIsHovered(true)}
-        onMouseLeave={() => enableZoom && setIsHovered(false)}
-        onMouseMove={handleMouseMove}
       >
-        <img
-          src={normalizedImages[selectedIndex]}
-          alt={`${title} - view ${selectedIndex + 1}`}
+        {/* Main Image Showcase */}
+        <div
           style={{
+            ...ratioStyle,
+            position: 'relative',
             width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: isHovered ? 'none' : 'transform 0.3s ease',
-            transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-            transform: isHovered ? 'scale(2.2)' : 'scale(1)',
+            flex: isThumbnailsLeft ? '1 1 0%' : undefined,
+            minWidth: 0,
+            boxSizing: 'border-box',
+            borderRadius: 'var(--boost-radius, 16px)',
+            overflow: 'hidden',
+            backgroundColor: 'var(--boost-surface, #f8fafc)',
+            border: '1px solid var(--boost-border, #e2e8f0)',
+            cursor: enableZoom ? 'crosshair' : 'default',
           }}
-        />
+          onMouseEnter={() => enableZoom && setIsHovered(true)}
+          onMouseLeave={() => enableZoom && setIsHovered(false)}
+          onMouseMove={handleMouseMove}
+        >
+          <img
+            src={normalizedImages[selectedIndex]}
+            alt={`${title} - view ${selectedIndex + 1}`}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transition: isHovered ? 'none' : 'transform 0.3s ease',
+              transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+              transform: isHovered ? 'scale(2.2)' : 'scale(1)',
+            }}
+          />
 
-        {/* Counter Badge */}
+          {/* Navigation Arrows for Mobile / Touch */}
+          {normalizedImages.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={handlePrev}
+                style={{
+                  position: 'absolute',
+                  left: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  backdropFilter: 'blur(6px)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  color: '#0f172a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  zIndex: 3,
+                  transition: 'background-color 0.15s ease',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={handleNext}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '9999px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  backdropFilter: 'blur(6px)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  color: '#0f172a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  zIndex: 3,
+                  transition: 'background-color 0.15s ease',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </>
+          )}
+
+          {/* Counter Badge */}
+          {normalizedImages.length > 1 && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '12px',
+                right: '12px',
+                backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                color: '#ffffff',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '3px 9px',
+                borderRadius: '999px',
+                pointerEvents: 'none',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                zIndex: 2,
+              }}
+            >
+              {selectedIndex + 1} / {normalizedImages.length}
+            </div>
+          )}
+        </div>
+
+        {/* Thumbnails Row / Column */}
         {normalizedImages.length > 1 && (
           <div
             style={{
-              position: 'absolute',
-              bottom: '12px',
-              right: '12px',
-              backgroundColor: 'rgba(0, 0, 0, 0.65)',
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: 700,
-              padding: '3px 8px',
-              borderRadius: '999px',
-              pointerEvents: 'none',
-              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              flexDirection: isThumbnailsLeft ? 'column' : 'row',
+              gap: '8px',
+              overflowX: isThumbnailsLeft ? 'hidden' : 'auto',
+              overflowY: isThumbnailsLeft ? 'auto' : 'hidden',
+              paddingBottom: isThumbnailsLeft ? '0' : '4px',
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
             }}
           >
-            {selectedIndex + 1} / {normalizedImages.length}
+            {normalizedImages.map((img, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setSelectedIndex(idx)}
+                style={{
+                  width: isThumbnailsLeft ? '64px' : 'clamp(58px, 12vw, 74px)',
+                  height: isThumbnailsLeft ? '80px' : 'clamp(58px, 12vw, 74px)',
+                  flexShrink: 0,
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  border: selectedIndex === idx ? '2px solid var(--boost-primary, #2563eb)' : '2px solid transparent',
+                  opacity: selectedIndex === idx ? 1 : 0.6,
+                  boxShadow: selectedIndex === idx ? '0 0 0 2px rgba(37, 99, 235, 0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  padding: 0,
+                  backgroundColor: 'var(--boost-surface, #f8fafc)',
+                }}
+              >
+                <img src={img} alt={`Thumb ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </button>
+            ))}
           </div>
         )}
       </div>
-
-      {/* Thumbnails Row / Column */}
-      {normalizedImages.length > 1 && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: isThumbnailsLeft ? 'column' : 'row',
-            gap: '8px',
-            overflowX: isThumbnailsLeft ? 'hidden' : 'auto',
-            overflowY: isThumbnailsLeft ? 'auto' : 'hidden',
-            paddingBottom: isThumbnailsLeft ? '0' : '4px',
-            scrollbarWidth: 'none',
-          }}
-        >
-          {normalizedImages.map((img, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setSelectedIndex(idx)}
-              style={{
-                width: isThumbnailsLeft ? '64px' : '72px',
-                height: isThumbnailsLeft ? '80px' : '72px',
-                flexShrink: 0,
-                borderRadius: '10px',
-                overflow: 'hidden',
-                border: selectedIndex === idx ? '2px solid #000000' : '2px solid transparent',
-                opacity: selectedIndex === idx ? 1 : 0.65,
-                transition: 'all 0.2s ease',
-                cursor: 'pointer',
-                padding: 0,
-                backgroundColor: '#f3f4f6',
-              }}
-            >
-              <img src={img} alt={`Thumb ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+    );
+  };
 
 
 ProductGallery.displayName = 'ProductGallery';

@@ -56,7 +56,7 @@ export const CTASection: React.FC<CTASectionProps> = ({
       className={`boost-cta-section ${className}`}
       style={{
         width: '100%',
-        padding: isCard ? '40px 20px' : '80px 24px',
+        padding: isCard ? 'clamp(24px, 4vw, 48px) clamp(14px, 3vw, 24px)' : 'clamp(48px, 8vw, 84px) clamp(16px, 4vw, 32px)',
         boxSizing: 'border-box',
         ...style,
       }}
@@ -66,15 +66,17 @@ export const CTASection: React.FC<CTASectionProps> = ({
         style={{
           maxWidth: isCard ? '1100px' : '100%',
           margin: '0 auto',
-          borderRadius: isCard ? 'var(--boost-radius, 20px)' : '0px',
+          borderRadius: isCard ? 'var(--boost-radius, 24px)' : '0px',
           background: isGradient
             ? 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)'
             : 'var(--boost-primary, #2563eb)',
           color: '#ffffff',
-          padding: '56px 36px',
+          padding: 'clamp(36px, 6vw, 60px) clamp(20px, 4vw, 48px)',
           textAlign: 'center',
-          boxShadow: isCard ? '0 20px 40px rgba(37, 99, 235, 0.25)' : 'none',
+          boxShadow: isCard ? 'var(--boost-shadow-glow, 0 20px 40px rgba(37, 99, 235, 0.25))' : 'none',
           boxSizing: 'border-box',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {badge && (

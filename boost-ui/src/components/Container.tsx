@@ -30,8 +30,8 @@ export const Container: React.FC<ContainerProps> = ({
         maxWidth: getMaxWidth(),
         marginLeft: 'auto',
         marginRight: 'auto',
-        paddingLeft: '16px',
-        paddingRight: '16px',
+        paddingLeft: 'clamp(16px, 3.5vw, 32px)',
+        paddingRight: 'clamp(16px, 3.5vw, 32px)',
         boxSizing: 'border-box',
         ...style,
       }}

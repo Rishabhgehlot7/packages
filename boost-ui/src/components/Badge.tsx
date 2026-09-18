@@ -18,18 +18,18 @@ export const Badge: React.FC<BadgeProps> = ({
   const getTheme = () => {
     switch (variant) {
       case 'secondary':
-        return { bg: '#f1f5f9', color: '#334155', border: '1px solid #e2e8f0' };
+        return { bg: 'var(--boost-surface, #f1f5f9)', color: 'var(--boost-text, #334155)', border: '1px solid var(--boost-border, #e2e8f0)' };
       case 'outline':
-        return { bg: 'transparent', color: '#0f172a', border: '1px solid #cbd5e1' };
+        return { bg: 'transparent', color: 'var(--boost-text, #0f172a)', border: '1px solid var(--boost-border, #cbd5e1)' };
       case 'success':
-        return { bg: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' };
+        return { bg: 'rgba(34, 197, 94, 0.12)', color: '#16a34a', border: '1px solid rgba(34, 197, 94, 0.25)' };
       case 'destructive':
-        return { bg: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' };
+        return { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)' };
       case 'warning':
-        return { bg: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' };
+        return { bg: 'rgba(245, 158, 11, 0.12)', color: '#d97706', border: '1px solid rgba(245, 158, 11, 0.25)' };
       case 'default':
       default:
-        return { bg: '#2563eb', color: '#ffffff', border: '1px solid transparent' };
+        return { bg: 'var(--boost-primary, #2563eb)', color: '#ffffff', border: '1px solid transparent' };
     }
   };
 

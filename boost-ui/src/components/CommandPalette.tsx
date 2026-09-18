@@ -83,13 +83,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        paddingTop: '12vh',
+        paddingTop: 'clamp(24px, 8vh, 80px)',
+        paddingLeft: 'clamp(8px, 3vw, 16px)',
+        paddingRight: 'clamp(8px, 3vw, 16px)',
         zIndex: 9999,
+        boxSizing: 'border-box',
       }}
       onClick={onClose}
     >
@@ -98,14 +102,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         style={{
           width: '100%',
           maxWidth: '580px',
-          backgroundColor: 'var(--boost-bg, #ffffff)',
-          borderRadius: 'var(--boost-radius, 14px)',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.25)',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderRadius: 'var(--boost-radius, 16px)',
+          boxShadow: 'var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))',
           border: '1px solid var(--boost-border, #e2e8f0)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          margin: '0 16px',
+          boxSizing: 'border-box',
         }}
         onClick={(e) => e.stopPropagation()}
       >

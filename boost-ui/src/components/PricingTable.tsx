@@ -160,36 +160,37 @@ export const PricingTable: React.FC<PricingTableProps> = ({
               style={{
                 position: 'relative',
                 boxSizing: 'border-box',
-                padding: '36px 30px',
+                padding: 'clamp(24px, 4vw, 36px) clamp(20px, 3vw, 30px)',
                 borderRadius: 'var(--boost-radius, 16px)',
                 backgroundColor: 'var(--boost-surface, #ffffff)',
                 border: isPop
                   ? '2px solid var(--boost-primary, #2563eb)'
                   : '1px solid var(--boost-border, #e2e8f0)',
                 boxShadow: isPop
-                  ? '0 12px 32px rgba(37, 99, 235, 0.12)'
-                  : '0 4px 12px rgba(0, 0, 0, 0.03)',
+                  ? 'var(--boost-shadow-glow, 0 16px 36px rgba(37, 99, 235, 0.18))'
+                  : 'var(--boost-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04))',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
               }}
             >
               {isPop && (
                 <div
                   style={{
                     position: 'absolute',
-                    top: '-12px',
+                    top: '-13px',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     backgroundColor: 'var(--boost-primary, #2563eb)',
                     color: '#ffffff',
-                    fontSize: '12px',
+                    fontSize: '11px',
                     fontWeight: 700,
                     padding: '4px 14px',
                     borderRadius: '9999px',
-                    letterSpacing: '0.04em',
+                    letterSpacing: '0.05em',
                     textTransform: 'uppercase',
+                    boxShadow: '0 2px 10px rgba(37, 99, 235, 0.4)',
                   }}
                 >
                   {tier.popularLabel || 'Most Popular'}
@@ -214,6 +215,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                       color: 'var(--boost-text-muted, #64748b)',
                       margin: '0 0 24px 0',
                       minHeight: '40px',
+                      lineHeight: 1.5,
                     }}
                   >
                     {tier.description}
@@ -230,7 +232,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                 >
                   <span
                     style={{
-                      fontSize: '44px',
+                      fontSize: 'clamp(36px, 4vw, 46px)',
                       fontWeight: 800,
                       color: 'var(--boost-text, #0f172a)',
                       lineHeight: 1,
@@ -241,6 +243,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                   <span
                     style={{
                       fontSize: '14px',
+                      fontWeight: 500,
                       color: 'var(--boost-text-muted, #64748b)',
                     }}
                   >
@@ -262,7 +265,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                       margin: 0,
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '12px',
+                      gap: '13px',
                     }}
                   >
                     {tier.features.map((feat, fIdx) => {
@@ -283,25 +286,38 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                             opacity: included ? 1 : 0.6,
                           }}
                         >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke={included ? 'var(--boost-primary, #2563eb)' : '#94a3b8'}
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '9999px',
+                              backgroundColor: included ? 'rgba(37, 99, 235, 0.1)' : 'rgba(148, 163, 184, 0.1)',
+                              flexShrink: 0,
+                            }}
                           >
-                            {included ? (
-                              <polyline points="20 6 9 17 4 12" />
-                            ) : (
-                              <>
-                                <line x1="18" y1="6" x2="6" y2="18" />
-                                <line x1="6" y1="6" x2="18" y2="18" />
-                              </>
-                            )}
-                          </svg>
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke={included ? 'var(--boost-primary, #2563eb)' : '#94a3b8'}
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              {included ? (
+                                <polyline points="20 6 9 17 4 12" />
+                              ) : (
+                                <>
+                                  <line x1="18" y1="6" x2="6" y2="18" />
+                                  <line x1="6" y1="6" x2="18" y2="18" />
+                                </>
+                              )}
+                            </svg>
+                          </span>
                           <span>{text}</span>
                         </li>
                       );
@@ -317,23 +333,25 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                 style={{
                   width: '100%',
                   padding: '13px',
-                  borderRadius: 'var(--boost-radius, 8px)',
+                  borderRadius: 'var(--boost-radius, 10px)',
                   backgroundColor: isPop
                     ? 'var(--boost-primary, #2563eb)'
-                    : 'var(--boost-bg, #ffffff)',
+                    : 'var(--boost-bg, #f8fafc)',
                   color: isPop ? '#ffffff' : 'var(--boost-text, #0f172a)',
                   border: isPop
                     ? 'none'
-                    : '1px solid var(--boost-border, #cbd5e1)',
-                  fontSize: '14px',
+                    : '1px solid var(--boost-border, #e2e8f0)',
                   fontWeight: 600,
+                  fontSize: '14px',
                   cursor: tier.disabled ? 'not-allowed' : 'pointer',
-                  opacity: tier.disabled ? 0.6 : 1,
-                  boxShadow: isPop ? '0 4px 12px rgba(37, 99, 235, 0.3)' : 'none',
+                  opacity: tier.disabled ? 0.5 : 1,
+                  boxShadow: isPop
+                    ? 'var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.3))'
+                    : 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
-                {tier.ctaText || 'Get Started'}
+                {tier.ctaText || (isPop ? 'Get Started Now' : 'Choose Plan')}
               </button>
             </div>
           );

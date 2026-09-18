@@ -95,57 +95,145 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
         zIndex: 1000,
         display: 'flex',
         justifyContent: 'flex-end',
+        alignItems: 'flex-end',
         fontFamily: 'inherit',
+        animation: 'boost-fadeIn 0.2s ease',
       }}
       onClick={onClose}
     >
+      <style>{`
+        @media (max-width: 640px) {
+          .boost-cart-drawer-panel {
+            max-height: 92vh !important;
+            border-top-left-radius: 20px !important;
+            border-top-right-radius: 20px !important;
+            animation: boost-slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          }
+        }
+        @media (min-width: 641px) {
+          .boost-cart-drawer-panel {
+            height: 100% !important;
+            animation: boost-slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          }
+        }
+        @keyframes boost-slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
       <div
+        className="boost-cart-drawer-panel"
         style={{
           width: '100%',
-          maxWidth: '420px',
-          height: '100%',
-          backgroundColor: '#ffffff',
+          maxWidth: '440px',
+          backgroundColor: 'var(--boost-bg, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '-4px 0 25px rgba(0, 0, 0, 0.15)',
+          boxShadow: 'var(--boost-shadow-lg, -4px 0 32px rgba(0, 0, 0, 0.2))',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
         }}
         onClick={(e: any) => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#111827' }}>
-            Your Cart ({items.reduce((s, i) => s + i.quantity, 0)})
-          </h2>
+        <div
+          style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--boost-border, #e2e8f0)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: 'var(--boost-surface, #f8fafc)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: 'var(--boost-text, #0f172a)' }}>
+              Your Cart
+            </h2>
+            <span
+              style={{
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                color: 'var(--boost-primary, #2563eb)',
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: 700,
+              }}
+            >
+              {items.reduce((s, i) => s + i.quantity, 0)}
+            </span>
+          </div>
           <button
             onClick={onClose}
             aria-label="Close Cart Drawer"
-            style={{ background: 'transparent', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#6b7280' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'var(--boost-text-muted, #64748b)',
+              fontSize: '18px',
+              transition: 'background-color 0.15s ease',
+            }}
           >
             ✕
           </button>
         </div>
 
         {/* Free Shipping Progress Bar */}
-        <div style={{ padding: '12px 20px', backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: isFreeShippingUnlocked ? '#16a34a' : '#374151', marginBottom: '6px' }}>
+        <div
+          style={{
+            padding: '12px 20px',
+            backgroundColor: 'var(--boost-surface, #f8fafc)',
+            borderBottom: '1px solid var(--boost-border, #e2e8f0)',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: isFreeShippingUnlocked ? '#16a34a' : 'var(--boost-text, #374151)',
+              marginBottom: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
             {isFreeShippingUnlocked ? (
-              'You unlocked FREE Delivery!'
+              <span>🎉 You unlocked <strong>FREE Delivery</strong>!</span>
             ) : (
-              `Add ₹${amountRemaining.toFixed(0)} more for FREE Delivery!`
+              <span>Add <strong>₹{amountRemaining.toFixed(0)}</strong> more for FREE Delivery!</span>
             )}
           </div>
-          <div style={{ width: '100%', height: '6px', backgroundColor: '#e5e7eb', borderRadius: '999px', overflow: 'hidden' }}>
+          <div
+            style={{
+              width: '100%',
+              height: '6px',
+              backgroundColor: 'var(--boost-border, #e2e8f0)',
+              borderRadius: '999px',
+              overflow: 'hidden',
+            }}
+          >
             <div
               style={{
                 width: `${progressPercent}%`,
                 height: '100%',
-                backgroundColor: isFreeShippingUnlocked ? '#16a34a' : '#2563eb',
-                transition: 'width 0.3s ease',
+                background: isFreeShippingUnlocked
+                  ? 'linear-gradient(90deg, #16a34a, #22c55e)'
+                  : 'linear-gradient(90deg, #2563eb, #3b82f6)',
+                borderRadius: '999px',
+                transition: 'width 0.4s ease',
               }}
             />
           </div>
@@ -154,70 +242,157 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         {/* Items List */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
           {items.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280' }}>
-              <div style={{ display: 'inline-flex', marginBottom: '12px', color: '#9ca3af' }}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--boost-text-muted, #64748b)' }}>
+              <div style={{ display: 'inline-flex', marginBottom: '14px', color: 'var(--boost-text-muted, #94a3b8)' }}>
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                   <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <path d="M16 10a4 4 0 0 1-8 0" />
                 </svg>
               </div>
-              <p style={{ fontSize: '15px', fontWeight: 600 }}>Your cart is empty</p>
+              <p style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--boost-text, #0f172a)' }}>
+                Your cart is empty
+              </p>
+              <p style={{ fontSize: '13px', margin: '0 0 20px 0' }}>Looks like you haven't added anything yet.</p>
               <button
                 onClick={onClose}
-                style={{ marginTop: '12px', background: '#000', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                style={{
+                  backgroundColor: 'var(--boost-primary, #2563eb)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 22px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  boxShadow: 'var(--boost-shadow-glow, 0 4px 12px rgba(37, 99, 235, 0.25))',
+                }}
               >
                 Start Shopping
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {items.map((item) => (
-                <div key={item.id} style={{ display: 'flex', gap: '12px', alignItems: 'center', borderBottom: '1px solid #f3f4f6', paddingBottom: '12px' }}>
+                <div
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'center',
+                    borderBottom: '1px solid var(--boost-border, #e2e8f0)',
+                    paddingBottom: '14px',
+                  }}
+                >
                   {item.image && (
                     <img
                       src={item.image}
                       alt={item.title}
-                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }}
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        objectFit: 'cover',
+                        borderRadius: '10px',
+                        border: '1px solid var(--boost-border, #e2e8f0)',
+                        backgroundColor: 'var(--boost-surface, #f8fafc)',
+                      }}
                     />
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        color: 'var(--boost-text, #0f172a)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
                       {item.title}
                     </div>
                     {item.variantTitle && (
-                      <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.variantTitle}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)', marginTop: '2px' }}>
+                        {item.variantTitle}
+                      </div>
                     )}
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#111827', marginTop: '4px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--boost-text, #0f172a)', marginTop: '4px' }}>
                       ₹{item.price}
                     </div>
                   </div>
 
                   {/* Quantity controls */}
-                  <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #d1d5db', borderRadius: '6px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: '1px solid var(--boost-border, #e2e8f0)',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      backgroundColor: 'var(--boost-surface, #f8fafc)',
+                    }}
+                  >
                     <button
+                      type="button"
                       onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
                       aria-label="Decrease Quantity"
-                      style={{ padding: '4px 8px', border: 'none', background: '#f9fafb', cursor: 'pointer', fontSize: '12px' }}
+                      style={{
+                        padding: '6px 10px',
+                        border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: 'var(--boost-text, #0f172a)',
+                      }}
                     >
                       -
                     </button>
-                    <span style={{ padding: '4px 8px', fontSize: '12px', fontWeight: 600 }}>
+                    <span
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: 'var(--boost-text, #0f172a)',
+                        minWidth: '20px',
+                        textAlign: 'center',
+                      }}
+                    >
                       {item.quantity}
                     </span>
                     <button
+                      type="button"
                       onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                       aria-label="Increase Quantity"
-                      style={{ padding: '4px 8px', border: 'none', background: '#f9fafb', cursor: 'pointer', fontSize: '12px' }}
+                      style={{
+                        padding: '6px 10px',
+                        border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: 'var(--boost-text, #0f172a)',
+                      }}
                     >
                       +
                     </button>
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => onRemoveItem(item.id)}
                     aria-label="Remove item from cart"
-                    style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--boost-text-muted, #94a3b8)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '6px',
+                      borderRadius: '6px',
+                      transition: 'color 0.15s ease',
+                    }}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="3 6 5 6 21 6" />
@@ -232,27 +407,37 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
         {/* Footer Checkout */}
         {items.length > 0 && (
-          <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#fafafa' }}>
-            <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ fontSize: '14px', color: '#4b5563' }}>Subtotal:</span>
-              <span style={{ fontSize: '18px', fontWeight: 800, color: '#111827' }}>₹{subtotal.toFixed(2)}</span>
+          <div
+            style={{
+              padding: '16px 20px',
+              borderTop: '1px solid var(--boost-border, #e2e8f0)',
+              backgroundColor: 'var(--boost-surface, #f8fafc)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '14px' }}>
+              <span style={{ fontSize: '14px', color: 'var(--boost-text-muted, #64748b)' }}>Subtotal:</span>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--boost-text, #0f172a)' }}>
+                ₹{subtotal.toFixed(2)}
+              </span>
             </div>
 
             <button
+              type="button"
               onClick={handleCheckoutClick}
               disabled={isCheckingOut}
               style={{
                 width: '100%',
-                backgroundColor: isCheckingOut ? '#374151' : '#000000',
+                backgroundColor: 'var(--boost-primary, #2563eb)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '12px',
                 padding: '14px',
                 fontSize: '15px',
                 fontWeight: 700,
                 cursor: isCheckingOut ? 'not-allowed' : 'pointer',
-                opacity: isCheckingOut ? 0.8 : 1,
-                transition: 'all 0.2s ease',
+                opacity: isCheckingOut ? 0.7 : 1,
+                boxShadow: 'var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.35))',
+                transition: 'all 0.15s ease',
               }}
             >
               {isCheckingOut ? 'Securing Order...' : 'Proceed to Checkout →'}

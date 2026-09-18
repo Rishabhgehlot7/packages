@@ -209,7 +209,7 @@ export { BackButton } from './components/BackButton';
 export type { BoxProps, BoxAsTag } from './components/Box';
 export type { FlexProps } from './components/Flex';
 export type { StackProps, VStackProps, HStackProps } from './components/Stack';
-export type { GridProps, GridItemProps } from './components/Grid';
+export type { GridProps, GridItemProps, ResponsiveBreakpoints } from './components/Grid';
 export type { SectionProps } from './components/Section';
 export type { AspectRatioProps } from './components/AspectRatio';
 export type { ScrollAreaProps } from './components/ScrollArea';
