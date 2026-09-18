@@ -108,6 +108,7 @@ if (typeof document !== 'undefined') {
 
 export interface BoostProviderProps {
   children: React.ReactNode;
+  mode?: ThemeMode;
   defaultMode?: ThemeMode;
   tokens?: ThemeTokens;
   darkTokens?: ThemeTokens;
@@ -116,12 +117,14 @@ export interface BoostProviderProps {
 
 export const BoostProvider: React.FC<BoostProviderProps> = ({
   children,
+  mode: controlledMode,
   defaultMode = 'system',
   tokens = {},
   darkTokens = {},
   className = '',
 }) => {
-  const [mode, setModeState] = React.useState<ThemeMode>(defaultMode);
+  const [internalMode, setInternalMode] = React.useState<ThemeMode>(defaultMode);
+  const mode = controlledMode !== undefined ? controlledMode : internalMode;
   const [systemIsDark, setSystemIsDark] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -144,11 +147,12 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
   }, [resolvedMode, tokens, darkTokens]);
 
   const toggleMode = () => {
-    setModeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    const nextMode = resolvedMode === 'dark' ? 'light' : 'dark';
+    setInternalMode(nextMode);
   };
 
   const setMode = (newMode: ThemeMode) => {
-    setModeState(newMode);
+    setInternalMode(newMode);
   };
 
   // Inject CSS Variables for zero-config theming
