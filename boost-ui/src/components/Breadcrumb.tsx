@@ -3,62 +3,106 @@ import * as React from 'react';
 export interface BreadcrumbItem {
   label: string;
   href?: string;
+  icon?: React.ReactNode;
 }
 
 export interface BreadcrumbProps {
   items: BreadcrumbItem[];
   separator?: React.ReactNode;
+  onItemClick?: (href: string, item: BreadcrumbItem) => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   items,
   separator,
+  onItemClick,
   className = '',
+  style,
 }) => {
   const defaultSeparator = (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, margin: '0 4px', flexShrink: 0 }}>
       <polyline points="9 18 15 12 9 6" />
     </svg>
   );
 
   return (
-    <nav aria-label="Breadcrumb" className={`boost-breadcrumb ${className}`} style={{ fontFamily: 'inherit' }}>
-      <ol style={{ display: 'flex', alignItems: 'center', gap: '8px', listStyle: 'none', padding: 0, margin: 0 }}>
-        {items.map((item, idx) => {
-          const isLast = idx === items.length - 1;
+    <nav
+      aria-label="Breadcrumb"
+      className={`boost-breadcrumb ${className}`}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '4px',
+        fontSize: '13px',
+        fontFamily: 'inherit',
+        color: 'var(--boost-text-muted, #64748b)',
+        ...style,
+      }}
+    >
+      {items.map((item, index) => {
+        const isLast = index === items.length - 1;
 
-          return (
-            <li key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-              {isLast || !item.href ? (
-                <span style={{ fontWeight: 600, color: '#0f172a' }}>
-                  {item.label}
-                </span>
-              ) : (
+        return (
+          <React.Fragment key={index}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {item.href && !isLast ? (
                 <a
                   href={item.href}
+                  onClick={(e) => {
+                    if (onItemClick) {
+                      e.preventDefault();
+                      onItemClick(item.href!, item);
+                    }
+                  }}
                   style={{
-                    color: '#64748b',
+                    color: 'var(--boost-text-muted, #64748b)',
                     textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontWeight: 500,
                     transition: 'color 0.15s ease',
                   }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.color = 'var(--boost-primary, #2563eb)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.color = 'var(--boost-text-muted, #64748b)';
+                  }}
                 >
-                  {item.label}
+                  {item.icon && <span style={{ display: 'inline-flex' }}>{item.icon}</span>}
+                  <span>{item.label}</span>
                 </a>
-              )}
-
-              {!isLast && (
-                <span style={{ display: 'inline-flex' }}>
-                  {separator || defaultSeparator}
+              ) : (
+                <span
+                  style={{
+                    color: isLast ? 'var(--boost-text, #0f172a)' : 'var(--boost-text-muted, #64748b)',
+                    fontWeight: isLast ? 600 : 500,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                  aria-current={isLast ? 'page' : undefined}
+                >
+                  {item.icon && <span style={{ display: 'inline-flex' }}>{item.icon}</span>}
+                  <span>{item.label}</span>
                 </span>
               )}
-            </li>
-          );
-        })}
-      </ol>
+            </div>
+
+            {!isLast && (
+              <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                {separator || defaultSeparator}
+              </span>
+            )}
+          </React.Fragment>
+        );
+      })}
     </nav>
   );
 };
-
 
 Breadcrumb.displayName = 'Breadcrumb';

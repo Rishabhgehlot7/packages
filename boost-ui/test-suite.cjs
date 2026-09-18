@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ui = require('./dist/index.cjs');
 
-console.log('🧪 Running @boostengine/ui Test Suite v1.4.0...\n');
+console.log('🧪 Running @boostengine/ui Test Suite v1.6.0...\n');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 let passed = 0;
@@ -62,11 +62,13 @@ test('llms.txt and llms-full.txt exist and are populated', () => {
 });
 
 // ─── TEST 5: Theming & Provider ───────────────────────────────────────────
-test('Theming exports: BoostProvider, useTheme', () => {
+test('Theming exports: BoostProvider, useTheme, ThemeToggle', () => {
   assertExport('BoostProvider');
   assertExport('useTheme');
+  assertExport('ThemeToggle');
   assert.strictEqual(typeof ui.BoostProvider, 'function', 'BoostProvider must be a function/component');
   assert.strictEqual(typeof ui.useTheme, 'function', 'useTheme must be a function/hook');
+  assert.strictEqual(typeof ui.ThemeToggle, 'function', 'ThemeToggle must be a function/component');
 });
 
 // ─── TEST 6: Layout Primitives ────────────────────────────────────────────
@@ -105,8 +107,8 @@ test('Navigation: Navbar, Sidebar, Footer, MobileBottomNav, Breadcrumb, MegaMenu
 });
 
 // ─── TEST 13: Data & Analytics ───────────────────────────────────────────
-test('Data & Analytics: Table, DataTable, KPIWidget, ActivityFeed, NotificationCenter', () => {
-  ['Table', 'DataTable', 'StatsCard', 'KPIWidget', 'ActivityFeed', 'NotificationCenter', 'DateRangePicker', 'ExportButton', 'Filter', 'Sort'].forEach(assertExport);
+test('Data & Analytics: Table, DataTable, KPIWidget, AreaChart, BarChart, DonutChart, Sparkline', () => {
+  ['Table', 'DataTable', 'StatsCard', 'KPIWidget', 'AreaChart', 'BarChart', 'DonutChart', 'Sparkline', 'ActivityFeed', 'NotificationCenter', 'DateRangePicker', 'ExportButton', 'Filter', 'Sort'].forEach(assertExport);
 });
 
 // ─── TEST 14: Authentication ─────────────────────────────────────────────

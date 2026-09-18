@@ -1,68 +1,60 @@
 import * as React from 'react';
 
 export interface StackProps extends React.HTMLAttributes<HTMLDivElement> {
-  children?: React.ReactNode;
   direction?: 'row' | 'column';
-  spacing?: string | number;
-  gap?: string | number;
-  align?: React.CSSProperties['alignItems'];
-  justify?: React.CSSProperties['justifyContent'];
-  wrap?: React.CSSProperties['flexWrap'];
-  className?: string;
-  style?: React.CSSProperties;
+  gap?: number | string;
+  align?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
+  justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+  wrap?: boolean | 'wrap' | 'nowrap' | 'wrap-reverse';
+  fullWidth?: boolean;
 }
 
-export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
-  (
-    {
-      children,
-      direction = 'column',
-      spacing = '16px',
-      gap,
-      align = 'stretch',
-      justify = 'flex-start',
-      wrap = 'nowrap',
-      className = '',
-      style,
-      ...props
-    },
-    ref
-  ) => {
-    const finalGap = gap !== undefined ? gap : spacing;
+export type HStackProps = Omit<StackProps, 'direction'>;
+export type VStackProps = Omit<StackProps, 'direction'>;
 
-    return (
-      <div
-        ref={ref}
-        className={`boost-stack boost-stack-${direction} ${className}`}
-        style={{
-          display: 'flex',
-          flexDirection: direction,
-          alignItems: align,
-          justifyContent: justify,
-          flexWrap: wrap,
-          gap: typeof finalGap === 'number' ? `${finalGap}px` : finalGap,
-          ...style,
-        }}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
+export const Stack: React.FC<StackProps> = ({
+  direction = 'column',
+  gap = '12px',
+  align,
+  justify,
+  wrap = false,
+  fullWidth = false,
+  className = '',
+  style,
+  children,
+  ...props
+}) => {
+  const getGapValue = (val: number | string) => (typeof val === 'number' ? `${val}px` : val);
+
+  return (
+    <div
+      className={`boost-stack boost-stack-${direction} ${className}`}
+      style={{
+        display: 'flex',
+        flexDirection: direction,
+        gap: getGapValue(gap),
+        alignItems: align,
+        justifyContent: justify,
+        flexWrap: typeof wrap === 'boolean' ? (wrap ? 'wrap' : 'nowrap') : wrap,
+        width: fullWidth ? '100%' : undefined,
+        boxSizing: 'border-box',
+        ...style,
+      }}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+export const HStack: React.FC<HStackProps> = (props) => (
+  <Stack direction="row" align="center" {...props} />
+);
+
+export const VStack: React.FC<VStackProps> = (props) => (
+  <Stack direction="column" {...props} />
 );
 
 Stack.displayName = 'Stack';
-
-export interface VStackProps extends Omit<StackProps, 'direction'> {}
-
-export const VStack = React.forwardRef<HTMLDivElement, VStackProps>((props, ref) => (
-  <Stack ref={ref} direction="column" {...props} />
-));
-VStack.displayName = 'VStack';
-
-export interface HStackProps extends Omit<StackProps, 'direction'> {}
-
-export const HStack = React.forwardRef<HTMLDivElement, HStackProps>((props, ref) => (
-  <Stack ref={ref} direction="row" align="center" {...props} />
-));
 HStack.displayName = 'HStack';
+VStack.displayName = 'VStack';

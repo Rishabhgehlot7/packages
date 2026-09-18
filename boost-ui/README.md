@@ -13,7 +13,7 @@
 
 ## Key Highlights
 
-- 🧩 **115 Production Components & Blocks**: From foundational layout primitives (`Box`, `Flex`, `Grid`, `Stack`, `Motion`) to conversion-tested D2C storefront widgets, SaaS dashboard blocks, and modals with `Portal`.
+- 🧩 **125+ Production Components & Blocks**: From foundational layout primitives (`Box`, `Flex`, `Grid`, `Stack`, `Motion`, `Divider`) and zero-dependency SVG charts (`AreaChart`, `BarChart`, `DonutChart`, `Sparkline`) to conversion-tested D2C storefront widgets, SaaS dashboard blocks, and modals with `Portal`.
 - 🎨 **1-Click Theming & Dark Mode**: Built-in `BoostProvider` with CSS variable design tokens, automatic system/light/dark mode switching, and static fallback CSS injection.
 - ⚡ **Zero External CSS**: Pure zero-dependency styling and vector SVGs with no Tailwind or PostCSS configuration required.
 - 🪝 **12 SSR-Safe Utility Hooks**: `useForm`, `useMediaQuery`, `useClickOutside`, `useDebounce`, `useLocalStorage`, `useCopyToClipboard`, `useToggle`, `useIntersectionObserver`, and more.
@@ -65,18 +65,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 // In any child component:
-function MyComponent() {
+function HeaderThemeToggle() {
   const { resolvedMode, toggleMode } = useTheme();
-  const { toast } = useToast();
 
   return (
-    <button
-      onClick={() => {
-        toggleMode();
-        toast.success(`Switched to ${resolvedMode === 'dark' ? 'Light' : 'Dark'} mode!`);
-      }}
-    >
-      Toggle Mode
+    <button onClick={toggleMode}>
+      {resolvedMode === 'dark' ? '☀️ Light' : '🌙 Dark'}
     </button>
   );
 }
@@ -84,7 +78,7 @@ function MyComponent() {
 
 ---
 
-## 📦 Complete Component Suite (115 Components)
+## 📦 Complete Component Suite (125+ Components)
 
 ### 0. Theming & Architecture
 * `BoostProvider` - Root design system provider with CSS variable token injection
@@ -102,6 +96,7 @@ function MyComponent() {
 * `Container` - Max-width responsive container boundary
 * `PageWrapper` - Standard app shell wrapper
 * `Motion` - Zero-dependency entrance and scroll-triggered animations (`fade-in`, `slide-up`, `scale-in`)
+* `Divider` - Horizontal or vertical separator with optional center label/badge
 
 ### 2. Marketing & High-Converting Landing Blocks
 * `HeroSection` - Headline, badge, description, dual action buttons, and background glow/media
@@ -112,7 +107,11 @@ function MyComponent() {
 * `LogoCloud` - Client/partner brand logo strip with grayscale hover transitions
 * `CTASection` - High-contrast lead generation banner with integrated newsletter capture
 
-### 3. SaaS & Enterprise Dashboard Blocks
+### 3. SaaS, Dashboard & Zero-Dependency Charts Suite
+* `AreaChart` - Zero-dependency SVG area & line chart with smooth gradients, auto-scaling Y axis, gridlines, comparison series, and hover tooltips
+* `BarChart` - Zero-dependency SVG bar chart with rounded tops, auto-scaling Y axis, comparison series, and interactive hover cards
+* `DonutChart` - Zero-dependency SVG donut/pie chart with percentage arcs, customizable center metric, and interactive legend
+* `Sparkline` - Micro-trend SVG line chart for KPI cards and tables with automatic green (rising) / red (dropping) trend detection
 * `KPIWidget` - Metric card with positive/negative trend percentages, sparkline slot, and subtitles
 * `CommandPalette` - `Cmd+K` / `Ctrl+K` searchable modal for quick actions and shortcuts
 * `ActivityFeed` - Chronological audit log with user avatars, actions, and status tags

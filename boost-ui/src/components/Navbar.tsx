@@ -5,6 +5,7 @@ export interface NavLinkItem {
   href: string;
   badge?: string;
   isHighlight?: boolean;
+  children?: NavLinkItem[];
 }
 
 export interface NavbarProps {
@@ -24,6 +25,9 @@ export interface NavbarProps {
   isLoggedIn?: boolean;
   userName?: string;
   sticky?: boolean;
+  announcementText?: string;
+  announcementLink?: string;
+  onAnnouncementClose?: () => void;
   className?: string;
 }
 
@@ -49,10 +53,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   isLoggedIn = false,
   userName,
   sticky = true,
+  announcementText,
+  announcementLink,
+  onAnnouncementClose,
   className = '',
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState(searchValue || '');
+  const [openDropdown, setOpenDropdown] = React.useState<string | null>(null);
+  const [announcementVisible, setAnnouncementVisible] = React.useState(true);
+  const [expandedMobileItem, setExpandedMobileItem] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (searchValue !== undefined) {
@@ -100,6 +110,63 @@ export const Navbar: React.FC<NavbarProps> = ({
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
       }}
     >
+      {announcementText && announcementVisible && (
+        <div
+          className="boost-navbar-announcement"
+          style={{
+            backgroundColor: 'var(--boost-primary, #2563eb)',
+            color: '#ffffff',
+            padding: '7px 16px',
+            fontSize: '12px',
+            fontWeight: 600,
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            position: 'relative',
+          }}
+        >
+          <span>{announcementText}</span>
+          {announcementLink && (
+            <a
+              href={announcementLink}
+              style={{
+                color: '#ffffff',
+                textDecoration: 'underline',
+                fontWeight: 700,
+              }}
+            >
+              Shop Now →
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setAnnouncementVisible(false);
+              if (onAnnouncementClose) onAnnouncementClose();
+            }}
+            aria-label="Close announcement"
+            style={{
+              position: 'absolute',
+              right: '14px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'none',
+              border: 'none',
+              color: 'rgba(255, 255, 255, 0.85)',
+              cursor: 'pointer',
+              display: 'flex',
+              padding: '4px',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      )}
       <style>{`
         @media (max-width: 992px) {
           .boost-navbar .boost-desktop-nav {
@@ -226,46 +293,138 @@ export const Navbar: React.FC<NavbarProps> = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '24px',
+            gap: '16px',
           }}
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleNavigation(link.href, e)}
-              style={{
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: link.isHighlight ? '#ef4444' : 'var(--boost-text, #0f172a)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 10px',
-                borderRadius: '8px',
-                transition: 'color 0.15s ease, background-color 0.15s ease',
-              }}
-            >
-              {link.label}
-              {link.badge && (
-                <span
+          {navLinks.map((link) => {
+            const hasChildren = link.children && link.children.length > 0;
+            const isOpen = openDropdown === link.label;
+
+            return (
+              <div
+                key={link.href}
+                style={{ position: 'relative' }}
+                onMouseEnter={() => hasChildren && setOpenDropdown(link.label)}
+                onMouseLeave={() => hasChildren && setOpenDropdown(null)}
+              >
+                <a
+                  href={link.href}
+                  onClick={(e) => {
+                    if (hasChildren && !onLinkClick) {
+                      e.preventDefault();
+                      setOpenDropdown(isOpen ? null : link.label);
+                    } else {
+                      handleNavigation(link.href, e);
+                    }
+                  }}
                   style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                    color: '#ef4444',
-                    padding: '2px 7px',
-                    borderRadius: '9999px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.04em',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: link.isHighlight ? '#ef4444' : 'var(--boost-text, #0f172a)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    transition: 'color 0.15s ease, background-color 0.15s ease',
                   }}
                 >
-                  {link.badge}
-                </span>
-              )}
-            </a>
-          ))}
+                  <span>{link.label}</span>
+                  {link.badge && (
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                        color: '#ef4444',
+                        padding: '1px 6px',
+                        borderRadius: '9999px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      {link.badge}
+                    </span>
+                  )}
+                  {hasChildren && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      style={{
+                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                      }}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  )}
+                </a>
+
+                {hasChildren && isOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      minWidth: '200px',
+                      backgroundColor: 'var(--boost-surface, #ffffff)',
+                      border: '1px solid var(--boost-border, #e2e8f0)',
+                      borderRadius: 'var(--boost-radius, 12px)',
+                      boxShadow: 'var(--boost-shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1))',
+                      padding: '6px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px',
+                      zIndex: 50,
+                      animation: 'boost-fadeIn 0.15s ease',
+                    }}
+                  >
+                    {link.children!.map((child) => (
+                      <a
+                        key={child.href}
+                        href={child.href}
+                        onClick={(e) => {
+                          handleNavigation(child.href, e);
+                          setOpenDropdown(null);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          color: 'var(--boost-text, #0f172a)',
+                          transition: 'background-color 0.15s ease, color 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--boost-bg, #f1f5f9)';
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <span>{child.label}</span>
+                        {child.badge && (
+                          <span style={{ fontSize: '10px', fontWeight: 600, padding: '1px 6px', borderRadius: '9999px', backgroundColor: 'var(--boost-primary, #2563eb)', color: '#ffffff' }}>
+                            {child.badge}
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         {/* Desktop Search Bar */}
@@ -518,45 +677,128 @@ export const Navbar: React.FC<NavbarProps> = ({
             padding: '16px 20px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px',
+            gap: '6px',
             animation: 'boost-fadeIn 0.2s ease',
           }}
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleNavigation(link.href, e)}
-              style={{
-                textDecoration: 'none',
-                fontSize: '15px',
-                fontWeight: 600,
-                color: link.isHighlight ? '#ef4444' : 'var(--boost-text, #0f172a)',
-                padding: '10px 12px',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'background-color 0.15s ease',
-              }}
-            >
-              <span>{link.label}</span>
-              {link.badge && (
-                <span
+          {navLinks.map((link) => {
+            const hasChildren = link.children && link.children.length > 0;
+            const isExpanded = expandedMobileItem === link.label;
+
+            return (
+              <div key={link.href}>
+                <div
                   style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                    color: '#ef4444',
-                    padding: '2px 8px',
-                    borderRadius: '9999px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    backgroundColor: isExpanded ? 'var(--boost-surface, #f8fafc)' : 'transparent',
                   }}
                 >
-                  {link.badge}
-                </span>
-              )}
-            </a>
-          ))}
+                  <a
+                    href={link.href}
+                    onClick={(e) => {
+                      if (hasChildren) {
+                        e.preventDefault();
+                        setExpandedMobileItem(isExpanded ? null : link.label);
+                      } else {
+                        handleNavigation(link.href, e);
+                      }
+                    }}
+                    style={{
+                      textDecoration: 'none',
+                      fontSize: '15px',
+                      fontWeight: 600,
+                      color: link.isHighlight ? '#ef4444' : 'var(--boost-text, #0f172a)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      flex: 1,
+                    }}
+                  >
+                    <span>{link.label}</span>
+                    {link.badge && (
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                          color: '#ef4444',
+                          padding: '2px 8px',
+                          borderRadius: '9999px',
+                        }}
+                      >
+                        {link.badge}
+                      </span>
+                    )}
+                  </a>
+
+                  {hasChildren && (
+                    <button
+                      type="button"
+                      onClick={() => setExpandedMobileItem(isExpanded ? null : link.label)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--boost-text-muted, #64748b)',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        style={{
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s ease',
+                        }}
+                      >
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {hasChildren && isExpanded && (
+                  <div style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+                    {link.children!.map((child) => (
+                      <a
+                        key={child.href}
+                        href={child.href}
+                        onClick={(e) => handleNavigation(child.href, e)}
+                        style={{
+                          textDecoration: 'none',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: 'var(--boost-text-muted, #64748b)',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <span>{child.label}</span>
+                        {child.badge && (
+                          <span style={{ fontSize: '10px', fontWeight: 600, padding: '1px 6px', borderRadius: '9999px', backgroundColor: 'var(--boost-primary, #2563eb)', color: '#ffffff' }}>
+                            {child.badge}
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </header>

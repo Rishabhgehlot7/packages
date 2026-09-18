@@ -30,7 +30,7 @@ if (command === 'list') {
     '0. Theming': ['BoostProvider'],
     '1. Primitives': ['Box', 'Flex', 'Stack', 'Grid', 'Section', 'AspectRatio', 'ScrollArea', 'Container', 'PageWrapper', 'Motion'],
     '2. Marketing': ['HeroSection', 'FeatureGrid', 'PricingTable', 'TestimonialCard', 'FAQSection', 'LogoCloud', 'CTASection'],
-    '3. SaaS & Analytics': ['KPIWidget', 'CommandPalette', 'ActivityFeed', 'CopyButton', 'FileDropzone', 'StatsCard', 'DataTable', 'Table', 'DateRangePicker', 'ExportButton', 'Filter', 'Sort', 'NotificationCenter'],
+    '3. SaaS & Analytics': ['AreaChart', 'BarChart', 'DonutChart', 'Sparkline', 'KPIWidget', 'CommandPalette', 'ActivityFeed', 'CopyButton', 'FileDropzone', 'StatsCard', 'DataTable', 'Table', 'DateRangePicker', 'ExportButton', 'Filter', 'Sort', 'NotificationCenter'],
     '4. Buttons': ['Button', 'IconButton', 'ButtonGroup', 'FloatingActionButton', 'LinkButton'],
     '5. Forms & Inputs': ['Input', 'Textarea', 'Select', 'MultiSelect', 'Checkbox', 'Radio', 'Switch', 'DatePicker', 'TimePicker', 'FileUpload', 'SearchInput', 'FormField', 'OTPInput'],
     '6. Feedback': ['Toast', 'Alert', 'Snackbar', 'Loader', 'Spinner', 'ProgressBar', 'Skeleton', 'EmptyState', 'ErrorState', 'SuccessMessage'],

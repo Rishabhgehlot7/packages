@@ -6,6 +6,35 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Sem
 
 ---
 
+## [1.6.0] — 2026-09-19
+
+### Added
+- **Zero-Dependency SVG eCommerce Chart Suite**:
+  - `AreaChart` — High-performance SVG area/line chart with gradient fill, auto-scaling Y-axis, gridlines, comparison series, and interactive hover tooltips.
+  - `BarChart` — Rounded-top SVG bar chart with auto-scaling, dual series comparison, and hover cards.
+  - `DonutChart` — SVG trigonometric arc donut/pie chart with center metric display and interactive legend.
+  - `Sparkline` — Ultra-compact micro-trend SVG line chart with auto green (rising) / red (falling) color detection.
+- **New Layout Primitives**:
+  - `Breadcrumb` — Responsive hierarchical navigation trail with home icon and custom separators.
+  - `Divider` — Horizontal and vertical separator with optional center label/badge.
+  - `Stack`, `HStack`, `VStack` — Flexbox layout primitives with gap, align, justify, and responsive wrap.
+- **Navbar Modernization**:
+  - Top announcement banner with link and dismiss callback.
+  - Multi-level dropdown menus via `NavLinkItem.children` with chevron rotators and mobile drawer accordion collapse.
+- **Footer Modernization**:
+  - Added `variant="dark" | "light" | "surface"` prop.
+  - Custom inline newsletter email validation with zero browser alerts.
+
+### Changed
+- **Form Validation Overhaul**:
+  - Added `noValidate` on `LoginForm`, `RegisterForm`, `AddressForm`, and `Footer` newsletter forms to suppress native browser tooltips.
+  - Added custom inline regex checks for email, 10-digit Indian mobile numbers, 6-digit Indian PIN codes, password length, and full names with red border highlights and micro-copy helper messages.
+- **Dark Mode Contrast Fix**:
+  - Replaced hardcoded `#ffffff` in `Sidebar.tsx` with `var(--boost-surface)` and `var(--boost-border)`.
+- `package.json` version bumped to `1.6.0`.
+
+---
+
 ## [1.4.0] — 2026-09-18
 
 ### Added

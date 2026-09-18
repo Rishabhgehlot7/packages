@@ -23,11 +23,38 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
+
+  const validate = () => {
+    const errs: { identifier?: string; password?: string } = {};
+    const trimmed = identifier.trim();
+    if (!trimmed) {
+      errs.identifier = 'Email or phone number is required';
+    } else if (trimmed.includes('@')) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+        errs.identifier = 'Please enter a valid email address';
+      }
+    } else {
+      const cleanPhone = trimmed.replace(/[\s\-\(\)]/g, '');
+      if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
+        errs.identifier = 'Please enter a valid phone number or email';
+      }
+    }
+
+    if (!password) {
+      errs.password = 'Password is required';
+    } else if (password.length < 6) {
+      errs.password = 'Password must be at least 6 characters';
+    }
+    return errs;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier || !password) return;
-    onSubmit?.({ identifier, password, rememberMe });
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    onSubmit?.({ identifier: identifier.trim(), password, rememberMe });
   };
 
   return (
@@ -76,16 +103,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <form noValidate onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)', marginBottom: '8px' }}>
             Email or Phone
           </label>
           <input
             type="text"
-            required
             value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            onChange={(e) => {
+              setIdentifier(e.target.value);
+              if (errors.identifier) setErrors(prev => ({ ...prev, identifier: undefined }));
+            }}
             placeholder="you@example.com"
             style={{
               width: '100%',
@@ -94,12 +123,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               fontSize: '14px',
               color: 'var(--boost-text, #0f172a)',
               backgroundColor: 'var(--boost-bg, #ffffff)',
-              border: '1px solid var(--boost-border, #cbd5e1)',
+              border: `1px solid ${errors.identifier ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
               borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',
               transition: 'all 0.2s ease',
             }}
           />
+          {errors.identifier && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '6px', fontWeight: 500 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.identifier}
+            </span>
+          )}
         </div>
 
         <div>
@@ -127,9 +162,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <div style={{ position: 'relative' }}>
             <input
               type={showPassword ? 'text' : 'password'}
-              required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+              }}
               placeholder="Enter your password"
               style={{
                 width: '100%',
@@ -138,7 +175,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 fontSize: '14px',
                 color: 'var(--boost-text, #0f172a)',
                 backgroundColor: 'var(--boost-bg, #ffffff)',
-                border: '1px solid var(--boost-border, #cbd5e1)',
+                border: `1px solid ${errors.password ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
                 borderRadius: 'var(--boost-radius, 10px)',
                 outline: 'none',
                 transition: 'all 0.2s ease',
@@ -159,8 +196,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 padding: '4px',
-                borderRadius: '4px',
               }}
             >
               {showPassword ? (
@@ -176,6 +213,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               )}
             </button>
           </div>
+          {errors.password && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '6px', fontWeight: 500 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.password}
+            </span>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

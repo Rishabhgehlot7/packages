@@ -31,11 +31,61 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [password, setPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    password?: string;
+    acceptTerms?: string;
+  }>({});
+
+  const validate = () => {
+    const errs: {
+      fullName?: string;
+      email?: string;
+      phone?: string;
+      password?: string;
+      acceptTerms?: string;
+    } = {};
+
+    if (!fullName.trim()) {
+      errs.fullName = 'Full name is required';
+    } else if (fullName.trim().length < 2) {
+      errs.fullName = 'Name must be at least 2 characters';
+    }
+
+    if (!email.trim()) {
+      errs.email = 'Email address is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errs.email = 'Please enter a valid email address';
+    }
+
+    if (phone.trim()) {
+      const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+      if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
+        errs.phone = 'Please enter a valid 10-15 digit phone number';
+      }
+    }
+
+    if (!password) {
+      errs.password = 'Password is required';
+    } else if (password.length < 6) {
+      errs.password = 'Password must be at least 6 characters';
+    }
+
+    if (!acceptTerms) {
+      errs.acceptTerms = 'You must agree to the Terms of Service';
+    }
+
+    return errs;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email || !password || !acceptTerms) return;
-    onSubmit?.({ fullName, email, phone, password, acceptTerms });
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    onSubmit?.({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() || undefined, password, acceptTerms });
   };
 
   return (
@@ -84,16 +134,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <form noValidate onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)', marginBottom: '6px' }}>
             Full Name
           </label>
           <input
             type="text"
-            required
             value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              if (errors.fullName) setErrors(prev => ({ ...prev, fullName: undefined }));
+            }}
             placeholder="John Doe"
             style={{
               width: '100%',
@@ -102,12 +154,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               fontSize: '14px',
               color: 'var(--boost-text, #0f172a)',
               backgroundColor: 'var(--boost-bg, #ffffff)',
-              border: '1px solid var(--boost-border, #cbd5e1)',
+              border: `1px solid ${errors.fullName ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
               borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',
               transition: 'all 0.2s ease',
             }}
           />
+          {errors.fullName && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '4px', fontWeight: 500 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.fullName}
+            </span>
+          )}
         </div>
 
         <div>
@@ -116,9 +174,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           </label>
           <input
             type="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+            }}
             placeholder="you@example.com"
             style={{
               width: '100%',
@@ -127,12 +187,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               fontSize: '14px',
               color: 'var(--boost-text, #0f172a)',
               backgroundColor: 'var(--boost-bg, #ffffff)',
-              border: '1px solid var(--boost-border, #cbd5e1)',
+              border: `1px solid ${errors.email ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
               borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',
               transition: 'all 0.2s ease',
             }}
           />
+          {errors.email && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '4px', fontWeight: 500 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.email}
+            </span>
+          )}
         </div>
 
         <div>
@@ -142,7 +208,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              if (errors.phone) setErrors(prev => ({ ...prev, phone: undefined }));
+            }}
             placeholder="+91 98765 43210"
             style={{
               width: '100%',
@@ -151,12 +220,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               fontSize: '14px',
               color: 'var(--boost-text, #0f172a)',
               backgroundColor: 'var(--boost-bg, #ffffff)',
-              border: '1px solid var(--boost-border, #cbd5e1)',
+              border: `1px solid ${errors.phone ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
               borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',
               transition: 'all 0.2s ease',
             }}
           />
+          {errors.phone && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '4px', fontWeight: 500 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.phone}
+            </span>
+          )}
         </div>
 
         <div>
@@ -166,9 +241,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <div style={{ position: 'relative' }}>
             <input
               type={showPassword ? 'text' : 'password'}
-              required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+              }}
               placeholder="Create a strong password"
               style={{
                 width: '100%',
@@ -177,7 +254,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 fontSize: '14px',
                 color: 'var(--boost-text, #0f172a)',
                 backgroundColor: 'var(--boost-bg, #ffffff)',
-                border: '1px solid var(--boost-border, #cbd5e1)',
+                border: `1px solid ${errors.password ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
                 borderRadius: 'var(--boost-radius, 10px)',
                 outline: 'none',
                 transition: 'all 0.2s ease',
@@ -215,45 +292,61 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               )}
             </button>
           </div>
+          {errors.password && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '4px', fontWeight: 500 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.password}
+            </span>
+          )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '4px' }}>
-          <input
-            type="checkbox"
-            id="register-terms"
-            required
-            checked={acceptTerms}
-            onChange={(e) => setAcceptTerms(e.target.checked)}
-            style={{
-              marginTop: '3px',
-              cursor: 'pointer',
-              width: '16px',
-              height: '16px',
-              accentColor: 'var(--boost-primary, #3b82f6)',
-              flexShrink: 0,
-            }}
-          />
-          <label htmlFor="register-terms" style={{ fontSize: '13px', color: 'var(--boost-text, #475569)', cursor: 'pointer', lineHeight: 1.4, userSelect: 'none' }}>
-            I agree to the Terms of Service and Privacy Policy.
-          </label>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '4px' }}>
+            <input
+              type="checkbox"
+              id="register-terms"
+              checked={acceptTerms}
+              onChange={(e) => {
+                setAcceptTerms(e.target.checked);
+                if (errors.acceptTerms) setErrors(prev => ({ ...prev, acceptTerms: undefined }));
+              }}
+              style={{
+                marginTop: '3px',
+                cursor: 'pointer',
+                width: '16px',
+                height: '16px',
+                accentColor: 'var(--boost-primary, #3b82f6)',
+                flexShrink: 0,
+              }}
+            />
+            <label htmlFor="register-terms" style={{ fontSize: '13px', color: 'var(--boost-text, #475569)', cursor: 'pointer', lineHeight: 1.4, userSelect: 'none' }}>
+              I agree to the Terms of Service and Privacy Policy.
+            </label>
+          </div>
+          {errors.acceptTerms && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#ef4444', marginTop: '6px', fontWeight: 500, paddingLeft: '26px' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {errors.acceptTerms}
+            </span>
+          )}
         </div>
 
         <button
           type="submit"
-          disabled={loading || !acceptTerms}
+          disabled={loading}
           style={{
             width: '100%',
             marginTop: '8px',
             padding: '13px 20px',
-            backgroundColor: 'var(--boost-primary, #0f172a)',
+            backgroundColor: 'var(--boost-primary, #2563eb)',
             color: '#ffffff',
             fontSize: '14px',
             fontWeight: 600,
             borderRadius: 'var(--boost-radius, 10px)',
             border: 'none',
-            cursor: loading || !acceptTerms ? 'not-allowed' : 'pointer',
-            opacity: loading || !acceptTerms ? 0.7 : 1,
-            boxShadow: 'var(--boost-shadow-sm, 0 2px 8px rgba(0,0,0,0.1))',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+            boxShadow: 'var(--boost-shadow-sm, 0 2px 8px rgba(37,99,235,0.25))',
             transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             display: 'flex',
             alignItems: 'center',

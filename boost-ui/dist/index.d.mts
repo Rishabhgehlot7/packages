@@ -297,12 +297,32 @@ interface BoostProviderProps {
     children: React.ReactNode;
     mode?: ThemeMode;
     defaultMode?: ThemeMode;
+    storageKey?: string;
+    syncDocumentClass?: boolean;
     tokens?: ThemeTokens;
     darkTokens?: ThemeTokens;
     className?: string;
 }
 declare const BoostProvider: React.FC<BoostProviderProps>;
 declare const useTheme: () => BoostThemeContextType;
+
+interface ThemeToggleProps {
+    /**
+     * Visual style variant
+     * - 'icon': Minimalist circular or rounded icon button (default)
+     * - 'button': Icon with descriptive text label
+     * - 'segmented': Modern 3-option pill control (Light, Dark, System)
+     * - 'switch': Compact toggle switch with sun/moon symbols
+     */
+    variant?: 'icon' | 'button' | 'segmented' | 'switch';
+    /** Size of the control */
+    size?: 'sm' | 'md' | 'lg';
+    /** Show custom labels in 'button' variant */
+    showLabel?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const ThemeToggle: React.FC<ThemeToggleProps>;
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -723,9 +743,10 @@ interface ChipProps {
 }
 declare const Chip: React.FC<ChipProps>;
 
-interface DividerProps {
+interface DividerProps extends React.HTMLAttributes<HTMLDivElement> {
     orientation?: 'horizontal' | 'vertical';
-    label?: string;
+    label?: React.ReactNode;
+    labelPosition?: 'left' | 'center' | 'right';
     className?: string;
     style?: React.CSSProperties;
 }
@@ -892,23 +913,18 @@ interface FlexProps extends React.HTMLAttributes<HTMLDivElement> {
 declare const Flex: React.ForwardRefExoticComponent<FlexProps & React.RefAttributes<HTMLDivElement>>;
 
 interface StackProps extends React.HTMLAttributes<HTMLDivElement> {
-    children?: React.ReactNode;
     direction?: 'row' | 'column';
-    spacing?: string | number;
-    gap?: string | number;
-    align?: React.CSSProperties['alignItems'];
-    justify?: React.CSSProperties['justifyContent'];
-    wrap?: React.CSSProperties['flexWrap'];
-    className?: string;
-    style?: React.CSSProperties;
+    gap?: number | string;
+    align?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
+    justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+    wrap?: boolean | 'wrap' | 'nowrap' | 'wrap-reverse';
+    fullWidth?: boolean;
 }
-declare const Stack: React.ForwardRefExoticComponent<StackProps & React.RefAttributes<HTMLDivElement>>;
-interface VStackProps extends Omit<StackProps, 'direction'> {
-}
-declare const VStack: React.ForwardRefExoticComponent<VStackProps & React.RefAttributes<HTMLDivElement>>;
-interface HStackProps extends Omit<StackProps, 'direction'> {
-}
-declare const HStack: React.ForwardRefExoticComponent<HStackProps & React.RefAttributes<HTMLDivElement>>;
+type HStackProps = Omit<StackProps, 'direction'>;
+type VStackProps = Omit<StackProps, 'direction'>;
+declare const Stack: React.FC<StackProps>;
+declare const HStack: React.FC<HStackProps>;
+declare const VStack: React.FC<VStackProps>;
 
 interface ResponsiveBreakpoints<T> {
     base?: T;
@@ -1007,6 +1023,7 @@ interface NavLinkItem {
     href: string;
     badge?: string;
     isHighlight?: boolean;
+    children?: NavLinkItem[];
 }
 interface NavbarProps {
     brandName?: string;
@@ -1025,6 +1042,9 @@ interface NavbarProps {
     isLoggedIn?: boolean;
     userName?: string;
     sticky?: boolean;
+    announcementText?: string;
+    announcementLink?: string;
+    onAnnouncementClose?: () => void;
     className?: string;
 }
 declare const Navbar: React.FC<NavbarProps>;
@@ -1066,6 +1086,7 @@ interface FooterProps {
     onNewsletterSubmit?: (email: string) => void;
     showPaymentBadges?: boolean;
     copyrightYear?: number;
+    variant?: 'dark' | 'light' | 'surface';
     className?: string;
 }
 declare const Footer: React.FC<FooterProps>;
@@ -1105,11 +1126,14 @@ declare const MobileBottomNav: React__default.FC<MobileBottomNavProps>;
 interface BreadcrumbItem {
     label: string;
     href?: string;
+    icon?: React.ReactNode;
 }
 interface BreadcrumbProps {
     items: BreadcrumbItem[];
     separator?: React.ReactNode;
+    onItemClick?: (href: string, item: BreadcrumbItem) => void;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Breadcrumb: React.FC<BreadcrumbProps>;
 
@@ -1293,6 +1317,85 @@ interface KPIWidgetProps extends React.HTMLAttributes<HTMLDivElement> {
     style?: React.CSSProperties;
 }
 declare const KPIWidget: React.FC<KPIWidgetProps>;
+
+interface ChartDataPoint {
+    label: string;
+    value: number;
+    secondaryValue?: number;
+}
+interface AreaChartProps {
+    data: ChartDataPoint[];
+    title?: string;
+    subtitle?: string;
+    height?: number;
+    color?: string;
+    secondaryColor?: string;
+    primaryLabel?: string;
+    secondaryLabel?: string;
+    valuePrefix?: string;
+    valueSuffix?: string;
+    showGrid?: boolean;
+    showDots?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const AreaChart: React.FC<AreaChartProps>;
+
+interface BarChartDataPoint {
+    label: string;
+    value: number;
+    secondaryValue?: number;
+}
+interface BarChartProps {
+    data: BarChartDataPoint[];
+    title?: string;
+    subtitle?: string;
+    height?: number;
+    color?: string;
+    secondaryColor?: string;
+    primaryLabel?: string;
+    secondaryLabel?: string;
+    valuePrefix?: string;
+    valueSuffix?: string;
+    showGrid?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const BarChart: React.FC<BarChartProps>;
+
+interface DonutDataPoint {
+    label: string;
+    value: number;
+    color?: string;
+}
+interface DonutChartProps {
+    data: DonutDataPoint[];
+    title?: string;
+    subtitle?: string;
+    size?: number;
+    innerRadiusRatio?: number;
+    centerLabel?: string;
+    centerValue?: string;
+    valuePrefix?: string;
+    valueSuffix?: string;
+    showLegend?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const DonutChart: React.FC<DonutChartProps>;
+
+interface SparklineProps {
+    data: number[];
+    width?: number | string;
+    height?: number;
+    color?: string;
+    strokeWidth?: number;
+    showFill?: boolean;
+    autoColor?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const Sparkline: React.FC<SparklineProps>;
 
 interface ActivityUser {
     name: string;
@@ -1917,4 +2020,4 @@ interface CTASectionProps {
 }
 declare const CTASection: React.FC<CTASectionProps>;
 
-export { Accordion, type AccordionItem, type AccordionProps, ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityUser, AddToCart, type AddToCartProps, type AddressData, AddressForm, type AddressFormProps, Alert, type AlertProps, AnnouncementBar, type AnnouncementBarProps, AspectRatio, type AspectRatioProps, AssuredBadge, type AssuredBadgeProps, Avatar, AvatarGroup, type AvatarGroupProps, type AvatarProps, BackButton, type BackButtonProps, Badge, type BadgeProps, type BankOffer, BankOffersAccordion, type BankOffersAccordionProps, BoostProvider, type BoostProviderProps, type BoostThemeConfig, BottomSheet, type BottomSheetProps, Box, type BoxAsTag, type BoxProps, Breadcrumb, type BreadcrumbItem, type BreadcrumbProps, type BundleItem, Button, ButtonGroup, type ButtonGroupProps, type ButtonProps, CTASection, type CTASectionProps, Card, CardContent, type CardContentProps, CardDescription, type CardDescriptionProps, CardFooter, type CardFooterProps, CardHeader, type CardHeaderProps, type CardProps, CardTitle, type CardTitleProps, Carousel, type CarouselProps, type CarouselSlide, CartDrawer, type CartDrawerItem, type CartDrawerProps, Checkbox, type CheckboxProps, Chip, type ChipProps, type CommandItem, CommandPalette, type CommandPaletteProps, ConfirmationDialog, type ConfirmationDialogProps, Container, type ContainerProps, CopyButton, type CopyButtonProps, CouponInput, type CouponInputProps, DataTable, type DataTableColumn, type DataTableProps, DatePicker, type DatePickerProps, type DateRange, DateRangePicker, type DateRangePickerProps, Dialog, type DialogProps, Divider, type DividerProps, Drawer, type DrawerProps, DropdownMenu, type DropdownMenuItem, type DropdownMenuProps, DualMobileActionBar, type DualMobileActionBarProps, EmptyState, type EmptyStateProps, ErrorState, type ErrorStateProps, ExportButton, type ExportButtonProps, type FAQItem, FAQSection, type FAQSectionProps, FeatureGrid, type FeatureGridProps, type FeatureItem, FileDropzone, type FileDropzoneProps, FileUpload, type FileUploadProps, Filter, type FilterOption, type FilterProps, Flex, type FlexProps, FloatingActionButton, type FloatingActionButtonProps, Footer, type FooterColumn, type FooterProps, ForgotPassword, type ForgotPasswordProps, FormField, type FormFieldProps, FrequentlyBoughtTogether, type FrequentlyBoughtTogetherProps, Grid, GridItem, type GridItemProps, type GridProps, HStack, type HStackProps, Header, type HeaderProps, type HeroAction, HeroSection, type HeroSectionProps, IconButton, type IconButtonProps, Image, type ImageProps, Input, type InputProps, KPIWidget, type KPIWidgetProps, LightningDealsBar, type LightningDealsBarProps, LinkButton, type LinkButtonProps, Loader, type LoaderProps, LoginForm, type LoginFormProps, LogoCloud, type LogoCloudProps, type LogoItem, MegaMenu, type MegaMenuCategory, type MegaMenuColumn, type MegaMenuProps, MobileBottomBar, type MobileBottomBarItem, type MobileBottomBarProps, MobileBottomNav, type MobileBottomNavItem, type MobileBottomNavProps, Modal, type ModalProps, Motion, type MotionProps, MultiSelect, type MultiSelectOption, type MultiSelectProps, NavLink, type NavLinkItem, type NavLinkProps, Navbar, type NavbarProps, NotificationCenter, type NotificationCenterProps, type NotificationItem, OTPInput, type OTPInputProps, type OrderStage, OrderSummary, type OrderSummaryItem, type OrderSummaryProps, OrderTimeline, type OrderTimelineProps, PageWrapper, type PageWrapperProps, Pagination, type PaginationProps, type PincodeCheckResult, PincodeChecker, type PincodeCheckerProps, Popover, type PopoverProps, Portal, type PortalProps, Price, type PriceProps, type PricingFeature, PricingTable, type PricingTableProps, type PricingTier, ProductCard, type ProductCardProps, ProductGallery, type ProductGalleryImageItem, type ProductGalleryProps, ProgressBar, type ProgressBarProps, QuantitySelector, type QuantitySelectorProps, Radio, RadioGroup, type RadioGroupProps, type RadioOption, type RadioProps, RegisterForm, type RegisterFormData, type RegisterFormProps, ResetPassword, type ResetPasswordProps, type ResponsiveBreakpoints, ReviewBreakdownBars, type ReviewBreakdownBarsProps, type ReviewBreakdownItem, ScrollArea, type ScrollAreaProps, SearchInput, type SearchInputProps, Section, type SectionProps, Select, type SelectOption, type SelectProps, type SelectedVariants, Sidebar, type SidebarGroup, type SidebarItem, type SidebarProps, Skeleton, type SkeletonProps, Snackbar, type SnackbarProps, Sort, type SortDirection, type SortOption, type SortProps, Spinner, type SpinnerProps, Stack, type StackProps, StarRating, type StarRatingProps, StatsCard, type StatsCardProps, type StepItem, Stepper, type StepperProps, StickyAddToCart, type StickyAddToCartProps, SuccessMessage, type SuccessMessageProps, Switch, type SwitchProps, type TabItem, Table, type TableColumn, type TableProps, Tabs, type TabsProps, Tag, type TagProps, TestimonialCard, TestimonialGrid, type TestimonialGridProps, type TestimonialProps, Textarea, type TextareaProps, type ThemeMode, type ThemeTokens, TimePicker, type TimePickerProps, Toast, type ToastContextType, type ToastOptions, type ToastPosition, type ToastProps, ToastProvider, type ToastProviderProps, type ToastVariant, Tooltip, type TooltipProps, TrustBadges, type TrustBadgesProps, type UseFormOptions, VStack, type VStackProps, type VariantGroup, type VariantOption, VariantSelector, type VariantSelectorProps, clamp, cn, debounce, deepMerge, formatCurrency, formatDate, formatNumber, formatRelativeTime, generateId, getInitials, groupBy, isValidEmail, isValidIndianMobile, isValidIndianPincode, omit, pick, slugify, truncate, useClickOutside, useCopyToClipboard, useDebounce, useForm, useIntersectionObserver, useIsomorphicLayoutEffect, useLocalStorage, useMediaQuery, usePrevious, useScrollPosition, useTheme, useToast, useToggle, useWindowSize };
+export { Accordion, type AccordionItem, type AccordionProps, ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityUser, AddToCart, type AddToCartProps, type AddressData, AddressForm, type AddressFormProps, Alert, type AlertProps, AnnouncementBar, type AnnouncementBarProps, AreaChart, type AreaChartProps, AspectRatio, type AspectRatioProps, AssuredBadge, type AssuredBadgeProps, Avatar, AvatarGroup, type AvatarGroupProps, type AvatarProps, BackButton, type BackButtonProps, Badge, type BadgeProps, type BankOffer, BankOffersAccordion, type BankOffersAccordionProps, BarChart, type BarChartDataPoint, type BarChartProps, BoostProvider, type BoostProviderProps, type BoostThemeConfig, BottomSheet, type BottomSheetProps, Box, type BoxAsTag, type BoxProps, Breadcrumb, type BreadcrumbItem, type BreadcrumbProps, type BundleItem, Button, ButtonGroup, type ButtonGroupProps, type ButtonProps, CTASection, type CTASectionProps, Card, CardContent, type CardContentProps, CardDescription, type CardDescriptionProps, CardFooter, type CardFooterProps, CardHeader, type CardHeaderProps, type CardProps, CardTitle, type CardTitleProps, Carousel, type CarouselProps, type CarouselSlide, CartDrawer, type CartDrawerItem, type CartDrawerProps, type ChartDataPoint, Checkbox, type CheckboxProps, Chip, type ChipProps, type CommandItem, CommandPalette, type CommandPaletteProps, ConfirmationDialog, type ConfirmationDialogProps, Container, type ContainerProps, CopyButton, type CopyButtonProps, CouponInput, type CouponInputProps, DataTable, type DataTableColumn, type DataTableProps, DatePicker, type DatePickerProps, type DateRange, DateRangePicker, type DateRangePickerProps, Dialog, type DialogProps, Divider, type DividerProps, DonutChart, type DonutChartProps, type DonutDataPoint, Drawer, type DrawerProps, DropdownMenu, type DropdownMenuItem, type DropdownMenuProps, DualMobileActionBar, type DualMobileActionBarProps, EmptyState, type EmptyStateProps, ErrorState, type ErrorStateProps, ExportButton, type ExportButtonProps, type FAQItem, FAQSection, type FAQSectionProps, FeatureGrid, type FeatureGridProps, type FeatureItem, FileDropzone, type FileDropzoneProps, FileUpload, type FileUploadProps, Filter, type FilterOption, type FilterProps, Flex, type FlexProps, FloatingActionButton, type FloatingActionButtonProps, Footer, type FooterColumn, type FooterProps, ForgotPassword, type ForgotPasswordProps, FormField, type FormFieldProps, FrequentlyBoughtTogether, type FrequentlyBoughtTogetherProps, Grid, GridItem, type GridItemProps, type GridProps, HStack, type HStackProps, Header, type HeaderProps, type HeroAction, HeroSection, type HeroSectionProps, IconButton, type IconButtonProps, Image, type ImageProps, Input, type InputProps, KPIWidget, type KPIWidgetProps, LightningDealsBar, type LightningDealsBarProps, LinkButton, type LinkButtonProps, Loader, type LoaderProps, LoginForm, type LoginFormProps, LogoCloud, type LogoCloudProps, type LogoItem, MegaMenu, type MegaMenuCategory, type MegaMenuColumn, type MegaMenuProps, MobileBottomBar, type MobileBottomBarItem, type MobileBottomBarProps, MobileBottomNav, type MobileBottomNavItem, type MobileBottomNavProps, Modal, type ModalProps, Motion, type MotionProps, MultiSelect, type MultiSelectOption, type MultiSelectProps, NavLink, type NavLinkItem, type NavLinkProps, Navbar, type NavbarProps, NotificationCenter, type NotificationCenterProps, type NotificationItem, OTPInput, type OTPInputProps, type OrderStage, OrderSummary, type OrderSummaryItem, type OrderSummaryProps, OrderTimeline, type OrderTimelineProps, PageWrapper, type PageWrapperProps, Pagination, type PaginationProps, type PincodeCheckResult, PincodeChecker, type PincodeCheckerProps, Popover, type PopoverProps, Portal, type PortalProps, Price, type PriceProps, type PricingFeature, PricingTable, type PricingTableProps, type PricingTier, ProductCard, type ProductCardProps, ProductGallery, type ProductGalleryImageItem, type ProductGalleryProps, ProgressBar, type ProgressBarProps, QuantitySelector, type QuantitySelectorProps, Radio, RadioGroup, type RadioGroupProps, type RadioOption, type RadioProps, RegisterForm, type RegisterFormData, type RegisterFormProps, ResetPassword, type ResetPasswordProps, type ResponsiveBreakpoints, ReviewBreakdownBars, type ReviewBreakdownBarsProps, type ReviewBreakdownItem, ScrollArea, type ScrollAreaProps, SearchInput, type SearchInputProps, Section, type SectionProps, Select, type SelectOption, type SelectProps, type SelectedVariants, Sidebar, type SidebarGroup, type SidebarItem, type SidebarProps, Skeleton, type SkeletonProps, Snackbar, type SnackbarProps, Sort, type SortDirection, type SortOption, type SortProps, Sparkline, type SparklineProps, Spinner, type SpinnerProps, Stack, type StackProps, StarRating, type StarRatingProps, StatsCard, type StatsCardProps, type StepItem, Stepper, type StepperProps, StickyAddToCart, type StickyAddToCartProps, SuccessMessage, type SuccessMessageProps, Switch, type SwitchProps, type TabItem, Table, type TableColumn, type TableProps, Tabs, type TabsProps, Tag, type TagProps, TestimonialCard, TestimonialGrid, type TestimonialGridProps, type TestimonialProps, Textarea, type TextareaProps, type ThemeMode, ThemeToggle, type ThemeToggleProps, type ThemeTokens, TimePicker, type TimePickerProps, Toast, type ToastContextType, type ToastOptions, type ToastPosition, type ToastProps, ToastProvider, type ToastProviderProps, type ToastVariant, Tooltip, type TooltipProps, TrustBadges, type TrustBadgesProps, type UseFormOptions, VStack, type VStackProps, type VariantGroup, type VariantOption, VariantSelector, type VariantSelectorProps, clamp, cn, debounce, deepMerge, formatCurrency, formatDate, formatNumber, formatRelativeTime, generateId, getInitials, groupBy, isValidEmail, isValidIndianMobile, isValidIndianPincode, omit, pick, slugify, truncate, useClickOutside, useCopyToClipboard, useDebounce, useForm, useIntersectionObserver, useIsomorphicLayoutEffect, useLocalStorage, useMediaQuery, usePrevious, useScrollPosition, useTheme, useToast, useToggle, useWindowSize };

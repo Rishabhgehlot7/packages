@@ -43,12 +43,14 @@ export {
 
 // 0. Theming & Design System
 export { BoostProvider, useTheme } from './components/BoostProvider';
+export { ThemeToggle } from './components/ThemeToggle';
 export type {
   BoostProviderProps,
   BoostThemeConfig,
   ThemeMode,
   ThemeTokens,
 } from './components/BoostProvider';
+export type { ThemeToggleProps } from './components/ThemeToggle';
 
 // 1. Buttons & Actions
 export { Button } from './components/Button';
@@ -236,6 +238,10 @@ export { Table } from './components/Table';
 export { DataTable } from './components/DataTable';
 export { StatsCard } from './components/StatsCard';
 export { KPIWidget } from './components/KPIWidget';
+export { AreaChart } from './components/AreaChart';
+export { BarChart } from './components/BarChart';
+export { DonutChart } from './components/DonutChart';
+export { Sparkline } from './components/Sparkline';
 export { ActivityFeed } from './components/ActivityFeed';
 export { NotificationCenter } from './components/NotificationCenter';
 export { DateRangePicker } from './components/DateRangePicker';
@@ -247,6 +253,10 @@ export type { TableProps, TableColumn } from './components/Table';
 export type { DataTableProps, DataTableColumn } from './components/DataTable';
 export type { StatsCardProps } from './components/StatsCard';
 export type { KPIWidgetProps } from './components/KPIWidget';
+export type { AreaChartProps, ChartDataPoint } from './components/AreaChart';
+export type { BarChartProps, BarChartDataPoint } from './components/BarChart';
+export type { DonutChartProps, DonutDataPoint } from './components/DonutChart';
+export type { SparklineProps } from './components/Sparkline';
 export type { ActivityFeedProps, ActivityItem, ActivityUser } from './components/ActivityFeed';
 export type { NotificationCenterProps, NotificationItem } from './components/NotificationCenter';
 export type { DateRangePickerProps, DateRange } from './components/DateRangePicker';

@@ -41,30 +41,76 @@ export const AddressForm: React.FC<AddressFormProps> = ({
     isDefault: initialData?.isDefault ?? true,
   });
 
+  const [errors, setErrors] = useState<Partial<Record<keyof AddressData, string>>>({});
+
   const handleChange = (field: keyof AddressData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const validate = () => {
+    const errs: Partial<Record<keyof AddressData, string>> = {};
+    if (!formData.fullName.trim()) {
+      errs.fullName = 'Full name is required';
+    } else if (formData.fullName.trim().length < 2) {
+      errs.fullName = 'Please enter a valid name';
+    }
+
+    const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
+    if (!cleanPhone) {
+      errs.phone = 'Phone number is required';
+    } else if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
+      errs.phone = 'Please enter a valid 10-digit mobile number';
+    }
+
+    const cleanPin = formData.pincode.trim();
+    if (!cleanPin) {
+      errs.pincode = 'Pincode is required';
+    } else if (!/^[0-9]{6}$/.test(cleanPin)) {
+      errs.pincode = 'Please enter a valid 6-digit pincode';
+    }
+
+    if (!formData.houseNumber.trim()) {
+      errs.houseNumber = 'House / Flat number is required';
+    }
+
+    if (!formData.street.trim()) {
+      errs.street = 'Street or area details are required';
+    }
+
+    if (!formData.city.trim()) {
+      errs.city = 'City is required';
+    }
+
+    if (!formData.state.trim()) {
+      errs.state = 'State is required';
+    }
+
+    return errs;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.phone || !formData.pincode || !formData.street || !formData.city || !formData.state) {
-      return;
-    }
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
     onSubmit?.(formData);
   };
 
-  const inputStyle: React.CSSProperties = {
+  const getInputStyle = (hasError?: boolean): React.CSSProperties => ({
     width: '100%',
     boxSizing: 'border-box',
     padding: '10px 14px',
     fontSize: '13px',
-    border: '1px solid var(--boost-border, #cbd5e1)',
+    border: `1px solid ${hasError ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
     borderRadius: 'var(--boost-radius, 10px)',
     backgroundColor: 'var(--boost-bg, #ffffff)',
     color: 'var(--boost-text, #0f172a)',
     outline: 'none',
     transition: 'border-color 0.15s ease',
-  };
+  });
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -72,6 +118,16 @@ export const AddressForm: React.FC<AddressFormProps> = ({
     fontWeight: 600,
     color: 'var(--boost-text, #334155)',
     marginBottom: '6px',
+  };
+
+  const renderError = (msg?: string) => {
+    if (!msg) return null;
+    return (
+      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#ef4444', marginTop: '4px', fontWeight: 500 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {msg}
+      </span>
+    );
   };
 
   return (
@@ -91,30 +147,30 @@ export const AddressForm: React.FC<AddressFormProps> = ({
     >
       <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--boost-text, #0f172a)', margin: '0 0 20px' }}>{title}</h3>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <form noValidate onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>Full Name *</label>
             <input
               type="text"
-              required
               value={formData.fullName}
               onChange={(e) => handleChange('fullName', e.target.value)}
               placeholder="e.g. Rahul Sharma"
-              style={inputStyle}
+              style={getInputStyle(!!errors.fullName)}
             />
+            {renderError(errors.fullName)}
           </div>
 
           <div>
             <label style={labelStyle}>Phone Number *</label>
             <input
               type="tel"
-              required
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
               placeholder="10-digit mobile number"
-              style={inputStyle}
+              style={getInputStyle(!!errors.phone)}
             />
+            {renderError(errors.phone)}
           </div>
         </div>
 
@@ -123,25 +179,25 @@ export const AddressForm: React.FC<AddressFormProps> = ({
             <label style={labelStyle}>Pincode *</label>
             <input
               type="text"
-              required
               maxLength={6}
               value={formData.pincode}
               onChange={(e) => handleChange('pincode', e.target.value)}
               placeholder="e.g. 110001"
-              style={inputStyle}
+              style={getInputStyle(!!errors.pincode)}
             />
+            {renderError(errors.pincode)}
           </div>
 
           <div style={{ gridColumn: 'span 1' }}>
             <label style={labelStyle}>Flat / House No. / Building *</label>
             <input
               type="text"
-              required
               value={formData.houseNumber}
               onChange={(e) => handleChange('houseNumber', e.target.value)}
               placeholder="e.g. Flat 402, Lotus Tower"
-              style={inputStyle}
+              style={getInputStyle(!!errors.houseNumber)}
             />
+            {renderError(errors.houseNumber)}
           </div>
         </div>
 
@@ -149,12 +205,12 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label style={labelStyle}>Area / Street / Sector *</label>
           <input
             type="text"
-            required
             value={formData.street}
             onChange={(e) => handleChange('street', e.target.value)}
             placeholder="e.g. MG Road, Near Central Park"
-            style={inputStyle}
+            style={getInputStyle(!!errors.street)}
           />
+          {renderError(errors.street)}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '12px' }}>
@@ -162,24 +218,24 @@ export const AddressForm: React.FC<AddressFormProps> = ({
             <label style={labelStyle}>City / Town *</label>
             <input
               type="text"
-              required
               value={formData.city}
               onChange={(e) => handleChange('city', e.target.value)}
               placeholder="e.g. New Delhi"
-              style={inputStyle}
+              style={getInputStyle(!!errors.city)}
             />
+            {renderError(errors.city)}
           </div>
 
           <div>
             <label style={labelStyle}>State *</label>
             <input
               type="text"
-              required
               value={formData.state}
               onChange={(e) => handleChange('state', e.target.value)}
               placeholder="e.g. Delhi"
-              style={inputStyle}
+              style={getInputStyle(!!errors.state)}
             />
+            {renderError(errors.state)}
           </div>
         </div>
 
