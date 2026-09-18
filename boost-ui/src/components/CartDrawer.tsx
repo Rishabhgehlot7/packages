@@ -134,9 +134,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         <div style={{ padding: '12px 20px', backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: isFreeShippingUnlocked ? '#16a34a' : '#374151', marginBottom: '6px' }}>
             {isFreeShippingUnlocked ? (
-              '🎉 You unlocked FREE Delivery!'
+              'You unlocked FREE Delivery!'
             ) : (
-              `🚚 Add ₹${amountRemaining.toFixed(0)} more for FREE Delivery!`
+              `Add ₹${amountRemaining.toFixed(0)} more for FREE Delivery!`
             )}
           </div>
           <div style={{ width: '100%', height: '6px', backgroundColor: '#e5e7eb', borderRadius: '999px', overflow: 'hidden' }}>
@@ -155,7 +155,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
           {items.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280' }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>🛒</div>
+              <div style={{ display: 'inline-flex', marginBottom: '12px', color: '#9ca3af' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+              </div>
               <p style={{ fontSize: '15px', fontWeight: 600 }}>Your cart is empty</p>
               <button
                 onClick={onClose}
@@ -211,9 +217,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <button
                     onClick={() => onRemoveItem(item.id)}
                     aria-label="Remove item from cart"
-                    style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '14px' }}
+                    style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
                   >
-                    🗑️
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
                   </button>
                 </div>
               ))}
@@ -254,3 +263,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     </div>
   );
 };
+
+
+CartDrawer.displayName = 'CartDrawer';

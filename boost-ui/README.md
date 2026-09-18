@@ -1,4 +1,4 @@
-# @boostengine/ui 🎨
+# @boostengine/ui
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/ui.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@boostengine/ui.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/ui)
@@ -7,95 +7,23 @@
 [![React 18 & 19](https://img.shields.io/badge/React-18%20%7C%2019-61dafb.svg?style=flat-square)](https://react.dev/)
 [![Next.js](https://img.shields.io/badge/Next.js-13%20%7C%2014%20%7C%2015-black.svg?style=flat-square)](https://nextjs.org/)
 
-> **Pre-built, high-converting eCommerce UI components for React and Next.js. Includes Cart Drawer, Product Gallery with Zoom, Variant Swatches, Sticky Mobile Buy Bar, Pincode Delivery Checker, Trust Badges, and 10+ more.**
-
-Zero external CSS dependencies. Pre-configured with `'use client'` for Next.js App Router. Works out of the box with **Next.js**, **Vite**, and **Remix**.
+> **Universal, industry-standard UI component kit for Next.js, React, and AI-driven development. Build high-converting eCommerce storefronts, modern B2B SaaS platforms, enterprise dashboards, and landing pages from A to Z with zero external CSS dependencies.**
 
 ---
 
-## 📸 Visual UI Preview (Screenshots & Layouts)
+## Key Highlights
 
-### 1. Product Detail Page & Sticky Buy Bar (Mobile & Desktop)
-```text
-+-------------------------------------------------------------------------------+
-| [AnnouncementBar] ⚡ Use code BOOST20 for 20% OFF | Free Shipping > ₹999 [x]  |
-+-------------------------------------------------------------------------------+
-| [Navbar]  BOOST STORE    [Search products...]    (♡ Wishlist)  (🛒 Cart: 2)   |
-+-------------------------------------------------------------------------------+
-|                                       |                                       |
-|  [ProductGallery]                     |  [Product Info & Form]                |
-|  +---------------------------------+  |  Minimalist Oversized Tee             |
-|  |                                 |  |  ⭐⭐⭐⭐☆ (4.8 / 5) (142 reviews)     |
-|  |      [ Zoom on Hover ]          |  |  ₹999  ~~₹1,499~~ (33% OFF)           |
-|  |                                 |  |                                       |
-|  +---------------------------------+  |  [VariantSelector]                    |
-|  [Thumb 1] [Thumb 2] [Thumb 3]        |  Color: (● Black) (○ White) (● Olive) |
-|                                       |  Size:  [ S ]  [ M ]  [ L ]  [ XL ]   |
-|                                       |                                       |
-|                                       |  Quantity: [-] 1 [+]                  |
-|                                       |                                       |
-|                                       |  [PincodeChecker]                     |
-|                                       |  [ 560001 ] [Check Delivery]          |
-|                                       |  🚚 Delivery by Friday | COD Available|
-|                                       |                                       |
-|                                       |  [TrustBadges]                        |
-|                                       |  [✓ 100% Genuine] [↺ 7-Day Returns]   |
-+-------------------------------------------------------------------------------+
-| [StickyAddToCart - Mobile Screen Bottom]                                      |
-| Minimalist Tee | ₹999  [-] 1 [+]  [ Add to Cart ]  [ Buy Now (⚡ 1-Click) ]  |
-+-------------------------------------------------------------------------------+
-```
-
-### 2. Slide-out Cart Drawer with Free Shipping Progress
-```text
-+-------------------------------------------------------------+
-| Your Shopping Bag (2 Items)                             [X] |
-+-------------------------------------------------------------+
-| 🚚 Add ₹300 more to unlock FREE Delivery!                   |
-| [======================================------] 70% Progress |
-+-------------------------------------------------------------+
-| [Item 1 Image]  Cyberpunk Graphic Tee                       |
-|                 Size: L | Color: Black                      |
-|                 ₹699   [-] 1 [+]                     [🗑️]   |
-+-------------------------------------------------------------+
-| [Item 2 Image]  Relaxed Fit Cargo Pants                     |
-|                 Size: 32 | Color: Olive                     |
-|                 ₹1,299 [-] 1 [+]                     [🗑️]   |
-+-------------------------------------------------------------+
-| Subtotal:                                            ₹1,998 |
-| Estimated Tax (GST 18%):                      Inclusive (₹0)|
-| Shipping:                                              FREE |
-+-------------------------------------------------------------+
-| [            PROCEED TO CHECKOUT  👉 (₹1,998)               ] |
-+-------------------------------------------------------------+
-```
+- 🧩 **115 Production Components & Blocks**: From foundational layout primitives (`Box`, `Flex`, `Grid`, `Stack`, `Motion`) to conversion-tested D2C storefront widgets, SaaS dashboard blocks, and modals with `Portal`.
+- 🎨 **1-Click Theming & Dark Mode**: Built-in `BoostProvider` with CSS variable design tokens, automatic system/light/dark mode switching, and static fallback CSS injection.
+- ⚡ **Zero External CSS**: Pure zero-dependency styling and vector SVGs with no Tailwind or PostCSS configuration required.
+- 🪝 **12 SSR-Safe Utility Hooks**: `useForm`, `useMediaQuery`, `useClickOutside`, `useDebounce`, `useLocalStorage`, `useCopyToClipboard`, `useToggle`, `useIntersectionObserver`, and more.
+- 🔧 **18 Utility Functions**: `cn()`, `formatCurrency()`, `slugify()`, `getInitials()`, `isValidIndianPincode()`, `debounce()`, and more — zero extra packages.
+- 🤖 **AI Coding Agent Native**: Comes with machine-readable `llms.txt` and `llms-full.txt` manifests tailored for Cursor, Claude, Windsurf, Copilot, and Gemini.
+- 🚀 **Next.js App Router Ready**: Pre-bundled with `'use client'` directives for instantaneous SSR/SSG compatibility.
 
 ---
 
-## 🌟 Included Components Catalog
-
-| Category | Component | Description |
-| :--- | :--- | :--- |
-| **Navigation** | `Navbar` | Responsive top navbar with search bar, link badges, cart badge & mobile drawer. |
-| **Navigation** | `AnnouncementBar` | Animated cycling promo ticker with 1-click coupon code copy button. |
-| **Navigation** | `Footer` | Multi-column footer with newsletter input, payment badges, and legal links. |
-| **Navigation** | `MobileBottomBar` | Native app-like bottom navigation (`Home`, `Search`, `Wishlist`, `Bag`, `Account`). |
-| **Product** | `ProductGallery` | Multi-image product showcase with hover zoom and thumbnail switcher. |
-| **Product** | `VariantSelector` | Interactive color circles and size pills with out-of-stock indicators. |
-| **Product** | `ProductCard` | Catalog card with secondary image hover-flip, discount badge & quick add. |
-| **Product** | `QuantitySelector` | Clean stepper `[-] 1 [+]` with min/max safety limits. |
-| **Product** | `ReviewBreakdownBars` | 5-star to 1-star visual percentage bars with ratings average. |
-| **Checkout** | `CartDrawer` | Slide-out cart with real-time Free Shipping progress meter. |
-| **Checkout** | `StickyAddToCart` | Mobile-first bottom bar that sticks when scrolling past the main buy button. |
-| **Checkout** | `PincodeChecker` | Indian pincode validator with estimated delivery date and COD badge. |
-| **Trust** | `TrustBadges` | High-converting badges (*100% Genuine*, *7-Day Easy Returns*, *COD*, *SSL*). |
-| **Orders** | `OrderTimeline` | Multi-step tracking (*Placed &rarr; Confirmed &rarr; Shipped &rarr; Delivered*). |
-
----
-
-## 📦 Installation
-
-Install with your favorite package manager:
+## Installation
 
 ```bash
 # npm
@@ -108,228 +36,366 @@ pnpm add @boostengine/ui
 yarn add @boostengine/ui
 ```
 
+### Or Use Shadcn-Style Component Scaffolding
+Copy component source code directly into your `./components/boost-ui` folder:
+```bash
+npx @boostengine/ui add hero-section
+npx @boostengine/ui add cart-drawer
+npx @boostengine/ui add pricing-table
+npx @boostengine/ui list
+```
+
 ---
 
-## 🚀 Quickstart
+## 🎨 Theming & Dark Mode Setup
 
-### Next.js App Router (Next.js 13, 14, 15)
+Wrap your application root (e.g. `layout.tsx` or `_app.tsx`) with `BoostProvider` and optional `ToastProvider`:
 
 ```tsx
-'use client';
+import { BoostProvider, ToastProvider, useTheme, useToast } from '@boostengine/ui';
 
-import { useState } from 'react';
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <BoostProvider defaultMode="system">
+      <ToastProvider position="bottom-right">
+        {children}
+      </ToastProvider>
+    </BoostProvider>
+  );
+}
+
+// In any child component:
+function MyComponent() {
+  const { resolvedMode, toggleMode } = useTheme();
+  const { toast } = useToast();
+
+  return (
+    <button
+      onClick={() => {
+        toggleMode();
+        toast.success(`Switched to ${resolvedMode === 'dark' ? 'Light' : 'Dark'} mode!`);
+      }}
+    >
+      Toggle Mode
+    </button>
+  );
+}
+```
+
+---
+
+## 📦 Complete Component Suite (115 Components)
+
+### 0. Theming & Architecture
+* `BoostProvider` - Root design system provider with CSS variable token injection
+* `useTheme` - Context hook for dynamic dark/light mode toggling and token inspection
+* `ToastProvider` & `useToast` - Lightweight imperative notification manager (`toast.success()`, `toast.error()`)
+
+### 1. Layout Primitives (Lego Bricks)
+* `Box` - Polymorphic wrapper (`as="div" | "section" | "article" | ...`) with shorthand spacing props
+* `Flex` - Flexbox layout container with direction, justify, align, wrap, and gap
+* `Stack`, `VStack`, `HStack` - Spaced stack layouts for clean vertical & horizontal spacing
+* `Grid`, `GridItem` - CSS Grid container with column templates, row/col spans, and gaps
+* `Section` - Standardized page section boundary with max-width and vertical rhythm
+* `AspectRatio` - Aspect-ratio lock (`16/9`, `1/1`, `4/3`) for videos, banners, and product media
+* `ScrollArea` - Minimalist custom scrollbar container for sidebars and panels
+* `Container` - Max-width responsive container boundary
+* `PageWrapper` - Standard app shell wrapper
+* `Motion` - Zero-dependency entrance and scroll-triggered animations (`fade-in`, `slide-up`, `scale-in`)
+
+### 2. Marketing & High-Converting Landing Blocks
+* `HeroSection` - Headline, badge, description, dual action buttons, and background glow/media
+* `FeatureGrid` - Multi-column feature highlights with icon containers and descriptions
+* `PricingTable` - Tiered pricing cards with monthly/annual switch toggle, checkmarks, and "Popular" ribbon
+* `TestimonialCard` & `TestimonialGrid` - Customer review cards with avatars, ratings, and verified badges
+* `FAQSection` - Searchable, interactive accordion for frequently asked questions
+* `LogoCloud` - Client/partner brand logo strip with grayscale hover transitions
+* `CTASection` - High-contrast lead generation banner with integrated newsletter capture
+
+### 3. SaaS & Enterprise Dashboard Blocks
+* `KPIWidget` - Metric card with positive/negative trend percentages, sparkline slot, and subtitles
+* `CommandPalette` - `Cmd+K` / `Ctrl+K` searchable modal for quick actions and shortcuts
+* `ActivityFeed` - Chronological audit log with user avatars, actions, and status tags
+* `NotificationCenter` - Bell icon with unread badge and dropdown notification drawer
+* `CopyButton` - 1-click clipboard copy button with checkmark transition
+* `FileDropzone` - Drag-and-drop file upload zone with file type validation and previews
+* `StatsCard` - Compact KPI metric card with positive/negative trend badges
+* `DataTable` - Advanced table with live search filtering, column sorting, and pagination
+* `DateRangePicker` - Dual-calendar date range selector for analytical reports
+* `ExportButton` - Dataset exporter for CSV, Excel, PDF, and JSON
+* `Filter` & `Sort` - Dropdown filters and criteria sorters
+
+### 4. Buttons & Actions
+* `Button` - Multi-variant button (`primary`, `secondary`, `outline`, `ghost`, `destructive`, `link`) with loading spinner
+* `IconButton` - Accessible icon button with square, rounded, or circular shapes
+* `ButtonGroup` - Unified grouping for related action buttons
+* `FloatingActionButton` - Fixed-position floating action button (FAB) for fast actions
+* `LinkButton` - Semantic anchor link styled identically to buttons
+
+### 5. Forms & Inputs
+* `Input` - Text input with integrated labels, error states, and helper instructions
+* `Textarea` - Multi-line input with auto-resize, character limit, and counter badge
+* `Select` & `MultiSelect` - Accessible select dropdowns and multi-tag pickers
+* `Checkbox` - Checkbox with SVG checkmark and indeterminate state
+* `Radio` & `RadioGroup` - Radio option selectors for single-choice forms
+* `Switch` - Smooth interactive toggle switch with accessible ARIA roles
+* `DatePicker` & `TimePicker` - Clean calendar date picker and 24hr time selector
+* `FileUpload` - Drag-and-drop file upload zone
+* `SearchInput` - Search box with SVG search icon and quick clear button
+* `FormField` - Standard layout container with required indicators and error displays
+* `OTPInput` - Auto-advancing numeric verification code inputs
+
+### 6. Feedback & Status
+* `Toast`, `ToastProvider`, `useToast` - Imperative toast system with auto-dismiss
+* `Loader` & `Spinner` - Circular animated spinners
+* `ProgressBar` - Percentage completion bar with custom color states
+* `Skeleton` - Shimmering placeholder bones for text, cards, and avatars
+* `Alert` & `Snackbar` - Notification callouts and bottom action alerts
+* `EmptyState` - Zero-data container with clean vector illustration and CTA
+* `ErrorState` - Error screen with retry callback for failed API requests
+* `SuccessMessage` - Order and payment confirmation container
+
+### 7. Content & Display
+* `Card` - Compound card system (`Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`)
+* `Image` - Progressive image loader with fallback source and aspect ratio lock
+* `Avatar` & `AvatarGroup` - User profile pictures and overlapping group avatars with +N counter
+* `Badge` & `Tag` - Status pills and removable tags
+* `Tooltip` - 4-way direction hover tooltip (top, bottom, left, right)
+* `Chip` - Interactive selectable or deletable pill
+* `Divider` - Horizontal or vertical separator with optional text label
+* `Accordion` - Collapsible question-and-answer panels
+* `Carousel` - Content and banner slider with auto-advance and dot indicators
+
+### 8. Overlays & Dialogs
+* `Modal` / `Dialog` - Accessible modal dialog with frosted backdrop and Escape key listener
+* `Drawer` - Slide-out drawer anchored to left, right, top, or bottom edges
+* `BottomSheet` - Mobile-first slide-up sheet with drag handle
+* `Popover` - Contextual floating popover attached to trigger element
+* `ConfirmationDialog` - Pre-styled prompt for destructive actions
+* `Portal` - SSR-safe DOM portal for rendering overlays directly into document.body
+
+### 9. Navigation & Menus
+* `Header` & `Navbar` - Responsive navigation bar with search, cart counter, and wishlist
+* `Sidebar` - Collapsible sidebar drawer with grouped links and badges
+* `Footer` - Multi-column site footer with newsletter subscription form
+* `MobileBottomBar` & `MobileBottomNav` - Smartphone bottom tab navigation bar
+* `Breadcrumb` - Hierarchical path navigation with SVG separators
+* `NavLink`, `DropdownMenu`, `MegaMenu` - Interactive flyouts and catalog menus
+* `Pagination`, `Tabs`, `Stepper`, `BackButton` - Step workflows and page navigation
+
+### 10. E-Commerce & D2C Storefront Suite
+* `CartDrawer` - Slide-out cart drawer with dynamic Indian free shipping progress meter
+* `StickyAddToCart` - Mobile sticky bottom buy bar that activates on scroll
+* `PincodeChecker` - Indian 6-digit pincode serviceability and Cash on Delivery (COD) checker
+* `ProductCard` - Conversion product card with ratings and quick add button
+* `ProductGallery` - Image gallery with thumbnail strip and zoom capability
+* `VariantSelector` - Size and color variant swatches
+* `QuantitySelector` - Plus and minus quantity stepper
+* `StarRating` & `ReviewBreakdownBars` - Rating stars and 5-star histogram breakdown
+* `TrustBadges` - Verified badges (COD, 7-day returns, authentic)
+* `OrderTimeline` - Post-purchase shipment tracking timeline
+* `AnnouncementBar` - Top promotional banner for coupon codes
+* `LightningDealsBar` - Countdown urgency bar with claimed progress
+* `FrequentlyBoughtTogether` - Amazon-style product bundle upsell widget
+* `BankOffersAccordion` - Flipkart-style instant bank discount accordion
+* `Price`, `AddToCart`, `CouponInput`, `AddressForm`, `OrderSummary` - End-to-end checkout primitives
+
+---
+
+## 🤖 AI Coding Agents Integration
+
+`@boostengine/ui` is designed to be the #1 choice for AI Coding Assistants (Cursor, Claude, Windsurf, Copilot, Gemini):
+
+1. **Machine-Readable LLM Manifests**:
+   - `llms.txt`: High-level prompt index for agent context ingestion.
+   - `llms-full.txt`: Comprehensive copy-paste snippet guide for zero-hallucination code generation.
+2. **Predictable Prop Naming**:
+   - States: `isOpen`, `isLoading`, `disabled`
+   - Actions: `onSelect`, `onClick`, `onChange`, `onSubmit`
+   - Variants: `primary`, `secondary`, `outline`, `ghost`, `destructive`
+
+---
+
+## Quick Example: Modern SaaS Landing Page
+
+```tsx
 import {
-  AnnouncementBar,
+  BoostProvider,
   Navbar,
-  Footer,
-  MobileBottomBar,
-  ProductGallery,
-  VariantSelector,
-  QuantitySelector,
-  PincodeChecker,
-  TrustBadges,
-  CartDrawer,
-  StickyAddToCart
+  HeroSection,
+  FeatureGrid,
+  PricingTable,
+  FAQSection,
+  CTASection,
+  Footer
 } from '@boostengine/ui';
 
-export default function ProductPage() {
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(1);
-  const [selectedVariants, setSelectedVariants] = useState({ Size: 'M', Color: 'Black' });
-  const [qty, setQty] = useState(1);
-
+export default function SaaSPage() {
   return (
-    <div>
-      {/* 1. Promo Announcement Banner */}
-      <AnnouncementBar
-        messages={[
-          '⚡ Flat 20% OFF on all orders above ₹999',
-          '🚚 Free Express Shipping across India'
+    <BoostProvider defaultMode="system">
+      <Navbar brandName="CLOUDBOOST" />
+      <HeroSection
+        badge="🚀 AI Platform 2.0"
+        title="Deploy Autonomous Microservices"
+        description="Ship scalable architectures with automated scaling and zero config."
+        primaryAction={{ label: 'Get Started Free' }}
+        secondaryAction={{ label: 'View Documentation' }}
+      />
+      <FeatureGrid
+        features={[
+          { title: 'Global Edge Cache', description: 'Under 10ms latency worldwide.' },
+          { title: 'Instant Rollbacks', description: 'Zero downtime disaster recovery.' },
+          { title: 'Built-in Telemetry', description: 'Real-time traces and metrics.' }
         ]}
-        couponCode="BOOST20"
       />
-
-      {/* 2. Main Header */}
-      <Navbar
-        brandName="BoostStore"
-        cartCount={cartCount}
-        onCartClick={() => setCartOpen(true)}
+      <PricingTable
+        tiers={[
+          { id: '1', name: 'Developer', priceMonthly: 0, features: ['10 Projects', 'Community Support'] },
+          { id: '2', name: 'Scale', priceMonthly: 49, isPopular: true, features: ['Unlimited Projects', '24/7 SLA'] }
+        ]}
       />
-
-      {/* 3. Product Details */}
-      <main style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }}>
-          
-          {/* Gallery with Zoom */}
-          <ProductGallery
-            images={[
-              'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80',
-              'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80'
-            ]}
-          />
-
-          {/* Product Buying Form */}
-          <div>
-            <h1 style={{ fontSize: '28px', fontWeight: 700 }}>Boost Minimalist Oversized Tee</h1>
-            <p style={{ fontSize: '24px', fontWeight: 800, color: '#111827', margin: '12px 0' }}>₹999</p>
-
-            {/* Color & Size Swatches */}
-            <VariantSelector
-              options={[
-                {
-                  name: 'Color',
-                  type: 'color',
-                  values: [
-                    { label: 'Black', value: '#111827' },
-                    { label: 'White', value: '#ffffff' }
-                  ]
-                },
-                {
-                  name: 'Size',
-                  type: 'pill',
-                  values: [
-                    { label: 'S', value: 'S' },
-                    { label: 'M', value: 'M' },
-                    { label: 'L', value: 'L' }
-                  ]
-                }
-              ]}
-              selectedVariants={selectedVariants}
-              onChange={(name, val) => setSelectedVariants(prev => ({ ...prev, [name]: val }))}
-            />
-
-            {/* Stepper */}
-            <div style={{ marginTop: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>Quantity:</label>
-              <QuantitySelector value={qty} min={1} max={10} onChange={setQty} />
-            </div>
-
-            {/* Pincode & Delivery Checker */}
-            <PincodeChecker style={{ marginTop: '24px' }} />
-
-            {/* Conversion Trust Badges */}
-            <TrustBadges style={{ marginTop: '24px' }} />
-          </div>
-        </div>
-      </main>
-
-      {/* 4. Slide-out Cart Drawer */}
-      <CartDrawer
-        isOpen={cartOpen}
-        onClose={() => setCartOpen(false)}
-        items={[{ id: '1', title: 'Minimalist Tee', price: 999, quantity: qty }]}
-        subtotal={999 * qty}
-        freeShippingThreshold={999}
-        onCheckout={() => window.location.href = '/checkout'}
+      <FAQSection
+        items={[
+          { question: 'How do I start?', answer: 'Simply run npm i @boostengine/ui and import components.' }
+        ]}
       />
-
-      {/* 5. Mobile Sticky Bottom Buy Bar */}
-      <StickyAddToCart
-        title="Minimalist Oversized Tee"
-        price={999}
-        onAddToCart={() => {
-          setCartCount(prev => prev + 1);
-          setCartOpen(true);
-        }}
+      <CTASection
+        title="Start Building Today"
+        description="Join thousands of developers shipping with Boost Engine."
+        showNewsletter
       />
-
-      {/* 6. Footer & Mobile Bar */}
-      <Footer brandName="BoostStore" />
-      <MobileBottomBar cartCount={cartCount} onTabChange={(tabId) => console.log('Tab selected:', tabId)} />
-    </div>
+      <Footer brandName="CLOUDBOOST" />
+    </BoostProvider>
   );
 }
 ```
 
 ---
 
-### Vite + React Example
+## 🪝 Utility Hooks (SSR-Safe)
 
-Works seamlessly in Vite with zero extra plugins required:
+All hooks are exported directly from `@boostengine/ui` — no separate package needed:
 
 ```tsx
-import React, { useState } from 'react';
-import { ProductCard, CartDrawer } from '@boostengine/ui';
+import {
+  useMediaQuery,          // Reactive CSS media query
+  useClickOutside,        // Click-outside detection for dropdowns/modals
+  useDebounce,            // Delay state updates (perfect for search inputs)
+  useLocalStorage,        // Persistent state with JSON serialization
+  useWindowSize,          // Reactive window dimensions
+  useScrollPosition,      // Reactive scrollY/scrollX
+  usePrevious,            // Track previous value of state/prop
+  useCopyToClipboard,     // Clipboard write with auto-reset copied state
+  useToggle,              // Simple boolean toggle
+  useIntersectionObserver // Viewport visibility for scroll animations
+} from '@boostengine/ui';
 
-export function ProductGrid() {
+// Scroll-aware sticky navbar
+const { scrollY } = useScrollPosition();
+const isSticky = scrollY > 60;
+
+// Debounced search
+const debouncedQuery = useDebounce(searchQuery, 400);
+
+// Persistent cart in localStorage
+const [cart, setCart] = useLocalStorage('cart', []);
+
+// Fade-in on scroll
+const [sectionRef, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+<div ref={sectionRef} style={{ opacity: isVisible ? 1 : 0 }} />
+```
+
+---
+
+## 🔧 Utility Functions
+
+```tsx
+import {
+  cn,                    // Class merging (like clsx, zero dependencies)
+  formatCurrency,        // ₹1,499 or $49.99
+  formatDate,            // '18 Sep 2026'
+  formatRelativeTime,    // '2 minutes ago'
+  slugify,               // 'my-product-name-2026'
+  getInitials,           // 'AS' from 'Aarav Sharma'
+  isValidEmail,          // Email format validation
+  isValidIndianPincode,  // 6-digit Indian postal code validation
+  isValidIndianMobile,   // 10-digit Indian mobile validation
+  clamp, truncate, generateId, groupBy, deepMerge, debounce
+} from '@boostengine/ui';
+
+formatCurrency(1499)              // => '₹1,499'
+formatCurrency(49.99, 'USD')      // => '$49.99'
+getInitials('Aarav Sharma')       // => 'AS'
+slugify('My Product (2026)')      // => 'my-product-2026'
+isValidIndianPincode('110001')    // => true
+cn('btn', isActive && 'active')   // => 'btn active'
+```
+
+---
+
+## Quick Example: eCommerce Storefront
+
+```tsx
+import {
+  BoostProvider, ToastProvider, Navbar, CartDrawer,
+  HeroSection, ProductCard, Grid, MobileBottomNav, Footer
+} from '@boostengine/ui';
+
+export default function StorePage() {
   const [cartOpen, setCartOpen] = useState(false);
-
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-      <ProductCard
-        title="Cyberpunk Graphic Tee"
-        price={699}
-        compareAtPrice={1299}
-        imageUrl="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500"
-        onAddToCart={() => setCartOpen(true)}
-      />
+    <BoostProvider defaultMode="light">
+      <ToastProvider position="top-center">
+        <Navbar brandName="BOOST STORE" cartCount={3} onCartClick={() => setCartOpen(true)} showSearch />
+        <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} items={cartItems} freeDeliveryThreshold={999} />
+        <HeroSection badge="🔥 Sale Live" title="Up to 70% Off" primaryAction={{ label: 'Shop Now' }} />
+        <Grid cols={4} gap={24} style={{ padding: '40px 24px' }}>
+          {products.map(p => (
+            <ProductCard key={p.id} {...p} onAddToCart={() => addToCart(p)} />
+          ))}
+        </Grid>
+        <MobileBottomNav items={navItems} activeItemId="home" />
+        <Footer brandName="BOOST STORE" />
+      </ToastProvider>
+    </BoostProvider>
+  );
+}
+```
 
-      <CartDrawer
-        isOpen={cartOpen}
-        onClose={() => setCartOpen(false)}
-        items={[{ id: 'item_1', title: 'Cyberpunk Graphic Tee', price: 699, quantity: 1 }]}
-        subtotal={699}
-      />
-    </div>
+## Quick Example: Admin Dashboard
+
+```tsx
+import {
+  BoostProvider, ToastProvider, Sidebar, Grid,
+  KPIWidget, DataTable, ActivityFeed, HStack
+} from '@boostengine/ui';
+
+export default function AdminDashboard() {
+  return (
+    <BoostProvider defaultMode="dark">
+      <ToastProvider position="top-right">
+        <HStack align="flex-start" style={{ minHeight: '100vh' }}>
+          <Sidebar groups={adminNavGroups} isOpen activeItemId="overview" />
+          <main style={{ flex: 1, padding: '32px' }}>
+            <Grid cols={4} gap={20}>
+              <KPIWidget title="Revenue" value="₹14,82,900" change={18.4} changePeriod="vs last month" />
+              <KPIWidget title="Orders" value="1,284" change={7.2} changePeriod="vs last month" />
+              <KPIWidget title="Customers" value="892" change={-2.1} changePeriod="vs last month" />
+              <KPIWidget title="Avg. Order" value="₹1,154" change={12.3} changePeriod="vs last month" />
+            </Grid>
+            <DataTable columns={orderColumns} data={orders} searchable pageSize={20} />
+            <ActivityFeed title="Recent Activity" items={activityItems} />
+          </main>
+        </HStack>
+      </ToastProvider>
+    </BoostProvider>
   );
 }
 ```
 
 ---
 
-## ⚙️ Component Props Reference
+## License
 
-### `<ProductGallery />`
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `images` | `string[]` | **Required** | Array of image URLs to display. |
-| `aspectRatio` | `string` | `'3/4'` | CSS aspect ratio of the main image container. |
-| `zoomFactor` | `number` | `2` | Magnification factor when hovering over the main photo. |
-
-### `<VariantSelector />`
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `options` | `VariantOption[]` | **Required** | Array of variant types (`color` with hex or `pill` with text). |
-| `selectedVariants`| `Record<string, string>` | `{}` | Currently active selections (e.g. `{ Color: '#000', Size: 'M' }`). |
-| `onChange` | `(name: string, value: string) => void` | **Required** | Callback when user selects an option. |
-
-### `<CartDrawer />`
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `isOpen` | `boolean` | `false` | Controls whether the drawer is visible. |
-| `onClose` | `() => void` | **Required** | Callback triggered when user clicks backdrop or close button. |
-| `items` | `CartItem[]` | `[]` | Array of cart items with `id`, `title`, `price`, `quantity`. |
-| `subtotal` | `number` | `0` | Order subtotal in primary currency. |
-| `freeShippingThreshold` | `number` | `undefined` | Threshold value (e.g. `999`) to show motivational progress bar. |
-| `onCheckout` | `() => void` | `undefined` | Callback when user clicks the checkout CTA. |
-
-### `<PincodeChecker />`
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `onCheck` | `(pincode: string) => Promise<PincodeResult>` | `defaultMock` | Custom verification function (e.g. calling `@boostengine/shipping`). |
-| `placeholder` | `string` | `'Enter 6-digit Pincode'` | Input placeholder text. |
-
----
-
-## 🎨 Customization & Theming
-
-Every component uses inline CSS styles with standard design tokens, meaning:
-1. **No Tailwind or Sass required**: You do not need to configure CSS purge lists or PostCSS plugins.
-2. **Custom Style Overrides**: Pass standard `style` and `className` props to any component.
-3. **CSS Variables Support**: Supports standard font inheritance and responsive viewport sizing.
-
----
-
-## ❓ Frequently Asked Questions (FAQ)
-
-**Q: Do these components cause SSR hydration mismatches in Next.js?**  
-A: No. All interactive components (`CartDrawer`, `StickyAddToCart`, `VariantSelector`) have `'use client'` pre-bundled, ensuring 100% clean SSR hydration without flickering.
-
-**Q: Can I connect this with `@boostengine/cart`?**  
-A: Absolutely! Simply pass `cart.getSummary().subtotal` and `cart.getItems()` directly into the `<CartDrawer />` component.
-
----
-
-## 📄 License
-
-MIT © [Boost Engine](https://github.com/boostengine)
+MIT License (c) 2026 Boost Engine. Developed for modern global and Indian D2C & SaaS creators.
+See [LICENSE](./LICENSE) for full license text.

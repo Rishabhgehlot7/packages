@@ -2,60 +2,92 @@ import * as React from 'react';
 
 export interface LightningDealsBarProps {
   dealTitle?: string;
-  endsAt: Date | string | number;
+  endsAt?: Date | string | number;
+  dealEndsInSeconds?: number;
   percentageClaimed?: number;
+  claimedPercent?: number;
   totalQuantity?: number;
   claimedQuantity?: number;
   badgeColor?: string;
   className?: string;
+  onExpire?: () => void;
+  hideOnExpire?: boolean;
 }
 
 export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
-  dealTitle = '⚡ LIGHTNING DEAL',
+  dealTitle = 'LIGHTNING DEAL',
   endsAt,
+  dealEndsInSeconds,
   percentageClaimed = 78,
+  claimedPercent,
   totalQuantity,
   claimedQuantity,
   badgeColor = '#ef4444',
   className = '',
+  onExpire,
+  hideOnExpire = true,
+  ...props
 }) => {
   const [timeLeft, setTimeLeft] = React.useState({
-    hours: 0,
+    hours: 2,
     minutes: 0,
     seconds: 0,
     isExpired: false,
   });
 
+  const effectivePercent = claimedPercent !== undefined 
+    ? claimedPercent 
+    : (props as any).claimedPercent !== undefined 
+      ? (props as any).claimedPercent 
+      : percentageClaimed;
+
+  const secondsProp = dealEndsInSeconds || (props as any).dealEndsInSeconds;
+
   React.useEffect(() => {
-    const end = new Date(endsAt).getTime();
+    let end: number;
+    if (secondsProp) {
+      end = Date.now() + Number(secondsProp) * 1000;
+    } else if (endsAt) {
+      const parsed = new Date(endsAt).getTime();
+      end = isNaN(parsed) ? Date.now() + 7200 * 1000 : parsed;
+    } else {
+      end = Date.now() + 7200 * 1000;
+    }
 
     const update = () => {
       const now = Date.now();
       const diff = Math.max(0, end - now);
       if (diff === 0) {
         setTimeLeft({ hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        if (onExpire) onExpire();
         return;
       }
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      setTimeLeft({ hours, minutes, seconds, isExpired: false });
+      setTimeLeft({
+        hours: isNaN(hours) ? 0 : hours,
+        minutes: isNaN(minutes) ? 0 : minutes,
+        seconds: isNaN(seconds) ? 0 : seconds,
+        isExpired: false
+      });
     };
 
     update();
     const timer = setInterval(update, 1000);
     return () => clearInterval(timer);
-  }, [endsAt]);
+  }, [endsAt, secondsProp]);
 
   const pad = (n: number) => String(n).padStart(2, '0');
 
   // Compute claimed %
-  let percent = percentageClaimed;
+  let percent = effectivePercent;
   if (totalQuantity && claimedQuantity !== undefined) {
-    percent = Math.min(100, Math.round((claimedQuantity / totalQuantity) * 100));
+    percent = Math.round((claimedQuantity / totalQuantity) * 100);
   }
+  percent = Math.min(100, Math.max(0, percent));
 
-  if (timeLeft.isExpired) {
+  if (timeLeft.isExpired && hideOnExpire) {
     return null;
   }
 
@@ -188,3 +220,6 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
     </div>
   );
 };
+
+
+LightningDealsBar.displayName = 'LightningDealsBar';

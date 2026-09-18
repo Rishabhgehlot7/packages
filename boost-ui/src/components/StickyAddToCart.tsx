@@ -156,3 +156,6 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
     </div>
   );
 };
+
+
+StickyAddToCart.displayName = 'StickyAddToCart';

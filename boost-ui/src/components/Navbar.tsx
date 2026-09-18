@@ -92,8 +92,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         borderBottom: '1px solid #f3f4f6',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
         width: '100%',
+        boxSizing: 'border-box',
       }}
     >
+      <style>{`
+        @media (max-width: 992px) {
+          .boost-navbar .boost-desktop-nav {
+            display: none !important;
+          }
+          .boost-navbar .boost-mobile-hamburger {
+            display: inline-flex !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .boost-navbar .boost-navbar-search {
+            display: none !important;
+          }
+        }
+      `}</style>
       <div
         style={{
           maxWidth: '1280px',
@@ -170,10 +186,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                     backgroundColor: '#111827',
                     color: '#ffffff',
                     borderRadius: '8px',
-                    fontSize: '14px',
                   }}
                 >
-                  ⚡
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
                 </span>
                 {brandName}
               </span>
@@ -228,6 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Search Bar */}
         <div
+          className="boost-navbar-search"
           style={{
             flex: 1,
             maxWidth: '360px',
@@ -436,3 +454,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+
+
+Navbar.displayName = 'Navbar';

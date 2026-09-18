@@ -76,3 +76,6 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
     </div>
   );
 };
+
+
+OrderTimeline.displayName = 'OrderTimeline';

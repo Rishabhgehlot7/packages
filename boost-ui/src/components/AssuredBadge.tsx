@@ -63,11 +63,11 @@ export const AssuredBadge: React.FC<AssuredBadgeProps> = ({
             borderRadius: '9999px',
             backgroundColor: '#f59e0b',
             color: '#ffffff',
-            fontSize: '9px',
-            fontWeight: 900,
           }}
         >
-          🪙
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+            <circle cx="12" cy="12" r="9" />
+          </svg>
         </span>
         SuperCoins Partner
       </span>
@@ -115,3 +115,6 @@ export const AssuredBadge: React.FC<AssuredBadgeProps> = ({
     </span>
   );
 };
+
+
+AssuredBadge.displayName = 'AssuredBadge';

@@ -176,3 +176,6 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     </nav>
   );
 };
+
+
+MobileBottomBar.displayName = 'MobileBottomBar';

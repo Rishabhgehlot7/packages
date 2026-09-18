@@ -107,10 +107,11 @@ export const Footer: React.FC<FooterProps> = ({
                 backgroundColor: '#ffffff',
                 color: '#111827',
                 borderRadius: '8px',
-                fontSize: '15px',
               }}
             >
-              ⚡
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
             </span>
             {brandName}
           </span>
@@ -130,9 +131,15 @@ export const Footer: React.FC<FooterProps> = ({
                   borderRadius: '8px',
                   fontSize: '13px',
                   fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}
               >
-                ✓ You’re on the VIP list! Check your inbox soon.
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>You are on the VIP list! Check your inbox soon.</span>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px' }}>
@@ -253,3 +260,6 @@ export const Footer: React.FC<FooterProps> = ({
     </footer>
   );
 };
+
+
+Footer.displayName = 'Footer';

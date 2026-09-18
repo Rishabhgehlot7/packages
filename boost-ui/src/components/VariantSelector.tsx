@@ -2,8 +2,9 @@ import * as React from 'react';
 
 export interface VariantOption {
   id: string;
-  name: string; // e.g. "Size", "Color", "Storage"
-  value: string; // e.g. "M", "Midnight Black", "256GB"
+  name?: string; // e.g. "Size", "Color", "Storage"
+  value?: string; // e.g. "M", "Midnight Black", "256GB"
+  label?: string; // e.g. "S", "M", "L"
   colorHex?: string; // Optional hex for color swatch e.g. "#111827"
   priceDelta?: number; // Optional e.g. +500
   inStock?: boolean;
@@ -19,8 +20,9 @@ export type SelectedVariants = Record<string, string>;
 
 export interface VariantSelectorProps {
   groups: VariantGroup[];
-  selectedValues: SelectedVariants; // { "Select Size": "M", "Select Color": "Black" }
-  onChange: (groupName: string, optionValue: string, option: VariantOption) => void;
+  selectedValues?: SelectedVariants; // { "Select Size": "M", "Select Color": "Black" }
+  selectedVariants?: SelectedVariants;
+  onChange?: (groupName: string, optionValue: string, option?: VariantOption) => void;
   className?: string;
 }
 
@@ -29,11 +31,14 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
   selectedValues,
   onChange,
   className = '',
+  ...props
 }) => {
+  const values = selectedValues || (props as any).selectedVariants || {};
+
   return (
     <div className={`boost-variant-selector ${className}`} style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontFamily: 'inherit' }}>
       {groups.map((group) => {
-        const selected = selectedValues[group.name];
+        const selected = values[group.name];
         const isColor = group.type === 'color';
 
         return (
@@ -46,7 +51,9 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {group.options.map((opt) => {
-                const isSelected = selected === opt.value;
+                const optVal = opt.value || opt.label || opt.name || opt.id || '';
+                const optDisplay = opt.label || opt.value || opt.name || opt.id;
+                const isSelected = selected === optVal || selected === opt.id;
                 const isOutOfStock = opt.inStock === false;
 
                 if (isColor && opt.colorHex) {
@@ -56,8 +63,8 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                       key={opt.id}
                       type="button"
                       disabled={isOutOfStock}
-                      onClick={() => onChange(group.name, opt.value, opt)}
-                      title={`${opt.value}${isOutOfStock ? ' (Sold Out)' : ''}`}
+                      onClick={() => onChange && onChange(group.name, optVal, opt)}
+                      title={`${optDisplay}${isOutOfStock ? ' (Sold Out)' : ''}`}
                       style={{
                         width: '34px',
                         height: '34px',
@@ -96,7 +103,7 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                     key={opt.id}
                     type="button"
                     disabled={isOutOfStock}
-                    onClick={() => onChange(group.name, opt.value, opt)}
+                    onClick={() => onChange && onChange(group.name, optVal, opt)}
                     style={{
                       padding: '8px 16px',
                       borderRadius: '10px',
@@ -112,7 +119,7 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    <span>{opt.value}</span>
+                    <span>{optDisplay}</span>
                     {opt.priceDelta && opt.priceDelta > 0 && (
                       <span style={{ fontSize: '11px', marginLeft: '4px', opacity: 0.8 }}>
                         (+₹{opt.priceDelta})
@@ -128,3 +135,6 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
     </div>
   );
 };
+
+
+VariantSelector.displayName = 'VariantSelector';

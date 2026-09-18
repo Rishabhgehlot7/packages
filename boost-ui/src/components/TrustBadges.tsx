@@ -84,3 +84,6 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
     </div>
   );
 };
+
+
+TrustBadges.displayName = 'TrustBadges';

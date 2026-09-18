@@ -6,16 +6,19 @@ export interface ProductCardProps {
   title: string;
   price: number;
   compareAtPrice?: number;
-  images: string[];
+  originalPrice?: number;
+  images?: string[];
+  image?: string;
+  imageUrl?: string;
   brand?: string;
   rating?: number;
   reviewCount?: number;
   inStock?: boolean;
   stockUrgencyText?: string;
   isWishlisted?: boolean;
-  onAddToCart?: () => void;
-  onToggleWishlist?: () => void;
-  onClick?: () => void;
+  onAddToCart?: (id?: string) => void;
+  onToggleWishlist?: (id?: string) => void;
+  onClick?: (id?: string) => void;
   className?: string;
 }
 
@@ -24,7 +27,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   title,
   price,
   compareAtPrice,
-  images,
+  originalPrice,
+  images = [],
+  image,
+  imageUrl,
   brand,
   rating,
   reviewCount,
@@ -38,13 +44,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
 
-  const mainImage = images[0] || '';
-  const secondaryImage = images[1] || mainImage;
+  const effectiveOriginalPrice = compareAtPrice ?? originalPrice;
+  const imageList =
+    images && images.length > 0
+      ? images
+      : imageUrl
+      ? [imageUrl]
+      : image
+      ? [image]
+      : [];
+
+  const mainImage = imageList[0] || '';
+  const secondaryImage = imageList[1] || mainImage;
   const currentImage = isHovered && secondaryImage ? secondaryImage : mainImage;
 
   const discountPercent =
-    compareAtPrice && compareAtPrice > price
-      ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+    effectiveOriginalPrice && effectiveOriginalPrice > price
+      ? Math.round(((effectiveOriginalPrice - price) / effectiveOriginalPrice) * 100)
       : null;
 
   return (
@@ -74,7 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           overflow: 'hidden',
           cursor: onClick ? 'pointer' : 'default',
         }}
-        onClick={onClick}
+        onClick={onClick ? () => onClick(id) : undefined}
       >
         <img
           src={currentImage}
@@ -137,7 +153,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
             onClick={(e) => {
               e.stopPropagation();
-              onToggleWishlist();
+              onToggleWishlist(id);
             }}
             style={{
               position: 'absolute',
@@ -181,7 +197,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
         <h3
-          onClick={onClick}
+          onClick={() => onClick?.(id)}
           style={{
             fontSize: '12px',
             fontWeight: 700,
@@ -202,9 +218,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '1px' }}>
           <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>₹{price}</span>
-          {compareAtPrice && compareAtPrice > price && (
+          {effectiveOriginalPrice && effectiveOriginalPrice > price && (
             <span style={{ fontSize: '11px', color: '#94a3b8', textDecoration: 'line-through' }}>
-              ₹{compareAtPrice}
+              ₹{effectiveOriginalPrice}
             </span>
           )}
         </div>
@@ -216,7 +232,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             disabled={!inStock}
             onClick={(e) => {
               e.stopPropagation();
-              onAddToCart();
+              onAddToCart(id);
             }}
             style={{
               marginTop: '4px',
@@ -239,3 +255,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     </div>
   );
 };
+
+
+ProductCard.displayName = 'ProductCard';

@@ -183,3 +183,6 @@ export const BankOffersAccordion: React.FC<BankOffersAccordionProps> = ({
     </div>
   );
 };
+
+
+BankOffersAccordion.displayName = 'BankOffersAccordion';

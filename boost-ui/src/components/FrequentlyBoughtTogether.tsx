@@ -253,3 +253,6 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
     </div>
   );
 };
+
+
+FrequentlyBoughtTogether.displayName = 'FrequentlyBoughtTogether';

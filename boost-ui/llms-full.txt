@@ -1,0 +1,1107 @@
+# @boostengine/ui Full API Specifications & AI Agent Handbook
+
+> Version 1.4.0 | Universal React & Next.js Component Library
+> Zero external CSS dependencies. AI Coding Agent Native.
+
+---
+
+## 1. Theming & Provider
+
+### BoostProvider & useTheme
+Wraps application with CSS variable tokens and provides theme mode switching (`light`, `dark`, `system`).
+```tsx
+import { BoostProvider, useTheme } from '@boostengine/ui';
+
+function ThemeToggle() {
+  const { resolvedMode, toggleMode } = useTheme();
+  return (
+    <button onClick={toggleMode}>
+      Current Mode: {resolvedMode === 'dark' ? '🌙 Dark' : '☀️ Light'}
+    </button>
+  );
+}
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <BoostProvider defaultMode="system">
+      <ThemeToggle />
+      {children}
+    </BoostProvider>
+  );
+}
+```
+
+**BoostProvider Props:**
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `defaultMode` | `'light' \| 'dark' \| 'system'` | `'system'` | Initial theme mode |
+| `tokens` | `ThemeTokens` | `{}` | Override light mode tokens |
+| `darkTokens` | `ThemeTokens` | `{}` | Override dark mode tokens |
+| `children` | `ReactNode` | required | App content |
+
+**Available CSS Variables (injected by BoostProvider):**
+```css
+--boost-primary       /* Primary brand color */
+--boost-primary-hover /* Primary hover state */
+--boost-bg            /* Page background */
+--boost-surface       /* Card/panel surface */
+--boost-text          /* Primary text */
+--boost-text-muted    /* Secondary text */
+--boost-border        /* Border color */
+--boost-radius        /* Border radius */
+--boost-font          /* Font family stack */
+```
+
+---
+
+## 2. Utility Hooks
+
+```tsx
+import {
+  useMediaQuery, useClickOutside, useDebounce,
+  useLocalStorage, useWindowSize, useScrollPosition,
+  usePrevious, useCopyToClipboard, useToggle,
+  useIntersectionObserver
+} from '@boostengine/ui';
+
+// Responsive breakpoints
+const isMobile = useMediaQuery('(max-width: 768px)');
+const isTablet = useMediaQuery('(max-width: 1024px)');
+
+// Close dropdown on outside click
+const ref = useClickOutside<HTMLDivElement>(() => setOpen(false));
+
+// Debounce search input
+const [search, setSearch] = useState('');
+const debouncedSearch = useDebounce(search, 400);
+
+// Persistent cart in localStorage
+const [cart, setCart, clearCart] = useLocalStorage<CartItem[]>('cart', []);
+
+// Scroll-aware navbar
+const { scrollY } = useScrollPosition();
+const isSticky = scrollY > 60;
+
+// Fade-in on scroll with IntersectionObserver
+const [sectionRef, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+<div ref={sectionRef} style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.5s' }}>
+  Animated Section
+</div>
+
+// Copy to clipboard
+const { copy, copied } = useCopyToClipboard();
+// Simple toggle
+const [isOpen, toggle] = useToggle(false);
+
+// Form state management with validation
+const { values, errors, handleChange, handleSubmit, isSubmitting } = useForm({
+  initialValues: { email: '', password: '' },
+  validate: (v) => (!v.email.includes('@') ? { email: 'Invalid email' } : {}),
+  onSubmit: async (v) => await login(v),
+});
+```
+
+---
+
+## 3. Utility Functions
+
+```tsx
+import {
+  cn, formatCurrency, formatNumber, formatDate, formatRelativeTime,
+  truncate, slugify, generateId, clamp, groupBy, getInitials,
+  isValidEmail, isValidIndianPincode, isValidIndianMobile,
+  debounce, deepMerge, omit, pick
+} from '@boostengine/ui';
+
+// Class merging (like clsx)
+cn('btn', isActive && 'btn-active', disabled && 'opacity-50')
+// => 'btn btn-active'
+
+// Currency formatting
+formatCurrency(1499)                    // => '₹1,499'
+formatCurrency(49.99, 'USD', 'en-US')  // => '$49.99'
+
+// Relative time
+formatRelativeTime(new Date(Date.now() - 60000))  // => '1 minute ago'
+
+// Slug for URLs
+slugify('My Product Name (2026)')  // => 'my-product-name-2026'
+
+// Initials for avatars
+getInitials('Aarav Sharma')  // => 'AS'
+getInitials('Priya')         // => 'P'
+
+// Indian validations
+isValidEmail('user@example.com')      // => true
+isValidIndianPincode('110001')         // => true
+isValidIndianMobile('9876543210')      // => true
+
+// Number utilities
+clamp(150, 0, 100)  // => 100
+```
+
+---
+
+## 4. Layout Primitives (Lego Bricks)
+
+### Box
+Polymorphic component supporting `as="div" | "section" | "main" | "article" | ...` with shorthand spacing props.
+```tsx
+import { Box } from '@boostengine/ui';
+
+<Box as="section" p={24} bg="var(--boost-surface)" borderRadius={12}>
+  Content inside box
+</Box>
+```
+
+### Flex & Stack (VStack, HStack)
+```tsx
+import { Flex, Stack, VStack, HStack, Button } from '@boostengine/ui';
+
+<HStack spacing={12} align="center" justify="space-between">
+  <span>Left Info</span>
+  <Button size="sm">Action</Button>
+</HStack>
+
+<VStack spacing={16}>
+  <Box>Item 1</Box>
+  <Box>Item 2</Box>
+</VStack>
+```
+
+### Grid & GridItem
+```tsx
+import { Grid, GridItem } from '@boostengine/ui';
+
+<Grid cols={3} gap={24}>
+  <GridItem colSpan={2}>Main Content</GridItem>
+  <GridItem colSpan={1}>Sidebar</GridItem>
+</Grid>
+```
+
+### Section & AspectRatio
+```tsx
+import { Section, AspectRatio } from '@boostengine/ui';
+
+<Section maxWidth={1200} py={64} bg="#f8fafc">
+  <AspectRatio ratio="16/9">
+    <img src="/banner.jpg" alt="Hero" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  </AspectRatio>
+</Section>
+```
+
+### Motion
+Zero-dependency entrance and scroll-triggered animations powered by native IntersectionObserver.
+```tsx
+import { Motion } from '@boostengine/ui';
+
+// animations: fade-in | slide-up | slide-down | scale-in | slide-in-right | slide-in-left
+<Motion animation="slide-up" delay={150} duration={600}>
+  <h2>Animated Heading</h2>
+</Motion>
+```
+
+---
+
+## 5. Buttons & Actions
+
+### Button
+```tsx
+import { Button } from '@boostengine/ui';
+
+// Variants: primary | secondary | outline | ghost | destructive | link
+// Sizes: sm | md | lg
+<Button variant="primary" size="lg" isLoading={isSubmitting} fullWidth>
+  Place Order
+</Button>
+<Button variant="outline" leftIcon={<Icon />}>Download Report</Button>
+<Button variant="destructive" onClick={handleDelete}>Delete Account</Button>
+```
+
+**Props:** `variant`, `size`, `isLoading`, `loading`, `leftIcon`, `rightIcon`, `fullWidth`, + all standard `<button>` HTML attributes.
+
+### IconButton
+```tsx
+import { IconButton } from '@boostengine/ui';
+
+<IconButton icon={<SearchIcon />} aria-label="Search" shape="rounded" size="md" />
+```
+
+### ButtonGroup
+```tsx
+import { ButtonGroup, Button } from '@boostengine/ui';
+
+<ButtonGroup>
+  <Button variant="outline">Day</Button>
+  <Button variant="outline">Week</Button>
+  <Button variant="primary">Month</Button>
+</ButtonGroup>
+```
+
+### CopyButton
+```tsx
+import { CopyButton } from '@boostengine/ui';
+
+<CopyButton text="npm i @boostengine/ui" label="Copy Command" />
+```
+
+---
+
+## 6. Forms & Inputs
+
+### Input
+```tsx
+import { Input } from '@boostengine/ui';
+
+<Input
+  label="Email Address"
+  type="email"
+  placeholder="you@example.com"
+  required
+  error="Please enter a valid email"
+  helperText="We'll never share your email."
+/>
+```
+
+**Props:** `label`, `error`, `helperText`, `required`, `disabled`, + all `<input>` HTML attributes.
+
+### Textarea
+```tsx
+import { Textarea } from '@boostengine/ui';
+
+<Textarea
+  label="Product Description"
+  maxLength={500}
+  showCount
+  rows={4}
+  placeholder="Describe your product..."
+/>
+```
+
+### Select & MultiSelect
+```tsx
+import { Select, MultiSelect } from '@boostengine/ui';
+
+<Select
+  label="Category"
+  options={[
+    { value: 'electronics', label: 'Electronics' },
+    { value: 'clothing', label: 'Clothing' },
+  ]}
+  onChange={(value) => setCategory(value)}
+/>
+
+<MultiSelect
+  label="Tags"
+  options={[{ value: 'sale', label: 'Sale' }, { value: 'new', label: 'New Arrival' }]}
+  placeholder="Select tags..."
+  onChange={(values) => setTags(values)}
+/>
+```
+
+### OTPInput
+```tsx
+import { OTPInput } from '@boostengine/ui';
+
+<OTPInput
+  length={6}
+  onComplete={(code) => verifyOTP(code)}
+  autoFocus
+/>
+```
+
+### FileDropzone
+```tsx
+import { FileDropzone } from '@boostengine/ui';
+
+<FileDropzone
+  maxSizeMB={25}
+  accept={['image/*', 'application/pdf']}
+  multiple
+  onFilesSelected={(files) => handleUpload(files)}
+/>
+```
+
+---
+
+## 7. Feedback & Status
+
+### Toast / useToast
+```tsx
+import { ToastProvider, useToast, Button } from '@boostengine/ui';
+
+function ActionButton() {
+  const { toast } = useToast();
+  return (
+    <Button onClick={() => toast.success('Saved successfully!', 'Success')}>
+      Save Settings
+    </Button>
+  );
+}
+
+export default function App() {
+  return (
+    <ToastProvider position="bottom-right">
+      <ActionButton />
+    </ToastProvider>
+  );
+}
+```
+
+**Toast Methods:** `toast.success(msg, title?)`, `toast.error(msg, title?)`, `toast.warning(msg, title?)`, `toast.info(msg, title?)`
+**ToastProvider positions:** `top-left | top-center | top-right | bottom-left | bottom-center | bottom-right`
+
+### Alert
+```tsx
+import { Alert } from '@boostengine/ui';
+
+// Variants: info | success | warning | error
+<Alert variant="warning" title="Low Stock" onClose={() => setOpen(false)}>
+  Only 3 items left in inventory.
+</Alert>
+```
+
+### Skeleton
+```tsx
+import { Skeleton } from '@boostengine/ui';
+
+// Variants: text | circle | rect
+<Skeleton variant="rect" width="100%" height={200} borderRadius={8} />
+<Skeleton variant="circle" width={40} height={40} />
+<Skeleton variant="text" width="60%" />
+```
+
+### EmptyState & ErrorState
+```tsx
+import { EmptyState, ErrorState } from '@boostengine/ui';
+
+<EmptyState
+  title="No Orders Yet"
+  description="Place your first order to get started."
+  action={{ label: 'Browse Products', onClick: () => router.push('/shop') }}
+/>
+
+<ErrorState
+  title="Failed to Load"
+  description="Something went wrong. Please try again."
+  onRetry={() => refetch()}
+/>
+```
+
+---
+
+## 8. Content & Display
+
+### Card (Compound)
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button } from '@boostengine/ui';
+
+<Card>
+  <CardHeader>
+    <CardTitle>Order Summary</CardTitle>
+    <CardDescription>Review your items before checkout</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p>3 items · ₹2,499</p>
+  </CardContent>
+  <CardFooter>
+    <Button fullWidth>Proceed to Pay</Button>
+  </CardFooter>
+</Card>
+```
+
+### Avatar & AvatarGroup
+```tsx
+import { Avatar, AvatarGroup } from '@boostengine/ui';
+
+<AvatarGroup max={4} size="md">
+  <Avatar name="Aarav Sharma" src="/user1.jpg" />
+  <Avatar name="Pooja Verma" src="/user2.jpg" />
+  <Avatar name="Rohan Patel" />
+  <Avatar name="Ananya Sen" />
+  <Avatar name="Vikram Singh" />
+</AvatarGroup>
+```
+
+### Badge & Tag
+```tsx
+import { Badge, Tag } from '@boostengine/ui';
+
+// Badge variants: default | success | error | warning | info
+<Badge variant="success">In Stock</Badge>
+<Badge variant="error">Out of Stock</Badge>
+
+// Tags are removable
+<Tag onRemove={() => removeTag(id)}>Electronics</Tag>
+```
+
+### Accordion
+```tsx
+import { Accordion } from '@boostengine/ui';
+
+<Accordion
+  items={[
+    { id: '1', title: 'What is the return policy?', content: '30-day hassle-free returns.' },
+    { id: '2', title: 'Do you offer EMI?', content: 'Yes, 0% EMI available on orders above ₹5,000.' }
+  ]}
+  allowMultiple={false}
+/>
+```
+
+### Carousel
+```tsx
+import { Carousel } from '@boostengine/ui';
+
+<Carousel
+  items={[
+    <img src="/banner1.jpg" alt="Sale" />,
+    <img src="/banner2.jpg" alt="New Arrivals" />,
+  ]}
+  autoPlay
+  interval={4000}
+  showIndicators
+/>
+```
+
+---
+
+## 9. Overlays & Dialogs
+
+### Modal / Dialog
+```tsx
+import { Modal } from '@boostengine/ui';
+
+<Modal
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  title="Confirm Order"
+  size="md"
+>
+  <p>Are you sure you want to place this order?</p>
+</Modal>
+```
+**Sizes:** `sm | md | lg | xl | full`
+
+### Drawer
+```tsx
+import { Drawer } from '@boostengine/ui';
+
+// anchor: left | right | top | bottom
+<Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} anchor="right" title="Filters">
+  <FilterPanel />
+</Drawer>
+```
+
+### CommandPalette
+```tsx
+import { CommandPalette } from '@boostengine/ui';
+
+<CommandPalette
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  items={[
+    { id: '1', label: 'View Orders', group: 'Navigation', onSelect: () => router.push('/orders') },
+    { id: '2', label: 'New Product', shortcut: ['⌘', 'N'], onSelect: () => openModal() },
+    { id: '3', label: 'Dark Mode', group: 'Settings', onSelect: toggleMode }
+  ]}
+/>
+```
+**Tip:** Open with `Cmd+K` / `Ctrl+K` keyboard shortcut.
+
+### Portal
+SSR-safe React Portal for rendering modals, popovers, and overlays into document.body.
+```tsx
+import { Portal } from '@boostengine/ui';
+
+<Portal>
+  <div className="custom-overlay">Rendered directly into document.body</div>
+</Portal>
+```
+
+---
+
+## 10. Navigation
+
+### Navbar
+```tsx
+import { Navbar } from '@boostengine/ui';
+
+<Navbar
+  brandName="BOOST STORE"
+  links={[
+    { label: 'Home', href: '/' },
+    { label: 'Shop', href: '/shop' },
+    { label: 'About', href: '/about' },
+  ]}
+  showSearch
+  cartCount={3}
+  onCartClick={() => setCartOpen(true)}
+/>
+```
+
+### Sidebar
+```tsx
+import { Sidebar } from '@boostengine/ui';
+
+<Sidebar
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  groups={[
+    {
+      label: 'Dashboard',
+      items: [
+        { id: 'overview', label: 'Overview', href: '/dashboard', icon: <HomeIcon /> },
+        { id: 'orders', label: 'Orders', href: '/orders', badge: '12' },
+      ]
+    }
+  ]}
+  activeItemId="overview"
+/>
+```
+
+### Footer
+```tsx
+import { Footer } from '@boostengine/ui';
+
+<Footer
+  brandName="BOOST ENGINE"
+  tagline="Build better, faster."
+  columns={[
+    { title: 'Products', links: [{ label: 'Features', href: '/features' }, { label: 'Pricing', href: '/pricing' }] },
+    { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Blog', href: '/blog' }] },
+  ]}
+  showNewsletter
+/>
+```
+
+### MobileBottomNav
+```tsx
+import { MobileBottomNav } from '@boostengine/ui';
+
+<MobileBottomNav
+  items={[
+    { id: 'home', label: 'Home', href: '/', icon: <HomeIcon /> },
+    { id: 'search', label: 'Search', href: '/search', icon: <SearchIcon /> },
+    { id: 'cart', label: 'Cart', href: '/cart', icon: <CartIcon />, badge: 3 },
+    { id: 'profile', label: 'Profile', href: '/profile', icon: <UserIcon /> },
+  ]}
+  activeItemId="home"
+/>
+```
+
+### Tabs & Stepper
+```tsx
+import { Tabs, Stepper } from '@boostengine/ui';
+
+<Tabs
+  tabs={[
+    { id: 'desc', label: 'Description', content: <ProductDesc /> },
+    { id: 'reviews', label: 'Reviews (42)', content: <ReviewsPanel /> },
+    { id: 'specs', label: 'Specifications', content: <SpecsTable /> },
+  ]}
+  defaultActiveId="desc"
+/>
+
+<Stepper
+  steps={[
+    { id: 'cart', label: 'Cart', status: 'completed' },
+    { id: 'address', label: 'Address', status: 'active' },
+    { id: 'payment', label: 'Payment', status: 'pending' },
+  ]}
+  currentStepId="address"
+/>
+```
+
+---
+
+## 11. Data & Analytics
+
+### DataTable
+```tsx
+import { DataTable } from '@boostengine/ui';
+
+<DataTable
+  columns={[
+    { key: 'name', header: 'Product Name', sortable: true },
+    { key: 'price', header: 'Price', sortable: true, render: (val) => `₹${val}` },
+    { key: 'stock', header: 'Stock', render: (val) => <Badge variant={val > 0 ? 'success' : 'error'}>{val}</Badge> },
+  ]}
+  data={products}
+  searchable
+  pageSize={20}
+/>
+```
+
+### KPIWidget
+```tsx
+import { KPIWidget } from '@boostengine/ui';
+
+<KPIWidget
+  title="Total Net Revenue"
+  value="₹14,82,900"
+  change={18.4}
+  changePeriod="vs last month"
+  prefix="₹"
+/>
+```
+
+### ActivityFeed
+```tsx
+import { ActivityFeed } from '@boostengine/ui';
+
+<ActivityFeed
+  title="Recent Operations"
+  items={[
+    {
+      id: '1',
+      user: { name: 'Pooja Verma', role: 'Inventory Manager' },
+      action: 'restocked',
+      target: 'Silk Kurti (L)',
+      timestamp: '10 minutes ago',
+      statusBadge: { label: 'Inventory', variant: 'success' }
+    }
+  ]}
+/>
+```
+
+### NotificationCenter
+```tsx
+import { NotificationCenter } from '@boostengine/ui';
+
+<NotificationCenter
+  notifications={[
+    { id: '1', title: 'New order #1084', body: 'Order placed by Aarav Sharma', timestamp: '2m ago', read: false, type: 'order' },
+    { id: '2', title: 'Server CPU normal', timestamp: '1h ago', read: true, type: 'system' }
+  ]}
+  onMarkAllAsRead={() => markAll()}
+  onNotificationClick={(id) => router.push(`/orders/${id}`)}
+/>
+```
+
+---
+
+## 12. Authentication
+
+### LoginForm
+```tsx
+import { LoginForm } from '@boostengine/ui';
+
+<LoginForm
+  onSubmit={async ({ email, password }) => {
+    await signIn(email, password);
+  }}
+  onForgotPassword={() => router.push('/forgot-password')}
+  onRegister={() => router.push('/register')}
+  isLoading={isLoading}
+  error={authError}
+  brandName="BOOST STORE"
+/>
+```
+
+### RegisterForm
+```tsx
+import { RegisterForm } from '@boostengine/ui';
+
+<RegisterForm
+  onSubmit={async (data) => {
+    await createAccount(data);
+  }}
+  onLoginRedirect={() => router.push('/login')}
+  isLoading={isLoading}
+  requirePhone
+  requireOTP
+/>
+```
+
+---
+
+## 13. Marketing & Landing Page Blocks
+
+### HeroSection
+```tsx
+import { HeroSection } from '@boostengine/ui';
+
+<HeroSection
+  badge="✨ New 2.0 Release"
+  title="The Next Generation Commerce Platform"
+  description="Lightning fast D2C storefronts and dashboards built with zero boilerplate."
+  primaryAction={{ label: 'Start Free Trial', onClick: () => console.log('Start') }}
+  secondaryAction={{ label: 'Book Demo', onClick: () => console.log('Demo') }}
+  align="center"
+/>
+```
+
+### FeatureGrid
+```tsx
+import { FeatureGrid } from '@boostengine/ui';
+
+<FeatureGrid
+  columns={3}
+  features={[
+    { title: 'Zero Latency', description: 'Pre-optimized for instantaneous page transitions.', badge: 'Fast' },
+    { title: 'Built-in SEO', description: 'Structured metadata generated out-of-the-box.' },
+    { title: 'AI Native', description: 'Engineered for autonomous coding agents.' },
+  ]}
+/>
+```
+
+### PricingTable
+```tsx
+import { PricingTable } from '@boostengine/ui';
+
+<PricingTable
+  tiers={[
+    {
+      id: 'starter',
+      name: 'Starter',
+      priceMonthly: 0,
+      priceAnnual: 0,
+      features: ['Up to 1,000 orders/mo', 'Standard Analytics', 'Community Support'],
+      ctaText: 'Start Free'
+    },
+    {
+      id: 'pro',
+      name: 'Growth',
+      priceMonthly: 49,
+      priceAnnual: 39,
+      isPopular: true,
+      popularLabel: 'Most Popular',
+      features: ['Unlimited Orders', 'Priority Logistics', 'Custom Domain', '24/7 Support'],
+      ctaText: 'Upgrade to Growth'
+    }
+  ]}
+/>
+```
+
+### TestimonialCard & TestimonialGrid
+```tsx
+import { TestimonialGrid } from '@boostengine/ui';
+
+<TestimonialGrid
+  columns={3}
+  testimonials={[
+    {
+      quote: "Boost Engine helped our D2C brand scale from 100 to 5,000 daily orders seamlessly.",
+      authorName: "Aarav Sharma",
+      authorRole: "Founder",
+      authorCompany: "Kaveri Organics",
+      rating: 5,
+      verified: true
+    }
+  ]}
+/>
+```
+
+### FAQSection
+```tsx
+import { FAQSection } from '@boostengine/ui';
+
+<FAQSection
+  searchable
+  items={[
+    {
+      question: "Do I need to install Tailwind CSS?",
+      answer: "No! @boostengine/ui has zero external CSS dependencies."
+    },
+    {
+      question: "Does it support Next.js App Router?",
+      answer: "Yes, all interactive components are bundled with 'use client' for seamless App Router compatibility."
+    }
+  ]}
+/>
+```
+
+### CTASection
+```tsx
+import { CTASection } from '@boostengine/ui';
+
+<CTASection
+  title="Ready to transform your online business?"
+  description="Join over 10,000 high-growth creators building with Boost Engine."
+  showNewsletter
+  newsletterPlaceholder="Enter work email..."
+  newsletterButtonText="Claim Early Access"
+  onSubscribe={(email) => console.log('Subscribed:', email)}
+  variant="gradient"
+/>
+```
+
+---
+
+## 14. E-Commerce & D2C Storefront Suite
+
+### CartDrawer
+```tsx
+import { CartDrawer } from '@boostengine/ui';
+
+<CartDrawer
+  isOpen={cartOpen}
+  onClose={() => setCartOpen(false)}
+  items={[
+    { id: '1', name: 'Silk Kurti', price: 1299, quantity: 1, image: '/kurti.jpg', variant: 'Blue / L' }
+  ]}
+  freeDeliveryThreshold={999}
+  onUpdateQuantity={(id, qty) => updateItem(id, qty)}
+  onRemoveItem={(id) => removeItem(id)}
+  onCheckout={() => router.push('/checkout')}
+/>
+```
+
+### ProductCard
+```tsx
+import { ProductCard } from '@boostengine/ui';
+
+<ProductCard
+  id="p1"
+  name="Premium Silk Kurti"
+  price={1299}
+  mrp={2499}
+  discountPercent={48}
+  image="/kurti.jpg"
+  rating={4.5}
+  reviewCount={234}
+  badge="Best Seller"
+  onAddToCart={() => addToCart('p1')}
+  onWishlist={() => toggleWishlist('p1')}
+/>
+```
+
+### ProductGallery
+```tsx
+import { ProductGallery } from '@boostengine/ui';
+
+<ProductGallery
+  images={[
+    { src: '/product-1.jpg', alt: 'Front View' },
+    { src: '/product-2.jpg', alt: 'Side View' },
+    { src: '/product-3.jpg', alt: 'Detail View' },
+  ]}
+  enableZoom
+/>
+```
+
+### VariantSelector
+```tsx
+import { VariantSelector } from '@boostengine/ui';
+
+<VariantSelector
+  groups={[
+    {
+      id: 'color',
+      label: 'Color',
+      type: 'color',
+      options: [
+        { value: 'blue', label: 'Blue', colorCode: '#3b82f6', inStock: true },
+        { value: 'red', label: 'Red', colorCode: '#ef4444', inStock: false },
+      ]
+    },
+    {
+      id: 'size',
+      label: 'Size',
+      type: 'button',
+      options: [
+        { value: 'S', label: 'S', inStock: true },
+        { value: 'M', label: 'M', inStock: true },
+        { value: 'L', label: 'L', inStock: true },
+      ]
+    }
+  ]}
+  onChange={(selected) => setVariants(selected)}
+/>
+```
+
+### PincodeChecker
+```tsx
+import { PincodeChecker } from '@boostengine/ui';
+
+<PincodeChecker
+  onCheck={async (pincode) => {
+    const result = await checkDelivery(pincode);
+    return { deliverable: result.ok, codAvailable: result.cod, estimatedDays: result.days };
+  }}
+/>
+```
+
+### LightningDealsBar
+```tsx
+import { LightningDealsBar } from '@boostengine/ui';
+
+<LightningDealsBar
+  expiresAt={new Date(Date.now() + 3 * 60 * 60 * 1000)} // 3 hours from now
+  claimedPercent={72}
+  label="⚡ Lightning Deal ends in"
+  onExpire={() => setDealExpired(true)}
+/>
+```
+
+### OrderSummary
+```tsx
+import { OrderSummary } from '@boostengine/ui';
+
+<OrderSummary
+  items={[
+    { name: 'Silk Kurti', price: 1299, quantity: 2, variant: 'Blue / L' }
+  ]}
+  subtotal={2598}
+  discount={300}
+  shipping={0}
+  total={2298}
+  couponApplied="BOOST10"
+  onPlaceOrder={() => handleCheckout()}
+/>
+```
+
+---
+
+## 15. Pre-Built Templates (Full Page Compositions)
+
+### SaaS Landing Page
+```tsx
+import {
+  BoostProvider, ToastProvider, Navbar, HeroSection, FeatureGrid,
+  PricingTable, TestimonialGrid, FAQSection, CTASection, Footer
+} from '@boostengine/ui';
+
+export default function SaaSPage() {
+  return (
+    <BoostProvider defaultMode="system">
+      <ToastProvider position="bottom-right">
+        <Navbar brandName="CLOUDBOOST" />
+        <HeroSection
+          badge="🚀 AI Platform 2.0"
+          title="Deploy Autonomous Microservices"
+          description="Ship scalable architectures with automated scaling and zero config."
+          primaryAction={{ label: 'Get Started Free' }}
+          secondaryAction={{ label: 'View Documentation' }}
+        />
+        <FeatureGrid
+          features={[
+            { title: 'Global Edge Cache', description: 'Under 10ms latency worldwide.' },
+            { title: 'Instant Rollbacks', description: 'Zero downtime disaster recovery.' },
+            { title: 'Built-in Telemetry', description: 'Real-time traces and metrics.' }
+          ]}
+        />
+        <PricingTable
+          tiers={[
+            { id: '1', name: 'Developer', priceMonthly: 0, features: ['10 Projects', 'Community Support'] },
+            { id: '2', name: 'Scale', priceMonthly: 49, isPopular: true, features: ['Unlimited Projects', '24/7 SLA'] }
+          ]}
+        />
+        <FAQSection
+          items={[{ question: 'How do I start?', answer: 'Run npm i @boostengine/ui and import components.' }]}
+        />
+        <CTASection title="Start Building Today" description="Join thousands of developers." showNewsletter />
+        <Footer brandName="CLOUDBOOST" />
+      </ToastProvider>
+    </BoostProvider>
+  );
+}
+```
+
+### eCommerce Storefront
+```tsx
+import {
+  BoostProvider, ToastProvider, Navbar, CartDrawer, HeroSection,
+  ProductCard, Grid, MobileBottomNav, Footer
+} from '@boostengine/ui';
+
+export default function StorePage() {
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+
+  return (
+    <BoostProvider defaultMode="light">
+      <ToastProvider position="top-center">
+        <Navbar brandName="BOOST STORE" cartCount={cartItems.length} onCartClick={() => setCartOpen(true)} showSearch />
+        <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} items={cartItems} freeDeliveryThreshold={999} />
+        <HeroSection badge="🔥 Sale Live" title="Up to 70% Off" description="Shop the biggest sale of the season." primaryAction={{ label: 'Shop Now' }} />
+        <Grid cols={4} gap={24} style={{ padding: '40px 24px' }}>
+          {products.map(p => (
+            <ProductCard key={p.id} {...p} onAddToCart={() => addToCart(p)} />
+          ))}
+        </Grid>
+        <MobileBottomNav items={bottomNavItems} activeItemId="home" />
+        <Footer brandName="BOOST STORE" />
+      </ToastProvider>
+    </BoostProvider>
+  );
+}
+```
+
+### Admin Dashboard
+```tsx
+import {
+  BoostProvider, ToastProvider, Sidebar, Grid, KPIWidget,
+  DataTable, ActivityFeed, NotificationCenter, CommandPalette, HStack
+} from '@boostengine/ui';
+
+export default function AdminDashboard() {
+  return (
+    <BoostProvider defaultMode="dark">
+      <ToastProvider position="top-right">
+        <HStack align="flex-start" style={{ minHeight: '100vh' }}>
+          <Sidebar groups={adminNavGroups} isOpen activeItemId="overview" />
+          <main style={{ flex: 1, padding: '32px' }}>
+            <Grid cols={4} gap={20}>
+              <KPIWidget title="Revenue" value="₹14,82,900" change={18.4} changePeriod="vs last month" />
+              <KPIWidget title="Orders" value="1,284" change={7.2} changePeriod="vs last month" />
+              <KPIWidget title="Customers" value="892" change={-2.1} changePeriod="vs last month" />
+              <KPIWidget title="Avg. Order" value="₹1,154" change={12.3} changePeriod="vs last month" />
+            </Grid>
+            <DataTable columns={orderColumns} data={orders} searchable pageSize={20} />
+            <ActivityFeed title="Recent Activity" items={activityItems} />
+          </main>
+        </HStack>
+      </ToastProvider>
+    </BoostProvider>
+  );
+}
+```
+
+---
+
+## 16. Prop Naming Conventions (AI Agent Guide)
+
+To prevent hallucination and ensure predictable props, @boostengine/ui follows strict naming conventions:
+
+| Pattern | Prop Names Used |
+|---------|----------------|
+| Open state | `isOpen` |
+| Loading state | `isLoading`, `loading` |
+| Disabled state | `disabled` |
+| Close handler | `onClose` |
+| Select handler | `onSelect` |
+| Submit handler | `onSubmit` |
+| Change handler | `onChange` |
+| Click handler | `onClick` |
+| Variants | `'primary' \| 'secondary' \| 'outline' \| 'ghost' \| 'destructive'` |
+| Sizes | `'sm' \| 'md' \| 'lg' \| 'xl'` |
+| Positions | `'top' \| 'bottom' \| 'left' \| 'right'` |
+| Brand name | `brandName` |
+| Action object | `{ label: string, onClick: () => void, href?: string }` |
+
+---
+
+## 17. Design Token Reference
+
+All components respect these CSS variables when set via BoostProvider:
+
+```
+--boost-primary        Brand primary color (default: #2563eb light / #3b82f6 dark)
+--boost-primary-hover  Hover state (default: #1d4ed8 light / #60a5fa dark)
+--boost-bg             Page background (default: #ffffff / #090d16)
+--boost-surface        Card background (default: #f8fafc / #0f172a)
+--boost-text           Body text (default: #0f172a / #f8fafc)
+--boost-text-muted     Muted text (default: #64748b / #94a3b8)
+--boost-border         Border color (default: #e2e8f0 / #1e293b)
+--boost-radius         Border radius (default: 8px)
+--boost-font           Font family stack
+```
+
+**Custom Brand Colors:**
+```tsx
+<BoostProvider
+  tokens={{ primary: '#7c3aed', primaryHover: '#6d28d9' }}
+  darkTokens={{ primary: '#8b5cf6', primaryHover: '#a78bfa' }}
+>
+```

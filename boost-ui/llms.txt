@@ -1,0 +1,137 @@
+# @boostengine/ui
+
+> Universal, zero-config, industry-standard React & Next.js UI component kit.
+> Built for High-Converting eCommerce, Modern SaaS, Enterprise Admin Dashboards, and Marketing Landing Pages.
+> Zero external CSS dependencies. AI Coding Agent Native (Cursor, Claude, Windsurf, Copilot, Gemini).
+
+## Overview
+- **Package**: `@boostengine/ui`
+- **Version**: `1.4.0`
+- **Supported Frameworks**: Next.js (App Router & Pages Router), React 18 & 19, Vite, Remix
+- **CSS Dependencies**: Zero. All components use built-in inline styles and CSS variable hooks.
+- **Client Directives**: Pre-configured with `'use client'` for Next.js App Router.
+- **Theming**: Integrated `BoostProvider` with CSS variables and 1-line dark/light mode toggle.
+- **Components**: 115 production-ready components across 11 categories.
+- **Hooks**: 12 SSR-safe utility hooks (useMediaQuery, useDebounce, useLocalStorage, useForm, etc.)
+- **Utils**: 18 utility functions (cn, formatCurrency, formatDate, slugify, validators, etc.)
+- **Subpaths**: `@boostengine/ui`, `@boostengine/ui/hooks`, `@boostengine/ui/utils`
+
+## Quick Start
+```tsx
+import { BoostProvider, ToastProvider, Button, HeroSection, Box } from '@boostengine/ui';
+
+export default function App() {
+  return (
+    <BoostProvider defaultMode="system">
+      <ToastProvider position="bottom-right">
+        <HeroSection
+          badge="🚀 Powered by Boost Engine"
+          title="Build Stunning Apps in Minutes"
+          description="Universal, production-ready component suite for high-velocity teams."
+          primaryAction={{ label: 'Get Started', onClick: () => alert('Welcome!') }}
+        />
+      </ToastProvider>
+    </BoostProvider>
+  );
+}
+```
+
+## Component Categories (115 Total)
+
+- **Theming**: `BoostProvider`, `useTheme`
+- **Primitives**: `Box`, `Flex`, `Stack`, `VStack`, `HStack`, `Grid`, `GridItem`, `Section`, `AspectRatio`, `ScrollArea`, `Container`, `PageWrapper`, `Motion`
+- **Buttons & Actions**: `Button`, `IconButton`, `ButtonGroup`, `FloatingActionButton`, `LinkButton`, `CopyButton`
+- **Forms & Inputs**: `Input`, `Textarea`, `Select`, `MultiSelect`, `Checkbox`, `Radio`, `RadioGroup`, `Switch`, `DatePicker`, `TimePicker`, `FileUpload`, `FileDropzone`, `SearchInput`, `FormField`, `OTPInput`
+- **Feedback & Status**: `Toast`, `ToastProvider`, `useToast`, `Loader`, `Spinner`, `ProgressBar`, `Skeleton`, `Alert`, `Snackbar`, `EmptyState`, `ErrorState`, `SuccessMessage`
+- **Content & Display**: `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`, `Image`, `Avatar`, `AvatarGroup`, `Badge`, `Tag`, `Tooltip`, `Chip`, `Divider`, `Accordion`, `Carousel`
+- **Overlays & Dialogs**: `Modal`, `Dialog`, `Drawer`, `BottomSheet`, `Popover`, `ConfirmationDialog`, `CommandPalette`, `Portal`
+- **Navigation & Layout**: `Header`, `Navbar`, `Sidebar`, `Footer`, `MobileBottomBar`, `MobileBottomNav`, `Breadcrumb`, `NavLink`, `DropdownMenu`, `MegaMenu`, `Pagination`, `Tabs`, `Stepper`, `BackButton`
+- **Data & Analytics**: `Table`, `DataTable`, `StatsCard`, `KPIWidget`, `ActivityFeed`, `NotificationCenter`, `DateRangePicker`, `ExportButton`, `Filter`, `Sort`
+- **Authentication**: `LoginForm`, `RegisterForm`, `ForgotPassword`, `ResetPassword`
+- **eCommerce & Storefront**: `CartDrawer`, `StickyAddToCart`, `PincodeChecker`, `TrustBadges`, `OrderTimeline`, `StarRating`, `ProductGallery`, `VariantSelector`, `ProductCard`, `QuantitySelector`, `ReviewBreakdownBars`, `AnnouncementBar`, `LightningDealsBar`, `FrequentlyBoughtTogether`, `BankOffersAccordion`, `AssuredBadge`, `DualMobileActionBar`, `Price`, `AddToCart`, `CouponInput`, `AddressForm`, `OrderSummary`
+- **Marketing & Landing**: `HeroSection`, `FeatureGrid`, `PricingTable`, `TestimonialCard`, `TestimonialGrid`, `FAQSection`, `LogoCloud`, `CTASection`
+
+## Utility Hooks (SSR-safe)
+```tsx
+import {
+  useMediaQuery,       // Reactive CSS media query
+  useClickOutside,     // Click-outside detection
+  useDebounce,         // Delayed state updates
+  useLocalStorage,     // Persistent state in localStorage
+  useWindowSize,       // Reactive window dimensions
+  useScrollPosition,   // Reactive scroll Y/X
+  usePrevious,         // Previous value tracking
+  useCopyToClipboard,  // Clipboard write with copy state
+  useToggle,           // Boolean toggle helper
+  useIntersectionObserver, // Viewport visibility detection
+  useIsomorphicLayoutEffect, // SSR-safe layout effect
+  useForm,             // Zero-dependency form state & validation
+} from '@boostengine/ui';
+// Or via subpath:
+// import { useForm, useDebounce } from '@boostengine/ui/hooks';
+```
+
+## Utility Functions
+```tsx
+import {
+  cn,                    // Class merging (like clsx, no dependencies)
+  formatCurrency,        // Locale-aware currency (default: INR)
+  formatNumber,          // Locale-aware number formatting
+  formatDate,            // Human-readable date formatting
+  formatRelativeTime,    // Relative time ('2 minutes ago')
+  truncate,              // String truncation with ellipsis
+  slugify,               // URL-safe slug generation
+  generateId,            // Random alphanumeric ID
+  clamp,                 // Number range clamping
+  groupBy,               // Array grouping by key
+  deepMerge,             // Recursive object merge
+  omit,                  // Object key exclusion
+  pick,                  // Object key selection
+  debounce,              // Function debouncing
+  getInitials,           // Name initials extraction
+  isValidEmail,          // Email format validation
+  isValidIndianPincode,  // Indian postal code validation
+  isValidIndianMobile    // Indian mobile number validation
+} from '@boostengine/ui';
+```
+
+## Prop Naming Conventions (Zero Hallucination Guide)
+- **Open state**: `isOpen` (NOT `open`, `show`, `visible`)
+- **Loading state**: `isLoading` or `loading`
+- **Disabled**: `disabled`
+- **Close handler**: `onClose`
+- **Select handler**: `onSelect`
+- **Submit handler**: `onSubmit`
+- **Variants**: `'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive'`
+- **Sizes**: `'sm' | 'md' | 'lg' | 'xl'`
+- **Action objects**: `{ label: string, onClick?: () => void, href?: string }`
+- **Brand name**: `brandName`
+
+## CLI Tooling
+```bash
+# List all available components
+npx @boostengine/ui list
+
+# Scaffold component source directly into your app (Shadcn-style)
+npx @boostengine/ui add hero-section
+npx @boostengine/ui add cart-drawer
+npx @boostengine/ui add pricing-table
+
+# Initialize config file in project root
+npx @boostengine/ui init
+```
+
+## CSS Variable Reference
+All BoostProvider tokens:
+- `--boost-primary` — Primary brand color
+- `--boost-primary-hover` — Primary hover state
+- `--boost-bg` — Page background
+- `--boost-surface` — Card/panel surface
+- `--boost-text` — Body text
+- `--boost-text-muted` — Muted secondary text
+- `--boost-border` — Border color
+- `--boost-radius` — Border radius
+- `--boost-font` — Font family stack
+
+## Full Documentation
+For complete component props, types, templates, and copy-paste examples, see [llms-full.txt](./llms-full.txt).

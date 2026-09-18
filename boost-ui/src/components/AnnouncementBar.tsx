@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 export interface AnnouncementBarProps {
-  messages: string[] | string;
+  messages?: string[] | string;
+  text?: string;
   couponCode?: string;
   couponBadgeText?: string;
   linkUrl?: string;
@@ -16,6 +17,7 @@ export interface AnnouncementBarProps {
 
 export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
   messages,
+  text,
   couponCode,
   couponBadgeText = 'USE CODE',
   linkUrl,
@@ -26,12 +28,14 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
   accentColor = '#f59e0b',
   onClose,
   className = '',
+  ...props
 }) => {
   const [isVisible, setIsVisible] = React.useState(true);
   const [copied, setCopied] = React.useState(false);
   const [currentIdx, setCurrentIdx] = React.useState(0);
 
-  const messageList = Array.isArray(messages) ? messages : [messages];
+  const raw = messages || text || (props as any).text || ['Welcome to our store! Free shipping on all orders.'];
+  const messageList = (Array.isArray(raw) ? raw : [raw]).filter(Boolean);
 
   // Auto rotate if multiple messages
   React.useEffect(() => {
@@ -169,3 +173,6 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
     </div>
   );
 };
+
+
+AnnouncementBar.displayName = 'AnnouncementBar';

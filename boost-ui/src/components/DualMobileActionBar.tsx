@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export interface DualMobileActionBarProps {
-  price: number;
+  price?: number;
   compareAtPrice?: number;
   currencySymbol?: string;
   isWishlisted?: boolean;
@@ -9,6 +9,7 @@ export interface DualMobileActionBarProps {
   onAddToCart: () => void;
   onBuyNow: () => void;
   onToggleWishlist?: () => void;
+  position?: 'fixed' | 'relative';
   className?: string;
 }
 
@@ -21,34 +22,56 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
   onAddToCart,
   onBuyNow,
   onToggleWishlist,
+  position,
   className = '',
+  ...props
 }) => {
+  const isRelative = position === 'relative' || (props as any).position === 'relative';
+
   return (
     <>
-      <style>{`
-        @media (min-width: 768px) {
-          .boost-dual-mobile-action-bar {
-            display: none !important;
+      {!isRelative && (
+        <style>{`
+          @media (min-width: 768px) {
+            .boost-dual-mobile-action-bar {
+              display: none !important;
+            }
           }
-        }
-      `}</style>
+        `}</style>
+      )}
       <div
-        className={`boost-dual-mobile-action-bar md:hidden ${className}`}
+        className={`boost-dual-mobile-action-bar ${isRelative ? '' : 'md:hidden'} ${className}`}
         style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: '#ffffff',
-          borderTop: '1px solid #e5e7eb',
-          padding: '8px 12px calc(8px + env(safe-area-inset-bottom, 0px))',
-          zIndex: 50,
+          position: isRelative ? 'relative' : 'fixed',
+          bottom: isRelative ? undefined : 0,
+          left: isRelative ? undefined : 0,
+          right: isRelative ? undefined : 0,
+          width: '100%',
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: isRelative ? '12px' : 0,
+          padding: '12px 16px',
+          zIndex: isRelative ? 1 : 50,
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
+          gap: '12px',
+          boxShadow: isRelative ? '0 8px 24px rgba(0, 0, 0, 0.3)' : '0 -4px 16px rgba(0, 0, 0, 0.08)',
+          boxSizing: 'border-box',
         }}
       >
+        {/* Optional Price Display */}
+        {price !== undefined && (
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: '65px', flexShrink: 0 }}>
+            <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '15px', lineHeight: 1.1 }}>
+              {currencySymbol}{Number(price).toLocaleString()}
+            </span>
+            {compareAtPrice && compareAtPrice > price && (
+              <span style={{ color: '#94a3b8', fontSize: '11px', textDecoration: 'line-through' }}>
+                {currencySymbol}{Number(compareAtPrice).toLocaleString()}
+              </span>
+            )}
+          </div>
+        )}
       {/* Optional Wishlist heart button */}
       {onToggleWishlist && (
         <button
@@ -142,3 +165,6 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
     </>
   );
 };
+
+
+DualMobileActionBar.displayName = 'DualMobileActionBar';

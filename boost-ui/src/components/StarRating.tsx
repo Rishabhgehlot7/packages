@@ -64,3 +64,6 @@ export const StarRating: React.FC<StarRatingProps> = ({
     </div>
   );
 };
+
+
+StarRating.displayName = 'StarRating';

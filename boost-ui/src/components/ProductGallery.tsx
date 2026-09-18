@@ -1,7 +1,9 @@
 import * as React from 'react';
 
+export type ProductGalleryImageItem = string | { id?: string; url?: string; src?: string; alt?: string };
+
 export interface ProductGalleryProps {
-  images: string[];
+  images?: ProductGalleryImageItem[];
   title?: string;
   layout?: 'stacked' | 'thumbnails-bottom' | 'thumbnails-left';
   aspectRatio?: 'square' | 'portrait' | 'wide';
@@ -10,7 +12,7 @@ export interface ProductGalleryProps {
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
-  images,
+  images = [],
   title = 'Product Image',
   layout = 'thumbnails-bottom',
   aspectRatio = 'portrait',
@@ -21,7 +23,18 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [isHovered, setIsHovered] = React.useState(false);
   const [zoomPos, setZoomPos] = React.useState({ x: 0, y: 0 });
 
-  if (!images || images.length === 0) {
+  const normalizedImages: string[] = React.useMemo(() => {
+    if (!images || !Array.isArray(images)) return [];
+    return images
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') return item.url || item.src || '';
+        return '';
+      })
+      .filter(Boolean);
+  }, [images]);
+
+  if (normalizedImages.length === 0) {
     return (
       <div
         style={{
@@ -71,6 +84,9 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           ...ratioStyle,
           position: 'relative',
           width: '100%',
+          flex: isThumbnailsLeft ? '1 1 0%' : undefined,
+          minWidth: 0,
+          boxSizing: 'border-box',
           borderRadius: '16px',
           overflow: 'hidden',
           backgroundColor: '#f9fafb',
@@ -82,7 +98,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         onMouseMove={handleMouseMove}
       >
         <img
-          src={images[selectedIndex]}
+          src={normalizedImages[selectedIndex]}
           alt={`${title} - view ${selectedIndex + 1}`}
           style={{
             width: '100%',
@@ -95,7 +111,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         />
 
         {/* Counter Badge */}
-        {images.length > 1 && (
+        {normalizedImages.length > 1 && (
           <div
             style={{
               position: 'absolute',
@@ -111,13 +127,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               backdropFilter: 'blur(4px)',
             }}
           >
-            {selectedIndex + 1} / {images.length}
+            {selectedIndex + 1} / {normalizedImages.length}
           </div>
         )}
       </div>
 
       {/* Thumbnails Row / Column */}
-      {images.length > 1 && (
+      {normalizedImages.length > 1 && (
         <div
           style={{
             display: 'flex',
@@ -129,7 +145,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             scrollbarWidth: 'none',
           }}
         >
-          {images.map((img, idx) => (
+          {normalizedImages.map((img, idx) => (
             <button
               key={idx}
               type="button"
@@ -156,3 +172,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     </div>
   );
 };
+
+
+ProductGallery.displayName = 'ProductGallery';

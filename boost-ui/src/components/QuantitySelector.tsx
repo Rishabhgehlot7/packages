@@ -142,3 +142,6 @@ export const QuantitySelector: React.FC<QuantitySelectorProps> = ({
     </div>
   );
 };
+
+
+QuantitySelector.displayName = 'QuantitySelector';
