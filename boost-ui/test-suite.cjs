@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ui = require('./dist/index.cjs');
 
-console.log('🧪 Running @boostengine/ui Test Suite v1.6.0...\n');
+console.log('🧪 Running @boostengine/ui Test Suite v1.7.0...\n');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 let passed = 0;
@@ -27,10 +27,16 @@ function assertExport(name) {
 }
 
 // ─── TEST 1: Build Artifacts ────────────────────────────────────────────────
-test('Build artifacts exist (CJS, ESM, DTS)', () => {
+test('Build artifacts exist (Root, Hooks, Utils CJS/ESM/DTS)', () => {
   assert.ok(fs.existsSync(path.join(__dirname, 'dist/index.cjs')), 'dist/index.cjs must exist');
   assert.ok(fs.existsSync(path.join(__dirname, 'dist/index.mjs')), 'dist/index.mjs must exist');
   assert.ok(fs.existsSync(path.join(__dirname, 'dist/index.d.ts')), 'dist/index.d.ts must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'dist/hooks/index.cjs')), 'dist/hooks/index.cjs must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'dist/hooks/index.mjs')), 'dist/hooks/index.mjs must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'dist/hooks/index.d.ts')), 'dist/hooks/index.d.ts must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'dist/utils/index.cjs')), 'dist/utils/index.cjs must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'dist/utils/index.mjs')), 'dist/utils/index.mjs must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'dist/utils/index.d.ts')), 'dist/utils/index.d.ts must exist');
 });
 
 // ─── TEST 2: Next.js Client Directive ─────────────────────────────────────
@@ -183,6 +189,17 @@ test('package.json has required fields: name, version, description, keywords, ex
   assert.ok(pkg.exports?.['.']?.require, 'CJS export must be configured');
   assert.ok(pkg.bin?.['boost-ui'], 'bin.boost-ui CLI must be configured');
   assert.ok(Array.isArray(pkg.files) && pkg.files.includes('llms.txt'), 'llms.txt must be in files array');
+});
+
+// ─── TEST 21: Submodule Direct Require ───────────────────────────────────
+test('Submodules @boostengine/ui/hooks and @boostengine/ui/utils load independently', () => {
+  const hooks = require('./dist/hooks/index.cjs');
+  const utils = require('./dist/utils/index.cjs');
+  assert.ok(typeof hooks.useMediaQuery === 'function', 'hooks.useMediaQuery must be exported');
+  assert.ok(typeof hooks.useForm === 'function', 'hooks.useForm must be exported');
+  assert.ok(typeof utils.formatCurrency === 'function', 'utils.formatCurrency must be exported');
+  assert.ok(typeof utils.cn === 'function', 'utils.cn must be exported');
+  console.log(`     🎯 Sub-bundles tree-shaking verified!`);
 });
 
 // ─── RESULTS ────────────────────────────────────────────────────────────

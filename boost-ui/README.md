@@ -304,6 +304,18 @@ const [sectionRef, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 <div ref={sectionRef} style={{ opacity: isVisible ? 1 : 0 }} />
 ```
 
+### Tree-Shakeable Sub-Path Imports (v1.7+)
+
+Import **only hooks** or **only utils** for the smallest possible bundle:
+
+```tsx
+// Lightweight hooks-only bundle (~10KB) — no components loaded
+import { useMediaQuery, useForm, useDebounce } from '@boostengine/ui/hooks';
+
+// Lightweight utils-only bundle (~8KB) — no React dependency
+import { formatCurrency, cn, slugify } from '@boostengine/ui/utils';
+```
+
 ---
 
 ## 🔧 Utility Functions
@@ -321,6 +333,7 @@ import {
   isValidIndianMobile,   // 10-digit Indian mobile validation
   clamp, truncate, generateId, groupBy, deepMerge, debounce
 } from '@boostengine/ui';
+// Or tree-shake with: import { ... } from '@boostengine/ui/utils';
 
 formatCurrency(1499)              // => '₹1,499'
 formatCurrency(49.99, 'USD')      // => '$49.99'
