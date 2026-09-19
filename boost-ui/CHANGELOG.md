@@ -4,7 +4,21 @@ All notable changes to `@boostengine/ui` are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
----
+## [1.7.0] — 2026-09-20
+
+### Added
+- **Production Interactive Examples & Templates**:
+  - Full modern D2C Storefront layout with Hero, Deals, and Collections.
+  - Merchant Analytics & SaaS Dashboard with charts, KPI cards, and activity feed.
+  - Multi-step Express Checkout page with delivery address validation and payment gateways.
+  - Auth flow pages (Modern Login & Register) with Indian phone number support and OTP verification.
+  - Settings & Team management preferences workspace.
+- Enhanced publish automation script with directory self-resolution.
+
+## [1.6.1] — 2026-09-19
+
+### Changed
+- Refactored component exports and build optimizations.
 
 ## [1.6.0] — 2026-09-19
 
