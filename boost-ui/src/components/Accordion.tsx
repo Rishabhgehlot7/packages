@@ -34,11 +34,49 @@ export const Accordion: React.FC<AccordionProps> = ({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    
+    // Only intercept if focus is on an accordion header
+    if (!(e.target instanceof HTMLButtonElement) || !e.target.classList.contains('boost-accordion-header')) {
+      return;
+    }
+
+    const focusableItems = items.filter(i => !i.disabled);
+    if (focusableItems.length === 0) return;
+
+    const currentId = e.target.getAttribute('data-id');
+    const currentIndex = focusableItems.findIndex(i => i.id === currentId);
+    if (currentIndex === -1) return;
+
+    let nextIndex = currentIndex;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % focusableItems.length;
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      nextIndex = (currentIndex - 1 + focusableItems.length) % focusableItems.length;
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      nextIndex = focusableItems.length - 1;
+    }
+
+    if (nextIndex !== currentIndex) {
+      const nextId = focusableItems[nextIndex].id;
+      const btn = document.getElementById(`boost-accordion-header-${nextId}`);
+      if (btn) btn.focus();
+    }
+  };
+
   const isSeparated = variant === 'separated';
 
   return (
     <div
       className={`boost-accordion boost-accordion-${variant} ${className}`}
+      onKeyDown={handleKeyDown}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -97,9 +135,12 @@ export const Accordion: React.FC<AccordionProps> = ({
           >
             <button
               type="button"
+              id={`boost-accordion-header-${item.id}`}
+              data-id={item.id}
               disabled={item.disabled}
               onClick={() => toggleItem(item.id)}
               aria-expanded={isOpen}
+              aria-controls={isOpen ? `boost-accordion-content-${item.id}` : undefined}
               data-expanded={isOpen}
               className="boost-accordion-header"
               style={{
@@ -139,6 +180,9 @@ export const Accordion: React.FC<AccordionProps> = ({
 
             {isOpen && (
               <div
+                id={`boost-accordion-content-${item.id}`}
+                role="region"
+                aria-labelledby={`boost-accordion-header-${item.id}`}
                 className="boost-accordion-content"
                 style={{
                   padding: '14px 18px',

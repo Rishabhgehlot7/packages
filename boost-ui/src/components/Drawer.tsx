@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Portal } from './Portal';
+import { useFocusTrap } from '../hooks';
 
 export interface DrawerProps {
   isOpen: boolean;
@@ -31,6 +32,9 @@ export const Drawer: React.FC<DrawerProps> = ({
   closeOnOverlayClick = true,
 }) => {
   const effectivePlacement = position || placement || 'right';
+  const drawerRef = React.useRef<HTMLDivElement>(null);
+
+  useFocusTrap(drawerRef, isOpen);
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -93,11 +97,13 @@ export const Drawer: React.FC<DrawerProps> = ({
   return (
     <Portal>
       <div
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={title ? 'boost-drawer-title' : undefined}
         className={`boost-drawer-backdrop ${className}`}
-        onClick={() => {
-          if (closeOnOverlayClick) onClose();
+        onClick={(e) => {
+          if (e.target === e.currentTarget && closeOnOverlayClick) onClose();
         }}
         style={{
           position: 'fixed',
@@ -180,7 +186,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              <h3 className="boost-drawer-title" style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--boost-text, #0f172a)' }}>
+              <h3 id="boost-drawer-title" className="boost-drawer-title" style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--boost-text, #0f172a)' }}>
                 {title}
               </h3>
               {showCloseButton && (

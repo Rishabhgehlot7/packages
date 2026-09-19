@@ -6,13 +6,13 @@
 
 ## Overview
 - **Package**: `@boostengine/ui`
-- **Version**: `1.6.0`
+- **Version**: `1.8.0`
 - **Supported Frameworks**: Next.js (App Router & Pages Router), React 18 & 19, Vite, Remix
 - **CSS Dependencies**: Zero. All components use built-in inline styles and CSS variable hooks.
 - **Client Directives**: Pre-configured with `'use client'` for Next.js App Router.
 - **Theming**: Integrated `BoostProvider` with CSS variables and 1-line dark/light mode toggle.
 - **Components**: 125+ production-ready components across 12 categories.
-- **Hooks**: 12 SSR-safe utility hooks (useMediaQuery, useDebounce, useLocalStorage, useForm, etc.)
+- **Hooks**: 14 SSR-safe utility hooks (useFocusTrap, useAnnounce, useMediaQuery, useDebounce, useLocalStorage, useForm, etc.)
 - **Utils**: 18 utility functions (cn, formatCurrency, formatDate, slugify, validators, etc.)
 - **Subpaths**: `@boostengine/ui`, `@boostengine/ui/hooks`, `@boostengine/ui/utils`
 

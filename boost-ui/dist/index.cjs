@@ -172,34 +172,55 @@ var useIsomorphicLayoutEffect = typeof window !== "undefined" ? React__namespace
 function useForm({
   initialValues,
   validate,
+  schema,
   onSubmit
 }) {
   const [values, setValues] = React__namespace.useState(initialValues);
   const [errors, setErrors] = React__namespace.useState({});
   const [touched, setTouched] = React__namespace.useState({});
   const [isSubmitting, setIsSubmitting] = React__namespace.useState(false);
+  const runValidation = React__namespace.useCallback(
+    (vals) => {
+      let combinedErrors = {};
+      if (schema && typeof schema.safeParse === "function") {
+        const result = schema.safeParse(vals);
+        if (!result.success && result.error?.issues) {
+          for (const issue of result.error.issues) {
+            const field = issue.path[0];
+            if (field && !combinedErrors[field]) {
+              combinedErrors[field] = issue.message;
+            }
+          }
+        }
+      }
+      if (validate) {
+        const customErrs = validate(vals);
+        combinedErrors = { ...combinedErrors, ...customErrs };
+      }
+      return combinedErrors;
+    },
+    [validate, schema]
+  );
   const handleChange = React__namespace.useCallback(
     (field, value) => {
       setValues((prev) => {
         const next = { ...prev, [field]: value };
-        if (validate) {
-          const errs = validate(next);
+        if (touched[field]) {
+          const errs = runValidation(next);
           setErrors(errs);
         }
         return next;
       });
     },
-    [validate]
+    [touched, runValidation]
   );
   const handleBlur = React__namespace.useCallback(
     (field) => {
       setTouched((prev) => ({ ...prev, [field]: true }));
-      if (validate) {
-        const errs = validate(values);
-        setErrors(errs);
-      }
+      const errs = runValidation(values);
+      setErrors(errs);
     },
-    [validate, values]
+    [runValidation, values]
   );
   const reset = React__namespace.useCallback(() => {
     setValues(initialValues);
@@ -217,11 +238,9 @@ function useForm({
         return acc;
       }, {});
       setTouched(allTouched);
-      if (validate) {
-        const errs = validate(values);
-        setErrors(errs);
-        if (Object.keys(errs).length > 0) return;
-      }
+      const errs = runValidation(values);
+      setErrors(errs);
+      if (Object.keys(errs).length > 0) return;
       if (onSubmit) {
         setIsSubmitting(true);
         try {
@@ -231,7 +250,7 @@ function useForm({
         }
       }
     },
-    [values, validate, onSubmit]
+    [values, runValidation, onSubmit]
   );
   return {
     values,
@@ -246,6 +265,81 @@ function useForm({
     reset,
     handleSubmit
   };
+}
+function useFocusTrap(ref, isActive) {
+  React__namespace.useEffect(() => {
+    if (!isActive || !ref.current) return;
+    const element = ref.current;
+    const focusableSelectors = [
+      "a[href]",
+      "button:not([disabled])",
+      "textarea:not([disabled])",
+      'input:not([disabled]):not([type="hidden"])',
+      "select:not([disabled])",
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(",");
+    const focusableElements = Array.from(element.querySelectorAll(focusableSelectors));
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const handleKeyDown = (e) => {
+      if (e.key !== "Tab") return;
+      if (focusableElements.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+    if (firstElement && !element.contains(document.activeElement)) {
+      setTimeout(() => firstElement.focus(), 10);
+    }
+    element.addEventListener("keydown", handleKeyDown);
+    return () => {
+      element.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isActive, ref]);
+}
+function useAnnounce() {
+  const announce = React__namespace.useCallback((message, mode = "polite") => {
+    if (typeof document === "undefined") return;
+    const containerId = `boost-a11y-live-${mode}`;
+    let container = document.getElementById(containerId);
+    if (!container) {
+      container = document.createElement("div");
+      container.id = containerId;
+      container.setAttribute("aria-live", mode);
+      container.setAttribute("aria-atomic", "true");
+      container.setAttribute("role", mode === "assertive" ? "alert" : "status");
+      Object.assign(container.style, {
+        position: "absolute",
+        width: "1px",
+        height: "1px",
+        padding: "0",
+        margin: "-1px",
+        overflow: "hidden",
+        clip: "rect(0, 0, 0, 0)",
+        whiteSpace: "nowrap",
+        border: "0"
+      });
+      document.body.appendChild(container);
+    }
+    container.textContent = "";
+    setTimeout(() => {
+      if (container) {
+        container.textContent = message;
+      }
+    }, 50);
+  }, []);
+  return announce;
 }
 
 // src/utils/index.ts
@@ -1511,6 +1605,8 @@ var Input = React__namespace.forwardRef(
                     ref,
                     id: inputId,
                     disabled,
+                    "aria-invalid": error ? true : void 0,
+                    "aria-describedby": error && inputId ? `${inputId}-error` : helperText && inputId ? `${inputId}-helper` : void 0,
                     style: {
                       width: "100%",
                       paddingTop: "10px",
@@ -1545,7 +1641,22 @@ var Input = React__namespace.forwardRef(
               ]
             }
           ),
-          error ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "var(--boost-muted, #64748b)" }, children: helperText }) : null
+          error ? /* @__PURE__ */ jsxRuntime.jsx(
+            "span",
+            {
+              id: inputId ? `${inputId}-error` : void 0,
+              role: "alert",
+              style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 },
+              children: error
+            }
+          ) : helperText ? /* @__PURE__ */ jsxRuntime.jsx(
+            "span",
+            {
+              id: inputId ? `${inputId}-helper` : void 0,
+              style: { fontSize: "12px", color: "var(--boost-muted, #64748b)" },
+              children: helperText
+            }
+          ) : null
         ]
       }
     );
@@ -1630,6 +1741,8 @@ var Textarea = React__namespace.forwardRef(
               value,
               onChange,
               maxLength: limit,
+              "aria-invalid": error ? true : void 0,
+              "aria-describedby": error && textareaId ? `${textareaId}-error` : helperText && textareaId ? `${textareaId}-helper` : void 0,
               className: "boost-textarea",
               style: {
                 width: "100%",
@@ -1648,7 +1761,22 @@ var Textarea = React__namespace.forwardRef(
               ...props
             }
           ),
-          error ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
+          error ? /* @__PURE__ */ jsxRuntime.jsx(
+            "span",
+            {
+              id: textareaId ? `${textareaId}-error` : void 0,
+              role: "alert",
+              style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 },
+              children: error
+            }
+          ) : helperText ? /* @__PURE__ */ jsxRuntime.jsx(
+            "span",
+            {
+              id: textareaId ? `${textareaId}-helper` : void 0,
+              style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" },
+              children: helperText
+            }
+          ) : null
         ]
       }
     );
@@ -3233,11 +3361,14 @@ var Toast = ({
     }
   };
   const theme = getTheme();
+  const isAssertive = activeVariant === "error";
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       className: `boost-toast boost-toast-${activeVariant} ${className}`,
-      role: "alert",
+      role: isAssertive ? "alert" : "status",
+      "aria-live": isAssertive ? "assertive" : "polite",
+      "aria-atomic": "true",
       style: {
         display: "flex",
         alignItems: "flex-start",
@@ -4837,11 +4968,42 @@ var Accordion = ({
       setExpanded(allowMultiple ? [...expanded, id] : [id]);
     }
   };
+  const handleKeyDown = (e) => {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
+    if (!(e.target instanceof HTMLButtonElement) || !e.target.classList.contains("boost-accordion-header")) {
+      return;
+    }
+    const focusableItems = items.filter((i) => !i.disabled);
+    if (focusableItems.length === 0) return;
+    const currentId = e.target.getAttribute("data-id");
+    const currentIndex = focusableItems.findIndex((i) => i.id === currentId);
+    if (currentIndex === -1) return;
+    let nextIndex = currentIndex;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % focusableItems.length;
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      nextIndex = (currentIndex - 1 + focusableItems.length) % focusableItems.length;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      nextIndex = focusableItems.length - 1;
+    }
+    if (nextIndex !== currentIndex) {
+      const nextId = focusableItems[nextIndex].id;
+      const btn = document.getElementById(`boost-accordion-header-${nextId}`);
+      if (btn) btn.focus();
+    }
+  };
   const isSeparated = variant === "separated";
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
       className: `boost-accordion boost-accordion-${variant} ${className}`,
+      onKeyDown: handleKeyDown,
       style: {
         display: "flex",
         flexDirection: "column",
@@ -4900,9 +5062,12 @@ var Accordion = ({
                   "button",
                   {
                     type: "button",
+                    id: `boost-accordion-header-${item.id}`,
+                    "data-id": item.id,
                     disabled: item.disabled,
                     onClick: () => toggleItem(item.id),
                     "aria-expanded": isOpen,
+                    "aria-controls": isOpen ? `boost-accordion-content-${item.id}` : void 0,
                     "data-expanded": isOpen,
                     className: "boost-accordion-header",
                     style: {
@@ -4946,6 +5111,9 @@ var Accordion = ({
                 isOpen && /* @__PURE__ */ jsxRuntime.jsx(
                   "div",
                   {
+                    id: `boost-accordion-content-${item.id}`,
+                    role: "region",
+                    "aria-labelledby": `boost-accordion-header-${item.id}`,
                     className: "boost-accordion-content",
                     style: {
                       padding: "14px 18px",
@@ -5180,6 +5348,8 @@ var Modal = ({
   closeOnOverlayClick = true,
   showCloseButton = true
 }) => {
+  const modalRef = React__namespace.useRef(null);
+  useFocusTrap(modalRef, isOpen);
   React__namespace.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -5210,11 +5380,14 @@ var Modal = ({
   return /* @__PURE__ */ jsxRuntime.jsx(Portal, { children: /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
+      ref: modalRef,
       role: "dialog",
       "aria-modal": "true",
+      "aria-labelledby": title ? "boost-modal-title" : void 0,
+      "aria-describedby": description ? "boost-modal-desc" : void 0,
       className: `boost-modal-backdrop ${className}`,
-      onClick: () => {
-        if (closeOnOverlayClick) onClose();
+      onClick: (e) => {
+        if (e.target === e.currentTarget && closeOnOverlayClick) onClose();
       },
       style: {
         position: "fixed",
@@ -5301,8 +5474,8 @@ var Modal = ({
                   },
                   children: [
                     /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-                      title && /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "boost-modal-title", style: { margin: 0, fontSize: "clamp(17px, 2.5vw, 20px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
-                      description && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "boost-modal-desc", style: { margin: "4px 0 0 0", fontSize: "13px", color: "var(--boost-muted, #64748b)", lineHeight: 1.4 }, children: description })
+                      title && /* @__PURE__ */ jsxRuntime.jsx("h3", { id: "boost-modal-title", className: "boost-modal-title", style: { margin: 0, fontSize: "clamp(17px, 2.5vw, 20px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
+                      description && /* @__PURE__ */ jsxRuntime.jsx("p", { id: "boost-modal-desc", className: "boost-modal-desc", style: { margin: "4px 0 0 0", fontSize: "13px", color: "var(--boost-muted, #64748b)", lineHeight: 1.4 }, children: description })
                     ] }),
                     showCloseButton && /* @__PURE__ */ jsxRuntime.jsx(
                       "button",
@@ -5374,6 +5547,8 @@ var Drawer = ({
   closeOnOverlayClick = true
 }) => {
   const effectivePlacement = position || placement || "right";
+  const drawerRef = React__namespace.useRef(null);
+  useFocusTrap(drawerRef, isOpen);
   React__namespace.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -5432,11 +5607,13 @@ var Drawer = ({
   return /* @__PURE__ */ jsxRuntime.jsx(Portal, { children: /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
+      ref: drawerRef,
       role: "dialog",
       "aria-modal": "true",
+      "aria-labelledby": title ? "boost-drawer-title" : void 0,
       className: `boost-drawer-backdrop ${className}`,
-      onClick: () => {
-        if (closeOnOverlayClick) onClose();
+      onClick: (e) => {
+        if (e.target === e.currentTarget && closeOnOverlayClick) onClose();
       },
       style: {
         position: "fixed",
@@ -5522,7 +5699,7 @@ var Drawer = ({
                     justifyContent: "space-between"
                   },
                   children: [
-                    /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "boost-drawer-title", style: { margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)" }, children: title }),
+                    /* @__PURE__ */ jsxRuntime.jsx("h3", { id: "boost-drawer-title", className: "boost-drawer-title", style: { margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)" }, children: title }),
                     showCloseButton && /* @__PURE__ */ jsxRuntime.jsx(
                       "button",
                       {
@@ -6651,6 +6828,10 @@ var keyframesStyle = `
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.8; transform: scale(0.95); }
   }
+  @keyframes boost-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
   @keyframes boost-shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -6660,6 +6841,7 @@ var Motion = ({
   animation = "fade-in",
   duration = 500,
   delay = 0,
+  ease,
   triggerOnce = true,
   viewportThreshold = 0.1,
   children,
@@ -6669,7 +6851,7 @@ var Motion = ({
 }) => {
   const ref = React__namespace.useRef(null);
   const [inView, setInView] = React__namespace.useState(false);
-  const isContinuous = ["spin", "pulse", "shimmer"].includes(animation);
+  const isContinuous = ["spin", "pulse", "shimmer", "bounce"].includes(animation);
   React__namespace.useEffect(() => {
     if (isContinuous) return;
     if (typeof IntersectionObserver === "undefined" || !ref.current) {
@@ -6701,6 +6883,11 @@ var Motion = ({
         animation: `boost-pulse ${duration * 2}ms cubic-bezier(0.4, 0, 0.6, 1) infinite`
       };
     }
+    if (animation === "bounce") {
+      return {
+        animation: `boost-bounce ${duration * 2}ms ease-in-out infinite`
+      };
+    }
     if (animation === "shimmer") {
       return {
         backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)",
@@ -6708,7 +6895,14 @@ var Motion = ({
         animation: `boost-shimmer ${duration * 3}ms infinite`
       };
     }
-    const transition = `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
+    const easingMap = {
+      spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      smooth: "cubic-bezier(0.16, 1, 0.3, 1)",
+      "ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+      linear: "linear"
+    };
+    const chosenEasing = ease && easingMap[ease] ? easingMap[ease] : animation === "spring-pop" ? easingMap.spring : easingMap.smooth;
+    const transition = `opacity ${duration}ms ${chosenEasing} ${delay}ms, transform ${duration}ms ${chosenEasing} ${delay}ms`;
     if (inView) {
       return {
         opacity: 1,
@@ -6726,6 +6920,9 @@ var Motion = ({
         break;
       case "scale-in":
         transform = "scale(0.94)";
+        break;
+      case "spring-pop":
+        transform = "scale(0.82)";
         break;
       case "slide-in-right":
         transform = "translateX(24px)";
@@ -9759,29 +9956,62 @@ var Pagination = ({
   );
 };
 Pagination.displayName = "Pagination";
-var Tabs = ({
+var TabsContext = React__namespace.createContext(null);
+var useTabsContext = () => React__namespace.useContext(TabsContext);
+var Tabs = (({
   tabs,
   items,
   defaultTab,
   activeTab: controlledTab,
   activeId: controlledId,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
   onChange,
-  className = ""
+  children,
+  className = "",
+  style
 }) => {
   const tabList = items || tabs || [];
-  const currentActive = controlledId !== void 0 ? controlledId : controlledTab;
+  const currentActive = controlledValue !== void 0 ? controlledValue : controlledId !== void 0 ? controlledId : controlledTab;
   const [internalTab, setInternalTab] = React__namespace.useState(
-    currentActive || defaultTab || (tabList[0] ? tabList[0].id : "")
+    currentActive || defaultValue || defaultTab || (tabList[0] ? tabList[0].id : "")
   );
   const active = currentActive !== void 0 ? currentActive : internalTab;
   const handleTabClick = (id) => {
     if (currentActive === void 0) {
       setInternalTab(id);
     }
+    if (onValueChange) onValueChange(id);
     if (onChange) onChange(id);
   };
   const currentTab = tabList.find((t) => t.id === active) || tabList[0];
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `boost-tabs ${className}`, style: { fontFamily: "inherit", width: "100%" }, children: [
+  const handleKeyDown = (e) => {
+    const focusableTabs = tabList.filter((t) => !t.disabled);
+    if (focusableTabs.length === 0) return;
+    const currentIndex = focusableTabs.findIndex((t) => t.id === active);
+    let nextIndex = currentIndex;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % focusableTabs.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      nextIndex = (currentIndex - 1 + focusableTabs.length) % focusableTabs.length;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      nextIndex = focusableTabs.length - 1;
+    }
+    if (nextIndex !== currentIndex) {
+      const nextTabId = focusableTabs[nextIndex].id;
+      handleTabClick(nextTabId);
+      const btn = document.getElementById(`boost-tab-${nextTabId}`);
+      if (btn) btn.focus();
+    }
+  };
+  return /* @__PURE__ */ jsxRuntime.jsx(TabsContext.Provider, { value: { active, setActive: handleTabClick }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `boost-tabs ${className}`, style: { fontFamily: "inherit", width: "100%", ...style }, children: [
     /* @__PURE__ */ jsxRuntime.jsx("style", { children: `
           :root[data-theme="dark"] .boost-tabs .boost-tab-header,
           .dark .boost-tabs .boost-tab-header {
@@ -9819,7 +10049,9 @@ var Tabs = ({
       "div",
       {
         role: "tablist",
+        "aria-orientation": "horizontal",
         className: "boost-tab-header",
+        onKeyDown: handleKeyDown,
         style: {
           display: "flex",
           borderBottom: "1px solid var(--boost-border, #e2e8f0)",
@@ -9832,8 +10064,11 @@ var Tabs = ({
           return /* @__PURE__ */ jsxRuntime.jsxs(
             "button",
             {
+              id: `boost-tab-${tab.id}`,
               role: "tab",
               "aria-selected": isActive,
+              "aria-controls": `boost-tabpanel-${tab.id}`,
+              tabIndex: isActive ? 0 : -1,
               disabled: tab.disabled,
               onClick: () => handleTabClick(tab.id),
               className: `boost-tab-item ${isActive ? "active" : ""}`,
@@ -9878,9 +10113,136 @@ var Tabs = ({
         })
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsx("div", { role: "tabpanel", className: "boost-tab-panel", style: { padding: "16px 0", color: "var(--boost-text, #334155)", fontSize: "14px", lineHeight: 1.6 }, children: currentTab ? currentTab.content : null })
-  ] });
+    children ? children : /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, { children: /* @__PURE__ */ jsxRuntime.jsx(
+      "div",
+      {
+        role: "tabpanel",
+        id: currentTab ? `boost-tabpanel-${currentTab.id}` : void 0,
+        "aria-labelledby": currentTab ? `boost-tab-${currentTab.id}` : void 0,
+        tabIndex: 0,
+        className: "boost-tab-panel",
+        style: { padding: "16px 0", color: "var(--boost-text, #334155)", fontSize: "14px", lineHeight: 1.6 },
+        children: currentTab ? currentTab.content : null
+      }
+    ) })
+  ] }) });
+});
+var TabsList = ({ children, className = "", style, ...props }) => {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      role: "tablist",
+      "aria-orientation": "horizontal",
+      className: `boost-tab-header ${className}`,
+      style: {
+        display: "flex",
+        borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+        gap: "8px",
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
+        ...style
+      },
+      ...props,
+      children
+    }
+  );
 };
+var TabsTrigger = ({
+  value,
+  children,
+  icon,
+  badge,
+  disabled,
+  className = "",
+  style,
+  ...props
+}) => {
+  const ctx = useTabsContext();
+  const isActive = ctx ? ctx.active === value : false;
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "button",
+    {
+      type: "button",
+      id: `boost-tab-${value}`,
+      role: "tab",
+      "aria-selected": isActive,
+      "aria-controls": `boost-tabpanel-${value}`,
+      tabIndex: isActive ? 0 : -1,
+      disabled,
+      onClick: () => ctx?.setActive(value),
+      className: `boost-tab-item ${isActive ? "active" : ""} ${className}`,
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "10px 16px",
+        fontSize: "14px",
+        fontWeight: isActive ? 600 : 500,
+        color: isActive ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #64748b)",
+        backgroundColor: "transparent",
+        border: "none",
+        borderBottom: isActive ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.5 : 1,
+        whiteSpace: "nowrap",
+        transition: "all 0.15s ease",
+        ...style
+      },
+      ...props,
+      children: [
+        icon && /* @__PURE__ */ jsxRuntime.jsx("span", { style: { display: "inline-flex" }, children: icon }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { children }),
+        badge !== void 0 && /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            className: `boost-tab-badge ${isActive ? "active" : ""}`,
+            style: {
+              fontSize: "11px",
+              padding: "2px 6px",
+              borderRadius: "9999px",
+              backgroundColor: isActive ? "rgba(37, 99, 235, 0.1)" : "var(--boost-bg-subtle, #f1f5f9)",
+              color: isActive ? "var(--boost-primary, #1d4ed8)" : "var(--boost-text-muted, #64748b)",
+              fontWeight: 600
+            },
+            children: badge
+          }
+        )
+      ]
+    }
+  );
+};
+var TabsContent = ({
+  value,
+  children,
+  className = "",
+  style,
+  ...props
+}) => {
+  const ctx = useTabsContext();
+  if (ctx && ctx.active !== value) return null;
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "div",
+    {
+      role: "tabpanel",
+      id: `boost-tabpanel-${value}`,
+      "aria-labelledby": `boost-tab-${value}`,
+      tabIndex: 0,
+      className: `boost-tab-panel ${className}`,
+      style: {
+        padding: "16px 0",
+        color: "var(--boost-text, #334155)",
+        fontSize: "14px",
+        lineHeight: 1.6,
+        ...style
+      },
+      ...props,
+      children
+    }
+  );
+};
+Tabs.List = TabsList;
+Tabs.Trigger = TabsTrigger;
+Tabs.Content = TabsContent;
 Tabs.displayName = "Tabs";
 var Stepper = ({
   steps,
@@ -20201,6 +20563,9 @@ exports.SuccessMessage = SuccessMessage;
 exports.Switch = Switch;
 exports.Table = Table;
 exports.Tabs = Tabs;
+exports.TabsContent = TabsContent;
+exports.TabsList = TabsList;
+exports.TabsTrigger = TabsTrigger;
 exports.Tag = Tag;
 exports.TestimonialCard = TestimonialCard;
 exports.TestimonialGrid = TestimonialGrid;
@@ -20231,9 +20596,11 @@ exports.omit = omit;
 exports.pick = pick;
 exports.slugify = slugify;
 exports.truncate = truncate;
+exports.useAnnounce = useAnnounce;
 exports.useClickOutside = useClickOutside;
 exports.useCopyToClipboard = useCopyToClipboard;
 exports.useDebounce = useDebounce;
+exports.useFocusTrap = useFocusTrap;
 exports.useForm = useForm;
 exports.useIntersectionObserver = useIntersectionObserver;
 exports.useIsomorphicLayoutEffect = useIsomorphicLayoutEffect;

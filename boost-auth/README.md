@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/auth.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/auth)
 [![npm downloads](https://img.shields.io/npm/dm/@boostengine/auth.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/auth)
-[![license](https://img.shields.io/npm/l/@boostengine/auth.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/@boostengine/auth.svg?style=flat-square)](https://github.com/Rishabhgehlot7/packages/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
 [![Stateless](https://img.shields.io/badge/Architecture-100%25%20Stateless%20(Zero--Redis)-blueviolet.svg?style=flat-square)](https://nodejs.org/)
 

@@ -212,4 +212,4 @@ node publish-all.cjs
 ## 📄 License
 
 All packages in the `@boostengine` ecosystem are licensed under the permissive **[MIT License](https://opensource.org/licenses/MIT)**.  
-Built for the developer community by **[Boost Engine Team](https://github.com/boostengine)**.
+Built for the developer community by **[Rishabh Gehlot](https://github.com/Rishabhgehlot7)** | Repository: **[github.com/Rishabhgehlot7/packages](https://github.com/Rishabhgehlot7/packages)**.

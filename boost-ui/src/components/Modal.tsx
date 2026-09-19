@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Portal } from './Portal';
+import { useFocusTrap } from '../hooks';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -28,6 +29,9 @@ export const Modal: React.FC<ModalProps> = ({
   closeOnOverlayClick = true,
   showCloseButton = true,
 }) => {
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen);
+
   React.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -57,11 +61,14 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <Portal>
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={title ? 'boost-modal-title' : undefined}
+        aria-describedby={description ? 'boost-modal-desc' : undefined}
         className={`boost-modal-backdrop ${className}`}
-        onClick={() => {
-          if (closeOnOverlayClick) onClose();
+        onClick={(e) => {
+          if (e.target === e.currentTarget && closeOnOverlayClick) onClose();
         }}
         style={{
           position: 'fixed',
@@ -146,12 +153,12 @@ export const Modal: React.FC<ModalProps> = ({
             >
               <div>
                 {title && (
-                  <h3 className="boost-modal-title" style={{ margin: 0, fontSize: 'clamp(17px, 2.5vw, 20px)', fontWeight: 700, color: 'var(--boost-text, #0f172a)', letterSpacing: '-0.01em' }}>
+                  <h3 id="boost-modal-title" className="boost-modal-title" style={{ margin: 0, fontSize: 'clamp(17px, 2.5vw, 20px)', fontWeight: 700, color: 'var(--boost-text, #0f172a)', letterSpacing: '-0.01em' }}>
                     {title}
                   </h3>
                 )}
                 {description && (
-                  <p className="boost-modal-desc" style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--boost-muted, #64748b)', lineHeight: 1.4 }}>
+                  <p id="boost-modal-desc" className="boost-modal-desc" style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--boost-muted, #64748b)', lineHeight: 1.4 }}>
                     {description}
                   </p>
                 )}

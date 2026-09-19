@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/ui.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/ui)
 [![npm downloads](https://img.shields.io/npm/dm/@boostengine/ui.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/ui)
-[![license](https://img.shields.io/npm/l/@boostengine/ui.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/@boostengine/ui.svg?style=flat-square)](https://github.com/Rishabhgehlot7/packages/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
 [![React 18 & 19](https://img.shields.io/badge/React-18%20%7C%2019-61dafb.svg?style=flat-square)](https://react.dev/)
 [![Next.js](https://img.shields.io/badge/Next.js-13%20%7C%2014%20%7C%2015-black.svg?style=flat-square)](https://nextjs.org/)
@@ -14,9 +14,11 @@
 ## Key Highlights
 
 - 🧩 **125+ Production Components & Blocks**: From foundational layout primitives (`Box`, `Flex`, `Grid`, `Stack`, `Motion`, `Divider`) and zero-dependency SVG charts (`AreaChart`, `BarChart`, `DonutChart`, `Sparkline`) to conversion-tested D2C storefront widgets, SaaS dashboard blocks, and modals with `Portal`.
+- ♿ **Enterprise WAI-ARIA Accessibility**: Focus trapping (`useFocusTrap`) in overlays, keyboard arrow navigation (`Tabs`, `Accordion`), screen reader live regions (`useAnnounce`), and automated `aria-invalid` / `aria-describedby` form inputs.
+- 🧱 **Compound & Declarative Components**: Support both rapid array props (`<Tabs items={[...]} />`) and headless compound architecture (`<Tabs.List>`, `<Tabs.Trigger>`, `<Tabs.Content>`).
 - 🎨 **1-Click Theming & Dark Mode**: Built-in `BoostProvider` with CSS variable design tokens, automatic system/light/dark mode switching, and static fallback CSS injection.
 - ⚡ **Zero External CSS**: Pure zero-dependency styling and vector SVGs with no Tailwind or PostCSS configuration required.
-- 🪝 **12 SSR-Safe Utility Hooks**: `useForm`, `useMediaQuery`, `useClickOutside`, `useDebounce`, `useLocalStorage`, `useCopyToClipboard`, `useToggle`, `useIntersectionObserver`, and more.
+- 🪝 **14 SSR-Safe Utility Hooks**: `useFocusTrap`, `useAnnounce`, `useForm` (with native Zod schema validation), `useMediaQuery`, `useClickOutside`, `useDebounce`, `useLocalStorage`, `useCopyToClipboard`, `useToggle`, and more.
 - 🔧 **18 Utility Functions**: `cn()`, `formatCurrency()`, `slugify()`, `getInitials()`, `isValidIndianPincode()`, `debounce()`, and more — zero extra packages.
 - 🤖 **AI Coding Agent Native**: Comes with machine-readable `llms.txt` and `llms-full.txt` manifests tailored for Cursor, Claude, Windsurf, Copilot, and Gemini.
 - 🚀 **Next.js App Router Ready**: Pre-bundled with `'use client'` directives for instantaneous SSR/SSG compatibility.
@@ -407,7 +409,8 @@ export default function AdminDashboard() {
 
 ---
 
-## License
+## License & Author
 
-MIT License (c) 2026 Boost Engine. Developed for modern global and Indian D2C & SaaS creators.
+MIT License (c) 2026 **[Rishabh Gehlot](https://github.com/Rishabhgehlot7)**. Developed for modern global and Indian D2C & SaaS creators.  
+GitHub: **[github.com/Rishabhgehlot7/packages](https://github.com/Rishabhgehlot7/packages)**  
 See [LICENSE](./LICENSE) for full license text.

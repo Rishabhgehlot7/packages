@@ -268,22 +268,33 @@ export const useIsomorphicLayoutEffect =
 export interface UseFormOptions<T extends Record<string, any>> {
   initialValues: T;
   validate?: (values: T) => Partial<Record<keyof T, string>>;
+  schema?: {
+    safeParse?: (data: unknown) => {
+      success: boolean;
+      error?: { issues?: Array<{ path: (string | number)[]; message: string }> };
+    };
+    validateSync?: (
+      data: unknown,
+      options?: any
+    ) => any;
+  };
   onSubmit?: (values: T) => void | Promise<void>;
 }
 
 /**
- * useForm — Lightweight, zero-dependency form state management hook with validation and submission tracking.
+ * useForm — Lightweight, zero-dependency form state management hook with schema validation (Zod/Yup) and submission tracking.
  *
  * @example
  * const { values, errors, handleChange, handleSubmit, isSubmitting } = useForm({
  *   initialValues: { email: '', password: '' },
- *   validate: (v) => (!v.email.includes('@') ? { email: 'Invalid email' } : {}),
+ *   schema: myZodSchema,
  *   onSubmit: async (v) => await login(v),
  * });
  */
 export function useForm<T extends Record<string, any>>({
   initialValues,
   validate,
+  schema,
   onSubmit,
 }: UseFormOptions<T>) {
   const [values, setValues] = React.useState<T>(initialValues);
@@ -291,29 +302,55 @@ export function useForm<T extends Record<string, any>>({
   const [touched, setTouched] = React.useState<Partial<Record<keyof T, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  const runValidation = React.useCallback(
+    (vals: T): Partial<Record<keyof T, string>> => {
+      let combinedErrors: Partial<Record<keyof T, string>> = {};
+
+      // 1. Zod standard safeParse support
+      if (schema && typeof schema.safeParse === 'function') {
+        const result = schema.safeParse(vals);
+        if (!result.success && result.error?.issues) {
+          for (const issue of result.error.issues) {
+            const field = issue.path[0] as keyof T;
+            if (field && !combinedErrors[field]) {
+              combinedErrors[field] = issue.message;
+            }
+          }
+        }
+      }
+
+      // 2. Custom validate function support
+      if (validate) {
+        const customErrs = validate(vals);
+        combinedErrors = { ...combinedErrors, ...customErrs };
+      }
+
+      return combinedErrors;
+    },
+    [validate, schema]
+  );
+
   const handleChange = React.useCallback(
     (field: keyof T, value: any) => {
       setValues((prev) => {
         const next = { ...prev, [field]: value };
-        if (validate) {
-          const errs = validate(next);
+        if (touched[field]) {
+          const errs = runValidation(next);
           setErrors(errs);
         }
         return next;
       });
     },
-    [validate]
+    [touched, runValidation]
   );
 
   const handleBlur = React.useCallback(
     (field: keyof T) => {
       setTouched((prev) => ({ ...prev, [field]: true }));
-      if (validate) {
-        const errs = validate(values);
-        setErrors(errs);
-      }
+      const errs = runValidation(values);
+      setErrors(errs);
     },
-    [validate, values]
+    [runValidation, values]
   );
 
   const reset = React.useCallback(() => {
@@ -335,11 +372,9 @@ export function useForm<T extends Record<string, any>>({
       }, {} as Partial<Record<keyof T, boolean>>);
       setTouched(allTouched);
 
-      if (validate) {
-        const errs = validate(values);
-        setErrors(errs);
-        if (Object.keys(errs).length > 0) return;
-      }
+      const errs = runValidation(values);
+      setErrors(errs);
+      if (Object.keys(errs).length > 0) return;
 
       if (onSubmit) {
         setIsSubmitting(true);
@@ -350,7 +385,7 @@ export function useForm<T extends Record<string, any>>({
         }
       }
     },
-    [values, validate, onSubmit]
+    [values, runValidation, onSubmit]
   );
 
   return {
@@ -367,4 +402,121 @@ export function useForm<T extends Record<string, any>>({
     handleSubmit,
   };
 }
+
+/**
+ * useFocusTrap — Traps focus within a specified element when active.
+ * Useful for modals, drawers, and dialogs for WAI-ARIA compliance.
+ *
+ * @example
+ * const ref = useRef<HTMLDivElement>(null);
+ * useFocusTrap(ref, isOpen);
+ * return <div ref={ref}>...</div>;
+ */
+export function useFocusTrap<T extends HTMLElement = HTMLElement>(
+  ref: React.RefObject<T | null> | React.MutableRefObject<T | null> | { current: T | null },
+  isActive: boolean
+) {
+  React.useEffect(() => {
+    if (!isActive || !ref.current) return;
+
+    const element = ref.current;
+    
+    // Find all focusable elements
+    const focusableSelectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'textarea:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+    
+    const focusableElements = Array.from(element.querySelectorAll<HTMLElement>(focusableSelectors));
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (focusableElements.length === 0) {
+        e.preventDefault();
+        return;
+      }
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    // Auto-focus first element when trap activates, unless already focused inside
+    if (firstElement && !element.contains(document.activeElement)) {
+      // Small timeout to ensure element is fully rendered and focusable
+      setTimeout(() => firstElement.focus(), 10);
+    }
+
+    element.addEventListener('keydown', handleKeyDown);
+    return () => {
+      element.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isActive, ref]);
+}
+
+/**
+ * useAnnounce — WAI-ARIA live announcement hook for screen readers.
+ * Injects polite or assertive announcements into an offscreen live region.
+ *
+ * @example
+ * const announce = useAnnounce();
+ * announce('Cart updated with 2 items', 'polite');
+ */
+export function useAnnounce() {
+  const announce = React.useCallback((message: string, mode: 'polite' | 'assertive' = 'polite') => {
+    if (typeof document === 'undefined') return;
+
+    const containerId = `boost-a11y-live-${mode}`;
+    let container = document.getElementById(containerId);
+
+    if (!container) {
+      container = document.createElement('div');
+      container.id = containerId;
+      container.setAttribute('aria-live', mode);
+      container.setAttribute('aria-atomic', 'true');
+      container.setAttribute('role', mode === 'assertive' ? 'alert' : 'status');
+      // Visually hidden styles
+      Object.assign(container.style, {
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        padding: '0',
+        margin: '-1px',
+        overflow: 'hidden',
+        clip: 'rect(0, 0, 0, 0)',
+        whiteSpace: 'nowrap',
+        border: '0',
+      });
+      document.body.appendChild(container);
+    }
+
+    // Set text to empty first, then set message to trigger screen reader announcement
+    container.textContent = '';
+    setTimeout(() => {
+      if (container) {
+        container.textContent = message;
+      }
+    }, 50);
+  }, []);
+
+  return announce;
+}
+
 

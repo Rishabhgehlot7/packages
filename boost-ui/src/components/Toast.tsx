@@ -36,11 +36,14 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   const theme = getTheme();
+  const isAssertive = activeVariant === 'error';
 
   return (
     <div
       className={`boost-toast boost-toast-${activeVariant} ${className}`}
-      role="alert"
+      role={isAssertive ? 'alert' : 'status'}
+      aria-live={isAssertive ? 'assertive' : 'polite'}
+      aria-atomic="true"
       style={{
         display: 'flex',
         alignItems: 'flex-start',

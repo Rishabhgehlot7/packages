@@ -16,6 +16,8 @@ export {
   useIntersectionObserver,
   useIsomorphicLayoutEffect,
   useForm,
+  useFocusTrap,
+  useAnnounce,
 } from './hooks';
 export type { UseFormOptions } from './hooks';
 
@@ -204,7 +206,7 @@ export { NavLink } from './components/NavLink';
 export { DropdownMenu } from './components/DropdownMenu';
 export { MegaMenu } from './components/MegaMenu';
 export { Pagination } from './components/Pagination';
-export { Tabs } from './components/Tabs';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/Tabs';
 export { Stepper } from './components/Stepper';
 export { BackButton } from './components/BackButton';
 
@@ -229,7 +231,7 @@ export type { NavLinkProps } from './components/NavLink';
 export type { DropdownMenuProps, DropdownMenuItem } from './components/DropdownMenu';
 export type { MegaMenuProps, MegaMenuCategory, MegaMenuColumn } from './components/MegaMenu';
 export type { PaginationProps } from './components/Pagination';
-export type { TabsProps, TabItem } from './components/Tabs';
+export type { TabsProps, TabItem, TabsListProps, TabsTriggerProps, TabsContentProps } from './components/Tabs';
 export type { StepperProps, StepItem } from './components/Stepper';
 export type { BackButtonProps } from './components/BackButton';
 

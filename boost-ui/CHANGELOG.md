@@ -4,6 +4,17 @@ All notable changes to `@boostengine/ui` are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] — 2026-09-20
+
+### Added
+- **Enterprise WAI-ARIA Accessibility Engine**:
+  - `useFocusTrap` — Trap focus automatically inside overlays (`Modal`, `Drawer`) preventing tab cycling outside active dialogs. Auto-focuses the first interactive element.
+  - `useAnnounce` — Offscreen live region hook for dynamic screen reader announcements (`polite` / `assertive`).
+  - `Tabs` — Full WAI-ARIA arrow key navigation (`ArrowLeft`, `ArrowRight`, `Home`, `End`) with `aria-controls` & `aria-labelledby` tabpanel linking.
+  - `Accordion` — Keyboard arrow navigation across accordion headers with region aria tags.
+  - `Input` & `Textarea` — Native `aria-invalid` and `aria-describedby` linking errors directly to screen readers with `role="alert"`.
+  - `Toast` — Dynamic `role="alert"` vs `role="status"` and `aria-live` assertive/polite differentiation based on severity.
+
 ## [1.7.0] — 2026-09-20
 
 ### Added

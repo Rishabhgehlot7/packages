@@ -2,8 +2,12 @@
   "name": "@boostengine/auth",
   "version": "1.0.2",
   "description": "Frictionless Phone OTP & 1-Click eCommerce Identity Engine for Next.js and Node.js with session cookies, guest checkout merging, and phone auth.",
-  "author": "Boost Engine <boostengine001@gmail.com>",
+  "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "license": "MIT",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Rishabhgehlot7"
+  },
   "keywords": [
     "auth",
     "otp",
@@ -16,14 +20,14 @@
     "headless-auth",
     "session-cookies"
   ],
-  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-auth#readme",
+  "homepage": "https://github.com/Rishabhgehlot7/packages/tree/main/packages/boost-auth#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/boostengine/boostengine.git",
+    "url": "https://github.com/Rishabhgehlot7/packages.git",
     "directory": "packages/boost-auth"
   },
   "bugs": {
-    "url": "https://github.com/boostengine/boostengine/issues"
+    "url": "https://github.com/Rishabhgehlot7/packages/issues"
   },
   "bin": {
     "boost-auth": "./bin/cli.cjs"

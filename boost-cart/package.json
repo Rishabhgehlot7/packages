@@ -2,8 +2,12 @@
   "name": "@boostengine/cart",
   "version": "1.0.2",
   "description": "High-performance eCommerce Cart Calculation Engine with Indian GST (CGST/SGST/IGST), Free Shipping Threshold Progress, Multi-Tax Rates & Prepaid Discounts.",
-  "author": "Boost Engine <boostengine001@gmail.com>",
+  "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "license": "MIT",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Rishabhgehlot7"
+  },
   "keywords": [
     "ecommerce-cart",
     "shopping-cart",
@@ -17,14 +21,14 @@
     "d2c-checkout",
     "shopify-cart-alternative"
   ],
-  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-cart#readme",
+  "homepage": "https://github.com/Rishabhgehlot7/packages/tree/main/packages/boost-cart#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/boostengine/boostengine.git",
+    "url": "https://github.com/Rishabhgehlot7/packages.git",
     "directory": "packages/boost-cart"
   },
   "bugs": {
-    "url": "https://github.com/boostengine/boostengine/issues"
+    "url": "https://github.com/Rishabhgehlot7/packages/issues"
   },
   "bin": {
     "boost-cart": "./bin/cli.cjs"

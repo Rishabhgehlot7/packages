@@ -108,8 +108,8 @@ test('Overlays: Modal, Dialog, Drawer, BottomSheet, Popover, ConfirmationDialog,
 });
 
 // ─── TEST 12: Navigation ─────────────────────────────────────────────────
-test('Navigation: Navbar, Sidebar, Footer, MobileBottomNav, Breadcrumb, MegaMenu, Tabs, Stepper', () => {
-  ['Header', 'Navbar', 'Sidebar', 'Footer', 'MobileBottomBar', 'MobileBottomNav', 'Breadcrumb', 'NavLink', 'DropdownMenu', 'MegaMenu', 'Pagination', 'Tabs', 'Stepper', 'BackButton'].forEach(assertExport);
+test('Navigation: Navbar, Sidebar, Footer, MobileBottomNav, Breadcrumb, MegaMenu, Tabs, TabsList, TabsTrigger, TabsContent, Stepper', () => {
+  ['Header', 'Navbar', 'Sidebar', 'Footer', 'MobileBottomBar', 'MobileBottomNav', 'Breadcrumb', 'NavLink', 'DropdownMenu', 'MegaMenu', 'Pagination', 'Tabs', 'TabsList', 'TabsTrigger', 'TabsContent', 'Stepper', 'BackButton'].forEach(assertExport);
 });
 
 // ─── TEST 13: Data & Analytics ───────────────────────────────────────────
@@ -139,10 +139,10 @@ test('Marketing Blocks: HeroSection, FeatureGrid, PricingTable, TestimonialCard,
 });
 
 // ─── TEST 17: Utility Hooks ──────────────────────────────────────────────
-test('Utility Hooks: useMediaQuery, useClickOutside, useDebounce, useLocalStorage, useCopyToClipboard, useToggle, useForm', () => {
-  ['useMediaQuery', 'useClickOutside', 'useDebounce', 'useLocalStorage', 'useWindowSize', 'useScrollPosition', 'usePrevious', 'useCopyToClipboard', 'useToggle', 'useIntersectionObserver', 'useIsomorphicLayoutEffect', 'useForm'].forEach(assertExport);
+test('Utility Hooks: useMediaQuery, useClickOutside, useDebounce, useLocalStorage, useCopyToClipboard, useToggle, useForm, useFocusTrap, useAnnounce', () => {
+  ['useMediaQuery', 'useClickOutside', 'useDebounce', 'useLocalStorage', 'useWindowSize', 'useScrollPosition', 'usePrevious', 'useCopyToClipboard', 'useToggle', 'useIntersectionObserver', 'useIsomorphicLayoutEffect', 'useForm', 'useFocusTrap', 'useAnnounce'].forEach(assertExport);
   // Verify they are functions
-  ['useMediaQuery', 'useClickOutside', 'useDebounce', 'useLocalStorage', 'useForm'].forEach((hook) => {
+  ['useMediaQuery', 'useClickOutside', 'useDebounce', 'useLocalStorage', 'useForm', 'useFocusTrap', 'useAnnounce'].forEach((hook) => {
     assert.strictEqual(typeof ui[hook], 'function', `${hook} must be a function`);
   });
 });

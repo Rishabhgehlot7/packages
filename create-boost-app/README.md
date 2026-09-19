@@ -266,4 +266,4 @@ All `@boostengine/*` packages are already installed and wired up. Just add your 
 
 ## License
 
-MIT © [Boost Engine](https://github.com/boostengine)
+MIT © [Rishabh Gehlot](https://github.com/Rishabhgehlot7) • [Repository](https://github.com/Rishabhgehlot7/packages)

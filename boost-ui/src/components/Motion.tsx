@@ -8,13 +8,16 @@ export interface MotionProps extends React.HTMLAttributes<HTMLDivElement> {
     | 'slide-up'
     | 'slide-down'
     | 'scale-in'
+    | 'spring-pop'
     | 'slide-in-right'
     | 'slide-in-left'
     | 'spin'
     | 'pulse'
+    | 'bounce'
     | 'shimmer';
   duration?: number; // ms
   delay?: number; // ms
+  ease?: 'spring' | 'smooth' | 'linear' | 'ease-out';
   triggerOnce?: boolean;
   viewportThreshold?: number;
   children: React.ReactNode;
@@ -28,6 +31,10 @@ const keyframesStyle = `
   @keyframes boost-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.8; transform: scale(0.95); }
+  }
+  @keyframes boost-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
   }
   @keyframes boost-shimmer {
     0% { background-position: -200% 0; }
@@ -44,6 +51,7 @@ export const Motion: React.FC<MotionProps> = ({
   animation = 'fade-in',
   duration = 500,
   delay = 0,
+  ease,
   triggerOnce = true,
   viewportThreshold = 0.1,
   children,
@@ -55,7 +63,7 @@ export const Motion: React.FC<MotionProps> = ({
   const [inView, setInView] = React.useState(false);
 
   // Determine if it's a continuous animation that doesn't rely on scroll entrance
-  const isContinuous = ['spin', 'pulse', 'shimmer'].includes(animation);
+  const isContinuous = ['spin', 'pulse', 'shimmer', 'bounce'].includes(animation);
 
   React.useEffect(() => {
     if (isContinuous) return; // Don't need intersection observer for continuous animations
@@ -92,6 +100,11 @@ export const Motion: React.FC<MotionProps> = ({
         animation: `boost-pulse ${duration * 2}ms cubic-bezier(0.4, 0, 0.6, 1) infinite`,
       };
     }
+    if (animation === 'bounce') {
+      return {
+        animation: `boost-bounce ${duration * 2}ms ease-in-out infinite`,
+      };
+    }
     if (animation === 'shimmer') {
       return {
         backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)',
@@ -100,8 +113,17 @@ export const Motion: React.FC<MotionProps> = ({
       };
     }
 
+    // Easing curves
+    const easingMap: Record<string, string> = {
+      spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      smooth: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      'ease-out': 'cubic-bezier(0, 0, 0.2, 1)',
+      linear: 'linear',
+    };
+    const chosenEasing = (ease && easingMap[ease]) ? easingMap[ease] : (animation === 'spring-pop' ? easingMap.spring : easingMap.smooth);
+
     // Entrance animations
-    const transition = `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
+    const transition = `opacity ${duration}ms ${chosenEasing} ${delay}ms, transform ${duration}ms ${chosenEasing} ${delay}ms`;
 
     if (inView) {
       return {
@@ -121,6 +143,9 @@ export const Motion: React.FC<MotionProps> = ({
         break;
       case 'scale-in':
         transform = 'scale(0.94)';
+        break;
+      case 'spring-pop':
+        transform = 'scale(0.82)';
         break;
       case 'slide-in-right':
         transform = 'translateX(24px)';

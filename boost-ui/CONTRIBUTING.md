@@ -30,8 +30,8 @@ Be respectful, inclusive, and constructive. We are building a tool that develope
 ### Setup
 ```bash
 # Clone the repo
-git clone https://github.com/boostengine/boostengine.git
-cd boostengine/packages/boost-ui
+git clone https://github.com/Rishabhgehlot7/packages.git
+cd packages/packages/boost-ui
 
 # Install dependencies
 npm install
@@ -210,7 +210,7 @@ The test suite (`test-suite.cjs`) covers:
 
 ## Reporting Issues
 
-Open an issue on [GitHub Issues](https://github.com/boostengine/boostengine/issues) with:
+Open an issue on [GitHub Issues](https://github.com/Rishabhgehlot7/packages/issues) with:
 - A clear description of the bug or feature request
 - A minimal code reproduction (for bugs)
 - Expected vs. actual behavior

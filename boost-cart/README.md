@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/cart.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/cart)
 [![npm downloads](https://img.shields.io/npm/dm/@boostengine/cart.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/cart)
-[![license](https://img.shields.io/npm/l/@boostengine/cart.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/@boostengine/cart.svg?style=flat-square)](https://github.com/Rishabhgehlot7/packages/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
 [![Universal](https://img.shields.io/badge/Runs%20On-Node%20%7C%20Browser%20%7C%20Edge-success.svg?style=flat-square)](https://nodejs.org/)
 

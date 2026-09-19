@@ -90,6 +90,14 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           value={value}
           onChange={onChange}
           maxLength={limit}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={
+            error && textareaId
+              ? `${textareaId}-error`
+              : helperText && textareaId
+              ? `${textareaId}-helper`
+              : undefined
+          }
           className="boost-textarea"
           style={{
             width: '100%',
@@ -109,11 +117,18 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
 
         {error ? (
-          <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}>
+          <span
+            id={textareaId ? `${textareaId}-error` : undefined}
+            role="alert"
+            style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}
+          >
             {error}
           </span>
         ) : helperText ? (
-          <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}>
+          <span
+            id={textareaId ? `${textareaId}-helper` : undefined}
+            style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}
+          >
             {helperText}
           </span>
         ) : null}
