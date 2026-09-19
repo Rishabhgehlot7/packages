@@ -43,7 +43,9 @@
     "url": "https://github.com/boostengine/boostengine/issues"
   },
   "bin": {
-    "boost-ui": "./bin/cli.cjs"
+    "boost-ui": "./bin/cli.cjs",
+    "ui": "./bin/cli.cjs",
+    "@boostengine/ui": "./bin/cli.cjs"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

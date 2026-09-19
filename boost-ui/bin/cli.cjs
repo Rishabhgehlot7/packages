@@ -24,7 +24,6 @@ function getAvailableComponents() {
 
 if (command === 'list') {
   const all = getAvailableComponents();
-  console.log(`📦 Available Components (${all.length} Total):\n`);
 
   const categories = {
     '0. Theming': ['BoostProvider'],
@@ -40,6 +39,9 @@ if (command === 'list') {
     '10. eCommerce': ['CartDrawer', 'StickyAddToCart', 'PincodeChecker', 'TrustBadges', 'OrderTimeline', 'StarRating', 'ProductGallery', 'VariantSelector', 'ProductCard', 'QuantitySelector', 'ReviewBreakdownBars', 'AnnouncementBar', 'LightningDealsBar', 'FrequentlyBoughtTogether', 'BankOffersAccordion', 'AssuredBadge', 'DualMobileActionBar', 'Price', 'AddToCart', 'CouponInput', 'AddressForm', 'OrderSummary'],
     '11. Authentication': ['LoginForm', 'RegisterForm', 'ForgotPassword', 'ResetPassword'],
   };
+
+  const totalCount = all.length || Object.values(categories).flat().length;
+  console.log(`📦 Available Components (${totalCount} Total):\n`);
 
   for (const [cat, compList] of Object.entries(categories)) {
     console.log(`\x1b[36m${cat}\x1b[0m`);
