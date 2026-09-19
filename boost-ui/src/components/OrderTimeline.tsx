@@ -28,44 +28,159 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
   className = '',
 }) => {
   const currentIndex = STAGES.findIndex((s) => s.id === currentStage);
+  const progressPercent = currentIndex >= 0 ? (currentIndex / (STAGES.length - 1)) * 100 : 0;
 
   return (
-    <div className={`boost-order-timeline ${className}`} style={{ padding: '16px 0', fontFamily: 'inherit' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
-        {/* Background track line */}
-        <div style={{ position: 'absolute', top: '14px', left: '20px', right: '20px', height: '3px', backgroundColor: '#e5e7eb', zIndex: 0 }} />
+    <div className={`boost-order-timeline ${className}`} style={{ padding: '16px 8px', width: '100%', boxSizing: 'border-box' }}>
+      <style>{`
+        .boost-timeline-container {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          position: relative;
+          width: 100%;
+        }
+        .boost-timeline-track-bg {
+          position: absolute;
+          top: 15px;
+          left: 18px;
+          right: 18px;
+          height: 3px;
+          background-color: var(--boost-border, #e2e8f0);
+          z-index: 0;
+          border-radius: 9999px;
+        }
+        .boost-timeline-track-fill {
+          position: absolute;
+          top: 15px;
+          left: 18px;
+          height: 3px;
+          background: linear-gradient(90deg, #10b981, #059669);
+          z-index: 1;
+          border-radius: 9999px;
+          transition: width 0.4s ease;
+        }
+        :root[data-theme="dark"] .boost-timeline-track-bg,
+        .dark .boost-timeline-track-bg {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        .boost-timeline-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+          z-index: 2;
+          flex: 1;
+          max-width: 90px;
+        }
+        .boost-timeline-node {
+          width: 32px;
+          height: 32px;
+          border-radius: 9999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 700;
+          transition: all 0.3s ease;
+        }
+        .boost-timeline-node.passed {
+          background: #10b981;
+          color: #ffffff;
+          box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+        }
+        .boost-timeline-node.current {
+          background: #10b981;
+          color: #ffffff;
+          box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25), 0 4px 14px rgba(16, 185, 129, 0.4);
+          animation: boostPulse 2s infinite;
+        }
+        .boost-timeline-node.upcoming {
+          background: var(--boost-surface, #ffffff);
+          border: 2px solid var(--boost-border, #cbd5e1);
+          color: var(--boost-text-muted, #94a3b8);
+        }
+        :root[data-theme="dark"] .boost-timeline-node.upcoming,
+        .dark .boost-timeline-node.upcoming {
+          background: #111827 !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: rgba(255, 255, 255, 0.4) !important;
+        }
+        .boost-timeline-label {
+          margin-top: 8px;
+          font-size: 11px;
+          text-align: center;
+          line-height: 1.25;
+          letter-spacing: -0.01em;
+        }
+        .boost-timeline-label.current {
+          font-weight: 700;
+          color: var(--boost-text-primary, #0f172a);
+        }
+        .boost-timeline-label.passed {
+          font-weight: 600;
+          color: var(--boost-text-primary, #0f172a);
+        }
+        .boost-timeline-label.upcoming {
+          font-weight: 500;
+          color: var(--boost-text-muted, #94a3b8);
+        }
+        :root[data-theme="dark"] .boost-timeline-label.current,
+        .dark .boost-timeline-label.current {
+          color: #ffffff !important;
+        }
+        :root[data-theme="dark"] .boost-timeline-label.passed,
+        .dark .boost-timeline-label.passed {
+          color: #e2e8f0 !important;
+        }
+        :root[data-theme="dark"] .boost-timeline-label.upcoming,
+        .dark .boost-timeline-label.upcoming {
+          color: #64748b !important;
+        }
+        @keyframes boostPulse {
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+          70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+      `}</style>
+
+      <div className="boost-timeline-container">
+        {/* Track Line Background */}
+        <div className="boost-timeline-track-bg" />
+
+        {/* Dynamic Progress Fill */}
+        <div
+          className="boost-timeline-track-fill"
+          style={{ width: `calc(${progressPercent}% * 0.88)` }}
+        />
 
         {STAGES.map((stage, idx) => {
-          const isPassed = idx <= currentIndex;
+          const isPassed = idx < currentIndex;
           const isCurrent = idx === currentIndex;
+          const status = isCurrent ? 'current' : isPassed ? 'passed' : 'upcoming';
 
           return (
-            <div key={stage.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1, minWidth: '60px' }}>
-              <div
-                style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '999px',
-                  backgroundColor: isPassed ? '#16a34a' : '#ffffff',
-                  border: `2px solid ${isPassed ? '#16a34a' : '#d1d5db'}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  boxShadow: isCurrent ? '0 0 0 4px rgba(22, 163, 74, 0.2)' : 'none',
-                }}
-              >
-                {isPassed ? '✓' : idx + 1}
+            <div key={stage.id} className="boost-timeline-step">
+              <div className={`boost-timeline-node ${status}`}>
+                {isPassed ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                ) : isCurrent ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="4" fill="currentColor"></circle>
+                  </svg>
+                ) : (
+                  idx + 1
+                )}
               </div>
 
-              <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: isCurrent ? 700 : 500, color: isCurrent ? '#111827' : '#6b7280', textAlign: 'center' }}>
+              <div className={`boost-timeline-label ${status}`}>
                 {stage.label}
               </div>
 
               {dates[stage.id] && (
-                <div style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--boost-text-muted, #94a3b8)', marginTop: '3px' }}>
                   {dates[stage.id]}
                 </div>
               )}
@@ -76,6 +191,5 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({
     </div>
   );
 };
-
 
 OrderTimeline.displayName = 'OrderTimeline';

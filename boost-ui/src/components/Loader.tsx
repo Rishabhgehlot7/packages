@@ -1,21 +1,24 @@
 import * as React from 'react';
 
 export interface LoaderProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | number;
   color?: string;
   text?: string;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Loader: React.FC<LoaderProps> = ({
   size = 'md',
-  color = '#2563eb',
+  color = 'var(--boost-primary, #2563eb)',
   text,
   className = '',
+  style,
 }) => {
   const getDimension = () => {
+    if (typeof size === 'number') return size;
     switch (size) {
-      case 'sm': return 16;
+      case 'sm': return 18;
       case 'lg': return 36;
       case 'md':
       default: return 24;
@@ -34,6 +37,7 @@ export const Loader: React.FC<LoaderProps> = ({
         justifyContent: 'center',
         gap: '8px',
         fontFamily: 'inherit',
+        ...style,
       }}
     >
       <style>{`
@@ -56,13 +60,18 @@ export const Loader: React.FC<LoaderProps> = ({
       </svg>
 
       {text && (
-        <span style={{ fontSize: size === 'sm' ? '12px' : '14px', color: '#64748b' }}>
+        <span
+          style={{
+            fontSize: size === 'sm' ? '12px' : '13.5px',
+            color: 'var(--boost-text-muted, #64748b)',
+            fontWeight: 500,
+          }}
+        >
           {text}
         </span>
       )}
     </div>
   );
 };
-
 
 Loader.displayName = 'Loader';

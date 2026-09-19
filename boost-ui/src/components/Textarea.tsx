@@ -5,6 +5,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   error?: string;
   helperText?: string;
   maxChars?: number;
+  showCount?: boolean;
   fullWidth?: boolean;
 }
 
@@ -15,6 +16,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       error,
       helperText,
       maxChars,
+      maxLength,
+      showCount = false,
       fullWidth = true,
       disabled,
       className = '',
@@ -27,7 +30,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     ref
   ) => {
     const textareaId = id || (label ? `textarea-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined);
+    const limit = maxLength || maxChars;
     const charCount = typeof value === 'string' ? value.length : 0;
+    const shouldShowCount = showCount || Boolean(maxChars);
 
     return (
       <div
@@ -40,6 +45,23 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           width: fullWidth ? '100%' : 'auto',
         }}
       >
+        <style>{`
+          .boost-textarea {
+            background-color: var(--boost-surface, #ffffff);
+            color: var(--boost-text, #0f172a);
+            border: 1px solid var(--boost-border, #cbd5e1);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          :root[data-theme="dark"] .boost-textarea {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+          }
+          .boost-textarea:focus {
+            border-color: var(--boost-primary, #2563eb) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+          }
+        `}</style>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {label && (
             <label
@@ -47,16 +69,16 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               style={{
                 fontSize: '13px',
                 fontWeight: 600,
-                color: '#334155',
+                color: 'var(--boost-text, #334155)',
               }}
             >
               {label}
             </label>
           )}
 
-          {maxChars && (
-            <span style={{ fontSize: '11px', color: charCount > maxChars ? '#ef4444' : '#64748b' }}>
-              {charCount}/{maxChars}
+          {shouldShowCount && limit && (
+            <span style={{ fontSize: '11px', color: charCount > limit ? '#ef4444' : 'var(--boost-text-muted, #64748b)' }}>
+              {charCount}/{limit}
             </span>
           )}
         </div>
@@ -67,30 +89,31 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           disabled={disabled}
           value={value}
           onChange={onChange}
+          maxLength={limit}
+          className="boost-textarea"
           style={{
             width: '100%',
-            padding: '10px 12px',
+            padding: '10px 14px',
             fontSize: '14px',
-            color: '#0f172a',
-            backgroundColor: disabled ? '#f8fafc' : '#ffffff',
-            border: `1px solid ${error ? '#ef4444' : '#cbd5e1'}`,
-            borderRadius: '6px',
+            borderRadius: 'var(--boost-radius, 8px)',
             outline: 'none',
-            minHeight: '80px',
+            minHeight: '90px',
             resize: 'vertical',
             boxSizing: 'border-box',
             fontFamily: 'inherit',
+            lineHeight: 1.5,
+            borderColor: error ? '#ef4444' : undefined,
             ...style,
           }}
           {...props}
         />
 
         {error ? (
-          <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 500 }}>
+          <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}>
             {error}
           </span>
         ) : helperText ? (
-          <span style={{ fontSize: '12px', color: '#64748b' }}>
+          <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}>
             {helperText}
           </span>
         ) : null}

@@ -4,6 +4,8 @@ export interface CTASectionProps {
   badge?: React.ReactNode;
   title: React.ReactNode;
   description?: React.ReactNode;
+  backgroundImage?: string;
+  overlayOpacity?: number;
   primaryAction?: {
     label: string;
     onClick?: () => void;
@@ -27,6 +29,8 @@ export const CTASection: React.FC<CTASectionProps> = ({
   badge,
   title,
   description,
+  backgroundImage,
+  overlayOpacity,
   primaryAction,
   secondaryAction,
   showNewsletter = false,
@@ -50,6 +54,14 @@ export const CTASection: React.FC<CTASectionProps> = ({
 
   const isCard = variant === 'card';
   const isGradient = variant === 'gradient';
+  const hasBgImage = !!backgroundImage;
+  const overlayAlpha = overlayOpacity ?? 0.6;
+  
+  const backgroundStyle = hasBgImage
+    ? `linear-gradient(rgba(0, 0, 0, ${overlayAlpha}), rgba(0, 0, 0, ${overlayAlpha})), url(${backgroundImage}) center/cover no-repeat`
+    : isGradient
+      ? 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)'
+      : 'var(--boost-primary, #2563eb)';
 
   return (
     <section
@@ -62,14 +74,31 @@ export const CTASection: React.FC<CTASectionProps> = ({
       }}
       {...props}
     >
+      <style>
+        {`
+          .boost-cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+          }
+          @media (max-width: 640px) {
+            .boost-cta-buttons {
+              flex-direction: column;
+              width: 100%;
+            }
+            .boost-cta-buttons button {
+              width: 100%;
+            }
+          }
+        `}
+      </style>
       <div
         style={{
           maxWidth: isCard ? '1100px' : '100%',
           margin: '0 auto',
           borderRadius: isCard ? 'var(--boost-radius, 24px)' : '0px',
-          background: isGradient
-            ? 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)'
-            : 'var(--boost-primary, #2563eb)',
+          background: backgroundStyle,
           color: '#ffffff',
           padding: 'clamp(36px, 6vw, 60px) clamp(20px, 4vw, 48px)',
           textAlign: 'center',
@@ -189,14 +218,7 @@ export const CTASection: React.FC<CTASectionProps> = ({
           )
         ) : (
           (primaryAction || secondaryAction) && (
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                gap: '14px',
-              }}
-            >
+            <div className="boost-cta-buttons">
               {primaryAction && (
                 <button
                   type="button"

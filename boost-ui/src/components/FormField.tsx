@@ -7,6 +7,7 @@ export interface FormFieldProps {
   helperText?: string;
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -16,6 +17,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   helperText,
   children,
   className = '',
+  style,
 }) => {
   return (
     <div
@@ -26,27 +28,27 @@ export const FormField: React.FC<FormFieldProps> = ({
         gap: '6px',
         fontFamily: 'inherit',
         width: '100%',
+        ...style,
       }}
     >
-      <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+      <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)', letterSpacing: '-0.01em' }}>
         {label}
-        {required && <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>}
+        {required && <span style={{ color: 'var(--boost-danger, #ef4444)', marginLeft: '4px' }}>*</span>}
       </label>
 
       {children}
 
       {error ? (
-        <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 500 }}>
+        <span style={{ fontSize: '12px', color: 'var(--boost-danger, #ef4444)', fontWeight: 500 }}>
           {error}
         </span>
       ) : helperText ? (
-        <span style={{ fontSize: '12px', color: '#64748b' }}>
+        <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}>
           {helperText}
         </span>
       ) : null}
     </div>
   );
 };
-
 
 FormField.displayName = 'FormField';

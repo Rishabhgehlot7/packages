@@ -2,11 +2,33 @@ import * as React from 'react';
 
 export interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   onClear?: () => void;
+  onSearch?: (query: string) => void;
   fullWidth?: boolean;
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ value, onChange, onClear, fullWidth = true, className = '', style, placeholder = 'Search...', ...props }, ref) => {
+  (
+    {
+      value,
+      onChange,
+      onClear,
+      onSearch,
+      onKeyDown,
+      fullWidth = true,
+      className = '',
+      style,
+      placeholder = 'Search...',
+      ...props
+    },
+    ref
+  ) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && onSearch) {
+        onSearch(String(e.currentTarget.value || ''));
+      }
+      onKeyDown?.(e);
+    };
+
     return (
       <div
         className={`boost-search-input-wrapper ${className}`}
@@ -23,7 +45,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             position: 'absolute',
             left: '12px',
             display: 'inline-flex',
-            color: '#64748b',
+            color: 'var(--boost-text-muted, #64748b)',
             pointerEvents: 'none',
           }}
         >
@@ -38,20 +60,22 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           type="text"
           value={value}
           onChange={onChange}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           style={{
             width: '100%',
-            paddingTop: '8px',
-            paddingBottom: '8px',
+            paddingTop: '9px',
+            paddingBottom: '9px',
             paddingLeft: '36px',
-            paddingRight: value && onClear ? '36px' : '12px',
+            paddingRight: value && onClear ? '36px' : '14px',
             fontSize: '14px',
-            color: '#0f172a',
-            backgroundColor: '#ffffff',
-            border: '1px solid #cbd5e1',
-            borderRadius: '6px',
+            color: 'var(--boost-text, #0f172a)',
+            backgroundColor: 'var(--boost-surface, #ffffff)',
+            border: '1px solid var(--boost-border, #cbd5e1)',
+            borderRadius: '8px',
             outline: 'none',
             boxSizing: 'border-box',
+            transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
             ...style,
           }}
           {...props}
@@ -70,9 +94,10 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
               justifyContent: 'center',
               background: 'none',
               border: 'none',
-              color: '#94a3b8',
+              color: 'var(--boost-text-muted, #94a3b8)',
               cursor: 'pointer',
-              padding: '2px',
+              padding: '4px',
+              borderRadius: '4px',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -87,3 +112,4 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
 );
 
 SearchInput.displayName = 'SearchInput';
+

@@ -87,7 +87,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               paddingRight: rightIcon ? '38px' : '14px',
               fontSize: '14px',
               color: 'var(--boost-text, #0f172a)',
-              backgroundColor: disabled ? 'rgba(0, 0, 0, 0.03)' : 'var(--boost-bg, #ffffff)',
+              backgroundColor: disabled ? 'rgba(0, 0, 0, 0.04)' : 'var(--boost-surface, #ffffff)',
               border: `1px solid ${error ? '#ef4444' : 'var(--boost-border, #cbd5e1)'}`,
               borderRadius: 'var(--boost-radius, 10px)',
               outline: 'none',

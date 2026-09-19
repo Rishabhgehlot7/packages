@@ -13,6 +13,7 @@ export interface ReviewBreakdownBarsProps {
   onFilterByStar?: (star: number) => void;
   selectedStar?: number | null;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
@@ -22,6 +23,7 @@ export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
   onFilterByStar,
   selectedStar = null,
   className = '',
+  style,
 }) => {
   // Normalize breakdown to array [5, 4, 3, 2, 1]
   const rows: ReviewBreakdownItem[] = [5, 4, 3, 2, 1].map((star) => {
@@ -44,133 +46,179 @@ export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
       className={`boost-review-breakdown ${className}`}
       style={{
         display: 'flex',
-        flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
-        gap: '32px',
-        padding: '24px',
-        backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #f3f4f6',
+        gap: '40px',
+        padding: '32px',
+        backgroundColor: 'var(--boost-surface, #ffffff)',
+        borderRadius: '24px',
+        border: '1px solid var(--boost-border, rgba(0,0,0,0.05))',
+        boxShadow: '0 20px 40px -20px var(--boost-shadow, rgba(0,0,0,0.05))',
+        fontFamily: 'inherit',
+        width: '100%',
+        ...style,
       }}
     >
+      <style>
+        {`
+          .boost-review-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 200px; /* Flex grow, shrink, and basis */
+            text-align: center;
+          }
+          .boost-review-score {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--boost-text-primary, #0f172a);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+          }
+          .boost-review-stars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+          }
+          .boost-review-total {
+            font-size: 13px;
+            color: var(--boost-text-muted, #64748b);
+            font-weight: 500;
+          }
+          
+          .boost-review-right {
+            flex: 2 1 300px; /* Take up more space, wrap if < 300px */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+          
+          .boost-review-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+          }
+          .boost-review-row:hover {
+            transform: translateX(2px);
+          }
+          
+          .boost-review-star-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 44px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--boost-text-primary, #334155);
+          }
+          
+          .boost-review-track {
+            flex: 1;
+            height: 10px;
+            background-color: var(--boost-bg-muted, #f1f5f9);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            min-width: 100px; /* Ensure track never disappears completely */
+          }
+          
+          .boost-review-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+          }
+          .boost-review-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            border-radius: inherit;
+          }
+          
+          .boost-review-percent {
+            min-width: 40px;
+            text-align: right;
+            font-size: 13px;
+            color: var(--boost-text-secondary, #475569);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+          }
+
+          /* Dark Mode Tweaks */
+          :root[data-theme="dark"] .boost-review-track,
+          .dark .boost-review-track {
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+          }
+        `}
+      </style>
+
       {/* Left rating summary */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: '140px',
-          padding: '12px 16px',
-          textAlign: 'center',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '48px',
-            fontWeight: 800,
-            color: '#111827',
-            lineHeight: 1,
-            letterSpacing: '-0.02em',
-          }}
-        >
+      <div className="boost-review-left">
+        <span className="boost-review-score">
           {safeRating.toFixed(1)}
         </span>
-        <div style={{ marginTop: '8px' }}>
-          <StarRating rating={safeRating} size={20} />
+        <div className="boost-review-stars">
+          <StarRating rating={safeRating} size={24} />
         </div>
-        <span
-          style={{
-            fontSize: '13px',
-            color: '#6b7280',
-            marginTop: '8px',
-            fontWeight: 500,
-          }}
-        >
+        <span className="boost-review-total">
           Based on {safeTotal.toLocaleString()} reviews
         </span>
       </div>
 
       {/* Right progress bars */}
-      <div
-        style={{
-          flex: 1,
-          minWidth: '220px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-        }}
-      >
+      <div className="boost-review-right">
         {rows.map(({ star, count }) => {
           const percent = safeTotal > 0 ? Math.round((count / safeTotal) * 100) : 0;
           const isSelected = selectedStar === star;
+          
+          // Use theme variables if available, otherwise fallback to premium colors
+          const fillColor = star >= 4 
+            ? 'var(--boost-success, #10b981)' 
+            : star === 3 
+              ? 'var(--boost-warning, #f59e0b)' 
+              : 'var(--boost-danger, #ef4444)';
 
           return (
             <div
               key={star}
+              className="boost-review-row"
               onClick={() => onFilterByStar && onFilterByStar(star)}
               role={onFilterByStar ? 'button' : undefined}
               tabIndex={onFilterByStar ? 0 : undefined}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
                 cursor: onFilterByStar ? 'pointer' : 'default',
-                opacity: selectedStar !== null && !isSelected ? 0.45 : 1,
-                transition: 'opacity 0.2s ease',
+                opacity: selectedStar !== null && !isSelected ? 0.35 : 1,
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  minWidth: '42px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: '#374151',
-                }}
-              >
+              <div className="boost-review-star-label">
                 <span>{star}</span>
-                <svg width="12" height="12" viewBox="0 0 20 20" fill="#f59e0b">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--boost-warning, #f59e0b)" style={{ filter: 'drop-shadow(0 1px 2px rgba(245, 158, 11, 0.2))' }}>
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
 
               {/* Progress track */}
-              <div
-                style={{
-                  flex: 1,
-                  height: '8px',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '9999px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
+              <div className="boost-review-track">
                 <div
+                  className="boost-review-fill"
                   style={{
-                    height: '100%',
                     width: `${percent}%`,
-                    backgroundColor: star >= 4 ? '#10b981' : star === 3 ? '#f59e0b' : '#ef4444',
-                    borderRadius: '9999px',
-                    transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    backgroundColor: fillColor,
                   }}
                 />
               </div>
 
-              {/* Percentage / Count */}
-              <span
-                style={{
-                  minWidth: '38px',
-                  textAlign: 'right',
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  fontWeight: 500,
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
+              {/* Percentage */}
+              <span className="boost-review-percent">
                 {percent}%
               </span>
             </div>
@@ -180,6 +228,5 @@ export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
     </div>
   );
 };
-
 
 ReviewBreakdownBars.displayName = 'ReviewBreakdownBars';

@@ -8,6 +8,7 @@ export interface CarouselProps {
   interval?: number;
   showIndicators?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Carousel: React.FC<CarouselProps> = ({
@@ -16,6 +17,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   interval = 4000,
   showIndicators = true,
   className = '',
+  style,
   ...props
 }) => {
   const [currentIdx, setCurrentIdx] = React.useState(0);
@@ -81,6 +83,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         boxShadow: 'var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.1))',
         touchAction: 'pan-y',
         userSelect: 'none',
+        ...style,
       }}
     >
       {/* Sliding track for silky smooth transition */}

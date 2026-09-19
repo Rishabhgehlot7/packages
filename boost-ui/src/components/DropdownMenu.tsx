@@ -47,20 +47,43 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
       {isOpen && (
         <div
+          className="boost-dropdown-menu"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 4px)',
+            top: 'calc(100% + 6px)',
             [align === 'right' ? 'right' : 'left']: 0,
             zIndex: 500,
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-            minWidth: '180px',
-            padding: '4px',
+            backgroundColor: 'var(--boost-surface, #ffffff)',
+            border: '1px solid var(--boost-border, #e2e8f0)',
+            borderRadius: 'var(--boost-radius, 10px)',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15)',
+            minWidth: '190px',
+            padding: '6px',
             fontFamily: 'inherit',
           }}
         >
+          <style>
+            {`
+              :root[data-theme="dark"] .boost-dropdown-menu,
+              .dark .boost-dropdown-menu {
+                background-color: var(--boost-surface, #1e293b) !important;
+                border-color: rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-item,
+              .dark .boost-dropdown-item {
+                color: #f8fafc !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-item:hover:not(.disabled),
+              .dark .boost-dropdown-item:hover:not(.disabled) {
+                background-color: rgba(255, 255, 255, 0.06) !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-item.destructive,
+              .dark .boost-dropdown-item.destructive {
+                color: #f87171 !important;
+              }
+            `}
+          </style>
           {items.map((item) => (
             <div
               key={item.id}
@@ -69,16 +92,17 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                 setIsOpen(false);
                 if (item.onClick) item.onClick();
               }}
+              className={`boost-dropdown-item ${item.disabled ? 'disabled' : ''} ${item.destructive ? 'destructive' : ''}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 padding: '8px 12px',
                 fontSize: '13px',
-                borderRadius: '4px',
+                borderRadius: '6px',
                 cursor: item.disabled ? 'not-allowed' : 'pointer',
-                opacity: item.disabled ? 0.5 : 1,
-                color: item.destructive ? '#dc2626' : '#1e293b',
+                opacity: item.disabled ? 0.45 : 1,
+                color: item.destructive ? '#dc2626' : 'var(--boost-text, #1e293b)',
                 transition: 'background-color 0.15s ease',
               }}
             >

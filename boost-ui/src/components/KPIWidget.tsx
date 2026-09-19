@@ -45,6 +45,16 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
       }}
       {...props}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-kpi-widget,
+          .dark .boost-kpi-widget {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        `}
+      </style>
       <div
         style={{
           display: 'flex',

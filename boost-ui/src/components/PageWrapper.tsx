@@ -24,11 +24,21 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        backgroundColor: '#f8fafc',
+        backgroundColor: 'var(--boost-bg, #f8fafc)',
+        color: 'var(--boost-text, #0f172a)',
         fontFamily: 'inherit',
         ...style,
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-page-wrapper,
+          .dark .boost-page-wrapper {
+            background-color: var(--boost-bg, #0b0f19) !important;
+            color: #f8fafc !important;
+          }
+        `}
+      </style>
       {header}
 
       <div style={{ display: 'flex', flex: 1 }}>

@@ -337,9 +337,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 declare const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>;
 
+type IconButtonShape = 'square' | 'rounded' | 'circle';
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    icon: React.ReactNode;
-    label: string;
+    icon?: React.ReactNode;
+    label?: string;
+    ariaLabel?: string;
+    shape?: IconButtonShape;
     variant?: ButtonVariant;
     size?: ButtonSize;
     isLoading?: boolean;
@@ -349,13 +352,14 @@ declare const IconButton: React.ForwardRefExoticComponent<IconButtonProps & Reac
 interface ButtonGroupProps {
     children: React.ReactNode;
     orientation?: 'horizontal' | 'vertical';
+    fullWidth?: boolean;
     className?: string;
     style?: React.CSSProperties;
 }
 declare const ButtonGroup: React.FC<ButtonGroupProps>;
 
 interface FloatingActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
     label?: string;
     position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 }
@@ -367,6 +371,7 @@ interface LinkButtonProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> 
     size?: ButtonSize;
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
+    fullWidth?: boolean;
 }
 declare const LinkButton: React.FC<LinkButtonProps>;
 
@@ -377,6 +382,7 @@ interface CopyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
     timeout?: number;
     variant?: 'outline' | 'ghost' | 'solid';
     size?: 'sm' | 'md';
+    iconOnly?: boolean;
     className?: string;
 }
 declare const CopyButton: React.FC<CopyButtonProps>;
@@ -396,6 +402,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
     error?: string;
     helperText?: string;
     maxChars?: number;
+    showCount?: boolean;
     fullWidth?: boolean;
 }
 declare const Textarea: React.ForwardRefExoticComponent<TextareaProps & React.RefAttributes<HTMLTextAreaElement>>;
@@ -428,6 +435,7 @@ interface MultiSelectProps {
     error?: string;
     className?: string;
     disabled?: boolean;
+    style?: React.CSSProperties;
 }
 declare const MultiSelect: React.FC<MultiSelectProps>;
 
@@ -456,6 +464,7 @@ interface RadioGroupProps {
     onChange: (value: string | number) => void;
     orientation?: 'vertical' | 'horizontal';
     className?: string;
+    style?: React.CSSProperties;
     disabled?: boolean;
 }
 declare const RadioGroup: React.FC<RadioGroupProps>;
@@ -468,6 +477,7 @@ interface SwitchProps {
     disabled?: boolean;
     size?: 'sm' | 'md' | 'lg';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Switch: React.ForwardRefExoticComponent<SwitchProps & React.RefAttributes<HTMLButtonElement>>;
 
@@ -477,10 +487,13 @@ interface DatePickerProps {
     onChange: (date: string) => void;
     minDate?: string;
     maxDate?: string;
+    min?: string;
+    max?: string;
     error?: string;
     helperText?: string;
     disabled?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const DatePicker: React.FC<DatePickerProps>;
 
@@ -492,6 +505,7 @@ interface TimePickerProps {
     helperText?: string;
     disabled?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const TimePicker: React.FC<TimePickerProps>;
 
@@ -505,11 +519,13 @@ interface FileUploadProps {
     helperText?: string;
     disabled?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const FileUpload: React.FC<FileUploadProps>;
 
 interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
     onClear?: () => void;
+    onSearch?: (query: string) => void;
     fullWidth?: boolean;
 }
 declare const SearchInput: React.ForwardRefExoticComponent<SearchInputProps & React.RefAttributes<HTMLInputElement>>;
@@ -521,6 +537,7 @@ interface FormFieldProps {
     helperText?: string;
     children: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const FormField: React.FC<FormFieldProps>;
 
@@ -532,6 +549,7 @@ interface OTPInputProps {
     disabled?: boolean;
     error?: string;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const OTPInput: React.ForwardRefExoticComponent<OTPInputProps & React.RefAttributes<HTMLInputElement>>;
 
@@ -549,10 +567,11 @@ interface FileDropzoneProps {
 declare const FileDropzone: React.FC<FileDropzoneProps>;
 
 interface LoaderProps {
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | number;
     color?: string;
     text?: string;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Loader: React.FC<LoaderProps>;
 
@@ -567,9 +586,11 @@ interface ProgressBarProps {
     value: number;
     label?: string;
     showPercentage?: boolean;
+    showPercent?: boolean;
     color?: string;
     height?: number;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const ProgressBar: React.FC<ProgressBarProps>;
 
@@ -577,6 +598,7 @@ interface SkeletonProps {
     variant?: 'text' | 'circular' | 'rectangular';
     width?: string | number;
     height?: string | number;
+    borderRadius?: string | number;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -589,6 +611,7 @@ interface ToastProps {
     title?: string;
     message: string;
     variant?: ToastVariant;
+    type?: ToastVariant;
     onClose?: () => void;
     className?: string;
     style?: React.CSSProperties;
@@ -619,25 +642,30 @@ interface ToastProviderProps {
 declare const ToastProvider: React.FC<ToastProviderProps>;
 declare const useToast: () => ToastContextType;
 
-type AlertVariant = 'info' | 'success' | 'warning' | 'destructive';
+type AlertVariant = 'info' | 'success' | 'warning' | 'destructive' | 'error';
 interface AlertProps {
     title?: string;
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    description?: React.ReactNode;
     variant?: AlertVariant;
+    type?: AlertVariant;
     icon?: React.ReactNode;
     onClose?: () => void;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Alert: React.FC<AlertProps>;
 
 interface SnackbarProps {
     message: string;
     actionText?: string;
+    actionLabel?: string;
     onAction?: () => void;
-    isOpen: boolean;
+    isOpen?: boolean;
     onClose?: () => void;
     duration?: number;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Snackbar: React.FC<SnackbarProps>;
 
@@ -645,25 +673,31 @@ interface EmptyStateProps {
     title: string;
     description?: string;
     actionText?: string;
+    actionLabel?: string;
     onAction?: () => void;
     icon?: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const EmptyState: React.FC<EmptyStateProps>;
 
 interface ErrorStateProps {
     title?: string;
     message?: string;
+    description?: string;
     onRetry?: () => void;
     retryText?: string;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const ErrorState: React.FC<ErrorStateProps>;
 
 interface SuccessMessageProps {
     title?: string;
-    message: string;
+    message?: string;
+    description?: string;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const SuccessMessage: React.FC<SuccessMessageProps>;
 
@@ -685,8 +719,9 @@ declare const CardFooter: React.FC<CardFooterProps>;
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     fallbackSrc?: string;
-    aspectRatio?: 'square' | 'video' | 'portrait' | 'auto';
+    aspectRatio?: 'square' | 'video' | 'portrait' | 'auto' | string;
     objectFit?: 'cover' | 'contain' | 'fill';
+    containerStyle?: React.CSSProperties;
 }
 declare const Image: React.FC<ImageProps>;
 
@@ -696,6 +731,7 @@ interface AvatarProps {
     size?: 'sm' | 'md' | 'lg' | 'xl';
     status?: 'online' | 'offline' | 'busy' | 'away';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Avatar: React.FC<AvatarProps>;
 interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -708,7 +744,7 @@ interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 declare const AvatarGroup: React.FC<AvatarGroupProps>;
 
-type BadgeVariant = 'default' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning';
+type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning' | 'info';
 interface BadgeProps {
     children: React.ReactNode;
     variant?: BadgeVariant;
@@ -718,28 +754,35 @@ interface BadgeProps {
 declare const Badge: React.FC<BadgeProps>;
 
 interface TagProps {
-    label: string;
+    label?: string;
+    children?: React.ReactNode;
     onRemove?: () => void;
     color?: string;
+    variant?: 'default' | 'primary' | 'success' | 'warning' | 'destructive' | 'purple';
+    size?: 'sm' | 'md' | 'lg';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Tag: React.FC<TagProps>;
 
 interface TooltipProps {
-    content: string;
+    content: React.ReactNode;
     children: React.ReactNode;
     position?: 'top' | 'bottom' | 'left' | 'right';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Tooltip: React.FC<TooltipProps>;
 
 interface ChipProps {
-    label: string;
+    label?: string;
+    children?: React.ReactNode;
     selected?: boolean;
     onClick?: () => void;
     onDelete?: () => void;
     avatar?: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Chip: React.FC<ChipProps>;
 
@@ -762,7 +805,9 @@ interface AccordionProps {
     items: AccordionItem[];
     allowMultiple?: boolean;
     defaultExpanded?: string[];
+    variant?: 'default' | 'bordered' | 'separated';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Accordion: React.FC<AccordionProps>;
 
@@ -773,6 +818,7 @@ interface CarouselProps {
     interval?: number;
     showIndicators?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Carousel: React.FC<CarouselProps>;
 
@@ -785,6 +831,9 @@ interface ModalProps {
     footer?: React.ReactNode;
     size?: 'sm' | 'md' | 'lg' | 'xl';
     className?: string;
+    style?: React.CSSProperties;
+    closeOnOverlayClick?: boolean;
+    showCloseButton?: boolean;
 }
 declare const Modal: React.FC<ModalProps>;
 declare const Dialog: React.FC<ModalProps>;
@@ -795,9 +844,14 @@ interface DrawerProps {
     onClose: () => void;
     title?: string;
     placement?: 'left' | 'right' | 'top' | 'bottom';
+    position?: 'left' | 'right' | 'top' | 'bottom';
     size?: string;
     children: React.ReactNode;
+    footer?: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
+    showCloseButton?: boolean;
+    closeOnOverlayClick?: boolean;
 }
 declare const Drawer: React.FC<DrawerProps>;
 
@@ -806,16 +860,26 @@ interface BottomSheetProps {
     onClose: () => void;
     title?: string;
     children: React.ReactNode;
+    footer?: React.ReactNode;
     maxHeight?: string;
     className?: string;
+    style?: React.CSSProperties;
+    dragHandle?: boolean;
+    showCloseButton?: boolean;
+    closeOnOverlayClick?: boolean;
 }
 declare const BottomSheet: React.FC<BottomSheetProps>;
 
 interface PopoverProps {
     trigger: React.ReactNode;
     content: React.ReactNode;
-    placement?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+    placement?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'bottom' | 'top';
+    isOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
     className?: string;
+    style?: React.CSSProperties;
+    contentStyle?: React.CSSProperties;
+    showArrow?: boolean;
 }
 declare const Popover: React.FC<PopoverProps>;
 
@@ -827,8 +891,11 @@ interface ConfirmationDialogProps {
     message: string;
     confirmText?: string;
     cancelText?: string;
-    variant?: 'danger' | 'primary';
+    variant?: 'danger' | 'primary' | 'warning' | 'destructive';
+    confirmVariant?: 'danger' | 'primary' | 'warning' | 'destructive';
     isLoading?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
 }
 declare const ConfirmationDialog: React.FC<ConfirmationDialogProps>;
 
@@ -987,7 +1054,7 @@ interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
 declare const ScrollArea: React.ForwardRefExoticComponent<ScrollAreaProps & React.RefAttributes<HTMLDivElement>>;
 
 interface MotionProps extends React.HTMLAttributes<HTMLDivElement> {
-    animation?: 'fade-in' | 'slide-up' | 'slide-down' | 'scale-in' | 'slide-in-right' | 'slide-in-left';
+    animation?: 'fade-in' | 'slide-up' | 'slide-down' | 'scale-in' | 'slide-in-right' | 'slide-in-left' | 'spin' | 'pulse' | 'shimmer';
     duration?: number;
     delay?: number;
     triggerOnce?: boolean;
@@ -996,25 +1063,35 @@ interface MotionProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 /**
  * Motion — Zero-dependency scroll and entrance animation wrapper.
- * Uses native IntersectionObserver to animate content into view smoothly.
- *
- * @example
- * <Motion animation="slide-up" delay={150}>
- *   <h2>Hero Header</h2>
- * </Motion>
+ * Uses native IntersectionObserver to animate content into view smoothly,
+ * and also supports continuous animations like spin, pulse, and shimmer.
  */
 declare const Motion: React.FC<MotionProps>;
 
+interface HeaderNavLink {
+    label: string;
+    href: string;
+    badge?: string | number;
+    active?: boolean;
+}
 interface HeaderProps {
     logo?: React.ReactNode;
     brandName?: string;
-    navLinks?: Array<{
-        label: string;
-        href: string;
-    }>;
+    brandBadge?: string;
+    navLinks?: HeaderNavLink[];
+    links?: HeaderNavLink[];
+    activeHref?: string;
+    onLinkClick?: (href: string) => void;
     actions?: React.ReactNode;
+    searchBar?: React.ReactNode;
     sticky?: boolean;
     className?: string;
+    style?: React.CSSProperties;
+    renderMobileMenu?: (props: {
+        isOpen: boolean;
+        onClose: () => void;
+        links: HeaderNavLink[];
+    }) => React.ReactNode;
 }
 declare const Header: React.FC<HeaderProps>;
 
@@ -1027,12 +1104,16 @@ interface NavLinkItem {
 }
 interface NavbarProps {
     brandName?: string;
+    logo?: React.ReactNode;
     logoUrl?: string;
+    brandBadge?: string;
     navLinks?: NavLinkItem[];
+    activeHref?: string;
     searchPlaceholder?: string;
     searchValue?: string;
     onSearchChange?: (val: string) => void;
     onSearchSubmit?: (val: string) => void;
+    showSearch?: boolean;
     cartCount?: number;
     wishlistCount?: number;
     onCartClick?: () => void;
@@ -1045,7 +1126,9 @@ interface NavbarProps {
     announcementText?: string;
     announcementLink?: string;
     onAnnouncementClose?: () => void;
+    actions?: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Navbar: React.FC<NavbarProps>;
 
@@ -1079,49 +1162,75 @@ interface FooterColumn {
         href: string;
     }>;
 }
+interface FooterSocialLink {
+    name?: string;
+    platform?: string;
+    href: string;
+    icon?: React.ReactNode;
+}
 interface FooterProps {
+    logo?: React.ReactNode;
     brandName?: string;
+    brandBadge?: string;
     description?: string;
     columns?: FooterColumn[];
+    socialLinks?: FooterSocialLink[];
+    bottomLinks?: Array<{
+        label: string;
+        href: string;
+    }>;
+    newsletter?: boolean;
     onNewsletterSubmit?: (email: string) => void;
     showPaymentBadges?: boolean;
     copyrightYear?: number;
+    copyrightText?: string;
     variant?: 'dark' | 'light' | 'surface';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Footer: React.FC<FooterProps>;
 
 interface MobileBottomBarItem {
     id: string;
     label: string;
-    icon: 'home' | 'search' | 'categories' | 'wishlist' | 'cart' | 'account';
+    icon: 'home' | 'search' | 'categories' | 'wishlist' | 'cart' | 'account' | React.ReactNode;
     badge?: number | string;
     href?: string;
 }
 interface MobileBottomBarProps {
     activeTab?: string;
+    defaultActiveTab?: string;
     cartCount?: number;
     wishlistCount?: number;
     items?: MobileBottomBarItem[];
     onTabChange?: (tabId: string, href?: string) => void;
+    showLabels?: boolean;
+    activeColor?: string;
+    variant?: 'glass' | 'solid' | 'floating';
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const MobileBottomBar: React.FC<MobileBottomBarProps>;
 
 interface MobileBottomNavItem {
     id: string;
     label: string;
-    icon?: React__default.ReactNode;
+    icon?: React.ReactNode;
     badge?: number | string;
     href?: string;
 }
 interface MobileBottomNavProps {
     items: MobileBottomNavItem[];
     activeId?: string;
+    defaultActiveId?: string;
     onChange?: (id: string, href?: string) => void;
-    style?: React__default.CSSProperties;
+    showLabels?: boolean;
+    activeColor?: string;
+    variant?: 'glass' | 'floating' | 'solid';
+    className?: string;
+    style?: React.CSSProperties;
 }
-declare const MobileBottomNav: React__default.FC<MobileBottomNavProps>;
+declare const MobileBottomNav: React.FC<MobileBottomNavProps>;
 
 interface BreadcrumbItem {
     label: string;
@@ -1178,34 +1287,40 @@ interface DropdownMenuProps {
 }
 declare const DropdownMenu: React.FC<DropdownMenuProps>;
 
+interface MegaMenuLink {
+    label: string;
+    href: string;
+    description?: string;
+    badge?: string;
+}
 interface MegaMenuSection {
     title: string;
-    links: Array<{
-        label: string;
-        href: string;
-        description?: string;
-    }>;
+    links: MegaMenuLink[];
 }
 interface MegaMenuColumn {
     title: string;
-    links: Array<{
-        label: string;
-        href: string;
-        description?: string;
-    }>;
+    links: MegaMenuLink[];
 }
 interface MegaMenuCategory {
     id: string;
     label: string;
+    icon?: React.ReactNode;
     columns?: MegaMenuColumn[];
     sections?: MegaMenuSection[];
 }
 interface MegaMenuProps {
-    trigger?: React.ReactNode;
+    trigger?: React.ReactNode | ((props: {
+        isOpen: boolean;
+    }) => React.ReactNode);
+    triggerLabel?: string;
     sections?: MegaMenuSection[];
     categories?: MegaMenuCategory[];
     featured?: React.ReactNode;
+    isOpen?: boolean;
+    onOpenChange?: (isOpen: boolean) => void;
+    onLinkClick?: (link: MegaMenuLink) => void;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const MegaMenu: React.FC<MegaMenuProps>;
 
@@ -1298,8 +1413,13 @@ interface StatsCardProps {
     title: string;
     value: string | number;
     change?: string | number;
+    trend?: {
+        value: number | string;
+        isPositive?: boolean;
+    } | string | number;
     isPositive?: boolean;
     period?: string;
+    description?: string;
     icon?: React.ReactNode;
     className?: string;
 }
@@ -1479,6 +1599,8 @@ interface FilterProps {
     onChange?: (values: string[]) => void;
     multiple?: boolean;
     clearable?: boolean;
+    className?: string;
+    style?: React__default.CSSProperties;
 }
 declare const Filter: React__default.FC<FilterProps>;
 
@@ -1493,6 +1615,8 @@ interface SortProps {
     currentDirection?: SortDirection;
     onChange?: (value: string, direction: SortDirection) => void;
     label?: string;
+    className?: string;
+    style?: React__default.CSSProperties;
 }
 declare const Sort: React__default.FC<SortProps>;
 
@@ -1508,6 +1632,8 @@ interface LoginFormProps {
     errorMessage?: string;
     title?: string;
     subtitle?: string;
+    className?: string;
+    style?: React__default.CSSProperties;
 }
 declare const LoginForm: React__default.FC<LoginFormProps>;
 
@@ -1571,11 +1697,13 @@ interface StickyAddToCartProps {
     title: string;
     price: number;
     compareAtPrice?: number;
+    originalPrice?: number;
     image?: string;
     onAddToCart: (quantity: number) => Promise<void> | void;
     onBuyNow?: (quantity: number) => Promise<void> | void;
     inStock?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const StickyAddToCart: React.FC<StickyAddToCartProps>;
 
@@ -1599,6 +1727,7 @@ interface TrustBadgesProps {
     showSecureBadge?: boolean;
     showGenuineBadge?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const TrustBadges: React.FC<TrustBadgesProps>;
 
@@ -1710,6 +1839,7 @@ interface ReviewBreakdownBarsProps {
     onFilterByStar?: (star: number) => void;
     selectedStar?: number | null;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps>;
 
@@ -1739,6 +1869,7 @@ interface LightningDealsBarProps {
     claimedQuantity?: number;
     badgeColor?: string;
     className?: string;
+    style?: React.CSSProperties;
     onExpire?: () => void;
     hideOnExpire?: boolean;
 }
@@ -1748,7 +1879,7 @@ interface BundleItem {
     id: string;
     title: string;
     price: number;
-    imageUrl: string;
+    imageUrl?: string;
     originalPrice?: number;
 }
 interface FrequentlyBoughtTogetherProps {
@@ -1757,21 +1888,25 @@ interface FrequentlyBoughtTogetherProps {
     bundleDiscountPercentage?: number;
     currencySymbol?: string;
     onAddBundleToCart?: (selectedItems: BundleItem[]) => void;
+    onAddBundle?: (selectedItems: BundleItem[] | string[]) => void;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps>;
 
 interface BankOffer {
     id: string;
-    type: 'instant' | 'emi' | 'cashback' | 'partner';
+    type?: 'instant' | 'emi' | 'cashback' | 'partner' | string;
     title: string;
-    description: string;
+    description?: string;
+    terms?: string;
     code?: string;
     termsUrl?: string;
 }
 interface BankOffersAccordionProps {
     offers?: BankOffer[];
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const BankOffersAccordion: React.FC<BankOffersAccordionProps>;
 
@@ -1784,6 +1919,7 @@ declare const AssuredBadge: React.FC<AssuredBadgeProps>;
 interface DualMobileActionBarProps {
     price?: number;
     compareAtPrice?: number;
+    originalPrice?: number;
     currencySymbol?: string;
     isWishlisted?: boolean;
     isInCart?: boolean;
@@ -1791,7 +1927,10 @@ interface DualMobileActionBarProps {
     onBuyNow: () => void;
     onToggleWishlist?: () => void;
     position?: 'fixed' | 'relative';
+    addToCartText?: string;
+    buyNowText?: string;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const DualMobileActionBar: React.FC<DualMobileActionBarProps>;
 
@@ -1887,7 +2026,9 @@ interface HeroSectionProps {
     primaryAction?: HeroAction;
     secondaryAction?: HeroAction;
     media?: React.ReactNode;
-    align?: 'center' | 'left';
+    backgroundImage?: string;
+    overlayOpacity?: number;
+    align?: 'center' | 'left' | 'right';
     showGlow?: boolean;
     glowColor?: string;
     className?: string;
@@ -1922,6 +2063,9 @@ interface PricingTier {
     description?: string;
     priceMonthly: number | string;
     priceAnnual?: number | string;
+    originalPriceMonthly?: number | string;
+    originalPriceAnnual?: number | string;
+    badge?: string;
     currency?: string;
     features: (string | PricingFeature)[];
     isPopular?: boolean;
@@ -1984,7 +2128,8 @@ declare const FAQSection: React.FC<FAQSectionProps>;
 
 interface LogoItem {
     name: string;
-    logo: React.ReactNode;
+    logo?: React.ReactNode;
+    imageUrl?: string;
     href?: string;
 }
 interface LogoCloudProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -2000,6 +2145,8 @@ interface CTASectionProps {
     badge?: React.ReactNode;
     title: React.ReactNode;
     description?: React.ReactNode;
+    backgroundImage?: string;
+    overlayOpacity?: number;
     primaryAction?: {
         label: string;
         onClick?: () => void;

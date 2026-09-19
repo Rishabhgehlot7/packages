@@ -11,14 +11,18 @@ export interface AccordionProps {
   items: AccordionItem[];
   allowMultiple?: boolean;
   defaultExpanded?: string[];
+  variant?: 'default' | 'bordered' | 'separated';
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Accordion: React.FC<AccordionProps> = ({
   items,
   allowMultiple = false,
   defaultExpanded = [],
+  variant = 'default',
   className = '',
+  style,
 }) => {
   const [expanded, setExpanded] = React.useState<string[]>(defaultExpanded);
 
@@ -30,18 +34,53 @@ export const Accordion: React.FC<AccordionProps> = ({
     }
   };
 
+  const isSeparated = variant === 'separated';
+
   return (
     <div
-      className={`boost-accordion ${className}`}
+      className={`boost-accordion boost-accordion-${variant} ${className}`}
       style={{
         display: 'flex',
         flexDirection: 'column',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
+        gap: isSeparated ? '10px' : '0px',
+        border: isSeparated ? 'none' : '1px solid var(--boost-border, #e2e8f0)',
+        borderRadius: 'var(--boost-radius, 12px)',
         overflow: 'hidden',
         fontFamily: 'inherit',
+        ...style,
       }}
     >
+      <style>{`
+        .boost-accordion-header {
+          background-color: var(--boost-surface, #ffffff);
+          color: var(--boost-text, #0f172a);
+          transition: background-color 0.18s ease, color 0.18s ease;
+        }
+        .boost-accordion-header[data-expanded="true"] {
+          background-color: var(--boost-surface-hover, #f8fafc);
+        }
+        .boost-accordion-content {
+          background-color: var(--boost-surface, #ffffff);
+          color: var(--boost-text-muted, #475569);
+          border-top: 1px solid var(--boost-border, #f1f5f9);
+        }
+        :root[data-theme="dark"] .boost-accordion-header {
+          background-color: #1e293b;
+          color: #f8fafc;
+        }
+        :root[data-theme="dark"] .boost-accordion-header[data-expanded="true"] {
+          background-color: #243247;
+        }
+        :root[data-theme="dark"] .boost-accordion-content {
+          background-color: #1e293b;
+          color: #94a3b8;
+          border-top-color: rgba(255, 255, 255, 0.08);
+        }
+        :root[data-theme="dark"] .boost-accordion {
+          border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+      `}</style>
+
       {items.map((item, idx) => {
         const isOpen = expanded.includes(item.id);
         const isLast = idx === items.length - 1;
@@ -50,7 +89,10 @@ export const Accordion: React.FC<AccordionProps> = ({
           <div
             key={item.id}
             style={{
-              borderBottom: isLast ? 'none' : '1px solid #e2e8f0',
+              borderBottom: !isSeparated && !isLast ? '1px solid var(--boost-border, #e2e8f0)' : 'none',
+              borderRadius: isSeparated ? '10px' : undefined,
+              border: isSeparated ? '1px solid var(--boost-border, #e2e8f0)' : undefined,
+              overflow: 'hidden',
             }}
           >
             <button
@@ -58,13 +100,14 @@ export const Accordion: React.FC<AccordionProps> = ({
               disabled={item.disabled}
               onClick={() => toggleItem(item.id)}
               aria-expanded={isOpen}
+              data-expanded={isOpen}
+              className="boost-accordion-header"
               style={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '14px 18px',
-                backgroundColor: isOpen ? '#f8fafc' : '#ffffff',
                 border: 'none',
                 textAlign: 'left',
                 cursor: item.disabled ? 'not-allowed' : 'pointer',
@@ -72,8 +115,6 @@ export const Accordion: React.FC<AccordionProps> = ({
                 fontFamily: 'inherit',
                 fontWeight: 600,
                 fontSize: '14px',
-                color: '#0f172a',
-                transition: 'background-color 0.15s ease',
               }}
             >
               <span>{item.title}</span>
@@ -86,8 +127,10 @@ export const Accordion: React.FC<AccordionProps> = ({
                 strokeWidth="2"
                 style={{
                   transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease',
-                  color: '#64748b',
+                  transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  color: 'var(--boost-text-muted, #64748b)',
+                  flexShrink: 0,
+                  marginLeft: '8px',
                 }}
               >
                 <polyline points="6 9 12 15 18 9" />
@@ -96,11 +139,10 @@ export const Accordion: React.FC<AccordionProps> = ({
 
             {isOpen && (
               <div
+                className="boost-accordion-content"
                 style={{
                   padding: '14px 18px',
-                  backgroundColor: '#ffffff',
-                  fontSize: '13px',
-                  color: '#334155',
+                  fontSize: '13.5px',
                   lineHeight: 1.6,
                 }}
               >
@@ -113,6 +155,5 @@ export const Accordion: React.FC<AccordionProps> = ({
     </div>
   );
 };
-
 
 Accordion.displayName = 'Accordion';

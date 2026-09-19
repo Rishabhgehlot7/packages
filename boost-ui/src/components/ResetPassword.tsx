@@ -39,26 +39,50 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
 
   return (
     <div
+      className="boost-auth-card"
       style={{
-        maxWidth: '400px',
+        maxWidth: '420px',
         width: '100%',
         margin: '0 auto',
-        padding: '32px 24px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        padding: 'clamp(24px, 5vw, 36px) clamp(18px, 4vw, 28px)',
+        backgroundColor: 'var(--boost-surface, #ffffff)',
+        border: '1px solid var(--boost-border, #e2e8f0)',
+        borderRadius: 'var(--boost-radius, 16px)',
+        boxShadow: 'var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))',
+        fontFamily: 'inherit',
+        boxSizing: 'border-box',
+        transition: 'all 0.2s ease',
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-auth-card,
+          .dark .boost-auth-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input,
+          .dark .boost-auth-input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input:focus,
+          .dark .boost-auth-input:focus {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+          }
+        `}
+      </style>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <div
           style={{
             width: '48px',
             height: '48px',
             borderRadius: '24px',
-            backgroundColor: '#eff6ff',
-            color: '#2563eb',
+            backgroundColor: 'rgba(99, 102, 241, 0.12)',
+            color: 'var(--boost-primary, #6366f1)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -71,8 +95,8 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
             <path d="M19 11l-9 9-4-1 1-4 9-9" />
           </svg>
         </div>
-        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>Set new password</h2>
-        <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+        <h2 style={{ fontSize: 'clamp(20px, 3vw, 22px)', fontWeight: 700, color: 'var(--boost-text, #0f172a)', margin: '0 0 6px', letterSpacing: '-0.02em' }}>Set new password</h2>
+        <p style={{ fontSize: '13px', color: 'var(--boost-muted, #64748b)', margin: 0, lineHeight: 1.5 }}>
           Must be at least 8 characters long.
         </p>
       </div>
@@ -85,10 +109,10 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
             gap: '8px',
             padding: '10px 14px',
             marginBottom: '16px',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
-            color: '#dc2626',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '8px',
+            color: '#ef4444',
             fontSize: '13px',
           }}
         >
@@ -103,7 +127,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)', marginBottom: '6px' }}>
             New Password
           </label>
           <input
@@ -112,20 +136,24 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter new password"
+            className="boost-auth-input"
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '10px 14px',
+              padding: '11px 14px',
               fontSize: '14px',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              backgroundColor: 'var(--boost-surface, #ffffff)',
+              color: 'var(--boost-text, #0f172a)',
+              border: '1px solid var(--boost-border, #cbd5e1)',
+              borderRadius: '8px',
               outline: 'none',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
             }}
           />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)', marginBottom: '6px' }}>
             Confirm Password
           </label>
           <input
@@ -134,14 +162,18 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Re-enter new password"
+            className="boost-auth-input"
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '10px 14px',
+              padding: '11px 14px',
               fontSize: '14px',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              backgroundColor: 'var(--boost-surface, #ffffff)',
+              color: 'var(--boost-text, #0f172a)',
+              border: '1px solid var(--boost-border, #cbd5e1)',
+              borderRadius: '8px',
               outline: 'none',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
             }}
           />
         </div>
@@ -151,12 +183,12 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
           disabled={loading}
           style={{
             width: '100%',
-            padding: '11px',
-            backgroundColor: '#0f172a',
+            padding: '12px',
+            background: 'linear-gradient(135deg, var(--boost-primary, #6366f1) 0%, #4f46e5 100%)',
             color: '#ffffff',
             fontSize: '14px',
             fontWeight: 600,
-            borderRadius: '6px',
+            borderRadius: '8px',
             border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
             opacity: loading ? 0.7 : 1,
@@ -164,6 +196,8 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
           }}
         >
           {loading && (

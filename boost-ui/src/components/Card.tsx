@@ -40,6 +40,33 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         }}
         {...props}
       >
+        <style>{`
+          :root[data-theme="dark"] .boost-card {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-card-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-card-title {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-card-description {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-card-content {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-card-footer {
+            background-color: #141e2e !important;
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-card-hoverable:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6) !important;
+          }
+        `}</style>
         {children}
       </div>
     );
@@ -55,7 +82,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ className = '', style, c
       boxSizing: 'border-box',
       ...style,
     }}
-    className={className}
+    className={`boost-card-header ${className}`}
     {...props}
   >
     {children}
@@ -72,7 +99,7 @@ export const CardTitle: React.FC<CardTitleProps> = ({ className = '', style, chi
       letterSpacing: '-0.015em',
       ...style,
     }}
-    className={className}
+    className={`boost-card-title ${className}`}
     {...props}
   >
     {children}
@@ -88,7 +115,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ className = ''
       lineHeight: 1.55,
       ...style,
     }}
-    className={className}
+    className={`boost-card-description ${className}`}
     {...props}
   >
     {children}
@@ -103,7 +130,7 @@ export const CardContent: React.FC<CardContentProps> = ({ className = '', style,
       color: 'var(--boost-text, #0f172a)',
       ...style,
     }}
-    className={className}
+    className={`boost-card-content ${className}`}
     {...props}
   >
     {children}
@@ -115,7 +142,7 @@ export const CardFooter: React.FC<CardFooterProps> = ({ className = '', style, c
     style={{
       padding: 'clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px)',
       borderTop: '1px solid var(--boost-border, #f1f5f9)',
-      backgroundColor: 'var(--boost-surface, #f8fafc)',
+      backgroundColor: 'var(--boost-surface-secondary, #f8fafc)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'flex-end',
@@ -123,7 +150,7 @@ export const CardFooter: React.FC<CardFooterProps> = ({ className = '', style, c
       boxSizing: 'border-box',
       ...style,
     }}
-    className={className}
+    className={`boost-card-footer ${className}`}
     {...props}
   >
     {children}

@@ -126,6 +126,25 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
         }
+        :root[data-theme="dark"] .boost-cart-drawer-panel,
+        .dark .boost-cart-drawer-panel {
+          background-color: var(--boost-bg, #0f172a) !important;
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-cart-header,
+        .dark .boost-cart-header,
+        :root[data-theme="dark"] .boost-shipping-banner,
+        .dark .boost-shipping-banner,
+        :root[data-theme="dark"] .boost-cart-footer,
+        .dark .boost-cart-footer {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        :root[data-theme="dark"] .boost-cart-qty,
+        .dark .boost-cart-qty {
+          background-color: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
       `}</style>
       <div
         className="boost-cart-drawer-panel"
@@ -143,6 +162,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       >
         {/* Header */}
         <div
+          className="boost-cart-header"
           style={{
             padding: '16px 20px',
             borderBottom: '1px solid var(--boost-border, #e2e8f0)',
@@ -193,6 +213,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
         {/* Free Shipping Progress Bar */}
         <div
+          className="boost-shipping-banner"
           style={{
             padding: '12px 20px',
             backgroundColor: 'var(--boost-surface, #f8fafc)',
@@ -284,21 +305,39 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     paddingBottom: '14px',
                   }}
                 >
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      style={{
-                        width: '64px',
-                        height: '64px',
-                        objectFit: 'cover',
-                        borderRadius: '10px',
-                        border: '1px solid var(--boost-border, #e2e8f0)',
-                        backgroundColor: 'var(--boost-surface, #f8fafc)',
-                      }}
-                    />
-                  )}
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--boost-border, #e2e8f0)',
+                      backgroundColor: 'var(--boost-surface, #f8fafc)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--boost-text-muted, #94a3b8)' }}>
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                     <div
                       style={{
                         fontSize: '14px',
@@ -312,17 +351,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       {item.title}
                     </div>
                     {item.variantTitle && (
-                      <div style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)', marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)', marginTop: '4px' }}>
                         {item.variantTitle}
                       </div>
                     )}
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--boost-text, #0f172a)', marginTop: '4px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--boost-text, #0f172a)', marginTop: '6px' }}>
                       ₹{item.price}
                     </div>
                   </div>
 
                   {/* Quantity controls */}
                   <div
+                    className="boost-cart-qty"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -408,6 +448,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         {/* Footer Checkout */}
         {items.length > 0 && (
           <div
+            className="boost-cart-footer"
             style={{
               padding: '16px 20px',
               borderTop: '1px solid var(--boost-border, #e2e8f0)',

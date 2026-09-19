@@ -4,19 +4,25 @@ export interface EmptyStateProps {
   title: string;
   description?: string;
   actionText?: string;
+  actionLabel?: string;
   onAction?: () => void;
   icon?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   title,
   description,
   actionText,
+  actionLabel,
   onAction,
   icon,
   className = '',
+  style,
 }) => {
+  const btnLabel = actionLabel || actionText;
+
   return (
     <div
       className={`boost-empty-state ${className}`}
@@ -28,15 +34,32 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         padding: '48px 24px',
         textAlign: 'center',
         fontFamily: 'inherit',
+        backgroundColor: 'var(--boost-surface, transparent)',
+        borderRadius: 'var(--boost-radius, 12px)',
+        boxSizing: 'border-box',
+        ...style,
       }}
     >
+      <style>{`
+        :root[data-theme="dark"] .boost-empty-state-icon {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-empty-state-title {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-empty-state-desc {
+          color: #94a3b8 !important;
+        }
+      `}</style>
       <div
+        className="boost-empty-state-icon"
         style={{
           width: '64px',
           height: '64px',
           borderRadius: '50%',
-          backgroundColor: '#f1f5f9',
-          color: '#64748b',
+          backgroundColor: 'var(--boost-surface-secondary, #f1f5f9)',
+          color: 'var(--boost-text-muted, #64748b)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -52,37 +75,56 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         )}
       </div>
 
-      <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>
+      <h3
+        className="boost-empty-state-title"
+        style={{
+          margin: '0 0 8px 0',
+          fontSize: '18px',
+          fontWeight: 700,
+          color: 'var(--boost-text, #0f172a)',
+          letterSpacing: '-0.01em',
+        }}
+      >
         {title}
       </h3>
 
       {description && (
-        <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#64748b', maxWidth: '360px', lineHeight: 1.5 }}>
+        <p
+          className="boost-empty-state-desc"
+          style={{
+            margin: '0 0 20px 0',
+            fontSize: '14px',
+            color: 'var(--boost-text-muted, #64748b)',
+            maxWidth: '380px',
+            lineHeight: 1.55,
+          }}
+        >
           {description}
         </p>
       )}
 
-      {actionText && onAction && (
+      {btnLabel && onAction && (
         <button
           type="button"
           onClick={onAction}
           style={{
-            backgroundColor: '#2563eb',
+            backgroundColor: 'var(--boost-primary, #2563eb)',
             color: '#ffffff',
             border: 'none',
-            borderRadius: '6px',
-            padding: '9px 18px',
+            borderRadius: 'var(--boost-radius, 8px)',
+            padding: '9px 20px',
             fontSize: '14px',
             fontWeight: 600,
             cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+            transition: 'all 0.15s ease',
           }}
         >
-          {actionText}
+          {btnLabel}
         </button>
       )}
     </div>
   );
 };
-
 
 EmptyState.displayName = 'EmptyState';

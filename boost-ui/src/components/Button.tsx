@@ -42,7 +42,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           };
         case 'secondary':
           return {
-            backgroundColor: 'var(--boost-surface, #f1f5f9)',
+            backgroundColor: 'var(--boost-surface-secondary, #f1f5f9)',
             color: 'var(--boost-text, #0f172a)',
             border: '1px solid var(--boost-border, #e2e8f0)',
           };
@@ -60,7 +60,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           };
         case 'destructive':
           return {
-            backgroundColor: '#dc2626',
+            backgroundColor: 'var(--boost-danger, #dc2626)',
             color: '#ffffff',
             border: '1px solid transparent',
             boxShadow: '0 1px 3px rgba(220, 38, 38, 0.25)',
@@ -124,35 +124,49 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
-        ref={ref}
-        disabled={disabled || isBusy}
-        className={`boost-btn boost-btn-${variant} ${className}`}
-        style={baseStyles}
-        {...props}
-      >
-        {isBusy && (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            style={{
-              animation: 'boost-spin 0.8s linear infinite',
-            }}
-          >
-            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-          </svg>
-        )}
-        {!isLoading && leftIcon && <span style={{ display: 'inline-flex' }}>{leftIcon}</span>}
-        <span>{children}</span>
-        {!isLoading && rightIcon && <span style={{ display: 'inline-flex' }}>{rightIcon}</span>}
-      </button>
+      <>
+        <style>
+          {`
+            @keyframes boost-spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            .boost-btn:active:not(:disabled) {
+              transform: scale(0.98);
+            }
+          `}
+        </style>
+        <button
+          ref={ref}
+          disabled={disabled || isBusy}
+          className={`boost-btn boost-btn-${variant} ${className}`}
+          style={baseStyles}
+          {...props}
+        >
+          {isBusy && (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              style={{
+                animation: 'boost-spin 0.8s linear infinite',
+              }}
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+          )}
+          {!isBusy && leftIcon && <span style={{ display: 'inline-flex' }}>{leftIcon}</span>}
+          <span>{children}</span>
+          {!isBusy && rightIcon && <span style={{ display: 'inline-flex' }}>{rightIcon}</span>}
+        </button>
+      </>
     );
   }
 );
 
 Button.displayName = 'Button';
+

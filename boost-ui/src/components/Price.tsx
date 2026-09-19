@@ -42,11 +42,11 @@ export const Price: React.FC<PriceProps> = ({
 
   return (
     <div
-      className={className}
+      className={`boost-price ${className}`}
       style={{
         display: 'inline-flex',
         flexWrap: 'wrap',
-        alignItems: 'baseline',
+        alignItems: 'center',
         gap: '8px',
         fontFamily: 'system-ui, -apple-system, sans-serif',
         ...style,
@@ -56,8 +56,9 @@ export const Price: React.FC<PriceProps> = ({
         style={{
           fontSize: currentSize.current,
           fontWeight: 700,
-          color: '#0f172a',
+          color: 'var(--boost-text-primary, inherit)',
           letterSpacing: '-0.5px',
+          lineHeight: 1,
         }}
       >
         {currencySymbol}
@@ -68,9 +69,10 @@ export const Price: React.FC<PriceProps> = ({
         <span
           style={{
             fontSize: currentSize.original,
-            color: '#94a3b8',
+            color: 'var(--boost-text-muted, #94a3b8)',
             textDecoration: 'line-through',
             fontWeight: 400,
+            lineHeight: 1,
           }}
         >
           {currencySymbol}
@@ -83,11 +85,15 @@ export const Price: React.FC<PriceProps> = ({
           style={{
             fontSize: currentSize.discount,
             fontWeight: 700,
-            color: '#16a34a',
-            backgroundColor: '#dcfce7',
-            padding: '2px 6px',
-            borderRadius: '4px',
+            color: 'var(--boost-success, #16a34a)',
+            backgroundColor: 'var(--boost-success-bg, rgba(22, 163, 74, 0.12))',
+            border: '1px solid rgba(22, 163, 74, 0.25)',
+            padding: '2px 8px',
+            borderRadius: '6px',
             lineHeight: 1.2,
+            display: 'inline-flex',
+            alignItems: 'center',
+            letterSpacing: '0.02em',
           }}
         >
           {discountPercent}% OFF
@@ -95,7 +101,8 @@ export const Price: React.FC<PriceProps> = ({
       )}
 
       {hasDiscount && showSavings && (
-        <span style={{ width: '100%', fontSize: '12px', color: '#16a34a', fontWeight: 500 }}>
+        <span style={{ width: '100%', fontSize: '12px', color: 'var(--boost-success, #16a34a)', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor' }} />
           You save {currencySymbol}
           {formatNumber(savingsAmount)}
         </span>

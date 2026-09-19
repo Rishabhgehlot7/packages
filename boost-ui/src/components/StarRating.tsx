@@ -18,6 +18,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
   className = '',
 }) => {
   const clamped = Math.max(0, Math.min(5, rating));
+  const gradientId = React.useId ? React.useId().replace(/:/g, '') : `half-star-${Math.random().toString(36).substring(2, 7)}`;
 
   return (
     <div
@@ -35,14 +36,14 @@ export const StarRating: React.FC<StarRatingProps> = ({
               width={size}
               height={size}
               viewBox="0 0 24 24"
-              fill={isFilled ? color : isHalf ? 'url(#half-star)' : 'none'}
+              fill={isFilled ? color : isHalf ? `url(#${gradientId})` : 'none'}
               stroke={color}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <defs>
-                <linearGradient id="half-star">
+                <linearGradient id={gradientId}>
                   <stop offset="50%" stopColor={color} />
                   <stop offset="50%" stopColor="transparent" stopOpacity="1" />
                 </linearGradient>
@@ -54,10 +55,10 @@ export const StarRating: React.FC<StarRatingProps> = ({
       </div>
 
       {showText && (
-        <span style={{ fontSize: `${size * 0.85}px`, fontWeight: 600, color: '#374151', marginLeft: '4px' }}>
+        <span style={{ fontSize: `${size * 0.85}px`, fontWeight: 600, color: 'var(--boost-text-primary, #374151)', marginLeft: '4px' }}>
           {clamped.toFixed(1)}
           {reviewCount !== undefined && (
-            <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: '2px' }}>({reviewCount})</span>
+            <span style={{ color: 'var(--boost-text-muted, #9ca3af)', fontWeight: 400, marginLeft: '4px' }}>({reviewCount})</span>
           )}
         </span>
       )}

@@ -54,6 +54,40 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
       }}
       {...props}
     >
+      <style>
+        {`
+          .boost-faq-item {
+            background-color: var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, #e2e8f0);
+            border-radius: var(--boost-radius, 14px);
+            overflow: hidden;
+            transition: all 0.2s ease;
+          }
+          :root[data-theme="dark"] .boost-faq-item,
+          .dark .boost-faq-item {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          .boost-faq-item.is-open {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15) !important;
+          }
+          .boost-faq-search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, #e2e8f0);
+            border-radius: var(--boost-radius, 10px);
+            padding: 10px 16px;
+            gap: 10px;
+          }
+          :root[data-theme="dark"] .boost-faq-search-box,
+          .dark .boost-faq-search-box {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+          }
+        `}
+      </style>
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h2
           style={{
@@ -80,17 +114,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
 
       {searchable && (
         <div style={{ marginBottom: '32px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: 'var(--boost-surface, #f8fafc)',
-              border: '1px solid var(--boost-border, #e2e8f0)',
-              borderRadius: 'var(--boost-radius, 8px)',
-              padding: '10px 16px',
-              gap: '10px',
-            }}
-          >
+          <div className="boost-faq-search-box">
             <svg
               width="18"
               height="18"
@@ -154,14 +178,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
             return (
               <div
                 key={idx}
-                style={{
-                  borderRadius: 'var(--boost-radius, 14px)',
-                  border: isOpen ? '1px solid var(--boost-primary, #2563eb)' : '1px solid var(--boost-border, #e2e8f0)',
-                  backgroundColor: 'var(--boost-surface, #f8fafc)',
-                  overflow: 'hidden',
-                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                  boxShadow: isOpen ? '0 4px 16px rgba(37, 99, 235, 0.08)' : 'none',
-                }}
+                className={`boost-faq-item ${isOpen ? 'is-open' : ''}`}
               >
                 <button
                   type="button"

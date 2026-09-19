@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useState } from 'react';
-import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
+import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
 import * as ReactDOM from 'react-dom';
 
 // src/hooks/index.ts
@@ -897,7 +897,7 @@ var Button = React.forwardRef(
           };
         case "secondary":
           return {
-            backgroundColor: "var(--boost-surface, #f1f5f9)",
+            backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
             color: "var(--boost-text, #0f172a)",
             border: "1px solid var(--boost-border, #e2e8f0)"
           };
@@ -915,7 +915,7 @@ var Button = React.forwardRef(
           };
         case "destructive":
           return {
-            backgroundColor: "#dc2626",
+            backgroundColor: "var(--boost-danger, #dc2626)",
             color: "#ffffff",
             border: "1px solid transparent",
             boxShadow: "0 1px 3px rgba(220, 38, 38, 0.25)"
@@ -974,37 +974,48 @@ var Button = React.forwardRef(
       ...getVariantStyles(),
       ...style
     };
-    return /* @__PURE__ */ jsxs(
-      "button",
-      {
-        ref,
-        disabled: disabled || isBusy,
-        className: `boost-btn boost-btn-${variant} ${className}`,
-        style: baseStyles,
-        ...props,
-        children: [
-          isBusy && /* @__PURE__ */ jsx(
-            "svg",
-            {
-              width: "16",
-              height: "16",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              strokeWidth: "2.5",
-              strokeLinecap: "round",
-              style: {
-                animation: "boost-spin 0.8s linear infinite"
-              },
-              children: /* @__PURE__ */ jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
+    return /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("style", { children: `
+            @keyframes boost-spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
             }
-          ),
-          !isLoading && leftIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: leftIcon }),
-          /* @__PURE__ */ jsx("span", { children }),
-          !isLoading && rightIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: rightIcon })
-        ]
-      }
-    );
+            .boost-btn:active:not(:disabled) {
+              transform: scale(0.98);
+            }
+          ` }),
+      /* @__PURE__ */ jsxs(
+        "button",
+        {
+          ref,
+          disabled: disabled || isBusy,
+          className: `boost-btn boost-btn-${variant} ${className}`,
+          style: baseStyles,
+          ...props,
+          children: [
+            isBusy && /* @__PURE__ */ jsx(
+              "svg",
+              {
+                width: "16",
+                height: "16",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2.5",
+                strokeLinecap: "round",
+                style: {
+                  animation: "boost-spin 0.8s linear infinite"
+                },
+                children: /* @__PURE__ */ jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
+              }
+            ),
+            !isBusy && leftIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: leftIcon }),
+            /* @__PURE__ */ jsx("span", { children }),
+            !isBusy && rightIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: rightIcon })
+          ]
+        }
+      )
+    ] });
   }
 );
 Button.displayName = "Button";
@@ -1012,18 +1023,23 @@ var IconButton = React.forwardRef(
   ({
     icon,
     label,
+    ariaLabel,
+    shape = "rounded",
     variant = "secondary",
     size = "md",
     isLoading = false,
     disabled,
     className = "",
     style,
+    children,
     ...props
   }, ref) => {
+    const effectiveLabel = ariaLabel || label || props["aria-label"] || "button";
+    const effectiveIcon = icon || children;
     const getSize = () => {
       switch (size) {
         case "sm":
-          return { width: "28px", height: "28px", padding: "4px" };
+          return { width: "30px", height: "30px", padding: "6px" };
         case "lg":
           return { width: "44px", height: "44px", padding: "10px" };
         case "md":
@@ -1031,19 +1047,30 @@ var IconButton = React.forwardRef(
           return { width: "36px", height: "36px", padding: "8px" };
       }
     };
+    const getShapeRadius = () => {
+      switch (shape) {
+        case "circle":
+          return "9999px";
+        case "square":
+          return "4px";
+        case "rounded":
+        default:
+          return "8px";
+      }
+    };
     const getBgColor = () => {
       switch (variant) {
         case "primary":
-          return { bg: "#2563eb", color: "#fff", border: "none" };
+          return { bg: "var(--boost-primary, #2563eb)", color: "#ffffff", border: "none" };
         case "outline":
-          return { bg: "transparent", color: "#0f172a", border: "1px solid #cbd5e1" };
+          return { bg: "transparent", color: "var(--boost-text, #0f172a)", border: "1px solid var(--boost-border, #cbd5e1)" };
         case "ghost":
-          return { bg: "transparent", color: "#0f172a", border: "none" };
+          return { bg: "transparent", color: "var(--boost-text, #0f172a)", border: "none" };
         case "destructive":
-          return { bg: "#dc2626", color: "#fff", border: "none" };
+          return { bg: "var(--boost-danger, #dc2626)", color: "#ffffff", border: "none" };
         case "secondary":
         default:
-          return { bg: "#f1f5f9", color: "#0f172a", border: "1px solid #e2e8f0" };
+          return { bg: "var(--boost-surface-secondary, #f1f5f9)", color: "var(--boost-text, #0f172a)", border: "1px solid var(--boost-border, #e2e8f0)" };
       }
     };
     const s = getSize();
@@ -1052,10 +1079,10 @@ var IconButton = React.forwardRef(
       "button",
       {
         ref,
-        "aria-label": label,
-        title: label,
+        "aria-label": effectiveLabel,
+        title: effectiveLabel,
         disabled: disabled || isLoading,
-        className: `boost-icon-btn ${className}`,
+        className: `boost-icon-btn boost-icon-btn-${shape} ${className}`,
         style: {
           width: s.width,
           height: s.height,
@@ -1063,7 +1090,7 @@ var IconButton = React.forwardRef(
           backgroundColor: v.bg,
           color: v.color,
           border: v.border,
-          borderRadius: "6px",
+          borderRadius: getShapeRadius(),
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
@@ -1071,10 +1098,11 @@ var IconButton = React.forwardRef(
           opacity: disabled || isLoading ? 0.6 : 1,
           transition: "all 0.15s ease",
           outline: "none",
+          boxSizing: "border-box",
           ...style
         },
         ...props,
-        children: icon
+        children: effectiveIcon
       }
     );
   }
@@ -1083,31 +1111,37 @@ IconButton.displayName = "IconButton";
 var ButtonGroup = ({
   children,
   orientation = "horizontal",
+  fullWidth = false,
   className = "",
   style
 }) => {
   return /* @__PURE__ */ jsx(
     "div",
     {
-      className: `boost-button-group ${className}`,
+      className: `boost-button-group boost-button-group-${orientation} ${className}`,
       style: {
-        display: "inline-flex",
+        display: fullWidth ? "flex" : "inline-flex",
+        width: fullWidth ? "100%" : "auto",
         flexDirection: orientation === "vertical" ? "column" : "row",
-        borderRadius: "6px",
+        borderRadius: "var(--boost-radius, 8px)",
         overflow: "hidden",
-        border: "1px solid #cbd5e1",
+        border: "1px solid var(--boost-border, #cbd5e1)",
+        boxShadow: "var(--boost-shadow-sm, 0 1px 2px rgba(0,0,0,0.04))",
         ...style
       },
-      children: React.Children.map(children, (child) => {
+      children: React.Children.map(children, (child, idx) => {
         if (!React.isValidElement(child)) return child;
+        const total = React.Children.count(children);
+        const isLast = idx === total - 1;
         const typedChild = child;
         return React.cloneElement(typedChild, {
           style: {
             ...typedChild.props.style,
             borderRadius: 0,
             border: "none",
-            borderRight: orientation === "horizontal" ? "1px solid #cbd5e1" : "none",
-            borderBottom: orientation === "vertical" ? "1px solid #cbd5e1" : "none"
+            flex: fullWidth ? 1 : void 0,
+            borderRight: orientation === "horizontal" && !isLast ? "1px solid var(--boost-border, #cbd5e1)" : "none",
+            borderBottom: orientation === "vertical" && !isLast ? "1px solid var(--boost-border, #cbd5e1)" : "none"
           }
         });
       })
@@ -1121,6 +1155,7 @@ var FloatingActionButton = ({
   position = "bottom-right",
   className = "",
   style,
+  children,
   ...props
 }) => {
   const getPositionStyles = () => {
@@ -1136,32 +1171,38 @@ var FloatingActionButton = ({
         return { bottom: "24px", right: "24px" };
     }
   };
+  const defaultIcon = /* @__PURE__ */ jsx("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" }) });
+  const effectiveIcon = icon || children || defaultIcon;
   return /* @__PURE__ */ jsxs(
     "button",
     {
+      type: "button",
       className: `boost-fab ${className}`,
       style: {
         position: "fixed",
         zIndex: 999,
         display: "inline-flex",
         alignItems: "center",
+        justifyContent: "center",
         gap: "8px",
         padding: label ? "12px 20px" : "14px",
+        minWidth: label ? "auto" : "48px",
+        minHeight: "48px",
         borderRadius: label ? "9999px" : "50%",
-        backgroundColor: "#2563eb",
+        backgroundColor: "var(--boost-primary, #2563eb)",
         color: "#ffffff",
         border: "none",
-        boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.4)",
+        boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.45)",
         fontWeight: 600,
         fontSize: "14px",
         cursor: "pointer",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
         ...getPositionStyles(),
         ...style
       },
       ...props,
       children: [
-        icon,
+        effectiveIcon,
         label && /* @__PURE__ */ jsx("span", { children: label })
       ]
     }
@@ -1175,6 +1216,7 @@ var LinkButton = ({
   size = "md",
   leftIcon,
   rightIcon,
+  fullWidth = false,
   className = "",
   style,
   ...props
@@ -1182,39 +1224,66 @@ var LinkButton = ({
   const getVariantStyles = () => {
     switch (variant) {
       case "secondary":
-        return { backgroundColor: "#f1f5f9", color: "#0f172a", border: "1px solid #e2e8f0" };
+        return {
+          backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
+          color: "var(--boost-text, #0f172a)",
+          border: "1px solid var(--boost-border, #e2e8f0)"
+        };
       case "outline":
-        return { backgroundColor: "transparent", color: "#0f172a", border: "1px solid #cbd5e1" };
+        return {
+          backgroundColor: "transparent",
+          color: "var(--boost-text, #0f172a)",
+          border: "1px solid var(--boost-border, #cbd5e1)"
+        };
       case "ghost":
-        return { backgroundColor: "transparent", color: "#0f172a", border: "none" };
+        return {
+          backgroundColor: "transparent",
+          color: "var(--boost-text, #0f172a)",
+          border: "none"
+        };
       case "destructive":
-        return { backgroundColor: "#dc2626", color: "#ffffff", border: "none" };
+        return {
+          backgroundColor: "var(--boost-danger, #dc2626)",
+          color: "#ffffff",
+          border: "none"
+        };
       case "link":
-        return { backgroundColor: "transparent", color: "#2563eb", border: "none", padding: 0, textDecoration: "underline" };
+        return {
+          backgroundColor: "transparent",
+          color: "var(--boost-primary, #2563eb)",
+          border: "none",
+          padding: 0,
+          textDecoration: "underline"
+        };
       case "primary":
       default:
-        return { backgroundColor: "#2563eb", color: "#ffffff", border: "none" };
+        return {
+          backgroundColor: "var(--boost-primary, #2563eb)",
+          color: "#ffffff",
+          border: "none"
+        };
     }
   };
   const getSizeStyles = () => {
     if (variant === "link") return {};
     switch (size) {
       case "sm":
-        return { padding: "6px 12px", fontSize: "12px", borderRadius: "4px" };
+        return { padding: "6px 14px", fontSize: "12px", borderRadius: "var(--boost-radius, 8px)" };
       case "lg":
-        return { padding: "12px 24px", fontSize: "16px", borderRadius: "8px" };
+        return { padding: "13px 26px", fontSize: "15px", borderRadius: "var(--boost-radius, 12px)" };
       case "md":
       default:
-        return { padding: "9px 16px", fontSize: "14px", borderRadius: "6px" };
+        return { padding: "9px 18px", fontSize: "14px", borderRadius: "var(--boost-radius, 10px)" };
     }
   };
   return /* @__PURE__ */ jsxs(
     "a",
     {
       href,
-      className: `boost-link-btn ${className}`,
+      className: `boost-link-btn boost-btn-${variant} ${className}`,
       style: {
-        display: "inline-flex",
+        display: fullWidth ? "flex" : "inline-flex",
+        width: fullWidth ? "100%" : "auto",
         alignItems: "center",
         justifyContent: "center",
         gap: "8px",
@@ -1222,6 +1291,7 @@ var LinkButton = ({
         fontWeight: 600,
         cursor: "pointer",
         transition: "all 0.15s ease",
+        boxSizing: "border-box",
         ...getSizeStyles(),
         ...getVariantStyles(),
         ...style
@@ -1243,6 +1313,7 @@ var CopyButton = ({
   timeout = 2e3,
   variant = "outline",
   size = "md",
+  iconOnly = false,
   className = "",
   style,
   ...props
@@ -1300,8 +1371,8 @@ var CopyButton = ({
         display: "inline-flex",
         alignItems: "center",
         gap: "6px",
-        padding: isSmall ? "4px 8px" : "6px 12px",
-        borderRadius: "var(--boost-radius, 6px)",
+        padding: iconOnly ? isSmall ? "6px" : "8px" : isSmall ? "4px 8px" : "6px 12px",
+        borderRadius: iconOnly ? "var(--boost-radius, 8px)" : "var(--boost-radius, 6px)",
         fontSize: isSmall ? "12px" : "13px",
         fontWeight: 600,
         cursor: "pointer",
@@ -1309,6 +1380,8 @@ var CopyButton = ({
         ...getVariantStyles(),
         ...style
       },
+      "aria-label": copied ? copiedLabel : label,
+      title: copied ? copiedLabel : label,
       ...props,
       children: [
         copied ? /* @__PURE__ */ jsx(
@@ -1341,7 +1414,7 @@ var CopyButton = ({
             ]
           }
         ),
-        /* @__PURE__ */ jsx("span", { children: copied ? copiedLabel : label })
+        !iconOnly && /* @__PURE__ */ jsx("span", { children: copied ? copiedLabel : label })
       ]
     }
   );
@@ -1424,7 +1497,7 @@ var Input = React.forwardRef(
                       paddingRight: rightIcon ? "38px" : "14px",
                       fontSize: "14px",
                       color: "var(--boost-text, #0f172a)",
-                      backgroundColor: disabled ? "rgba(0, 0, 0, 0.03)" : "var(--boost-bg, #ffffff)",
+                      backgroundColor: disabled ? "rgba(0, 0, 0, 0.04)" : "var(--boost-surface, #ffffff)",
                       border: `1px solid ${error ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                       borderRadius: "var(--boost-radius, 10px)",
                       outline: "none",
@@ -1463,6 +1536,8 @@ var Textarea = React.forwardRef(
     error,
     helperText,
     maxChars,
+    maxLength,
+    showCount = false,
     fullWidth = true,
     disabled,
     className = "",
@@ -1473,7 +1548,9 @@ var Textarea = React.forwardRef(
     ...props
   }, ref) => {
     const textareaId = id || (label ? `textarea-${label.toLowerCase().replace(/\s+/g, "-")}` : void 0);
+    const limit = maxLength || maxChars;
     const charCount = typeof value === "string" ? value.length : 0;
+    const shouldShowCount = showCount || Boolean(maxChars);
     return /* @__PURE__ */ jsxs(
       "div",
       {
@@ -1486,6 +1563,23 @@ var Textarea = React.forwardRef(
           width: fullWidth ? "100%" : "auto"
         },
         children: [
+          /* @__PURE__ */ jsx("style", { children: `
+          .boost-textarea {
+            background-color: var(--boost-surface, #ffffff);
+            color: var(--boost-text, #0f172a);
+            border: 1px solid var(--boost-border, #cbd5e1);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          :root[data-theme="dark"] .boost-textarea {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+          }
+          .boost-textarea:focus {
+            border-color: var(--boost-primary, #2563eb) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+          }
+        ` }),
           /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
             label && /* @__PURE__ */ jsx(
               "label",
@@ -1494,15 +1588,15 @@ var Textarea = React.forwardRef(
                 style: {
                   fontSize: "13px",
                   fontWeight: 600,
-                  color: "#334155"
+                  color: "var(--boost-text, #334155)"
                 },
                 children: label
               }
             ),
-            maxChars && /* @__PURE__ */ jsxs("span", { style: { fontSize: "11px", color: charCount > maxChars ? "#ef4444" : "#64748b" }, children: [
+            shouldShowCount && limit && /* @__PURE__ */ jsxs("span", { style: { fontSize: "11px", color: charCount > limit ? "#ef4444" : "var(--boost-text-muted, #64748b)" }, children: [
               charCount,
               "/",
-              maxChars
+              limit
             ] })
           ] }),
           /* @__PURE__ */ jsx(
@@ -1513,25 +1607,26 @@ var Textarea = React.forwardRef(
               disabled,
               value,
               onChange,
+              maxLength: limit,
+              className: "boost-textarea",
               style: {
                 width: "100%",
-                padding: "10px 12px",
+                padding: "10px 14px",
                 fontSize: "14px",
-                color: "#0f172a",
-                backgroundColor: disabled ? "#f8fafc" : "#ffffff",
-                border: `1px solid ${error ? "#ef4444" : "#cbd5e1"}`,
-                borderRadius: "6px",
+                borderRadius: "var(--boost-radius, 8px)",
                 outline: "none",
-                minHeight: "80px",
+                minHeight: "90px",
                 resize: "vertical",
                 boxSizing: "border-box",
                 fontFamily: "inherit",
+                lineHeight: 1.5,
+                borderColor: error ? "#ef4444" : void 0,
                 ...style
               },
               ...props
             }
           ),
-          error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: helperText }) : null
+          error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
         ]
       }
     );
@@ -1565,6 +1660,27 @@ var Select = React.forwardRef(
           width: fullWidth ? "100%" : "auto"
         },
         children: [
+          /* @__PURE__ */ jsx("style", { children: `
+          .boost-select {
+            background-color: var(--boost-surface, #ffffff);
+            color: var(--boost-text, #0f172a);
+            border: 1px solid var(--boost-border, #cbd5e1);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          :root[data-theme="dark"] .boost-select {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-select option {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+          }
+          .boost-select:focus {
+            border-color: var(--boost-primary, #2563eb) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+          }
+        ` }),
           label && /* @__PURE__ */ jsx(
             "label",
             {
@@ -1572,7 +1688,7 @@ var Select = React.forwardRef(
               style: {
                 fontSize: "13px",
                 fontWeight: 600,
-                color: "#334155"
+                color: "var(--boost-text, #334155)"
               },
               children: label
             }
@@ -1584,21 +1700,21 @@ var Select = React.forwardRef(
                 ref,
                 id: selectId,
                 disabled,
+                className: "boost-select",
                 style: {
                   width: "100%",
-                  paddingTop: "8px",
-                  paddingBottom: "8px",
+                  paddingTop: "9px",
+                  paddingBottom: "9px",
                   paddingLeft: "12px",
                   paddingRight: "36px",
                   fontSize: "14px",
-                  color: "#0f172a",
-                  backgroundColor: disabled ? "#f8fafc" : "#ffffff",
-                  border: `1px solid ${error ? "#ef4444" : "#cbd5e1"}`,
-                  borderRadius: "6px",
+                  borderRadius: "var(--boost-radius, 8px)",
                   outline: "none",
                   appearance: "none",
+                  WebkitAppearance: "none",
                   cursor: disabled ? "not-allowed" : "pointer",
                   boxSizing: "border-box",
+                  borderColor: error ? "#ef4444" : void 0,
                   ...style
                 },
                 ...props,
@@ -1617,14 +1733,14 @@ var Select = React.forwardRef(
                   top: "50%",
                   transform: "translateY(-50%)",
                   pointerEvents: "none",
-                  color: "#64748b",
-                  display: "inline-flex"
+                  color: "var(--boost-text-muted, #64748b)",
+                  display: "flex"
                 },
                 children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) })
               }
             )
           ] }),
-          error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: helperText }) : null
+          error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
         ]
       }
     );
@@ -1639,7 +1755,8 @@ var MultiSelect = ({
   placeholder = "Select options...",
   error,
   className = "",
-  disabled = false
+  disabled = false,
+  style
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -1674,14 +1791,54 @@ var MultiSelect = ({
         gap: "6px",
         fontFamily: "inherit",
         position: "relative",
-        width: "100%"
+        width: "100%",
+        ...style
       },
       children: [
-        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "#334155" }, children: label }),
+        /* @__PURE__ */ jsx("style", { children: `
+        .boost-multiselect-input {
+          background-color: var(--boost-surface, #ffffff);
+          border: 1px solid var(--boost-border, #cbd5e1);
+          color: var(--boost-text, #0f172a);
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        :root[data-theme="dark"] .boost-multiselect-input {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          color: #f8fafc !important;
+        }
+        .boost-multiselect-dropdown {
+          background-color: var(--boost-surface, #ffffff);
+          border: 1px solid var(--boost-border, #e2e8f0);
+          color: var(--boost-text, #0f172a);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+        }
+        :root[data-theme="dark"] .boost-multiselect-dropdown {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: #f8fafc !important;
+          box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.6) !important;
+        }
+        .boost-multiselect-option {
+          transition: background-color 0.15s ease;
+          color: var(--boost-text, #0f172a);
+        }
+        :root[data-theme="dark"] .boost-multiselect-option {
+          color: #f8fafc !important;
+        }
+        .boost-multiselect-option:hover {
+          background-color: var(--boost-surface-secondary, #f1f5f9);
+        }
+        :root[data-theme="dark"] .boost-multiselect-option:hover {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+      ` }),
+        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)" }, children: label }),
         /* @__PURE__ */ jsxs(
           "div",
           {
             onClick: () => !disabled && setIsOpen((prev) => !prev),
+            className: "boost-multiselect-input",
             style: {
               display: "flex",
               alignItems: "center",
@@ -1689,14 +1846,13 @@ var MultiSelect = ({
               gap: "6px",
               padding: "6px 12px",
               minHeight: "38px",
-              backgroundColor: disabled ? "#f8fafc" : "#ffffff",
-              border: `1px solid ${error ? "#ef4444" : isOpen ? "#2563eb" : "#cbd5e1"}`,
-              borderRadius: "6px",
+              borderRadius: "var(--boost-radius, 8px)",
               cursor: disabled ? "not-allowed" : "pointer",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              borderColor: error ? "#ef4444" : isOpen ? "var(--boost-primary, #2563eb)" : void 0
             },
             children: [
-              value.length === 0 ? /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", color: "#94a3b8" }, children: placeholder }) : value.map((val) => {
+              value.length === 0 ? /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", color: "var(--boost-text-muted, #94a3b8)" }, children: placeholder }) : value.map((val) => {
                 const opt = options.find((o) => o.value === val);
                 return /* @__PURE__ */ jsxs(
                   "span",
@@ -1704,13 +1860,14 @@ var MultiSelect = ({
                     style: {
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "4px",
-                      backgroundColor: "#e0e7ff",
-                      color: "#3730a3",
+                      gap: "5px",
+                      backgroundColor: "rgba(99, 102, 241, 0.15)",
+                      color: "#6366f1",
+                      border: "1px solid rgba(99, 102, 241, 0.25)",
                       padding: "2px 8px",
-                      borderRadius: "4px",
+                      borderRadius: "6px",
                       fontSize: "12px",
-                      fontWeight: 500
+                      fontWeight: 600
                     },
                     children: [
                       /* @__PURE__ */ jsx("span", { children: opt ? opt.label : val }),
@@ -1718,12 +1875,17 @@ var MultiSelect = ({
                         "span",
                         {
                           onClick: (e) => removeChip(e, val),
+                          role: "button",
+                          "aria-label": `Remove ${opt ? opt.label : val}`,
                           style: {
                             display: "inline-flex",
                             cursor: "pointer",
                             fontSize: "14px",
-                            lineHeight: 1
+                            lineHeight: 1,
+                            opacity: 0.7
                           },
+                          onMouseEnter: (e) => e.currentTarget.style.opacity = "1",
+                          onMouseLeave: (e) => e.currentTarget.style.opacity = "0.7",
                           children: "\xD7"
                         }
                       )
@@ -1732,22 +1894,35 @@ var MultiSelect = ({
                   val
                 );
               }),
-              /* @__PURE__ */ jsx("span", { style: { marginLeft: "auto", display: "inline-flex", color: "#64748b" }, children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) }) })
+              /* @__PURE__ */ jsx("span", { style: { marginLeft: "auto", display: "inline-flex", color: "var(--boost-text-muted, #64748b)" }, children: /* @__PURE__ */ jsx(
+                "svg",
+                {
+                  width: "16",
+                  height: "16",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  style: {
+                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.2s ease"
+                  },
+                  children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
+                }
+              ) })
             ]
           }
         ),
         isOpen && /* @__PURE__ */ jsx(
           "div",
           {
+            className: "boost-multiselect-dropdown",
             style: {
               position: "absolute",
               top: "calc(100% + 4px)",
               left: 0,
               right: 0,
-              backgroundColor: "#ffffff",
-              border: "1px solid #e2e8f0",
-              borderRadius: "6px",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+              borderRadius: "var(--boost-radius, 8px)",
               zIndex: 100,
               maxHeight: "200px",
               overflowY: "auto",
@@ -1759,20 +1934,20 @@ var MultiSelect = ({
                 "div",
                 {
                   onClick: () => toggleOption(opt.value),
+                  className: "boost-multiselect-option",
                   style: {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "8px 12px",
-                    fontSize: "13px",
-                    borderRadius: "4px",
+                    fontSize: "13.5px",
+                    borderRadius: "6px",
                     cursor: "pointer",
-                    backgroundColor: isSelected ? "#f1f5f9" : "transparent",
-                    color: "#0f172a"
+                    backgroundColor: isSelected ? "rgba(99, 102, 241, 0.12)" : "transparent"
                   },
                   children: [
                     /* @__PURE__ */ jsx("span", { children: opt.label }),
-                    isSelected && /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "#2563eb", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) })
+                    isSelected && /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "var(--boost-primary, #2563eb)", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) })
                   ]
                 },
                 opt.value
@@ -1780,7 +1955,7 @@ var MultiSelect = ({
             })
           }
         ),
-        error && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error })
+        error && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#ef4444", fontWeight: 500 }, children: error })
       ]
     }
   );
@@ -1820,7 +1995,7 @@ var Checkbox = React.forwardRef(
               style: {
                 width: "16px",
                 height: "16px",
-                accentColor: "#2563eb",
+                accentColor: "var(--boost-primary, #2563eb)",
                 cursor: disabled ? "not-allowed" : "pointer",
                 margin: 0
               },
@@ -1828,8 +2003,8 @@ var Checkbox = React.forwardRef(
             }
           ) }),
           (label || description) && /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
-            label && /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "#1e293b" }, children: label }),
-            description && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: description })
+            label && /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--boost-text, #1e293b)" }, children: label }),
+            description && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: description })
           ] })
         ]
       }
@@ -1863,7 +2038,7 @@ var Radio = React.forwardRef(
               style: {
                 width: "16px",
                 height: "16px",
-                accentColor: "#2563eb",
+                accentColor: "var(--boost-primary, #2563eb)",
                 cursor: disabled ? "not-allowed" : "pointer",
                 marginTop: "2px"
               },
@@ -1871,8 +2046,8 @@ var Radio = React.forwardRef(
             }
           ),
           (label || description) && /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
-            label && /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "#1e293b" }, children: label }),
-            description && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: description })
+            label && /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--boost-text, #1e293b)" }, children: label }),
+            description && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: description })
           ] })
         ]
       }
@@ -1887,6 +2062,7 @@ var RadioGroup = ({
   onChange,
   orientation = "vertical",
   className = "",
+  style,
   disabled = false
 }) => {
   return /* @__PURE__ */ jsx(
@@ -1897,7 +2073,8 @@ var RadioGroup = ({
         display: "flex",
         flexDirection: orientation === "horizontal" ? "row" : "column",
         gap: "12px",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        ...style
       },
       children: options.map((opt) => {
         const isChecked = value === opt.value;
@@ -1928,7 +2105,8 @@ var Switch = React.forwardRef(
     description,
     disabled = false,
     size = "md",
-    className = ""
+    className = "",
+    style
   }, ref) => {
     const getSizes = () => {
       switch (size) {
@@ -1953,9 +2131,21 @@ var Switch = React.forwardRef(
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.6 : 1,
           userSelect: "none",
-          fontFamily: "inherit"
+          fontFamily: "inherit",
+          ...style
         },
         children: [
+          /* @__PURE__ */ jsx("style", { children: `
+          .boost-switch-btn {
+            background-color: #cbd5e1;
+          }
+          :root[data-theme="dark"] .boost-switch-btn:not([aria-checked="true"]) {
+            background-color: #334155 !important;
+          }
+          .boost-switch-btn[aria-checked="true"] {
+            background-color: var(--boost-primary, #2563eb) !important;
+          }
+        ` }),
           /* @__PURE__ */ jsx(
             "button",
             {
@@ -1965,17 +2155,18 @@ var Switch = React.forwardRef(
               "aria-checked": checked,
               disabled,
               onClick: () => !disabled && onChange(!checked),
+              className: "boost-switch-btn",
               style: {
                 width: `${s.width}px`,
                 height: `${s.height}px`,
-                backgroundColor: checked ? "#2563eb" : "#cbd5e1",
                 borderRadius: "9999px",
                 position: "relative",
-                transition: "background-color 0.2s ease",
+                transition: "background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
                 border: "none",
                 padding: 0,
                 cursor: disabled ? "not-allowed" : "pointer",
-                outline: "none"
+                outline: "none",
+                flexShrink: 0
               },
               children: /* @__PURE__ */ jsx(
                 "span",
@@ -1989,8 +2180,8 @@ var Switch = React.forwardRef(
                     top: "50%",
                     left: "3px",
                     transform: `translateY(-50%) translateX(${checked ? `${s.translate}px` : "0px"})`,
-                    transition: "transform 0.2s ease",
-                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+                    transition: "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.25)",
                     display: "block"
                   }
                 }
@@ -1998,8 +2189,8 @@ var Switch = React.forwardRef(
             }
           ),
           (label || description) && /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
-            label && /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "#1e293b" }, children: label }),
-            description && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: description })
+            label && /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--boost-text, #1e293b)" }, children: label }),
+            description && /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: description })
           ] })
         ]
       }
@@ -2013,11 +2204,16 @@ var DatePicker = ({
   onChange,
   minDate,
   maxDate,
+  min,
+  max,
   error,
   helperText,
   disabled = false,
-  className = ""
+  className = "",
+  style
 }) => {
+  const effectiveMin = min || minDate;
+  const effectiveMax = max || maxDate;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -2027,33 +2223,36 @@ var DatePicker = ({
         flexDirection: "column",
         gap: "6px",
         fontFamily: "inherit",
-        width: "100%"
+        width: "100%",
+        ...style
       },
       children: [
-        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "#334155" }, children: label }),
+        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", letterSpacing: "-0.01em" }, children: label }),
         /* @__PURE__ */ jsx("div", { style: { position: "relative", width: "100%" }, children: /* @__PURE__ */ jsx(
           "input",
           {
             type: "date",
             value,
             onChange: (e) => onChange(e.target.value),
-            min: minDate,
-            max: maxDate,
+            min: effectiveMin,
+            max: effectiveMax,
             disabled,
             style: {
               width: "100%",
-              padding: "8px 12px",
+              padding: "10px 14px",
               fontSize: "14px",
-              color: "#0f172a",
-              backgroundColor: disabled ? "#f8fafc" : "#ffffff",
-              border: `1px solid ${error ? "#ef4444" : "#cbd5e1"}`,
-              borderRadius: "6px",
+              color: "var(--boost-text, #0f172a)",
+              backgroundColor: disabled ? "rgba(0, 0, 0, 0.04)" : "var(--boost-surface, #ffffff)",
+              border: `1px solid ${error ? "var(--boost-danger, #ef4444)" : "var(--boost-border, #cbd5e1)"}`,
+              borderRadius: "8px",
               outline: "none",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              colorScheme: "inherit",
+              transition: "border-color 0.15s ease, box-shadow 0.15s ease"
             }
           }
         ) }),
-        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: helperText }) : null
+        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-danger, #ef4444)", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
       ]
     }
   );
@@ -2066,7 +2265,8 @@ var TimePicker = ({
   error,
   helperText,
   disabled = false,
-  className = ""
+  className = "",
+  style
 }) => {
   return /* @__PURE__ */ jsxs(
     "div",
@@ -2077,10 +2277,11 @@ var TimePicker = ({
         flexDirection: "column",
         gap: "6px",
         fontFamily: "inherit",
-        width: "100%"
+        width: "100%",
+        ...style
       },
       children: [
-        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "#334155" }, children: label }),
+        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", letterSpacing: "-0.01em" }, children: label }),
         /* @__PURE__ */ jsx(
           "input",
           {
@@ -2090,18 +2291,20 @@ var TimePicker = ({
             disabled,
             style: {
               width: "100%",
-              padding: "8px 12px",
+              padding: "10px 14px",
               fontSize: "14px",
-              color: "#0f172a",
-              backgroundColor: disabled ? "#f8fafc" : "#ffffff",
-              border: `1px solid ${error ? "#ef4444" : "#cbd5e1"}`,
-              borderRadius: "6px",
+              color: "var(--boost-text, #0f172a)",
+              backgroundColor: disabled ? "rgba(0, 0, 0, 0.04)" : "var(--boost-surface, #ffffff)",
+              border: `1px solid ${error ? "var(--boost-danger, #ef4444)" : "var(--boost-border, #cbd5e1)"}`,
+              borderRadius: "8px",
               outline: "none",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              colorScheme: "inherit",
+              transition: "border-color 0.15s ease, box-shadow 0.15s ease"
             }
           }
         ),
-        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: helperText }) : null
+        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-danger, #ef4444)", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
       ]
     }
   );
@@ -2116,7 +2319,8 @@ var FileUpload = ({
   error,
   helperText,
   disabled = false,
-  className = ""
+  className = "",
+  style
 }) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [fileList, setFileList] = React.useState([]);
@@ -2147,10 +2351,11 @@ var FileUpload = ({
         flexDirection: "column",
         gap: "6px",
         fontFamily: "inherit",
-        width: "100%"
+        width: "100%",
+        ...style
       },
       children: [
-        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "#334155" }, children: label }),
+        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", letterSpacing: "-0.01em" }, children: label }),
         /* @__PURE__ */ jsxs(
           "div",
           {
@@ -2162,11 +2367,11 @@ var FileUpload = ({
             onDrop: handleDrop,
             onClick: () => !disabled && inputRef.current?.click(),
             style: {
-              border: `2px dashed ${error ? "#ef4444" : isDragOver ? "#2563eb" : "#cbd5e1"}`,
-              borderRadius: "8px",
-              padding: "24px",
+              border: `2px dashed ${error ? "var(--boost-danger, #ef4444)" : isDragOver ? "var(--boost-primary, #2563eb)" : "var(--boost-border, #cbd5e1)"}`,
+              borderRadius: "10px",
+              padding: "28px 20px",
               textAlign: "center",
-              backgroundColor: isDragOver ? "#eff6ff" : disabled ? "#f8fafc" : "#ffffff",
+              backgroundColor: isDragOver ? "rgba(37, 99, 235, 0.08)" : disabled ? "rgba(0, 0, 0, 0.03)" : "var(--boost-surface, #ffffff)",
               cursor: disabled ? "not-allowed" : "pointer",
               transition: "all 0.15s ease"
             },
@@ -2184,13 +2389,28 @@ var FileUpload = ({
                 }
               ),
               /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }, children: [
-                /* @__PURE__ */ jsxs("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "#64748b", strokeWidth: "2", children: [
-                  /* @__PURE__ */ jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-                  /* @__PURE__ */ jsx("polyline", { points: "17 8 12 3 7 8" }),
-                  /* @__PURE__ */ jsx("line", { x1: "12", y1: "3", x2: "12", y2: "15" })
-                ] }),
-                /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "#1e293b" }, children: "Click to upload or drag and drop" }),
-                /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", color: "#64748b" }, children: [
+                /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    style: {
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                      backgroundColor: "rgba(100, 116, 139, 0.08)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--boost-text-muted, #64748b)"
+                    },
+                    children: /* @__PURE__ */ jsxs("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+                      /* @__PURE__ */ jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+                      /* @__PURE__ */ jsx("polyline", { points: "17 8 12 3 7 8" }),
+                      /* @__PURE__ */ jsx("line", { x1: "12", y1: "3", x2: "12", y2: "15" })
+                    ] })
+                  }
+                ),
+                /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 600, color: "var(--boost-text, #1e293b)" }, children: "Click to upload or drag and drop" }),
+                /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: [
                   "Maximum ",
                   maxFiles,
                   " files, up to ",
@@ -2201,22 +2421,23 @@ var FileUpload = ({
             ]
           }
         ),
-        fileList.length > 0 && /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "4px", marginTop: "4px" }, children: fileList.map((f, i) => /* @__PURE__ */ jsxs(
+        fileList.length > 0 && /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "6px", marginTop: "6px" }, children: fileList.map((f, i) => /* @__PURE__ */ jsxs(
           "div",
           {
             style: {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "4px 8px",
-              background: "#f1f5f9",
-              borderRadius: "4px",
-              fontSize: "12px",
-              color: "#334155"
+              padding: "8px 12px",
+              background: "rgba(100, 116, 139, 0.08)",
+              border: "1px solid var(--boost-border, #e2e8f0)",
+              borderRadius: "6px",
+              fontSize: "13px",
+              color: "var(--boost-text, #334155)"
             },
             children: [
-              /* @__PURE__ */ jsx("span", { children: f.name }),
-              /* @__PURE__ */ jsxs("span", { style: { color: "#64748b" }, children: [
+              /* @__PURE__ */ jsx("span", { style: { fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "75%" }, children: f.name }),
+              /* @__PURE__ */ jsxs("span", { style: { color: "var(--boost-text-muted, #64748b)", fontSize: "12px" }, children: [
                 (f.size / (1024 * 1024)).toFixed(2),
                 " MB"
               ] })
@@ -2224,14 +2445,31 @@ var FileUpload = ({
           },
           i
         )) }),
-        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: helperText }) : null
+        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-danger, #ef4444)", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
       ]
     }
   );
 };
 FileUpload.displayName = "FileUpload";
 var SearchInput = React.forwardRef(
-  ({ value, onChange, onClear, fullWidth = true, className = "", style, placeholder = "Search...", ...props }, ref) => {
+  ({
+    value,
+    onChange,
+    onClear,
+    onSearch,
+    onKeyDown,
+    fullWidth = true,
+    className = "",
+    style,
+    placeholder = "Search...",
+    ...props
+  }, ref) => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter" && onSearch) {
+        onSearch(String(e.currentTarget.value || ""));
+      }
+      onKeyDown?.(e);
+    };
     return /* @__PURE__ */ jsxs(
       "div",
       {
@@ -2251,7 +2489,7 @@ var SearchInput = React.forwardRef(
                 position: "absolute",
                 left: "12px",
                 display: "inline-flex",
-                color: "#64748b",
+                color: "var(--boost-text-muted, #64748b)",
                 pointerEvents: "none"
               },
               children: /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
@@ -2267,20 +2505,22 @@ var SearchInput = React.forwardRef(
               type: "text",
               value,
               onChange,
+              onKeyDown: handleKeyDown,
               placeholder,
               style: {
                 width: "100%",
-                paddingTop: "8px",
-                paddingBottom: "8px",
+                paddingTop: "9px",
+                paddingBottom: "9px",
                 paddingLeft: "36px",
-                paddingRight: value && onClear ? "36px" : "12px",
+                paddingRight: value && onClear ? "36px" : "14px",
                 fontSize: "14px",
-                color: "#0f172a",
-                backgroundColor: "#ffffff",
-                border: "1px solid #cbd5e1",
-                borderRadius: "6px",
+                color: "var(--boost-text, #0f172a)",
+                backgroundColor: "var(--boost-surface, #ffffff)",
+                border: "1px solid var(--boost-border, #cbd5e1)",
+                borderRadius: "8px",
                 outline: "none",
                 boxSizing: "border-box",
+                transition: "border-color 0.15s ease, box-shadow 0.15s ease",
                 ...style
               },
               ...props
@@ -2300,9 +2540,10 @@ var SearchInput = React.forwardRef(
                 justifyContent: "center",
                 background: "none",
                 border: "none",
-                color: "#94a3b8",
+                color: "var(--boost-text-muted, #94a3b8)",
                 cursor: "pointer",
-                padding: "2px"
+                padding: "4px",
+                borderRadius: "4px"
               },
               children: /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
                 /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
@@ -2322,7 +2563,8 @@ var FormField = ({
   error,
   helperText,
   children,
-  className = ""
+  className = "",
+  style
 }) => {
   return /* @__PURE__ */ jsxs(
     "div",
@@ -2333,15 +2575,16 @@ var FormField = ({
         flexDirection: "column",
         gap: "6px",
         fontFamily: "inherit",
-        width: "100%"
+        width: "100%",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsxs("label", { style: { fontSize: "13px", fontWeight: 600, color: "#334155" }, children: [
+        /* @__PURE__ */ jsxs("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", letterSpacing: "-0.01em" }, children: [
           label,
-          required && /* @__PURE__ */ jsx("span", { style: { color: "#ef4444", marginLeft: "4px" }, children: "*" })
+          required && /* @__PURE__ */ jsx("span", { style: { color: "var(--boost-danger, #ef4444)", marginLeft: "4px" }, children: "*" })
         ] }),
         children,
-        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#dc2626", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "#64748b" }, children: helperText }) : null
+        error ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-danger, #ef4444)", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
       ]
     }
   );
@@ -2355,7 +2598,8 @@ var OTPInput = React.forwardRef(
     onComplete,
     disabled = false,
     error,
-    className = ""
+    className = "",
+    style
   }, ref) => {
     const inputsRef = React.useRef([]);
     React.useImperativeHandle(ref, () => inputsRef.current[0]);
@@ -2399,10 +2643,46 @@ var OTPInput = React.forwardRef(
           flexDirection: "column",
           alignItems: "center",
           gap: "8px",
-          fontFamily: "inherit"
+          fontFamily: "inherit",
+          maxWidth: "100%",
+          ...style
         },
         children: [
-          /* @__PURE__ */ jsx("div", { style: { display: "flex", gap: "8px" }, children: Array.from({ length }).map((_, idx) => /* @__PURE__ */ jsx(
+          /* @__PURE__ */ jsx("style", { children: `
+            .boost-otp-box {
+              width: 44px;
+              height: 52px;
+              font-size: 22px;
+              font-weight: 700;
+              text-align: center;
+              border-radius: 12px;
+              outline: none;
+              transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+              background-color: var(--boost-surface, #ffffff);
+              border: 1.5px solid var(--boost-border, #cbd5e1);
+              color: var(--boost-text-primary, #0f172a);
+            }
+            :root[data-theme="dark"] .boost-otp-box,
+            .dark .boost-otp-box {
+              background-color: rgba(255, 255, 255, 0.08) !important;
+              border-color: rgba(255, 255, 255, 0.2) !important;
+              color: #ffffff !important;
+            }
+            .boost-otp-box:focus {
+              border-color: var(--boost-primary, #6366f1) !important;
+              box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+              background-color: rgba(99, 102, 241, 0.08) !important;
+            }
+            @media (max-width: 420px) {
+              .boost-otp-box {
+                width: 38px;
+                height: 46px;
+                font-size: 18px;
+                border-radius: 8px;
+              }
+            }
+          ` }),
+          /* @__PURE__ */ jsx("div", { style: { display: "flex", gap: "8px", maxWidth: "100%", flexWrap: "wrap", justifyContent: "center" }, children: Array.from({ length }).map((_, idx) => /* @__PURE__ */ jsx(
             "input",
             {
               ref: (el) => {
@@ -2416,18 +2696,10 @@ var OTPInput = React.forwardRef(
               onKeyDown: (e) => handleKeyDown(e, idx),
               onPaste: handlePaste,
               disabled,
+              className: "boost-otp-box",
               style: {
-                width: "42px",
-                height: "48px",
-                fontSize: "20px",
-                fontWeight: 700,
-                textAlign: "center",
-                color: "#0f172a",
-                backgroundColor: disabled ? "#f8fafc" : "#ffffff",
-                border: `1.5px solid ${error ? "#ef4444" : value[idx] ? "#2563eb" : "#cbd5e1"}`,
-                borderRadius: "8px",
-                outline: "none",
-                transition: "all 0.15s ease"
+                borderColor: error ? "#ef4444" : value[idx] ? "var(--boost-primary, #6366f1)" : void 0,
+                boxShadow: value[idx] ? "0 0 0 2px rgba(99, 102, 241, 0.2)" : void 0
               }
             },
             idx
@@ -2672,14 +2944,16 @@ var FileDropzone = ({
 FileDropzone.displayName = "FileDropzone";
 var Loader = ({
   size = "md",
-  color = "#2563eb",
+  color = "var(--boost-primary, #2563eb)",
   text,
-  className = ""
+  className = "",
+  style
 }) => {
   const getDimension = () => {
+    if (typeof size === "number") return size;
     switch (size) {
       case "sm":
-        return 16;
+        return 18;
       case "lg":
         return 36;
       case "md":
@@ -2698,7 +2972,8 @@ var Loader = ({
         alignItems: "center",
         justifyContent: "center",
         gap: "8px",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
@@ -2721,7 +2996,17 @@ var Loader = ({
             children: /* @__PURE__ */ jsx("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })
           }
         ),
-        text && /* @__PURE__ */ jsx("span", { style: { fontSize: size === "sm" ? "12px" : "14px", color: "#64748b" }, children: text })
+        text && /* @__PURE__ */ jsx(
+          "span",
+          {
+            style: {
+              fontSize: size === "sm" ? "12px" : "13.5px",
+              color: "var(--boost-text-muted, #64748b)",
+              fontWeight: 500
+            },
+            children: text
+          }
+        )
       ]
     }
   );
@@ -2768,11 +3053,14 @@ Spinner.displayName = "Spinner";
 var ProgressBar = ({
   value,
   label,
-  showPercentage = false,
-  color = "#2563eb",
+  showPercentage,
+  showPercent,
+  color = "var(--boost-primary, #2563eb)",
   height = 8,
-  className = ""
+  className = "",
+  style
 }) => {
+  const shouldShowPercent = showPercent !== void 0 ? showPercent : Boolean(showPercentage);
   const clamped = Math.min(100, Math.max(0, value));
   return /* @__PURE__ */ jsxs(
     "div",
@@ -2783,23 +3071,36 @@ var ProgressBar = ({
         flexDirection: "column",
         gap: "6px",
         width: "100%",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        ...style
       },
       children: [
-        (label || showPercentage) && /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 500, color: "#334155" }, children: [
-          label && /* @__PURE__ */ jsx("span", { children: label }),
-          showPercentage && /* @__PURE__ */ jsxs("span", { children: [
-            Math.round(clamped),
-            "%"
-          ] })
-        ] }),
+        (label || shouldShowPercent) && /* @__PURE__ */ jsxs(
+          "div",
+          {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "12.5px",
+              fontWeight: 500,
+              color: "var(--boost-text, #334155)"
+            },
+            children: [
+              label && /* @__PURE__ */ jsx("span", { children: label }),
+              shouldShowPercent && /* @__PURE__ */ jsxs("span", { style: { color: "var(--boost-text-muted, #64748b)", fontWeight: 600 }, children: [
+                Math.round(clamped),
+                "%"
+              ] })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsx(
           "div",
           {
             style: {
               width: "100%",
               height: `${height}px`,
-              backgroundColor: "#e2e8f0",
+              backgroundColor: "var(--boost-surface-secondary, #e2e8f0)",
               borderRadius: "9999px",
               overflow: "hidden"
             },
@@ -2811,7 +3112,7 @@ var ProgressBar = ({
                   height: "100%",
                   backgroundColor: color,
                   borderRadius: "9999px",
-                  transition: "width 0.3s ease"
+                  transition: "width 0.35s cubic-bezier(0.16, 1, 0.3, 1)"
                 }
               }
             )
@@ -2826,10 +3127,14 @@ var Skeleton = ({
   variant = "text",
   width,
   height,
+  borderRadius,
   className = "",
   style
 }) => {
   const getRadius = () => {
+    if (borderRadius !== void 0) {
+      return typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius;
+    }
     switch (variant) {
       case "circular":
         return "50%";
@@ -2857,6 +3162,15 @@ var Skeleton = ({
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }
         }
+        .boost-skeleton {
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: boost-shimmer 1.5s infinite;
+        }
+        :root[data-theme="dark"] .boost-skeleton {
+          background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.05) 75%) !important;
+          background-size: 200% 100% !important;
+        }
       ` }),
     /* @__PURE__ */ jsx(
       "div",
@@ -2866,9 +3180,6 @@ var Skeleton = ({
           width: width ? typeof width === "number" ? `${width}px` : width : "100%",
           height: height ? typeof height === "number" ? `${height}px` : height : `${getDefaultHeight()}px`,
           borderRadius: getRadius(),
-          background: "linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)",
-          backgroundSize: "200% 100%",
-          animation: "boost-shimmer 1.5s infinite",
           ...style
         }
       }
@@ -2879,13 +3190,15 @@ Skeleton.displayName = "Skeleton";
 var Toast = ({
   title,
   message,
-  variant = "info",
+  variant,
+  type,
   onClose,
   className = "",
   style
 }) => {
+  const activeVariant = type || variant || "info";
   const getTheme = () => {
-    switch (variant) {
+    switch (activeVariant) {
       case "success":
         return { bg: "#f0fdf4", border: "#bbf7d0", text: "#166534", icon: "#16a34a" };
       case "warning":
@@ -2901,7 +3214,7 @@ var Toast = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-toast ${className}`,
+      className: `boost-toast boost-toast-${activeVariant} ${className}`,
       role: "alert",
       style: {
         display: "flex",
@@ -2910,8 +3223,8 @@ var Toast = ({
         padding: "12px 16px",
         backgroundColor: theme.bg,
         border: `1px solid ${theme.border}`,
-        borderRadius: "8px",
-        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        borderRadius: "10px",
+        boxShadow: "0 10px 25px -3px rgba(0, 0, 0, 0.12)",
         fontFamily: "inherit",
         maxWidth: "380px",
         width: "100%",
@@ -2919,27 +3232,40 @@ var Toast = ({
         ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-toast {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.6) !important;
+        }
+        :root[data-theme="dark"] .boost-toast-title {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-toast-msg {
+          color: #cbd5e1 !important;
+        }
+      ` }),
         /* @__PURE__ */ jsxs("div", { style: { marginTop: "2px", display: "flex", color: theme.icon, flexShrink: 0 }, children: [
-          variant === "success" && /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
-          variant === "error" && /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+          activeVariant === "success" && /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
+          activeVariant === "error" && /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
             /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
             /* @__PURE__ */ jsx("line", { x1: "15", y1: "9", x2: "9", y2: "15" }),
             /* @__PURE__ */ jsx("line", { x1: "9", y1: "9", x2: "15", y2: "15" })
           ] }),
-          variant === "warning" && /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+          activeVariant === "warning" && /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
             /* @__PURE__ */ jsx("path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" }),
             /* @__PURE__ */ jsx("line", { x1: "12", y1: "9", x2: "12", y2: "13" }),
             /* @__PURE__ */ jsx("line", { x1: "12", y1: "17", x2: "12.01", y2: "17" })
           ] }),
-          variant === "info" && /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+          activeVariant === "info" && /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
             /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
             /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12", y2: "12" }),
             /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12.01", y2: "8" })
           ] })
         ] }),
         /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-          title && /* @__PURE__ */ jsx("div", { style: { fontSize: "14px", fontWeight: 600, color: theme.text, marginBottom: "2px" }, children: title }),
-          /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", color: theme.text, lineHeight: 1.4 }, children: message })
+          title && /* @__PURE__ */ jsx("div", { className: "boost-toast-title", style: { fontSize: "14px", fontWeight: 600, color: theme.text, marginBottom: "2px" }, children: title }),
+          /* @__PURE__ */ jsx("div", { className: "boost-toast-msg", style: { fontSize: "13px", color: theme.text, lineHeight: 1.4 }, children: message })
         ] }),
         onClose && /* @__PURE__ */ jsx(
           "button",
@@ -3085,29 +3411,59 @@ Toast.displayName = "Toast";
 var Alert = ({
   title,
   children,
-  variant = "info",
+  description,
+  variant,
+  type,
   icon,
   onClose,
-  className = ""
+  className = "",
+  style
 }) => {
+  const activeVariant = type || variant || "info";
+  const content = description || children;
   const getTheme = () => {
-    switch (variant) {
+    switch (activeVariant) {
       case "success":
-        return { bg: "#f0fdf4", border: "#86efac", text: "#15803d", iconColor: "#16a34a" };
+        return {
+          bg: "rgba(34, 197, 94, 0.1)",
+          border: "rgba(34, 197, 94, 0.25)",
+          titleColor: "#16a34a",
+          textColor: "var(--boost-text-muted, #94a3b8)",
+          iconColor: "#16a34a"
+        };
       case "warning":
-        return { bg: "#fffbeb", border: "#fde047", text: "#a16207", iconColor: "#ca8a04" };
+        return {
+          bg: "rgba(245, 158, 11, 0.1)",
+          border: "rgba(245, 158, 11, 0.25)",
+          titleColor: "#d97706",
+          textColor: "var(--boost-text-muted, #94a3b8)",
+          iconColor: "#d97706"
+        };
       case "destructive":
-        return { bg: "#fef2f2", border: "#fca5a5", text: "#b91c1c", iconColor: "#dc2626" };
+      case "error":
+        return {
+          bg: "rgba(239, 68, 68, 0.1)",
+          border: "rgba(239, 68, 68, 0.25)",
+          titleColor: "#ef4444",
+          textColor: "var(--boost-text-muted, #94a3b8)",
+          iconColor: "#ef4444"
+        };
       case "info":
       default:
-        return { bg: "#eff6ff", border: "#93c5fd", text: "#1d4ed8", iconColor: "#2563eb" };
+        return {
+          bg: "rgba(59, 130, 246, 0.1)",
+          border: "rgba(59, 130, 246, 0.25)",
+          titleColor: "#2563eb",
+          textColor: "var(--boost-text-muted, #94a3b8)",
+          iconColor: "#2563eb"
+        };
     }
   };
   const theme = getTheme();
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-alert boost-alert-${variant} ${className}`,
+      className: `boost-alert boost-alert-${activeVariant} ${className}`,
       role: "alert",
       style: {
         display: "flex",
@@ -3116,18 +3472,32 @@ var Alert = ({
         padding: "14px 16px",
         backgroundColor: theme.bg,
         border: `1px solid ${theme.border}`,
-        borderRadius: "8px",
-        fontFamily: "inherit"
+        borderRadius: "var(--boost-radius, 10px)",
+        fontFamily: "inherit",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsx("div", { style: { marginTop: "2px", display: "flex", color: theme.iconColor }, children: icon ? icon : /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+        /* @__PURE__ */ jsx("div", { style: { marginTop: "2px", display: "flex", color: theme.iconColor, flexShrink: 0 }, children: icon ? icon : /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
           /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
           /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12", y2: "12" }),
           /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12.01", y2: "8" })
         ] }) }),
         /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-          title && /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 4px 0", fontSize: "14px", fontWeight: 600, color: theme.text }, children: title }),
-          /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", color: theme.text, lineHeight: 1.5 }, children })
+          title && /* @__PURE__ */ jsx(
+            "h4",
+            {
+              style: {
+                margin: "0 0 3px 0",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: theme.titleColor,
+                letterSpacing: "-0.01em"
+              },
+              children: title
+            }
+          ),
+          content && /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", color: theme.textColor, lineHeight: 1.5 }, children: content })
         ] }),
         onClose && /* @__PURE__ */ jsx(
           "button",
@@ -3140,10 +3510,13 @@ var Alert = ({
               border: "none",
               padding: 0,
               cursor: "pointer",
-              color: theme.text,
+              color: "currentColor",
               opacity: 0.6,
-              display: "flex"
+              display: "flex",
+              transition: "opacity 0.15s ease"
             },
+            onMouseEnter: (e) => e.currentTarget.style.opacity = "1",
+            onMouseLeave: (e) => e.currentTarget.style.opacity = "0.6",
             children: /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
               /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
               /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
@@ -3158,12 +3531,15 @@ Alert.displayName = "Alert";
 var Snackbar = ({
   message,
   actionText,
+  actionLabel,
   onAction,
-  isOpen,
+  isOpen = true,
   onClose,
   duration = 4e3,
-  className = ""
+  className = "",
+  style
 }) => {
+  const btnLabel = actionLabel || actionText;
   React.useEffect(() => {
     if (!isOpen || !onClose) return;
     const timer = setTimeout(() => {
@@ -3184,20 +3560,24 @@ var Snackbar = ({
         transform: "translateX(-50%)",
         backgroundColor: "#1e293b",
         color: "#f8fafc",
+        border: "1px solid rgba(255, 255, 255, 0.12)",
         padding: "10px 18px",
         borderRadius: "8px",
-        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3)",
+        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
         display: "inline-flex",
         alignItems: "center",
         gap: "16px",
-        fontSize: "13px",
+        fontSize: "13.5px",
         fontWeight: 500,
         zIndex: 1e3,
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        maxWidth: "calc(100vw - 32px)",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx("span", { children: message }),
-        actionText && onAction && /* @__PURE__ */ jsx(
+        btnLabel && onAction && /* @__PURE__ */ jsx(
           "button",
           {
             type: "button",
@@ -3209,9 +3589,12 @@ var Snackbar = ({
               fontWeight: 700,
               fontSize: "13px",
               cursor: "pointer",
-              padding: 0
+              padding: 0,
+              transition: "color 0.15s ease"
             },
-            children: actionText
+            onMouseEnter: (e) => e.currentTarget.style.color = "#93c5fd",
+            onMouseLeave: (e) => e.currentTarget.style.color = "#60a5fa",
+            children: btnLabel
           }
         )
       ]
@@ -3223,10 +3606,13 @@ var EmptyState = ({
   title,
   description,
   actionText,
+  actionLabel,
   onAction,
   icon,
-  className = ""
+  className = "",
+  style
 }) => {
+  const btnLabel = actionLabel || actionText;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -3238,18 +3624,35 @@ var EmptyState = ({
         justifyContent: "center",
         padding: "48px 24px",
         textAlign: "center",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        backgroundColor: "var(--boost-surface, transparent)",
+        borderRadius: "var(--boost-radius, 12px)",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-empty-state-icon {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-empty-state-title {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-empty-state-desc {
+          color: #94a3b8 !important;
+        }
+      ` }),
         /* @__PURE__ */ jsx(
           "div",
           {
+            className: "boost-empty-state-icon",
             style: {
               width: "64px",
               height: "64px",
               borderRadius: "50%",
-              backgroundColor: "#f1f5f9",
-              color: "#64748b",
+              backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
+              color: "var(--boost-text-muted, #64748b)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -3262,24 +3665,52 @@ var EmptyState = ({
             ] })
           }
         ),
-        /* @__PURE__ */ jsx("h3", { style: { margin: "0 0 6px 0", fontSize: "18px", fontWeight: 600, color: "#0f172a" }, children: title }),
-        description && /* @__PURE__ */ jsx("p", { style: { margin: "0 0 20px 0", fontSize: "14px", color: "#64748b", maxWidth: "360px", lineHeight: 1.5 }, children: description }),
-        actionText && onAction && /* @__PURE__ */ jsx(
+        /* @__PURE__ */ jsx(
+          "h3",
+          {
+            className: "boost-empty-state-title",
+            style: {
+              margin: "0 0 8px 0",
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "var(--boost-text, #0f172a)",
+              letterSpacing: "-0.01em"
+            },
+            children: title
+          }
+        ),
+        description && /* @__PURE__ */ jsx(
+          "p",
+          {
+            className: "boost-empty-state-desc",
+            style: {
+              margin: "0 0 20px 0",
+              fontSize: "14px",
+              color: "var(--boost-text-muted, #64748b)",
+              maxWidth: "380px",
+              lineHeight: 1.55
+            },
+            children: description
+          }
+        ),
+        btnLabel && onAction && /* @__PURE__ */ jsx(
           "button",
           {
             type: "button",
             onClick: onAction,
             style: {
-              backgroundColor: "#2563eb",
+              backgroundColor: "var(--boost-primary, #2563eb)",
               color: "#ffffff",
               border: "none",
-              borderRadius: "6px",
-              padding: "9px 18px",
+              borderRadius: "var(--boost-radius, 8px)",
+              padding: "9px 20px",
               fontSize: "14px",
               fontWeight: 600,
-              cursor: "pointer"
+              cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)",
+              transition: "all 0.15s ease"
             },
-            children: actionText
+            children: btnLabel
           }
         )
       ]
@@ -3289,11 +3720,14 @@ var EmptyState = ({
 EmptyState.displayName = "EmptyState";
 var ErrorState = ({
   title = "Something went wrong",
-  message = "An unexpected error occurred while loading this content. Please try again.",
+  message,
+  description,
   onRetry,
   retryText = "Try Again",
-  className = ""
+  className = "",
+  style
 }) => {
+  const desc = description || message || "An unexpected error occurred while loading this content. Please try again.";
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -3303,12 +3737,14 @@ var ErrorState = ({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "36px 20px",
+        padding: "36px 24px",
         textAlign: "center",
         fontFamily: "inherit",
-        backgroundColor: "#fef2f2",
-        border: "1px solid #fecaca",
-        borderRadius: "8px"
+        backgroundColor: "rgba(239, 68, 68, 0.06)",
+        border: "1px solid rgba(239, 68, 68, 0.2)",
+        borderRadius: "var(--boost-radius, 12px)",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx(
@@ -3318,22 +3754,46 @@ var ErrorState = ({
               width: "48px",
               height: "48px",
               borderRadius: "50%",
-              backgroundColor: "#fee2e2",
-              color: "#dc2626",
+              backgroundColor: "rgba(239, 68, 68, 0.14)",
+              color: "#ef4444",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              marginBottom: "12px"
+              marginBottom: "14px"
             },
-            children: /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+            children: /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
               /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
               /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
               /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
             ] })
           }
         ),
-        /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 6px 0", fontSize: "16px", fontWeight: 600, color: "#991b1b" }, children: title }),
-        /* @__PURE__ */ jsx("p", { style: { margin: "0 0 16px 0", fontSize: "13px", color: "#b91c1c", maxWidth: "380px", lineHeight: 1.5 }, children: message }),
+        /* @__PURE__ */ jsx(
+          "h4",
+          {
+            style: {
+              margin: "0 0 6px 0",
+              fontSize: "16px",
+              fontWeight: 700,
+              color: "#ef4444",
+              letterSpacing: "-0.01em"
+            },
+            children: title
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "p",
+          {
+            style: {
+              margin: "0 0 18px 0",
+              fontSize: "13.5px",
+              color: "var(--boost-text-muted, #94a3b8)",
+              maxWidth: "380px",
+              lineHeight: 1.55
+            },
+            children: desc
+          }
+        ),
         onRetry && /* @__PURE__ */ jsx(
           "button",
           {
@@ -3343,11 +3803,13 @@ var ErrorState = ({
               backgroundColor: "#dc2626",
               color: "#ffffff",
               border: "none",
-              borderRadius: "6px",
-              padding: "8px 16px",
-              fontSize: "13px",
+              borderRadius: "var(--boost-radius, 8px)",
+              padding: "8px 18px",
+              fontSize: "13.5px",
               fontWeight: 600,
-              cursor: "pointer"
+              cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(220, 38, 38, 0.3)",
+              transition: "all 0.15s ease"
             },
             children: retryText
           }
@@ -3360,8 +3822,11 @@ ErrorState.displayName = "ErrorState";
 var SuccessMessage = ({
   title,
   message,
-  className = ""
+  description,
+  className = "",
+  style
 }) => {
+  const desc = description || message;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -3369,21 +3834,56 @@ var SuccessMessage = ({
       style: {
         display: "flex",
         alignItems: "flex-start",
-        gap: "12px",
-        padding: "14px 16px",
-        backgroundColor: "#f0fdf4",
-        border: "1px solid #86efac",
-        borderRadius: "8px",
-        fontFamily: "inherit"
+        gap: "14px",
+        padding: "16px 18px",
+        backgroundColor: "rgba(34, 197, 94, 0.08)",
+        border: "1px solid rgba(34, 197, 94, 0.25)",
+        borderRadius: "var(--boost-radius, 12px)",
+        fontFamily: "inherit",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsx("div", { style: { marginTop: "2px", display: "flex", color: "#16a34a" }, children: /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
-          /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
-          /* @__PURE__ */ jsx("polyline", { points: "9 12 11 14 15 10" })
-        ] }) }),
-        /* @__PURE__ */ jsxs("div", { style: { flex: 1 }, children: [
-          title && /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 4px 0", fontSize: "14px", fontWeight: 600, color: "#15803d" }, children: title }),
-          /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", color: "#166534", lineHeight: 1.5 }, children: message })
+        /* @__PURE__ */ jsx(
+          "div",
+          {
+            style: {
+              marginTop: "2px",
+              display: "flex",
+              color: "#16a34a",
+              flexShrink: 0
+            },
+            children: /* @__PURE__ */ jsxs("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+              /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
+              /* @__PURE__ */ jsx("polyline", { points: "9 12 11 14 15 10" })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+          title && /* @__PURE__ */ jsx(
+            "h4",
+            {
+              style: {
+                margin: "0 0 4px 0",
+                fontSize: "15px",
+                fontWeight: 700,
+                color: "#16a34a",
+                letterSpacing: "-0.01em"
+              },
+              children: title
+            }
+          ),
+          desc && /* @__PURE__ */ jsx(
+            "div",
+            {
+              style: {
+                fontSize: "13.5px",
+                color: "var(--boost-text-muted, #94a3b8)",
+                lineHeight: 1.55
+              },
+              children: desc
+            }
+          )
         ] })
       ]
     }
@@ -3394,7 +3894,7 @@ var Card = React.forwardRef(
   ({ hoverable = false, variant = "elevated", className = "", style, children, ...props }, ref) => {
     const isGlass = variant === "glass";
     const isOutlined = variant === "outlined";
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ jsxs(
       "div",
       {
         ref,
@@ -3414,7 +3914,36 @@ var Card = React.forwardRef(
           ...style
         },
         ...props,
-        children
+        children: [
+          /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-card {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-card-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-card-title {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-card-description {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-card-content {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-card-footer {
+            background-color: #141e2e !important;
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-card-hoverable:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6) !important;
+          }
+        ` }),
+          children
+        ]
       }
     );
   }
@@ -3429,7 +3958,7 @@ var CardHeader = ({ className = "", style, children, ...props }) => /* @__PURE__
       boxSizing: "border-box",
       ...style
     },
-    className,
+    className: `boost-card-header ${className}`,
     ...props,
     children
   }
@@ -3445,7 +3974,7 @@ var CardTitle = ({ className = "", style, children, ...props }) => /* @__PURE__ 
       letterSpacing: "-0.015em",
       ...style
     },
-    className,
+    className: `boost-card-title ${className}`,
     ...props,
     children
   }
@@ -3460,7 +3989,7 @@ var CardDescription = ({ className = "", style, children, ...props }) => /* @__P
       lineHeight: 1.55,
       ...style
     },
-    className,
+    className: `boost-card-description ${className}`,
     ...props,
     children
   }
@@ -3474,7 +4003,7 @@ var CardContent = ({ className = "", style, children, ...props }) => /* @__PURE_
       color: "var(--boost-text, #0f172a)",
       ...style
     },
-    className,
+    className: `boost-card-content ${className}`,
     ...props,
     children
   }
@@ -3485,7 +4014,7 @@ var CardFooter = ({ className = "", style, children, ...props }) => /* @__PURE__
     style: {
       padding: "clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px)",
       borderTop: "1px solid var(--boost-border, #f1f5f9)",
-      backgroundColor: "var(--boost-surface, #f8fafc)",
+      backgroundColor: "var(--boost-surface-secondary, #f8fafc)",
       display: "flex",
       alignItems: "center",
       justifyContent: "flex-end",
@@ -3493,7 +4022,7 @@ var CardFooter = ({ className = "", style, children, ...props }) => /* @__PURE__
       boxSizing: "border-box",
       ...style
     },
-    className,
+    className: `boost-card-footer ${className}`,
     ...props,
     children
   }
@@ -3511,12 +4040,15 @@ var Image = ({
   objectFit = "cover",
   className = "",
   style,
+  containerStyle,
+  loading = "lazy",
   ...props
 }) => {
   const [hasError, setHasError] = React.useState(false);
+  const [isLoaded, setIsLoaded] = React.useState(false);
   const getAspect = () => {
-    if (typeof aspectRatio === "string" && aspectRatio.includes("/")) {
-      return aspectRatio;
+    if (typeof aspectRatio === "string" && (aspectRatio.includes("/") || aspectRatio.includes(":"))) {
+      return aspectRatio.replace(":", "/");
     }
     switch (aspectRatio) {
       case "square":
@@ -3527,38 +4059,76 @@ var Image = ({
         return "3 / 4";
       case "auto":
       default:
-        return "auto";
+        return void 0;
     }
   };
   const imageSrc = hasError && fallbackSrc ? fallbackSrc : src;
-  return /* @__PURE__ */ jsx(
+  const aspect = getAspect();
+  return /* @__PURE__ */ jsxs(
     "div",
     {
+      className: "boost-image-container",
       style: {
         overflow: "hidden",
         position: "relative",
-        aspectRatio: getAspect(),
-        minHeight: "160px",
-        backgroundColor: "#1e293b",
-        borderRadius: "8px"
+        aspectRatio: aspect,
+        backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
+        borderRadius: "var(--boost-radius, 8px)",
+        display: "block",
+        width: "100%",
+        ...containerStyle
       },
-      children: /* @__PURE__ */ jsx(
-        "img",
-        {
-          src: imageSrc,
-          alt,
-          onError: () => setHasError(true),
-          className: `boost-image ${className}`,
-          style: {
-            width: "100%",
-            height: "100%",
-            objectFit,
-            display: "block",
-            ...style
-          },
-          ...props
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-image-container {
+          background-color: #1e293b;
         }
-      )
+        .boost-image-shimmer {
+          background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
+          animation: boostImageShimmer 1.5s infinite;
+        }
+        @keyframes boostImageShimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      ` }),
+        !isLoaded && !hasError && /* @__PURE__ */ jsx(
+          "div",
+          {
+            className: "boost-image-shimmer",
+            style: {
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              pointerEvents: "none"
+            }
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: imageSrc,
+            alt,
+            loading,
+            onLoad: () => setIsLoaded(true),
+            onError: () => {
+              setHasError(true);
+              setIsLoaded(true);
+            },
+            className: `boost-image ${className}`,
+            style: {
+              width: "100%",
+              height: "100%",
+              objectFit,
+              display: "block",
+              opacity: isLoaded ? 1 : 0.85,
+              transition: "opacity 0.25s ease",
+              ...style
+            },
+            ...props
+          }
+        )
+      ]
     }
   );
 };
@@ -3568,7 +4138,8 @@ var Avatar = ({
   name,
   size = "md",
   status,
-  className = ""
+  className = "",
+  style
 }) => {
   const [imgError, setImgError] = React.useState(false);
   const getSize = () => {
@@ -3618,15 +4189,16 @@ var Avatar = ({
         width: `${s.dim}px`,
         height: `${s.dim}px`,
         borderRadius: "50%",
-        backgroundColor: "#e2e8f0",
-        color: "#334155",
+        background: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)",
+        color: "#ffffff",
         alignItems: "center",
         justifyContent: "center",
         fontFamily: "inherit",
         fontWeight: 600,
         fontSize: `${s.font}px`,
         userSelect: "none",
-        flexShrink: 0
+        flexShrink: 0,
+        ...style
       },
       children: [
         src && !imgError ? /* @__PURE__ */ jsx(
@@ -3654,7 +4226,8 @@ var Avatar = ({
               height: `${s.dot}px`,
               borderRadius: "50%",
               backgroundColor: statusColor,
-              border: "2px solid #ffffff"
+              border: "2px solid var(--boost-surface, #ffffff)",
+              boxSizing: "content-box"
             }
           }
         )
@@ -3691,7 +4264,7 @@ var AvatarGroup = ({
           {
             style: {
               marginLeft: index === 0 ? 0 : `${spacing}px`,
-              border: "2px solid #ffffff",
+              border: "2px solid var(--boost-surface, #ffffff)",
               borderRadius: "50%",
               display: "inline-flex",
               zIndex: visibleAvatars.length - index
@@ -3705,9 +4278,9 @@ var AvatarGroup = ({
           {
             style: {
               marginLeft: `${spacing}px`,
-              border: "2px solid #ffffff",
+              border: "2px solid var(--boost-surface, #ffffff)",
               borderRadius: "50%",
-              backgroundColor: "var(--boost-surface, #f1f5f9)",
+              backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
               color: "var(--boost-text, #0f172a)",
               display: "inline-flex",
               alignItems: "center",
@@ -3740,7 +4313,7 @@ var Badge = ({
   const getTheme = () => {
     switch (variant) {
       case "secondary":
-        return { bg: "var(--boost-surface, #f1f5f9)", color: "var(--boost-text, #334155)", border: "1px solid var(--boost-border, #e2e8f0)" };
+        return { bg: "var(--boost-surface-secondary, #f1f5f9)", color: "var(--boost-text, #334155)", border: "1px solid var(--boost-border, #e2e8f0)" };
       case "outline":
         return { bg: "transparent", color: "var(--boost-text, #0f172a)", border: "1px solid var(--boost-border, #cbd5e1)" };
       case "success":
@@ -3749,6 +4322,9 @@ var Badge = ({
         return { bg: "rgba(239, 68, 68, 0.12)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.25)" };
       case "warning":
         return { bg: "rgba(245, 158, 11, 0.12)", color: "#d97706", border: "1px solid rgba(245, 158, 11, 0.25)" };
+      case "info":
+        return { bg: "rgba(14, 165, 233, 0.12)", color: "#0284c7", border: "1px solid rgba(14, 165, 233, 0.25)" };
+      case "primary":
       case "default":
       default:
         return { bg: "var(--boost-primary, #2563eb)", color: "#ffffff", border: "1px solid transparent" };
@@ -3762,7 +4338,7 @@ var Badge = ({
       style: {
         display: "inline-flex",
         alignItems: "center",
-        padding: "2px 8px",
+        padding: "2.5px 8.5px",
         fontSize: "11px",
         fontWeight: 600,
         borderRadius: "9999px",
@@ -3772,6 +4348,7 @@ var Badge = ({
         letterSpacing: "0.02em",
         fontFamily: "inherit",
         lineHeight: 1.4,
+        userSelect: "none",
         ...style
       },
       children
@@ -3781,43 +4358,119 @@ var Badge = ({
 Badge.displayName = "Badge";
 var Tag = ({
   label,
+  children,
   onRemove,
-  color = "#e2e8f0",
-  className = ""
+  color,
+  variant = "default",
+  size = "md",
+  className = "",
+  style
 }) => {
+  const content = children !== void 0 ? children : label;
+  const getVariantStyles = () => {
+    if (color) {
+      return { bg: color, color: "#0f172a", border: "transparent" };
+    }
+    switch (variant) {
+      case "primary":
+        return {
+          bg: "rgba(59, 130, 246, 0.12)",
+          color: "#2563eb",
+          border: "rgba(59, 130, 246, 0.25)"
+        };
+      case "success":
+        return {
+          bg: "rgba(34, 197, 94, 0.12)",
+          color: "#16a34a",
+          border: "rgba(34, 197, 94, 0.25)"
+        };
+      case "warning":
+        return {
+          bg: "rgba(245, 158, 11, 0.12)",
+          color: "#d97706",
+          border: "rgba(245, 158, 11, 0.25)"
+        };
+      case "destructive":
+        return {
+          bg: "rgba(239, 68, 68, 0.12)",
+          color: "#ef4444",
+          border: "rgba(239, 68, 68, 0.25)"
+        };
+      case "purple":
+        return {
+          bg: "rgba(168, 85, 247, 0.12)",
+          color: "#9333ea",
+          border: "rgba(168, 85, 247, 0.25)"
+        };
+      case "default":
+      default:
+        return {
+          bg: "var(--boost-surface-secondary, #f1f5f9)",
+          color: "var(--boost-text, #334155)",
+          border: "var(--boost-border, #e2e8f0)"
+        };
+    }
+  };
+  const getSizeStyles = () => {
+    switch (size) {
+      case "sm":
+        return { padding: "2px 8px", fontSize: "11px" };
+      case "lg":
+        return { padding: "5px 14px", fontSize: "13px" };
+      case "md":
+      default:
+        return { padding: "3px 10px", fontSize: "12px" };
+    }
+  };
+  const vStyles = getVariantStyles();
+  const sStyles = getSizeStyles();
   return /* @__PURE__ */ jsxs(
     "span",
     {
-      className: `boost-tag ${className}`,
+      className: `boost-tag boost-tag-${variant} ${className}`,
       style: {
         display: "inline-flex",
         alignItems: "center",
         gap: "6px",
-        padding: "3px 10px",
-        backgroundColor: color,
-        borderRadius: "4px",
-        fontSize: "12px",
+        borderRadius: "6px",
         fontWeight: 500,
-        color: "#0f172a",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        backgroundColor: vStyles.bg,
+        color: vStyles.color,
+        border: `1px solid ${vStyles.border}`,
+        lineHeight: 1.4,
+        userSelect: "none",
+        ...sStyles,
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsx("span", { children: label }),
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-tag-default {
+          background-color: #1e293b !important;
+          color: #f1f5f9 !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+      ` }),
+        /* @__PURE__ */ jsx("span", { children: content }),
         onRemove && /* @__PURE__ */ jsx(
           "button",
           {
             type: "button",
             onClick: onRemove,
-            "aria-label": `Remove ${label}`,
+            "aria-label": "Remove tag",
             style: {
               background: "none",
               border: "none",
               padding: 0,
               cursor: "pointer",
-              color: "#64748b",
+              color: "currentColor",
+              opacity: 0.7,
               display: "inline-flex",
-              alignItems: "center"
+              alignItems: "center",
+              transition: "opacity 0.15s ease"
             },
+            onMouseEnter: (e) => e.currentTarget.style.opacity = "1",
+            onMouseLeave: (e) => e.currentTarget.style.opacity = "0.7",
             children: /* @__PURE__ */ jsxs("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
               /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
               /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
@@ -3833,33 +4486,46 @@ var Tooltip = ({
   content,
   children,
   position = "top",
-  className = ""
+  className = "",
+  style
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
+  const containerRef = React.useRef(null);
+  React.useEffect(() => {
+    const handleTouchOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsVisible(false);
+      }
+    };
+    if (isVisible) {
+      document.addEventListener("touchstart", handleTouchOutside);
+    }
+    return () => document.removeEventListener("touchstart", handleTouchOutside);
+  }, [isVisible]);
   const getPositionStyles = () => {
     switch (position) {
       case "bottom":
         return {
-          top: "calc(100% + 6px)",
+          top: "calc(100% + 8px)",
           left: "50%",
           transform: "translateX(-50%)"
         };
       case "left":
         return {
-          right: "calc(100% + 6px)",
+          right: "calc(100% + 8px)",
           top: "50%",
           transform: "translateY(-50%)"
         };
       case "right":
         return {
-          left: "calc(100% + 6px)",
+          left: "calc(100% + 8px)",
           top: "50%",
           transform: "translateY(-50%)"
         };
       case "top":
       default:
         return {
-          bottom: "calc(100% + 6px)",
+          bottom: "calc(100% + 8px)",
           left: "50%",
           transform: "translateX(-50%)"
         };
@@ -3868,34 +4534,58 @@ var Tooltip = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
+      ref: containerRef,
       className: `boost-tooltip-wrapper ${className}`,
       onMouseEnter: () => setIsVisible(true),
       onMouseLeave: () => setIsVisible(false),
       onFocus: () => setIsVisible(true),
       onBlur: () => setIsVisible(false),
+      onClick: () => setIsVisible((prev) => !prev),
       style: {
         position: "relative",
-        display: "inline-flex"
+        display: "inline-flex",
+        ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        .boost-tooltip-bubble {
+          animation: boostTooltipIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+          max-width: min(280px, calc(100vw - 32px));
+          word-break: break-word;
+        }
+        @keyframes boostTooltipIn {
+          from {
+            opacity: 0;
+            transform: scale(0.92);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      ` }),
         children,
         isVisible && /* @__PURE__ */ jsx(
           "div",
           {
             role: "tooltip",
+            className: "boost-tooltip-bubble",
             style: {
               position: "absolute",
               zIndex: 1e3,
               backgroundColor: "#0f172a",
-              color: "#ffffff",
-              padding: "4px 8px",
-              borderRadius: "4px",
-              fontSize: "11px",
+              color: "#f8fafc",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              padding: "5px 10px",
+              borderRadius: "6px",
+              fontSize: "12px",
               fontWeight: 500,
-              whiteSpace: "nowrap",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
+              whiteSpace: typeof content === "string" && content.length < 30 ? "nowrap" : "normal",
               pointerEvents: "none",
               fontFamily: "inherit",
+              lineHeight: 1.4,
+              textAlign: "center",
               ...getPositionStyles()
             },
             children: content
@@ -3908,35 +4598,63 @@ var Tooltip = ({
 Tooltip.displayName = "Tooltip";
 var Chip = ({
   label,
+  children,
   selected = false,
   onClick,
   onDelete,
   avatar,
-  className = ""
+  className = "",
+  style
 }) => {
+  const content = children !== void 0 ? children : label;
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-chip ${className}`,
+      className: `boost-chip ${selected ? "boost-chip-selected" : ""} ${className}`,
       onClick,
+      role: onClick ? "button" : void 0,
+      tabIndex: onClick ? 0 : void 0,
+      onKeyDown: (e) => {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      },
       style: {
         display: "inline-flex",
         alignItems: "center",
         gap: "6px",
-        padding: avatar ? "3px 10px 3px 4px" : "4px 12px",
+        padding: avatar ? "3px 12px 3px 4px" : "5px 14px",
         borderRadius: "9999px",
-        backgroundColor: selected ? "#2563eb" : "#f1f5f9",
-        color: selected ? "#ffffff" : "#1e293b",
+        backgroundColor: selected ? "var(--boost-primary, #2563eb)" : "var(--boost-surface-secondary, #f1f5f9)",
+        color: selected ? "#ffffff" : "var(--boost-text, #1e293b)",
+        border: selected ? "1px solid transparent" : "1px solid var(--boost-border, #e2e8f0)",
         fontSize: "13px",
         fontWeight: 500,
         cursor: onClick ? "pointer" : "default",
         userSelect: "none",
-        transition: "all 0.15s ease",
-        fontFamily: "inherit"
+        transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
+        fontFamily: "inherit",
+        lineHeight: 1.4,
+        boxShadow: selected ? "0 2px 8px rgba(37, 99, 235, 0.25)" : "none",
+        ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-chip:not(.boost-chip-selected) {
+          background-color: #1e293b;
+          color: #f1f5f9;
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+        .boost-chip:hover {
+          filter: brightness(0.97);
+        }
+        :root[data-theme="dark"] .boost-chip:hover {
+          filter: brightness(1.1);
+        }
+      ` }),
         avatar && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex", borderRadius: "50%", overflow: "hidden" }, children: avatar }),
-        /* @__PURE__ */ jsx("span", { children: label }),
+        /* @__PURE__ */ jsx("span", { children: content }),
         onDelete && /* @__PURE__ */ jsx(
           "span",
           {
@@ -3944,12 +4662,17 @@ var Chip = ({
               e.stopPropagation();
               onDelete();
             },
+            role: "button",
+            "aria-label": "Delete chip",
             style: {
               display: "inline-flex",
               cursor: "pointer",
-              opacity: 0.7,
-              marginLeft: "2px"
+              opacity: 0.75,
+              marginLeft: "2px",
+              transition: "opacity 0.15s ease"
             },
+            onMouseEnter: (e) => e.currentTarget.style.opacity = "1",
+            onMouseLeave: (e) => e.currentTarget.style.opacity = "0.75",
             children: /* @__PURE__ */ jsxs("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
               /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
               /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
@@ -4080,7 +4803,9 @@ var Accordion = ({
   items,
   allowMultiple = false,
   defaultExpanded = [],
-  className = ""
+  variant = "default",
+  className = "",
+  style
 }) => {
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const toggleItem = (id) => {
@@ -4090,92 +4815,130 @@ var Accordion = ({
       setExpanded(allowMultiple ? [...expanded, id] : [id]);
     }
   };
-  return /* @__PURE__ */ jsx(
+  const isSeparated = variant === "separated";
+  return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-accordion ${className}`,
+      className: `boost-accordion boost-accordion-${variant} ${className}`,
       style: {
         display: "flex",
         flexDirection: "column",
-        border: "1px solid #e2e8f0",
-        borderRadius: "8px",
+        gap: isSeparated ? "10px" : "0px",
+        border: isSeparated ? "none" : "1px solid var(--boost-border, #e2e8f0)",
+        borderRadius: "var(--boost-radius, 12px)",
         overflow: "hidden",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        ...style
       },
-      children: items.map((item, idx) => {
-        const isOpen = expanded.includes(item.id);
-        const isLast = idx === items.length - 1;
-        return /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              borderBottom: isLast ? "none" : "1px solid #e2e8f0"
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        .boost-accordion-header {
+          background-color: var(--boost-surface, #ffffff);
+          color: var(--boost-text, #0f172a);
+          transition: background-color 0.18s ease, color 0.18s ease;
+        }
+        .boost-accordion-header[data-expanded="true"] {
+          background-color: var(--boost-surface-hover, #f8fafc);
+        }
+        .boost-accordion-content {
+          background-color: var(--boost-surface, #ffffff);
+          color: var(--boost-text-muted, #475569);
+          border-top: 1px solid var(--boost-border, #f1f5f9);
+        }
+        :root[data-theme="dark"] .boost-accordion-header {
+          background-color: #1e293b;
+          color: #f8fafc;
+        }
+        :root[data-theme="dark"] .boost-accordion-header[data-expanded="true"] {
+          background-color: #243247;
+        }
+        :root[data-theme="dark"] .boost-accordion-content {
+          background-color: #1e293b;
+          color: #94a3b8;
+          border-top-color: rgba(255, 255, 255, 0.08);
+        }
+        :root[data-theme="dark"] .boost-accordion {
+          border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+      ` }),
+        items.map((item, idx) => {
+          const isOpen = expanded.includes(item.id);
+          const isLast = idx === items.length - 1;
+          return /* @__PURE__ */ jsxs(
+            "div",
+            {
+              style: {
+                borderBottom: !isSeparated && !isLast ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+                borderRadius: isSeparated ? "10px" : void 0,
+                border: isSeparated ? "1px solid var(--boost-border, #e2e8f0)" : void 0,
+                overflow: "hidden"
+              },
+              children: [
+                /* @__PURE__ */ jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    disabled: item.disabled,
+                    onClick: () => toggleItem(item.id),
+                    "aria-expanded": isOpen,
+                    "data-expanded": isOpen,
+                    className: "boost-accordion-header",
+                    style: {
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "14px 18px",
+                      border: "none",
+                      textAlign: "left",
+                      cursor: item.disabled ? "not-allowed" : "pointer",
+                      opacity: item.disabled ? 0.5 : 1,
+                      fontFamily: "inherit",
+                      fontWeight: 600,
+                      fontSize: "14px"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsx("span", { children: item.title }),
+                      /* @__PURE__ */ jsx(
+                        "svg",
+                        {
+                          width: "16",
+                          height: "16",
+                          viewBox: "0 0 24 24",
+                          fill: "none",
+                          stroke: "currentColor",
+                          strokeWidth: "2",
+                          style: {
+                            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                            transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                            color: "var(--boost-text-muted, #64748b)",
+                            flexShrink: 0,
+                            marginLeft: "8px"
+                          },
+                          children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
+                        }
+                      )
+                    ]
+                  }
+                ),
+                isOpen && /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    className: "boost-accordion-content",
+                    style: {
+                      padding: "14px 18px",
+                      fontSize: "13.5px",
+                      lineHeight: 1.6
+                    },
+                    children: item.content
+                  }
+                )
+              ]
             },
-            children: [
-              /* @__PURE__ */ jsxs(
-                "button",
-                {
-                  type: "button",
-                  disabled: item.disabled,
-                  onClick: () => toggleItem(item.id),
-                  "aria-expanded": isOpen,
-                  style: {
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "14px 18px",
-                    backgroundColor: isOpen ? "#f8fafc" : "#ffffff",
-                    border: "none",
-                    textAlign: "left",
-                    cursor: item.disabled ? "not-allowed" : "pointer",
-                    opacity: item.disabled ? 0.5 : 1,
-                    fontFamily: "inherit",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: "#0f172a",
-                    transition: "background-color 0.15s ease"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsx("span", { children: item.title }),
-                    /* @__PURE__ */ jsx(
-                      "svg",
-                      {
-                        width: "16",
-                        height: "16",
-                        viewBox: "0 0 24 24",
-                        fill: "none",
-                        stroke: "currentColor",
-                        strokeWidth: "2",
-                        style: {
-                          transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                          transition: "transform 0.2s ease",
-                          color: "#64748b"
-                        },
-                        children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
-                      }
-                    )
-                  ]
-                }
-              ),
-              isOpen && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    padding: "14px 18px",
-                    backgroundColor: "#ffffff",
-                    fontSize: "13px",
-                    color: "#334155",
-                    lineHeight: 1.6
-                  },
-                  children: item.content
-                }
-              )
-            ]
-          },
-          item.id
-        );
-      })
+            item.id
+          );
+        })
+      ]
     }
   );
 };
@@ -4186,6 +4949,7 @@ var Carousel = ({
   interval = 4e3,
   showIndicators = true,
   className = "",
+  style,
   ...props
 }) => {
   const [currentIdx, setCurrentIdx] = React.useState(0);
@@ -4237,7 +5001,8 @@ var Carousel = ({
         backgroundColor: "#0f172a",
         boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.1))",
         touchAction: "pan-y",
-        userSelect: "none"
+        userSelect: "none",
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx(
@@ -4388,7 +5153,10 @@ var Modal = ({
   children,
   footer,
   size = "md",
-  className = ""
+  className = "",
+  style,
+  closeOnOverlayClick = true,
+  showCloseButton = true
 }) => {
   React.useEffect(() => {
     if (!isOpen) return;
@@ -4417,113 +5185,152 @@ var Modal = ({
         return "520px";
     }
   };
-  return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(
     "div",
     {
       role: "dialog",
       "aria-modal": "true",
       className: `boost-modal-backdrop ${className}`,
-      onClick: onClose,
+      onClick: () => {
+        if (closeOnOverlayClick) onClose();
+      },
       style: {
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.65)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        backgroundColor: "rgba(0, 0, 0, 0.72)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         zIndex: 1e3,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: "clamp(12px, 3vw, 24px)",
         fontFamily: "inherit",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        animation: "boost-modal-fade 0.2s ease-out"
       },
-      children: /* @__PURE__ */ jsxs(
-        "div",
-        {
-          onClick: (e) => e.stopPropagation(),
-          style: {
-            width: "100%",
-            maxWidth: getWidth(),
-            backgroundColor: "var(--boost-surface, #ffffff)",
-            borderRadius: "var(--boost-radius, 18px)",
-            border: "1px solid var(--boost-border, #e2e8f0)",
-            boxShadow: "var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))",
-            display: "flex",
-            flexDirection: "column",
-            maxHeight: "min(90vh, 850px)",
-            overflow: "hidden",
-            animation: "boost-modal-scale 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
-          },
-          children: [
-            /* @__PURE__ */ jsx("style", { children: `
-            @keyframes boost-modal-scale {
-              from { opacity: 0; transform: scale(0.95) translateY(8px); }
-              to { opacity: 1; transform: scale(1) translateY(0); }
-            }
-          ` }),
-            (title || description) && /* @__PURE__ */ jsxs(
-              "div",
-              {
-                style: {
-                  padding: "clamp(16px, 3vw, 20px) clamp(18px, 4vw, 28px)",
-                  borderBottom: "1px solid var(--boost-border, #e2e8f0)",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  gap: "12px"
-                },
-                children: [
-                  /* @__PURE__ */ jsxs("div", { children: [
-                    title && /* @__PURE__ */ jsx("h3", { style: { margin: 0, fontSize: "clamp(17px, 2.5vw, 20px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
-                    description && /* @__PURE__ */ jsx("p", { style: { margin: "4px 0 0 0", fontSize: "13px", color: "var(--boost-muted, #64748b)", lineHeight: 1.4 }, children: description })
-                  ] }),
-                  /* @__PURE__ */ jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: onClose,
-                      "aria-label": "Close modal",
-                      style: {
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "var(--boost-muted, #94a3b8)",
-                        padding: "6px",
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.15s ease"
-                      },
-                      children: /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
-                        /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
-                        /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
-                      ] })
-                    }
-                  )
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsx("div", { style: { padding: "clamp(18px, 3.5vw, 28px)", overflowY: "auto", flex: 1, color: "var(--boost-text, #334155)", fontSize: "14px", lineHeight: 1.6 }, children }),
-            footer && /* @__PURE__ */ jsx(
-              "div",
-              {
-                style: {
-                  padding: "clamp(12px, 2.5vw, 16px) clamp(18px, 4vw, 28px)",
-                  borderTop: "1px solid var(--boost-border, #e2e8f0)",
-                  backgroundColor: "var(--boost-bg, #f8fafc)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  gap: "10px"
-                },
-                children: footer
-              }
-            )
-          ]
-        }
-      )
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          @keyframes boost-modal-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes boost-modal-scale {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+          }
+          :root[data-theme="dark"] .boost-modal-card {
+            background-color: #0f172a !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8) !important;
+          }
+          :root[data-theme="dark"] .boost-modal-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-modal-title {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-modal-desc {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-modal-body {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-modal-footer {
+            background-color: #090d16 !important;
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-modal-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+          }
+        ` }),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "boost-modal-card",
+            onClick: (e) => e.stopPropagation(),
+            style: {
+              width: "100%",
+              maxWidth: `min(${getWidth()}, calc(100vw - 24px))`,
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              borderRadius: "var(--boost-radius, 18px)",
+              border: "1px solid var(--boost-border, #e2e8f0)",
+              boxShadow: "var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))",
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "min(90vh, 850px)",
+              overflow: "hidden",
+              animation: "boost-modal-scale 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+              ...style
+            },
+            children: [
+              (title || description) && /* @__PURE__ */ jsxs(
+                "div",
+                {
+                  className: "boost-modal-header",
+                  style: {
+                    padding: "clamp(16px, 3vw, 20px) clamp(18px, 4vw, 28px)",
+                    borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    gap: "12px"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxs("div", { children: [
+                      title && /* @__PURE__ */ jsx("h3", { className: "boost-modal-title", style: { margin: 0, fontSize: "clamp(17px, 2.5vw, 20px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
+                      description && /* @__PURE__ */ jsx("p", { className: "boost-modal-desc", style: { margin: "4px 0 0 0", fontSize: "13px", color: "var(--boost-muted, #64748b)", lineHeight: 1.4 }, children: description })
+                    ] }),
+                    showCloseButton && /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: onClose,
+                        "aria-label": "Close modal",
+                        className: "boost-modal-close-btn",
+                        style: {
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "var(--boost-muted, #94a3b8)",
+                          padding: "6px",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "all 0.15s ease"
+                        },
+                        children: /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: [
+                          /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
+                          /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
+                        ] })
+                      }
+                    )
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsx("div", { className: "boost-modal-body", style: { padding: "clamp(18px, 3.5vw, 28px)", overflowY: "auto", flex: 1, color: "var(--boost-text, #334155)", fontSize: "14px", lineHeight: 1.6 }, children }),
+              footer && /* @__PURE__ */ jsx(
+                "div",
+                {
+                  className: "boost-modal-footer",
+                  style: {
+                    padding: "clamp(12px, 2.5vw, 16px) clamp(18px, 4vw, 28px)",
+                    borderTop: "1px solid var(--boost-border, #e2e8f0)",
+                    backgroundColor: "var(--boost-bg, #f8fafc)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: "10px"
+                  },
+                  children: footer
+                }
+              )
+            ]
+          }
+        )
+      ]
     }
   ) });
 };
@@ -4534,11 +5341,17 @@ var Drawer = ({
   isOpen,
   onClose,
   title,
-  placement = "right",
+  placement,
+  position,
   size = "380px",
   children,
-  className = ""
+  footer,
+  className = "",
+  style,
+  showCloseButton = true,
+  closeOnOverlayClick = true
 }) => {
+  const effectivePlacement = position || placement || "right";
   React.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -4554,86 +5367,189 @@ var Drawer = ({
   }, [isOpen, onClose]);
   if (!isOpen) return null;
   const getPositionStyles = () => {
-    switch (placement) {
+    switch (effectivePlacement) {
       case "left":
-        return { top: 0, bottom: 0, left: 0, width: size, maxWidth: "100vw" };
+        return {
+          top: 0,
+          bottom: 0,
+          left: 0,
+          width: `min(${size}, 100vw)`,
+          borderRight: "1px solid var(--boost-border, #e2e8f0)",
+          animation: "boost-drawer-slide-left 0.28s cubic-bezier(0.16, 1, 0.3, 1)"
+        };
       case "top":
-        return { top: 0, left: 0, right: 0, height: size, maxHeight: "100vh" };
+        return {
+          top: 0,
+          left: 0,
+          right: 0,
+          height: `min(${size}, 100vh)`,
+          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+          animation: "boost-drawer-slide-top 0.28s cubic-bezier(0.16, 1, 0.3, 1)"
+        };
       case "bottom":
-        return { bottom: 0, left: 0, right: 0, height: size, maxHeight: "100vh" };
+        return {
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: `min(${size}, 100vh)`,
+          borderTop: "1px solid var(--boost-border, #e2e8f0)",
+          animation: "boost-drawer-slide-bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)"
+        };
       case "right":
       default:
-        return { top: 0, bottom: 0, right: 0, width: size, maxWidth: "100vw" };
+        return {
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: `min(${size}, 100vw)`,
+          borderLeft: "1px solid var(--boost-border, #e2e8f0)",
+          animation: "boost-drawer-slide-right 0.28s cubic-bezier(0.16, 1, 0.3, 1)"
+        };
     }
   };
-  return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(
     "div",
     {
       role: "dialog",
       "aria-modal": "true",
       className: `boost-drawer-backdrop ${className}`,
-      onClick: onClose,
+      onClick: () => {
+        if (closeOnOverlayClick) onClose();
+      },
       style: {
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        backdropFilter: "blur(3px)",
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         zIndex: 1e3,
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        animation: "boost-drawer-fade 0.2s ease-out"
       },
-      children: /* @__PURE__ */ jsxs(
-        "div",
-        {
-          onClick: (e) => e.stopPropagation(),
-          style: {
-            position: "absolute",
-            backgroundColor: "#ffffff",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            ...getPositionStyles()
-          },
-          children: [
-            title && /* @__PURE__ */ jsxs(
-              "div",
-              {
-                style: {
-                  padding: "16px 20px",
-                  borderBottom: "1px solid #e2e8f0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between"
-                },
-                children: [
-                  /* @__PURE__ */ jsx("h3", { style: { margin: 0, fontSize: "16px", fontWeight: 600, color: "#0f172a" }, children: title }),
-                  /* @__PURE__ */ jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: onClose,
-                      "aria-label": "Close drawer",
-                      style: {
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "#64748b",
-                        padding: "4px",
-                        display: "flex"
-                      },
-                      children: /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
-                        /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
-                        /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
-                      ] })
-                    }
-                  )
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsx("div", { style: { padding: "20px", overflowY: "auto", flex: 1 }, children })
-          ]
-        }
-      )
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          @keyframes boost-drawer-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes boost-drawer-slide-right {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+          }
+          @keyframes boost-drawer-slide-left {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+          }
+          @keyframes boost-drawer-slide-top {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+          }
+          @keyframes boost-drawer-slide-bottom {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+          }
+          :root[data-theme="dark"] .boost-drawer-panel {
+            background-color: #0f172a !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-title {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-body {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-footer {
+            background-color: #090d16 !important;
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+          }
+        ` }),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "boost-drawer-panel",
+            onClick: (e) => e.stopPropagation(),
+            style: {
+              position: "absolute",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              boxSizing: "border-box",
+              ...getPositionStyles(),
+              ...style
+            },
+            children: [
+              title && /* @__PURE__ */ jsxs(
+                "div",
+                {
+                  className: "boost-drawer-header",
+                  style: {
+                    padding: "16px 20px",
+                    borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx("h3", { className: "boost-drawer-title", style: { margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)" }, children: title }),
+                    showCloseButton && /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: onClose,
+                        "aria-label": "Close drawer",
+                        className: "boost-drawer-close-btn",
+                        style: {
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "var(--boost-muted, #64748b)",
+                          padding: "6px",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "all 0.15s ease"
+                        },
+                        children: /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: [
+                          /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
+                          /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
+                        ] })
+                      }
+                    )
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsx("div", { className: "boost-drawer-body", style: { padding: "20px", overflowY: "auto", flex: 1, color: "var(--boost-text, #334155)" }, children }),
+              footer && /* @__PURE__ */ jsx(
+                "div",
+                {
+                  className: "boost-drawer-footer",
+                  style: {
+                    padding: "14px 20px",
+                    borderTop: "1px solid var(--boost-border, #e2e8f0)",
+                    backgroundColor: "var(--boost-bg, #f8fafc)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: "10px"
+                  },
+                  children: footer
+                }
+              )
+            ]
+          }
+        )
+      ]
     }
   ) });
 };
@@ -4643,111 +5559,234 @@ var BottomSheet = ({
   onClose,
   title,
   children,
-  maxHeight = "80vh",
-  className = ""
+  footer,
+  maxHeight = "85vh",
+  className = "",
+  style,
+  dragHandle = true,
+  showCloseButton = true,
+  closeOnOverlayClick = true
 }) => {
   React.useEffect(() => {
     if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = prev;
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
   if (!isOpen) return null;
-  return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(
     "div",
     {
       role: "dialog",
       "aria-modal": "true",
       className: `boost-bottom-sheet-backdrop ${className}`,
-      onClick: onClose,
+      onClick: () => {
+        if (closeOnOverlayClick) onClose();
+      },
       style: {
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        backdropFilter: "blur(2px)",
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         zIndex: 1e3,
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        animation: "boost-sheet-fade 0.2s ease-out"
       },
-      children: /* @__PURE__ */ jsxs(
-        "div",
-        {
-          onClick: (e) => e.stopPropagation(),
-          style: {
-            width: "100%",
-            maxWidth: "600px",
-            maxHeight,
-            backgroundColor: "#ffffff",
-            borderRadius: "16px 16px 0 0",
-            boxShadow: "0 -10px 25px rgba(0, 0, 0, 0.15)",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            animation: "boost-sheet-up 0.25s ease-out"
-          },
-          children: [
-            /* @__PURE__ */ jsx("style", { children: `
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          @keyframes boost-sheet-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
           @keyframes boost-sheet-up {
             from { transform: translateY(100%); }
             to { transform: translateY(0); }
           }
+          :root[data-theme="dark"] .boost-bottom-sheet-panel {
+            background-color: #0f172a !important;
+            border-top-color: rgba(255, 255, 255, 0.1) !important;
+            border-left-color: rgba(255, 255, 255, 0.1) !important;
+            border-right-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-handle {
+            background-color: #475569 !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-header {
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-title {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-body {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-footer {
+            background-color: #090d16 !important;
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+          }
         ` }),
-            /* @__PURE__ */ jsx("div", { style: { display: "flex", justifyContent: "center", padding: "10px 0 4px" }, children: /* @__PURE__ */ jsx("div", { style: { width: "36px", height: "4px", backgroundColor: "#cbd5e1", borderRadius: "9999px" } }) }),
-            title && /* @__PURE__ */ jsxs("div", { style: { padding: "8px 20px 12px", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
-              /* @__PURE__ */ jsx("h3", { style: { margin: 0, fontSize: "16px", fontWeight: 600, color: "#0f172a" }, children: title }),
-              /* @__PURE__ */ jsx(
-                "button",
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            className: "boost-bottom-sheet-panel",
+            onClick: (e) => e.stopPropagation(),
+            style: {
+              width: "100%",
+              maxWidth: "640px",
+              maxHeight,
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              borderRadius: "24px 24px 0 0",
+              borderTop: "1px solid var(--boost-border, #e2e8f0)",
+              borderLeft: "1px solid var(--boost-border, #e2e8f0)",
+              borderRight: "1px solid var(--boost-border, #e2e8f0)",
+              boxShadow: "0 -15px 35px rgba(0, 0, 0, 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              boxSizing: "border-box",
+              animation: "boost-sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1)",
+              ...style
+            },
+            children: [
+              dragHandle && /* @__PURE__ */ jsx("div", { style: { display: "flex", justifyContent: "center", padding: "12px 0 4px", cursor: "grab" }, children: /* @__PURE__ */ jsx("div", { className: "boost-bottom-sheet-handle", style: { width: "40px", height: "4px", backgroundColor: "#cbd5e1", borderRadius: "9999px", transition: "background-color 0.2s ease" } }) }),
+              title && /* @__PURE__ */ jsxs(
+                "div",
                 {
-                  type: "button",
-                  onClick: onClose,
-                  style: { background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: "2px" },
-                  children: /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
-                    /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
-                    /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
-                  ] })
+                  className: "boost-bottom-sheet-header",
+                  style: {
+                    padding: "8px 20px 14px",
+                    borderBottom: "1px solid var(--boost-border, #f1f5f9)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx("h3", { className: "boost-bottom-sheet-title", style: { margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)" }, children: title }),
+                    showCloseButton && /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: onClose,
+                        "aria-label": "Close sheet",
+                        className: "boost-bottom-sheet-close-btn",
+                        style: {
+                          background: "none",
+                          border: "none",
+                          color: "var(--boost-muted, #94a3b8)",
+                          cursor: "pointer",
+                          padding: "6px",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "all 0.15s ease"
+                        },
+                        children: /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: [
+                          /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
+                          /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
+                        ] })
+                      }
+                    )
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsx("div", { className: "boost-bottom-sheet-body", style: { padding: "20px", overflowY: "auto", flex: 1, color: "var(--boost-text, #334155)" }, children }),
+              footer && /* @__PURE__ */ jsx(
+                "div",
+                {
+                  className: "boost-bottom-sheet-footer",
+                  style: {
+                    padding: "14px 20px",
+                    borderTop: "1px solid var(--boost-border, #e2e8f0)",
+                    backgroundColor: "var(--boost-bg, #f8fafc)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: "10px"
+                  },
+                  children: footer
                 }
               )
-            ] }),
-            /* @__PURE__ */ jsx("div", { style: { padding: "20px", overflowY: "auto" }, children })
-          ]
-        }
-      )
+            ]
+          }
+        )
+      ]
     }
-  );
+  ) });
 };
 BottomSheet.displayName = "BottomSheet";
 var Popover = ({
   trigger,
   content,
   placement = "bottom-left",
-  className = ""
+  isOpen: controlledOpen,
+  onOpenChange,
+  className = "",
+  style,
+  contentStyle,
+  showArrow = true
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
   const popoverRef = React.useRef(null);
+  const isControlled = controlledOpen !== void 0;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (nextOpen) => {
+    if (!isControlled) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  };
   React.useEffect(() => {
     const handleClickOutside = (e) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target)) {
-        setIsOpen(false);
+        setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [open]);
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && open) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
   const getPositionStyles = () => {
     switch (placement) {
       case "bottom-right":
-        return { top: "calc(100% + 6px)", right: 0 };
+        return { top: "calc(100% + 8px)", right: 0 };
       case "top-left":
-        return { bottom: "calc(100% + 6px)", left: 0 };
+        return { bottom: "calc(100% + 8px)", left: 0 };
       case "top-right":
-        return { bottom: "calc(100% + 6px)", right: 0 };
+        return { bottom: "calc(100% + 8px)", right: 0 };
+      case "top":
+        return { bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" };
+      case "bottom":
+        return { top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" };
       case "bottom-left":
       default:
-        return { top: "calc(100% + 6px)", left: 0 };
+        return { top: "calc(100% + 8px)", left: 0 };
     }
   };
   return /* @__PURE__ */ jsxs(
@@ -4755,25 +5794,93 @@ var Popover = ({
     {
       ref: popoverRef,
       className: `boost-popover-wrapper ${className}`,
-      style: { position: "relative", display: "inline-flex" },
+      style: { position: "relative", display: "inline-flex", ...style },
       children: [
-        /* @__PURE__ */ jsx("div", { onClick: () => setIsOpen((prev) => !prev), children: trigger }),
-        isOpen && /* @__PURE__ */ jsx(
+        /* @__PURE__ */ jsx("style", { children: `
+        .boost-popover-panel {
+          background-color: var(--boost-surface, #ffffff);
+          border: 1px solid var(--boost-border, #e2e8f0);
+          color: var(--boost-text, #0f172a);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          animation: boostPopoverIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          max-width: min(380px, calc(100vw - 24px));
+          box-sizing: border-box;
+        }
+        :root[data-theme="dark"] .boost-popover-panel {
+          background-color: #1e293b;
+          border-color: rgba(255, 255, 255, 0.12);
+          color: #f8fafc;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes boostPopoverIn {
+          from {
+            opacity: 0;
+            transform: scale(0.96) translateY(placement?.startsWith('top') ? 4px : -4px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+      ` }),
+        /* @__PURE__ */ jsx(
           "div",
           {
+            onClick: () => setOpen(!open),
+            role: "button",
+            tabIndex: 0,
+            "aria-haspopup": "dialog",
+            "aria-expanded": open,
+            onKeyDown: (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setOpen(!open);
+              }
+            },
+            style: { display: "inline-flex", cursor: "pointer" },
+            children: trigger
+          }
+        ),
+        open && /* @__PURE__ */ jsxs(
+          "div",
+          {
+            role: "dialog",
+            className: "boost-popover-panel",
             style: {
               position: "absolute",
-              zIndex: 500,
-              backgroundColor: "#ffffff",
-              border: "1px solid #e2e8f0",
-              borderRadius: "8px",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-              padding: "12px",
-              minWidth: "200px",
+              zIndex: 1e3,
+              padding: "12px 14px",
+              minWidth: "220px",
               fontFamily: "inherit",
-              ...getPositionStyles()
+              ...getPositionStyles(),
+              ...contentStyle
             },
-            children: content
+            children: [
+              showArrow && /* @__PURE__ */ jsx(
+                "div",
+                {
+                  style: {
+                    position: "absolute",
+                    width: "8px",
+                    height: "8px",
+                    transform: "rotate(45deg)",
+                    backgroundColor: "inherit",
+                    borderLeft: placement.startsWith("bottom") ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+                    borderTop: placement.startsWith("bottom") ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+                    borderRight: placement.startsWith("top") ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+                    borderBottom: placement.startsWith("top") ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+                    ...placement === "bottom-left" ? { top: "-5px", left: "16px" } : {},
+                    ...placement === "bottom-right" ? { top: "-5px", right: "16px" } : {},
+                    ...placement === "bottom" ? { top: "-5px", left: "calc(50% - 4px)" } : {},
+                    ...placement === "top-left" ? { bottom: "-5px", left: "16px" } : {},
+                    ...placement === "top-right" ? { bottom: "-5px", right: "16px" } : {},
+                    ...placement === "top" ? { bottom: "-5px", left: "calc(50% - 4px)" } : {}
+                  }
+                }
+              ),
+              content
+            ]
           }
         )
       ]
@@ -4790,29 +5897,99 @@ var ConfirmationDialog = ({
   confirmText = "Confirm",
   cancelText = "Cancel",
   variant = "primary",
-  isLoading = false
+  confirmVariant,
+  isLoading = false,
+  className = "",
+  style
 }) => {
+  const activeVariant = confirmVariant || variant;
+  const isDestructive = activeVariant === "danger" || activeVariant === "destructive";
+  const isWarning = activeVariant === "warning";
+  const getButtonVariant = () => {
+    if (isDestructive) return "destructive";
+    return "primary";
+  };
   return /* @__PURE__ */ jsx(
     Modal,
     {
       isOpen,
       onClose,
-      title,
+      title: "",
       size: "sm",
-      footer: /* @__PURE__ */ jsxs(Fragment, { children: [
+      className,
+      style,
+      footer: /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "flex-end", gap: "10px", width: "100%" }, children: [
         /* @__PURE__ */ jsx(Button, { variant: "outline", size: "sm", onClick: onClose, disabled: isLoading, children: cancelText }),
         /* @__PURE__ */ jsx(
           Button,
           {
-            variant: variant === "danger" ? "destructive" : "primary",
+            variant: getButtonVariant(),
             size: "sm",
             onClick: onConfirm,
             isLoading,
+            style: isWarning ? { backgroundColor: "#d97706", borderColor: "#d97706", color: "#ffffff" } : void 0,
             children: confirmText
           }
         )
       ] }),
-      children: /* @__PURE__ */ jsx("p", { style: { margin: 0, fontSize: "14px", color: "#475569", lineHeight: 1.5 }, children: message })
+      children: /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "14px", alignItems: "flex-start" }, children: [
+        /* @__PURE__ */ jsx(
+          "div",
+          {
+            style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              backgroundColor: isDestructive ? "rgba(239, 68, 68, 0.12)" : isWarning ? "rgba(245, 158, 11, 0.12)" : "rgba(59, 130, 246, 0.12)",
+              color: isDestructive ? "#ef4444" : isWarning ? "#d97706" : "#2563eb"
+            },
+            children: isDestructive ? /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
+              /* @__PURE__ */ jsx("path", { d: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" }),
+              /* @__PURE__ */ jsx("line", { x1: "12", y1: "9", x2: "12", y2: "13" }),
+              /* @__PURE__ */ jsx("line", { x1: "12", y1: "17", x2: "12.01", y2: "17" })
+            ] }) : isWarning ? /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
+              /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
+              /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
+              /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
+            ] }) : /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
+              /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
+              /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12", y2: "12" }),
+              /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12.01", y2: "8" })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+          /* @__PURE__ */ jsx(
+            "h3",
+            {
+              style: {
+                margin: "0 0 6px",
+                fontSize: "16px",
+                fontWeight: 700,
+                color: "var(--boost-text, #0f172a)",
+                letterSpacing: "-0.01em"
+              },
+              children: title
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "p",
+            {
+              style: {
+                margin: 0,
+                fontSize: "13.5px",
+                color: "var(--boost-text-muted, #64748b)",
+                lineHeight: 1.55
+              },
+              children: message
+            }
+          )
+        ] })
+      ] })
     }
   );
 };
@@ -5443,6 +6620,20 @@ var ScrollArea = React.forwardRef(
   }
 );
 ScrollArea.displayName = "ScrollArea";
+var keyframesStyle = `
+  @keyframes boost-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes boost-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.95); }
+  }
+  @keyframes boost-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+`;
 var Motion = ({
   animation = "fade-in",
   duration = 500,
@@ -5456,7 +6647,9 @@ var Motion = ({
 }) => {
   const ref = React.useRef(null);
   const [inView, setInView] = React.useState(false);
+  const isContinuous = ["spin", "pulse", "shimmer"].includes(animation);
   React.useEffect(() => {
+    if (isContinuous) return;
     if (typeof IntersectionObserver === "undefined" || !ref.current) {
       setInView(true);
       return;
@@ -5474,8 +6667,25 @@ var Motion = ({
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [triggerOnce, viewportThreshold]);
+  }, [triggerOnce, viewportThreshold, isContinuous]);
   const getMotionStyle = () => {
+    if (animation === "spin") {
+      return {
+        animation: `boost-spin ${duration}ms linear infinite`
+      };
+    }
+    if (animation === "pulse") {
+      return {
+        animation: `boost-pulse ${duration * 2}ms cubic-bezier(0.4, 0, 0.6, 1) infinite`
+      };
+    }
+    if (animation === "shimmer") {
+      return {
+        backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)",
+        backgroundSize: "200% 100%",
+        animation: `boost-shimmer ${duration * 3}ms infinite`
+      };
+    }
     const transition = `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
     if (inView) {
       return {
@@ -5512,85 +6722,366 @@ var Motion = ({
       transition
     };
   };
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      ref,
-      className: `boost-motion ${className}`,
-      style: {
-        ...getMotionStyle(),
-        ...style
-      },
-      ...props,
-      children
-    }
-  );
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: keyframesStyle }),
+    /* @__PURE__ */ jsx(
+      "div",
+      {
+        ref,
+        className: `boost-motion ${className}`,
+        style: {
+          ...getMotionStyle(),
+          ...style
+        },
+        ...props,
+        children
+      }
+    )
+  ] });
 };
 Motion.displayName = "Motion";
 var Header = ({
   logo,
-  brandName = "Brand",
-  navLinks = [],
+  brandName,
+  brandBadge,
+  navLinks,
+  links,
+  activeHref,
+  onLinkClick,
   actions,
+  searchBar,
   sticky = true,
-  className = ""
+  className = "",
+  style,
+  renderMobileMenu
 }) => {
-  return /* @__PURE__ */ jsxs(
-    "header",
-    {
-      className: `boost-header ${className}`,
-      style: {
-        position: sticky ? "sticky" : "static",
-        top: 0,
-        zIndex: 40,
-        backgroundColor: "#ffffff",
-        borderBottom: "1px solid #e2e8f0",
-        padding: "0 24px",
-        height: "64px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        fontFamily: "inherit"
-      },
-      children: [
-        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
-          logo,
-          /* @__PURE__ */ jsx("span", { style: { fontSize: "18px", fontWeight: 700, color: "#0f172a" }, children: brandName })
-        ] }),
-        navLinks.length > 0 && /* @__PURE__ */ jsx("nav", { style: { display: "flex", alignItems: "center", gap: "20px" }, children: navLinks.map((link, idx) => /* @__PURE__ */ jsx(
-          "a",
-          {
-            href: link.href,
-            style: {
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: "#475569",
-              transition: "color 0.15s ease"
-            },
-            children: link.label
-          },
-          idx
-        )) }),
-        actions && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: actions })
-      ]
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const effectiveLinks = navLinks || links || [];
+  const handleLinkClick = (href, e) => {
+    if (onLinkClick) {
+      e.preventDefault();
+      onLinkClick(href);
     }
-  );
+    setMobileMenuOpen(false);
+  };
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-header {
+          background-color: rgba(15, 23, 42, 0.9) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+        }
+        :root[data-theme="dark"] .boost-header .boost-brand-title {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-header .boost-nav-link {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-header .boost-nav-link:hover,
+        :root[data-theme="dark"] .boost-header .boost-nav-link.is-active {
+          color: #f8fafc !important;
+          background-color: rgba(255, 255, 255, 0.06) !important;
+        }
+        :root[data-theme="dark"] .boost-header .boost-hamburger-btn {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-header-mobile-drawer {
+          background-color: rgba(15, 23, 42, 0.98) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link {
+          color: #cbd5e1 !important;
+        }
+        :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link:hover,
+        :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link.is-active {
+          color: #818cf8 !important;
+          background-color: rgba(99, 102, 241, 0.12) !important;
+        }
+
+        @container (max-width: 768px) {
+          .boost-desktop-nav-group {
+            display: none !important;
+          }
+          .boost-hamburger-btn {
+            display: inline-flex !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .boost-header .boost-desktop-nav-group {
+            display: none !important;
+          }
+          .boost-header .boost-hamburger-btn {
+            display: inline-flex !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .boost-header .boost-hamburger-btn {
+            display: none;
+          }
+          .boost-header-mobile-drawer {
+            display: none;
+          }
+        }
+      ` }),
+    /* @__PURE__ */ jsxs(
+      "header",
+      {
+        className: `boost-header ${className}`,
+        style: {
+          containerType: "inline-size",
+          position: sticky ? "sticky" : "relative",
+          top: 0,
+          zIndex: 40,
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.92))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid var(--boost-border, rgba(226, 232, 240, 0.8))",
+          padding: "0 clamp(16px, 3.5vw, 28px)",
+          height: "64px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontFamily: "inherit",
+          boxSizing: "border-box",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))",
+          transition: "all 0.2s ease",
+          ...style
+        },
+        children: [
+          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+            logo ? /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center" }, children: logo }) : /* @__PURE__ */ jsx(
+              "div",
+              {
+                style: {
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  background: "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)",
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 800,
+                  fontSize: "16px",
+                  boxShadow: "0 2px 8px rgba(79, 70, 229, 0.3)"
+                },
+                children: "\u26A1"
+              }
+            ),
+            (brandName || !logo && !brandName) && /* @__PURE__ */ jsx(
+              "span",
+              {
+                className: "boost-brand-title",
+                style: {
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  color: "var(--boost-text, #0f172a)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.2
+                },
+                children: brandName || "Brand"
+              }
+            ),
+            brandBadge && /* @__PURE__ */ jsx(
+              "span",
+              {
+                style: {
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  padding: "2px 8px",
+                  borderRadius: "9999px",
+                  background: "linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(59, 130, 246, 0.18))",
+                  color: "var(--boost-primary, #6366f1)",
+                  border: "1px solid rgba(99, 102, 241, 0.3)",
+                  textTransform: "uppercase"
+                },
+                children: brandBadge
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "boost-desktop-nav-group",
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "24px",
+                flex: 1,
+                justifyContent: "center",
+                maxWidth: "640px"
+              },
+              children: [
+                searchBar && /* @__PURE__ */ jsx("div", { style: { width: "100%", maxWidth: "280px" }, children: searchBar }),
+                effectiveLinks.length > 0 && /* @__PURE__ */ jsx("nav", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: effectiveLinks.map((link, idx) => {
+                  const isActive = link.active || (activeHref ? activeHref === link.href : false);
+                  return /* @__PURE__ */ jsxs(
+                    "a",
+                    {
+                      href: link.href,
+                      onClick: (e) => handleLinkClick(link.href, e),
+                      className: `boost-nav-link ${isActive ? "is-active" : ""}`,
+                      style: {
+                        textDecoration: "none",
+                        fontSize: "14px",
+                        fontWeight: isActive ? 600 : 500,
+                        color: isActive ? "var(--boost-primary, #4f46e5)" : "var(--boost-text-muted, #475569)",
+                        padding: "6px 12px",
+                        borderRadius: "8px",
+                        transition: "all 0.15s ease",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      },
+                      children: [
+                        /* @__PURE__ */ jsx("span", { children: link.label }),
+                        link.badge !== void 0 && /* @__PURE__ */ jsx(
+                          "span",
+                          {
+                            style: {
+                              fontSize: "10px",
+                              fontWeight: 700,
+                              backgroundColor: "rgba(99, 102, 241, 0.15)",
+                              color: "var(--boost-primary, #4f46e5)",
+                              padding: "1px 6px",
+                              borderRadius: "9999px"
+                            },
+                            children: link.badge
+                          }
+                        )
+                      ]
+                    },
+                    idx
+                  );
+                }) })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+            actions && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: actions }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                "aria-label": "Toggle navigation menu",
+                onClick: () => setMobileMenuOpen(!mobileMenuOpen),
+                className: "boost-hamburger-btn",
+                style: {
+                  display: "none",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px",
+                  borderRadius: "8px",
+                  color: "var(--boost-text, #0f172a)",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background-color 0.15s ease"
+                },
+                children: mobileMenuOpen ? /* @__PURE__ */ jsxs("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", children: [
+                  /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
+                  /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
+                ] }) : /* @__PURE__ */ jsxs("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", children: [
+                  /* @__PURE__ */ jsx("line", { x1: "4", y1: "7", x2: "20", y2: "7" }),
+                  /* @__PURE__ */ jsx("line", { x1: "4", y1: "12", x2: "20", y2: "12" }),
+                  /* @__PURE__ */ jsx("line", { x1: "4", y1: "17", x2: "20", y2: "17" })
+                ] })
+              }
+            )
+          ] })
+        ]
+      }
+    ),
+    mobileMenuOpen && /* @__PURE__ */ jsx(
+      "div",
+      {
+        className: "boost-header-mobile-drawer",
+        style: {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "0 12px 28px rgba(0, 0, 0, 0.12)",
+          padding: "16px 20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          animation: "boost-slideDown 0.2s ease",
+          position: sticky ? "sticky" : "relative",
+          top: sticky ? "64px" : void 0,
+          zIndex: 39
+        },
+        children: renderMobileMenu ? renderMobileMenu({
+          isOpen: mobileMenuOpen,
+          onClose: () => setMobileMenuOpen(false),
+          links: effectiveLinks
+        }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+          searchBar && /* @__PURE__ */ jsx("div", { style: { marginBottom: "8px" }, children: searchBar }),
+          effectiveLinks.map((link, idx) => {
+            const isActive = link.active || (activeHref ? activeHref === link.href : false);
+            return /* @__PURE__ */ jsxs(
+              "a",
+              {
+                href: link.href,
+                onClick: (e) => handleLinkClick(link.href, e),
+                className: `boost-mobile-nav-link ${isActive ? "is-active" : ""}`,
+                style: {
+                  textDecoration: "none",
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  color: isActive ? "var(--boost-primary, #4f46e5)" : "var(--boost-text, #1e293b)",
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  transition: "all 0.15s ease"
+                },
+                children: [
+                  /* @__PURE__ */ jsx("span", { children: link.label }),
+                  link.badge !== void 0 && /* @__PURE__ */ jsx(
+                    "span",
+                    {
+                      style: {
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        backgroundColor: "rgba(99, 102, 241, 0.15)",
+                        color: "var(--boost-primary, #4f46e5)",
+                        padding: "2px 8px",
+                        borderRadius: "9999px"
+                      },
+                      children: link.badge
+                    }
+                  )
+                ]
+              },
+              idx
+            );
+          }),
+          actions && /* @__PURE__ */ jsx("div", { style: { borderTop: "1px solid var(--boost-border, #e2e8f0)", paddingTop: "14px", marginTop: "6px", display: "flex", gap: "10px", flexWrap: "wrap" }, children: actions })
+        ] })
+      }
+    )
+  ] });
 };
 Header.displayName = "Header";
 var Navbar = ({
   brandName = "BoostStore",
+  logo,
   logoUrl,
+  brandBadge,
   navLinks = [
     { label: "Shop All", href: "/products" },
     { label: "Best Sellers", href: "/collections/bestsellers", badge: "HOT" },
     { label: "New Arrivals", href: "/collections/new" },
     { label: "Sale", href: "/collections/sale", isHighlight: true }
   ],
+  activeHref,
   searchPlaceholder = "Search for products, brands...",
   searchValue,
   onSearchChange,
   onSearchSubmit,
+  showSearch = true,
   cartCount = 0,
   wishlistCount = 0,
   onCartClick,
@@ -5603,7 +7094,9 @@ var Navbar = ({
   announcementText,
   announcementLink,
   onAnnouncementClose,
-  className = ""
+  actions,
+  className = "",
+  style
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState(searchValue || "");
@@ -5649,7 +7142,8 @@ var Navbar = ({
         boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))",
         width: "100%",
         boxSizing: "border-box",
-        transition: "background-color 0.2s ease, border-color 0.2s ease"
+        transition: "background-color 0.2s ease, border-color 0.2s ease",
+        ...style
       },
       children: [
         announcementText && announcementVisible && /* @__PURE__ */ jsxs(
@@ -5714,6 +7208,30 @@ var Navbar = ({
           }
         ),
         /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-navbar {
+          background-color: rgba(15, 23, 42, 0.92) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar input {
+          background-color: rgba(30, 41, 59, 0.8) !important;
+          color: #f8fafc !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor:hover,
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor.is-active {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-mobile-search-bar {
+          background-color: #0f172a !important;
+          border-top-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-navbar-mobile-drawer {
+          background-color: rgba(15, 23, 42, 0.98) !important;
+          border-top-color: rgba(255, 255, 255, 0.1) !important;
+        }
         @media (max-width: 992px) {
           .boost-navbar .boost-desktop-nav {
             display: none !important;
@@ -5794,7 +7312,7 @@ var Navbar = ({
                       alignItems: "center",
                       gap: "10px"
                     },
-                    children: logoUrl ? /* @__PURE__ */ jsx("img", { src: logoUrl, alt: brandName, style: { height: "32px", width: "auto" } }) : /* @__PURE__ */ jsxs(
+                    children: logo ? /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center" }, children: logo }) : logoUrl ? /* @__PURE__ */ jsx("img", { src: logoUrl, alt: brandName, style: { height: "32px", width: "auto" } }) : /* @__PURE__ */ jsxs(
                       "span",
                       {
                         style: {
@@ -5824,7 +7342,22 @@ var Navbar = ({
                               children: /* @__PURE__ */ jsx("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) })
                             }
                           ),
-                          brandName
+                          brandName,
+                          brandBadge && /* @__PURE__ */ jsx(
+                            "span",
+                            {
+                              style: {
+                                fontSize: "10px",
+                                fontWeight: 800,
+                                backgroundColor: "rgba(37, 99, 235, 0.12)",
+                                color: "var(--boost-primary, #2563eb)",
+                                padding: "2px 7px",
+                                borderRadius: "6px",
+                                letterSpacing: "0.02em"
+                              },
+                              children: brandBadge
+                            }
+                          )
                         ]
                       }
                     )
@@ -6167,7 +7700,8 @@ var Navbar = ({
                       )
                     ]
                   }
-                )
+                ),
+                actions && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: actions })
               ] })
             ]
           }
@@ -6388,6 +7922,27 @@ var Sidebar = ({
         boxSizing: "border-box"
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-sidebar,
+          .dark .boost-sidebar {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-right-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item,
+          .dark .boost-sidebar .sidebar-nav-item {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item:hover,
+          .dark .boost-sidebar .sidebar-nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item.active,
+          .dark .boost-sidebar .sidebar-nav-item.active {
+            background-color: rgba(99, 102, 241, 0.15) !important;
+            color: #818cf8 !important;
+          }
+        ` }),
         header && /* @__PURE__ */ jsx("div", { style: { padding: "16px", borderBottom: "1px solid var(--boost-border, #f1f5f9)" }, children: header }),
         /* @__PURE__ */ jsx("div", { style: { flex: 1, overflowY: "auto", padding: "12px 8px", display: "flex", flexDirection: "column", gap: "16px" }, children: groups.map((grp, gIdx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
           grp.title && !collapsed && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", fontWeight: 600, color: "var(--boost-text-muted, #94a3b8)", textTransform: "uppercase", padding: "4px 12px", letterSpacing: "0.05em" }, children: grp.title }),
@@ -6396,6 +7951,7 @@ var Sidebar = ({
             return /* @__PURE__ */ jsxs(
               "div",
               {
+                className: `sidebar-nav-item ${isActive ? "active" : ""}`,
                 onClick: () => {
                   if (item.onClick) item.onClick();
                   if (onSelect) onSelect(item.id);
@@ -6431,8 +7987,40 @@ var Sidebar = ({
   );
 };
 Sidebar.displayName = "Sidebar";
+var resolveSocialIcon = (nameOrPlatform) => {
+  const key = (nameOrPlatform || "").toLowerCase();
+  if (key.includes("insta")) {
+    return /* @__PURE__ */ jsxs("svg", { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+      /* @__PURE__ */ jsx("rect", { width: "20", height: "20", x: "2", y: "2", rx: "5", ry: "5" }),
+      /* @__PURE__ */ jsx("path", { d: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" }),
+      /* @__PURE__ */ jsx("line", { x1: "17.5", x2: "17.51", y1: "6.5", y2: "6.5" })
+    ] });
+  }
+  if (key.includes("twitter") || key.includes("x")) {
+    return /* @__PURE__ */ jsxs("svg", { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+      /* @__PURE__ */ jsx("path", { d: "M4 4l11.733 16h4.267l-11.733 -16z" }),
+      /* @__PURE__ */ jsx("path", { d: "M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" })
+    ] });
+  }
+  if (key.includes("youtube")) {
+    return /* @__PURE__ */ jsxs("svg", { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+      /* @__PURE__ */ jsx("path", { d: "M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" }),
+      /* @__PURE__ */ jsx("polygon", { points: "9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" })
+    ] });
+  }
+  if (key.includes("github")) {
+    return /* @__PURE__ */ jsx("svg", { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("path", { d: "M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" }) });
+  }
+  return /* @__PURE__ */ jsxs("svg", { width: "17", height: "17", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+    /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
+    /* @__PURE__ */ jsx("line", { x1: "2", y1: "12", x2: "22", y2: "12" }),
+    /* @__PURE__ */ jsx("path", { d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" })
+  ] });
+};
 var Footer = ({
+  logo,
   brandName = "BoostStore",
+  brandBadge,
   description = "India\u2019s modern direct-to-consumer store delivering premium quality essentials straight to your doorstep.",
   columns = [
     {
@@ -6463,15 +8051,29 @@ var Footer = ({
       ]
     }
   ],
+  socialLinks,
+  bottomLinks = [
+    { label: "Privacy Notice", href: "/privacy" },
+    { label: "Terms of Use", href: "/terms" },
+    { label: "Security", href: "/security" },
+    { label: "Sitemap", href: "/sitemap" }
+  ],
+  newsletter = true,
   onNewsletterSubmit,
   showPaymentBadges = true,
   copyrightYear = (/* @__PURE__ */ new Date()).getFullYear(),
+  copyrightText,
   variant = "dark",
-  className = ""
+  className = "",
+  style
 }) => {
   const [email, setEmail] = React.useState("");
   const [subscribed, setSubscribed] = React.useState(false);
   const [emailError, setEmailError] = React.useState(null);
+  const [openMobileColumns, setOpenMobileColumns] = React.useState({});
+  const toggleMobileColumn = (idx) => {
+    setOpenMobileColumns((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = email.trim();
@@ -6489,245 +8091,388 @@ var Footer = ({
   };
   const isLight = variant === "light";
   const isSurface = variant === "surface";
-  const footerBg = isLight ? "#f8fafc" : isSurface ? "var(--boost-surface, #ffffff)" : "#090d16";
+  const footerBg = isLight ? "#f8fafc" : isSurface ? "var(--boost-surface, #ffffff)" : "#07090e";
   const footerText = isLight ? "#475569" : isSurface ? "var(--boost-text-muted, #64748b)" : "#94a3b8";
-  const headingColor = isLight ? "#0f172a" : isSurface ? "var(--boost-text, #0f172a)" : "#ffffff";
+  const headingColor = isLight ? "#0f172a" : isSurface ? "var(--boost-text, #0f172a)" : "#f8fafc";
   const borderColor = isLight ? "var(--boost-border, #e2e8f0)" : isSurface ? "var(--boost-border, #e2e8f0)" : "rgba(255, 255, 255, 0.08)";
-  const inputBg = isLight || isSurface ? "var(--boost-bg, #ffffff)" : "rgba(255, 255, 255, 0.05)";
-  const inputColor = isLight || isSurface ? "var(--boost-text, #0f172a)" : "#ffffff";
-  const inputBorder = isLight || isSurface ? "var(--boost-border, #cbd5e1)" : "rgba(255, 255, 255, 0.12)";
-  return /* @__PURE__ */ jsxs(
-    "footer",
-    {
-      className: `boost-footer ${className}`,
-      style: {
-        backgroundColor: footerBg,
-        color: footerText,
-        padding: "clamp(40px, 6vw, 64px) clamp(16px, 4vw, 32px) 28px",
-        borderTop: `1px solid ${borderColor}`,
-        fontSize: "14px",
-        boxSizing: "border-box",
-        width: "100%",
-        transition: "background-color 0.2s ease, color 0.2s ease"
-      },
-      children: [
-        /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              maxWidth: "1280px",
-              margin: "0 auto",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
-              gap: "clamp(28px, 4vw, 48px)",
-              paddingBottom: "clamp(28px, 4vw, 40px)",
-              borderBottom: `1px solid ${borderColor}`
-            },
-            children: [
-              /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "16px" }, children: [
-                /* @__PURE__ */ jsxs(
+  const inputBg = isLight || isSurface ? "var(--boost-bg, #ffffff)" : "rgba(255, 255, 255, 0.06)";
+  const inputColor = isLight || isSurface ? "var(--boost-text, #0f172a)" : "#f8fafc";
+  const inputBorder = isLight || isSurface ? "var(--boost-border, #cbd5e1)" : "rgba(255, 255, 255, 0.14)";
+  const defaultSocials = [
+    { name: "Instagram", href: "https://instagram.com" },
+    { name: "X / Twitter", href: "https://twitter.com" },
+    { name: "YouTube", href: "https://youtube.com" }
+  ];
+  const socials = socialLinks || defaultSocials;
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-footer {
+          background-color: #07090e !important;
+          border-top-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        :root[data-theme="dark"] .boost-footer .boost-footer-heading {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-footer .boost-footer-link {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-footer .boost-footer-link:hover {
+          color: #60a5fa !important;
+        }
+        :root[data-theme="dark"] .boost-footer-input {
+          background-color: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(255, 255, 255, 0.14) !important;
+          color: #f8fafc !important;
+        }
+
+        @container (max-width: 640px) {
+          .boost-footer-col-header {
+            cursor: pointer !important;
+          }
+          .boost-footer-col-chevron {
+            display: inline-block !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .boost-footer-col-header {
+            cursor: pointer !important;
+          }
+          .boost-footer-col-chevron {
+            display: inline-block !important;
+          }
+        }
+      ` }),
+    /* @__PURE__ */ jsxs(
+      "footer",
+      {
+        className: `boost-footer ${className}`,
+        style: {
+          containerType: "inline-size",
+          backgroundColor: footerBg,
+          color: footerText,
+          padding: "clamp(40px, 6vw, 64px) clamp(16px, 4vw, 32px) 28px",
+          borderTop: `1px solid ${borderColor}`,
+          fontSize: "14px",
+          boxSizing: "border-box",
+          width: "100%",
+          transition: "background-color 0.2s ease, color 0.2s ease",
+          ...style
+        },
+        children: [
+          /* @__PURE__ */ jsxs(
+            "div",
+            {
+              style: {
+                maxWidth: "1280px",
+                margin: "0 auto",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+                gap: "clamp(28px, 4vw, 48px)",
+                paddingBottom: "clamp(28px, 4vw, 40px)",
+                borderBottom: `1px solid ${borderColor}`
+              },
+              children: [
+                /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "16px" }, children: [
+                  /* @__PURE__ */ jsxs(
+                    "span",
+                    {
+                      className: "boost-footer-heading",
+                      style: {
+                        fontSize: "clamp(20px, 2.5vw, 24px)",
+                        fontWeight: 800,
+                        letterSpacing: "-0.02em",
+                        color: headingColor,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px"
+                      },
+                      children: [
+                        logo ? logo : /* @__PURE__ */ jsx(
+                          "span",
+                          {
+                            style: {
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "8px",
+                              backgroundColor: "var(--boost-primary, #2563eb)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#ffffff",
+                              fontSize: "16px",
+                              fontWeight: 900
+                            },
+                            children: "\u26A1"
+                          }
+                        ),
+                        brandName,
+                        brandBadge && /* @__PURE__ */ jsx(
+                          "span",
+                          {
+                            style: {
+                              fontSize: "10px",
+                              fontWeight: 700,
+                              letterSpacing: "0.06em",
+                              padding: "2px 8px",
+                              borderRadius: "9999px",
+                              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(59, 130, 246, 0.2))",
+                              color: "var(--boost-primary, #6366f1)",
+                              border: "1px solid rgba(99, 102, 241, 0.35)",
+                              textTransform: "uppercase"
+                            },
+                            children: brandBadge
+                          }
+                        )
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsx("p", { style: { lineHeight: 1.6, margin: 0, fontSize: "13px", color: footerText }, children: description }),
+                  socials.length > 0 && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginTop: "4px" }, children: socials.map((s, idx) => /* @__PURE__ */ jsx(
+                    "a",
+                    {
+                      href: s.href,
+                      target: "_blank",
+                      rel: "noreferrer",
+                      "aria-label": s.name || s.platform || "Social Link",
+                      style: {
+                        width: "34px",
+                        height: "34px",
+                        borderRadius: "8px",
+                        backgroundColor: isLight || isSurface ? "rgba(0, 0, 0, 0.04)" : "rgba(255, 255, 255, 0.06)",
+                        border: `1px solid ${borderColor}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: headingColor,
+                        textDecoration: "none",
+                        transition: "all 0.15s ease"
+                      },
+                      children: s.icon || resolveSocialIcon(s.platform || s.name)
+                    },
+                    idx
+                  )) }),
+                  /* @__PURE__ */ jsxs("div", { style: { marginTop: "10px" }, children: [
+                    /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 600, color: headingColor, display: "block", marginBottom: "8px" }, children: "Subscribe for exclusive drops & offers" }),
+                    subscribed ? /* @__PURE__ */ jsxs(
+                      "div",
+                      {
+                        style: {
+                          color: "#10b981",
+                          backgroundColor: "rgba(16, 185, 129, 0.1)",
+                          border: "1px solid rgba(16, 185, 129, 0.25)",
+                          padding: "10px 14px",
+                          borderRadius: "10px",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsx("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
+                          /* @__PURE__ */ jsx("span", { children: "You're on the VIP list! Check your inbox soon." })
+                        ]
+                      }
+                    ) : /* @__PURE__ */ jsxs("div", { children: [
+                      /* @__PURE__ */ jsxs("form", { noValidate: true, onSubmit: handleSubmit, style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: [
+                        /* @__PURE__ */ jsx(
+                          "input",
+                          {
+                            type: "email",
+                            value: email,
+                            onChange: (e) => {
+                              setEmail(e.target.value);
+                              if (emailError) setEmailError(null);
+                            },
+                            placeholder: "Enter your email",
+                            className: "boost-footer-input",
+                            style: {
+                              flex: "1 1 180px",
+                              padding: "10px 14px",
+                              borderRadius: "10px",
+                              backgroundColor: inputBg,
+                              border: `1px solid ${emailError ? "#ef4444" : inputBorder}`,
+                              color: inputColor,
+                              fontSize: "13px",
+                              outline: "none",
+                              transition: "border-color 0.15s ease"
+                            }
+                          }
+                        ),
+                        /* @__PURE__ */ jsx(
+                          "button",
+                          {
+                            type: "submit",
+                            style: {
+                              padding: "10px 20px",
+                              borderRadius: "10px",
+                              backgroundColor: "var(--boost-primary, #2563eb)",
+                              color: "#ffffff",
+                              fontWeight: 700,
+                              fontSize: "13px",
+                              border: "none",
+                              cursor: "pointer",
+                              boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)",
+                              transition: "opacity 0.15s ease"
+                            },
+                            children: "Join"
+                          }
+                        )
+                      ] }),
+                      emailError && /* @__PURE__ */ jsxs("span", { style: { display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "#ef4444", marginTop: "6px", fontWeight: 500 }, children: [
+                        /* @__PURE__ */ jsxs("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+                          /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
+                          /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
+                          /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
+                        ] }),
+                        emailError
+                      ] })
+                    ] })
+                  ] })
+                ] }),
+                columns.map((col, idx) => {
+                  const isOpen = !!openMobileColumns[idx];
+                  return /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+                    /* @__PURE__ */ jsxs(
+                      "div",
+                      {
+                        className: "boost-footer-col-header",
+                        onClick: () => toggleMobileColumn(idx),
+                        children: [
+                          /* @__PURE__ */ jsx(
+                            "h4",
+                            {
+                              style: {
+                                fontSize: "13px",
+                                fontWeight: 700,
+                                color: headingColor,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.06em",
+                                margin: 0
+                              },
+                              children: col.title
+                            }
+                          ),
+                          /* @__PURE__ */ jsx(
+                            "span",
+                            {
+                              className: "boost-footer-col-chevron",
+                              style: {
+                                color: footerText,
+                                transition: "transform 0.2s ease",
+                                transform: isOpen ? "rotate(180deg)" : "rotate(0deg)"
+                              },
+                              children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) })
+                            }
+                          )
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsx(
+                      "ul",
+                      {
+                        className: `boost-footer-column-content ${isOpen ? "is-open" : ""}`,
+                        style: {
+                          listStyle: "none",
+                          padding: 0,
+                          margin: 0,
+                          flexDirection: "column",
+                          gap: "10px"
+                        },
+                        children: col.links.map((link, lIdx) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
+                          "a",
+                          {
+                            href: link.href,
+                            className: "boost-footer-link",
+                            style: {
+                              color: footerText,
+                              textDecoration: "none",
+                              fontSize: "13px",
+                              transition: "color 0.15s ease",
+                              display: "inline-block",
+                              padding: "2px 0"
+                            },
+                            children: link.label
+                          }
+                        ) }, lIdx))
+                      }
+                    )
+                  ] }, idx);
+                })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxs(
+            "div",
+            {
+              style: {
+                maxWidth: "1280px",
+                margin: "24px auto 0",
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "16px",
+                fontSize: "12px",
+                color: footerText
+              },
+              children: [
+                /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx("span", { children: copyrightText || `\xA9 ${copyrightYear} ${brandName}. All rights reserved.` }) }),
+                bottomLinks && bottomLinks.length > 0 && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }, children: bottomLinks.map((bl, idx) => /* @__PURE__ */ jsx(
+                  "a",
+                  {
+                    href: bl.href,
+                    className: "boost-footer-link",
+                    style: { color: footerText, textDecoration: "none", fontSize: "12px" },
+                    children: bl.label
+                  },
+                  idx
+                )) }),
+                showPaymentBadges && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }, children: ["UPI", "RuPay", "VISA", "Mastercard", "NetBanking", "COD Available"].map((method) => /* @__PURE__ */ jsx(
                   "span",
                   {
                     style: {
-                      fontSize: "clamp(20px, 2.5vw, 24px)",
-                      fontWeight: 800,
-                      letterSpacing: "-0.02em",
+                      backgroundColor: isLight || isSurface ? "rgba(0, 0, 0, 0.04)" : "rgba(255, 255, 255, 0.06)",
+                      border: `1px solid ${borderColor}`,
                       color: headingColor,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px"
+                      padding: "3px 8px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      letterSpacing: "0.02em"
                     },
-                    children: [
-                      /* @__PURE__ */ jsx(
-                        "span",
-                        {
-                          style: {
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "8px",
-                            backgroundColor: "var(--boost-primary, #2563eb)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#ffffff",
-                            fontSize: "16px",
-                            fontWeight: 900
-                          },
-                          children: "\u26A1"
-                        }
-                      ),
-                      brandName
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsx("p", { style: { lineHeight: 1.6, margin: 0, fontSize: "13px", color: footerText }, children: description }),
-                /* @__PURE__ */ jsxs("div", { style: { marginTop: "8px" }, children: [
-                  /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 600, color: headingColor, display: "block", marginBottom: "8px" }, children: "Subscribe for exclusive drops & offers" }),
-                  subscribed ? /* @__PURE__ */ jsxs(
-                    "div",
-                    {
-                      style: {
-                        color: "#10b981",
-                        backgroundColor: "rgba(16, 185, 129, 0.1)",
-                        border: "1px solid rgba(16, 185, 129, 0.25)",
-                        padding: "10px 14px",
-                        borderRadius: "10px",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px"
-                      },
-                      children: [
-                        /* @__PURE__ */ jsx("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
-                        /* @__PURE__ */ jsx("span", { children: "You're on the VIP list! Check your inbox soon." })
-                      ]
-                    }
-                  ) : /* @__PURE__ */ jsxs("div", { children: [
-                    /* @__PURE__ */ jsxs("form", { noValidate: true, onSubmit: handleSubmit, style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: [
-                      /* @__PURE__ */ jsx(
-                        "input",
-                        {
-                          type: "email",
-                          value: email,
-                          onChange: (e) => {
-                            setEmail(e.target.value);
-                            if (emailError) setEmailError(null);
-                          },
-                          placeholder: "Enter your email",
-                          style: {
-                            flex: "1 1 180px",
-                            padding: "10px 14px",
-                            borderRadius: "10px",
-                            backgroundColor: inputBg,
-                            border: `1px solid ${emailError ? "#ef4444" : inputBorder}`,
-                            color: inputColor,
-                            fontSize: "13px",
-                            outline: "none",
-                            transition: "border-color 0.15s ease"
-                          }
-                        }
-                      ),
-                      /* @__PURE__ */ jsx(
-                        "button",
-                        {
-                          type: "submit",
-                          style: {
-                            padding: "10px 20px",
-                            borderRadius: "10px",
-                            backgroundColor: "var(--boost-primary, #2563eb)",
-                            color: "#ffffff",
-                            fontWeight: 700,
-                            fontSize: "13px",
-                            border: "none",
-                            cursor: "pointer",
-                            boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)",
-                            transition: "opacity 0.15s ease"
-                          },
-                          children: "Join"
-                        }
-                      )
-                    ] }),
-                    emailError && /* @__PURE__ */ jsxs("span", { style: { display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "#ef4444", marginTop: "6px", fontWeight: 500 }, children: [
-                      /* @__PURE__ */ jsxs("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
-                        /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
-                        /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
-                        /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
-                      ] }),
-                      emailError
-                    ] })
-                  ] })
-                ] })
-              ] }),
-              columns.map((col, idx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "14px" }, children: [
-                /* @__PURE__ */ jsx(
-                  "h4",
-                  {
-                    style: {
-                      fontSize: "13px",
-                      fontWeight: 700,
-                      color: headingColor,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                      margin: 0
-                    },
-                    children: col.title
-                  }
-                ),
-                /* @__PURE__ */ jsx("ul", { style: { listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }, children: col.links.map((link, lIdx) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
-                  "a",
-                  {
-                    href: link.href,
-                    style: {
-                      color: footerText,
-                      textDecoration: "none",
-                      fontSize: "13px",
-                      transition: "color 0.15s ease"
-                    },
-                    onMouseEnter: (e) => e.target.style.color = headingColor,
-                    onMouseLeave: (e) => e.target.style.color = footerText,
-                    children: link.label
-                  }
-                ) }, lIdx)) })
-              ] }, idx))
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              maxWidth: "1280px",
-              margin: "24px auto 0",
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "16px",
-              fontSize: "12px",
-              color: footerText
-            },
-            children: [
-              /* @__PURE__ */ jsxs("span", { children: [
-                "\xA9 ",
-                copyrightYear,
-                " ",
-                brandName,
-                ". All rights reserved. Powered by BoostEngine."
-              ] }),
-              showPaymentBadges && /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }, children: ["UPI", "RuPay", "VISA", "Mastercard", "NetBanking", "COD Available"].map((method) => /* @__PURE__ */ jsx(
-                "span",
-                {
-                  style: {
-                    backgroundColor: isLight || isSurface ? "rgba(0, 0, 0, 0.04)" : "rgba(255, 255, 255, 0.06)",
-                    border: `1px solid ${borderColor}`,
-                    color: headingColor,
-                    padding: "3px 9px",
-                    borderRadius: "6px",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    letterSpacing: "0.02em"
+                    children: method
                   },
-                  children: method
-                },
-                method
-              )) })
-            ]
-          }
-        )
-      ]
-    }
-  );
+                  method
+                )) })
+              ]
+            }
+          )
+        ]
+      }
+    )
+  ] });
 };
 Footer.displayName = "Footer";
 var MobileBottomBar = ({
-  activeTab = "home",
+  activeTab,
+  defaultActiveTab = "home",
   cartCount = 0,
   wishlistCount = 0,
   items,
   onTabChange,
-  className = ""
+  showLabels = true,
+  activeColor = "#4f46e5",
+  variant = "glass",
+  className = "",
+  style
 }) => {
+  const [internalActiveTab, setInternalActiveTab] = React.useState(activeTab || defaultActiveTab);
+  React.useEffect(() => {
+    if (activeTab !== void 0) {
+      setInternalActiveTab(activeTab);
+    }
+  }, [activeTab]);
   const defaultItems = [
     { id: "home", label: "Home", icon: "home", href: "/" },
     { id: "search", label: "Search", icon: "search", href: "/search" },
@@ -6736,10 +8481,19 @@ var MobileBottomBar = ({
     { id: "account", label: "Profile", icon: "account", href: "/account" }
   ];
   const barItems = items || defaultItems;
-  const renderIcon = (type, isActive) => {
-    const stroke = isActive ? "var(--boost-primary, #0f172a)" : "var(--boost-muted, #64748b)";
+  const handleItemClick = (id, href) => {
+    setInternalActiveTab(id);
+    if (onTabChange) {
+      onTabChange(id, href);
+    }
+  };
+  const renderIcon = (icon, isActive) => {
+    if (typeof icon !== "string") {
+      return icon;
+    }
+    const stroke = "currentColor";
     const strokeWidth = isActive ? "2.3" : "1.8";
-    switch (type) {
+    switch (icon) {
       case "home":
         return /* @__PURE__ */ jsxs("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke, strokeWidth, children: [
           /* @__PURE__ */ jsx("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
@@ -6779,210 +8533,302 @@ var MobileBottomBar = ({
         return null;
     }
   };
-  return /* @__PURE__ */ jsx(
-    "nav",
-    {
-      className: `boost-mobile-bottom-bar ${className}`,
-      style: {
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.9))",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.7))",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-around",
-        padding: "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
-        boxShadow: "var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))"
-      },
-      children: barItems.map((item) => {
-        const isActive = activeTab === item.id;
-        const badgeValue = item.id === "cart" ? cartCount || item.badge : item.id === "wishlist" ? wishlistCount || item.badge : item.badge;
-        return /* @__PURE__ */ jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => onTabChange && onTabChange(item.id, item.href),
-            "aria-label": item.label,
-            style: {
-              position: "relative",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "4px",
-              padding: "4px 12px",
-              flex: 1,
-              maxWidth: "80px",
-              color: isActive ? "#111827" : "#6b7280",
-              transition: "color 0.15s ease, transform 0.1s ease"
-            },
-            children: [
-              /* @__PURE__ */ jsxs("div", { style: { position: "relative" }, children: [
-                renderIcon(item.icon, isActive),
-                Boolean(badgeValue) && /* @__PURE__ */ jsx(
-                  "span",
+  const isFloating = variant === "floating";
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-mobile-bottom-bar {
+          background-color: rgba(15, 23, 42, 0.94) !important;
+          border-top-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn.is-active {
+          color: #818cf8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-badge-cart {
+          background-color: #6366f1 !important;
+          color: #ffffff !important;
+        }
+      ` }),
+    /* @__PURE__ */ jsx(
+      "nav",
+      {
+        className: `boost-mobile-bottom-bar ${className}`,
+        style: {
+          position: "fixed",
+          bottom: isFloating ? "12px" : 0,
+          left: isFloating ? "16px" : 0,
+          right: isFloating ? "16px" : 0,
+          margin: isFloating ? "0 auto" : void 0,
+          maxWidth: isFloating ? "440px" : void 0,
+          borderRadius: isFloating ? "24px" : void 0,
+          zIndex: 50,
+          backgroundColor: variant === "solid" ? "var(--boost-surface, #ffffff)" : "var(--boost-glass-bg, rgba(255, 255, 255, 0.92))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: isFloating ? "none" : "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+          border: isFloating ? "1px solid var(--boost-border, rgba(226, 232, 240, 0.8))" : void 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          padding: isFloating ? "8px 10px" : "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
+          boxShadow: isFloating ? "0 12px 30px rgba(0, 0, 0, 0.15)" : "var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))",
+          fontFamily: "inherit",
+          boxSizing: "border-box",
+          ...style
+        },
+        children: barItems.map((item) => {
+          const isActive = internalActiveTab === item.id;
+          const badgeValue = item.id === "cart" ? cartCount || item.badge : item.id === "wishlist" ? wishlistCount || item.badge : item.badge;
+          return /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleItemClick(item.id, item.href),
+              "aria-label": item.label,
+              className: `boost-bottom-btn ${isActive ? "is-active" : ""}`,
+              style: {
+                position: "relative",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "3px",
+                padding: "4px 8px",
+                flex: 1,
+                maxWidth: "80px",
+                color: isActive ? activeColor : "var(--boost-text-muted, #64748b)",
+                transition: "all 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
+                userSelect: "none",
+                WebkitTapHighlightColor: "transparent"
+              },
+              children: [
+                /* @__PURE__ */ jsxs(
+                  "div",
                   {
                     style: {
-                      position: "absolute",
-                      top: "-4px",
-                      right: "-8px",
-                      backgroundColor: item.id === "cart" ? "#111827" : "#ef4444",
-                      color: "#ffffff",
-                      fontSize: "10px",
-                      fontWeight: 700,
-                      borderRadius: "9999px",
-                      minWidth: "16px",
-                      height: "16px",
+                      position: "relative",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: "0 3px",
-                      lineHeight: 1
+                      padding: "3px 12px",
+                      borderRadius: "999px",
+                      backgroundColor: isActive ? "rgba(99, 102, 241, 0.12)" : "transparent",
+                      transition: "background-color 0.2s ease"
                     },
-                    children: badgeValue
+                    children: [
+                      renderIcon(item.icon, isActive),
+                      Boolean(badgeValue) && /* @__PURE__ */ jsx(
+                        "span",
+                        {
+                          className: item.id === "cart" ? "boost-badge-cart" : "",
+                          style: {
+                            position: "absolute",
+                            top: "-2px",
+                            right: "0px",
+                            backgroundColor: item.id === "cart" ? "#0f172a" : "#ef4444",
+                            color: "#ffffff",
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            borderRadius: "9999px",
+                            minWidth: "16px",
+                            height: "16px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "0 4px",
+                            lineHeight: 1,
+                            boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+                          },
+                          children: badgeValue
+                        }
+                      )
+                    ]
+                  }
+                ),
+                showLabels && /* @__PURE__ */ jsx(
+                  "span",
+                  {
+                    style: {
+                      fontSize: "10px",
+                      fontWeight: isActive ? 700 : 500,
+                      letterSpacing: "-0.01em",
+                      lineHeight: 1.2
+                    },
+                    children: item.label
                   }
                 )
-              ] }),
-              /* @__PURE__ */ jsx(
-                "span",
-                {
-                  style: {
-                    fontSize: "11px",
-                    fontWeight: isActive ? 700 : 500,
-                    letterSpacing: "-0.01em"
-                  },
-                  children: item.label
-                }
-              )
-            ]
-          },
-          item.id
-        );
-      })
-    }
-  );
+              ]
+            },
+            item.id
+          );
+        })
+      }
+    )
+  ] });
 };
 MobileBottomBar.displayName = "MobileBottomBar";
 var MobileBottomNav = ({
-  items,
+  items = [],
   activeId,
+  defaultActiveId,
   onChange,
+  showLabels = true,
+  activeColor = "#4f46e5",
+  variant = "glass",
+  className = "",
   style
 }) => {
-  return /* @__PURE__ */ jsx(
-    "nav",
-    {
-      style: {
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        minHeight: "60px",
-        backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.85))",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.7))",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-around",
-        zIndex: 999,
-        paddingBottom: "env(safe-area-inset-bottom, 8px)",
-        paddingTop: "6px",
-        boxShadow: "var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))",
-        fontFamily: "inherit",
-        boxSizing: "border-box",
-        ...style
-      },
-      children: items.map((item) => {
-        const isActive = item.id === activeId;
-        return /* @__PURE__ */ jsxs(
-          "button",
-          {
-            onClick: () => onChange?.(item.id, item.href),
-            style: {
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              position: "relative",
-              padding: "6px 0",
-              color: isActive ? "var(--boost-primary, #0f172a)" : "var(--boost-muted, #64748b)",
-              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
-            },
-            children: [
-              /* @__PURE__ */ jsxs(
-                "div",
-                {
-                  style: {
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "4px 14px",
-                    borderRadius: "999px",
-                    backgroundColor: isActive ? "rgba(59, 130, 246, 0.08)" : "transparent",
-                    transition: "background-color 0.2s ease"
-                  },
-                  children: [
-                    item.icon || /* @__PURE__ */ jsx("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: isActive ? 2.3 : 1.8, children: /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "9" }) }),
-                    item.badge !== void 0 && /* @__PURE__ */ jsx(
-                      "span",
-                      {
-                        style: {
-                          position: "absolute",
-                          top: "-2px",
-                          right: "-4px",
-                          minWidth: "16px",
-                          height: "16px",
-                          borderRadius: "8px",
-                          backgroundColor: "#ef4444",
-                          color: "#ffffff",
-                          fontSize: "10px",
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          padding: "0 4px",
-                          boxShadow: "0 2px 5px rgba(239, 68, 68, 0.4)"
-                        },
-                        children: item.badge
-                      }
-                    )
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                "span",
-                {
-                  style: {
-                    fontSize: "11px",
-                    fontWeight: isActive ? 600 : 500,
-                    marginTop: "3px",
-                    letterSpacing: "-0.01em"
-                  },
-                  children: item.label
-                }
-              )
-            ]
-          },
-          item.id
-        );
-      })
+  const [internalActiveId, setInternalActiveId] = React.useState(activeId || defaultActiveId || items[0]?.id);
+  React.useEffect(() => {
+    if (activeId !== void 0) {
+      setInternalActiveId(activeId);
     }
-  );
+  }, [activeId]);
+  const handleItemClick = (id, href) => {
+    setInternalActiveId(id);
+    if (onChange) {
+      onChange(id, href);
+    }
+  };
+  const isFloating = variant === "floating";
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-mobile-bottom-nav {
+          background-color: rgba(15, 23, 42, 0.94) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-nav-btn {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active {
+          color: #818cf8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active .boost-icon-pill {
+          background-color: rgba(99, 102, 241, 0.18) !important;
+        }
+      ` }),
+    /* @__PURE__ */ jsx(
+      "nav",
+      {
+        className: `boost-mobile-bottom-nav ${className}`,
+        style: {
+          position: "fixed",
+          bottom: isFloating ? "12px" : 0,
+          left: isFloating ? "16px" : 0,
+          right: isFloating ? "16px" : 0,
+          margin: isFloating ? "0 auto" : void 0,
+          maxWidth: isFloating ? "440px" : void 0,
+          borderRadius: isFloating ? "24px" : void 0,
+          zIndex: 50,
+          backgroundColor: variant === "solid" ? "var(--boost-surface, #ffffff)" : "var(--boost-glass-bg, rgba(255, 255, 255, 0.92))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: isFloating ? "none" : "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+          border: isFloating ? "1px solid var(--boost-border, rgba(226, 232, 240, 0.8))" : void 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          padding: isFloating ? "8px 10px" : "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
+          boxShadow: isFloating ? "0 12px 30px rgba(0, 0, 0, 0.15)" : "var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))",
+          fontFamily: "inherit",
+          boxSizing: "border-box",
+          ...style
+        },
+        children: items.map((item) => {
+          const isActive = item.id === internalActiveId;
+          return /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleItemClick(item.id, item.href),
+              className: `boost-mobile-nav-btn ${isActive ? "is-active" : ""}`,
+              style: {
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                position: "relative",
+                padding: "4px 6px",
+                color: isActive ? activeColor : "var(--boost-text-muted, #64748b)",
+                transition: "all 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
+                userSelect: "none",
+                WebkitTapHighlightColor: "transparent"
+              },
+              children: [
+                /* @__PURE__ */ jsxs(
+                  "div",
+                  {
+                    className: "boost-icon-pill",
+                    style: {
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "3px 12px",
+                      borderRadius: "999px",
+                      backgroundColor: isActive ? "rgba(79, 70, 229, 0.12)" : "transparent",
+                      transition: "background-color 0.2s ease"
+                    },
+                    children: [
+                      item.icon || /* @__PURE__ */ jsx("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: isActive ? 2.3 : 1.8, children: /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "9" }) }),
+                      item.badge !== void 0 && /* @__PURE__ */ jsx(
+                        "span",
+                        {
+                          style: {
+                            position: "absolute",
+                            top: "-2px",
+                            right: "0px",
+                            minWidth: "16px",
+                            height: "16px",
+                            borderRadius: "8px",
+                            backgroundColor: "#ef4444",
+                            color: "#ffffff",
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "0 4px",
+                            boxShadow: "0 2px 5px rgba(239, 68, 68, 0.4)"
+                          },
+                          children: item.badge
+                        }
+                      )
+                    ]
+                  }
+                ),
+                showLabels && /* @__PURE__ */ jsx(
+                  "span",
+                  {
+                    style: {
+                      fontSize: "10px",
+                      fontWeight: isActive ? 700 : 500,
+                      marginTop: "2px",
+                      letterSpacing: "-0.01em",
+                      lineHeight: 1.2
+                    },
+                    children: item.label
+                  }
+                )
+              ]
+            },
+            item.id
+          );
+        })
+      }
+    )
+  ] });
 };
 MobileBottomNav.displayName = "MobileBottomNav";
 var Breadcrumb = ({
@@ -6993,7 +8839,7 @@ var Breadcrumb = ({
   style
 }) => {
   const defaultSeparator = /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", style: { opacity: 0.4, margin: "0 4px", flexShrink: 0 }, children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" }) });
-  return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsxs(
     "nav",
     {
       "aria-label": "Breadcrumb",
@@ -7008,59 +8854,75 @@ var Breadcrumb = ({
         color: "var(--boost-text-muted, #64748b)",
         ...style
       },
-      children: items.map((item, index) => {
-        const isLast = index === items.length - 1;
-        return /* @__PURE__ */ jsxs(React.Fragment, { children: [
-          /* @__PURE__ */ jsx("div", { style: { display: "inline-flex", alignItems: "center", gap: "6px" }, children: item.href && !isLast ? /* @__PURE__ */ jsxs(
-            "a",
-            {
-              href: item.href,
-              onClick: (e) => {
-                if (onItemClick) {
-                  e.preventDefault();
-                  onItemClick(item.href, item);
-                }
-              },
-              style: {
-                color: "var(--boost-text-muted, #64748b)",
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-                fontWeight: 500,
-                transition: "color 0.15s ease"
-              },
-              onMouseEnter: (e) => {
-                e.currentTarget.style.color = "var(--boost-primary, #2563eb)";
-              },
-              onMouseLeave: (e) => {
-                e.currentTarget.style.color = "var(--boost-text-muted, #64748b)";
-              },
-              children: [
-                item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: item.icon }),
-                /* @__PURE__ */ jsx("span", { children: item.label })
-              ]
-            }
-          ) : /* @__PURE__ */ jsxs(
-            "span",
-            {
-              style: {
-                color: isLast ? "var(--boost-text, #0f172a)" : "var(--boost-text-muted, #64748b)",
-                fontWeight: isLast ? 600 : 500,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px"
-              },
-              "aria-current": isLast ? "page" : void 0,
-              children: [
-                item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: item.icon }),
-                /* @__PURE__ */ jsx("span", { children: item.label })
-              ]
-            }
-          ) }),
-          !isLast && /* @__PURE__ */ jsx("span", { "aria-hidden": "true", style: { display: "inline-flex", alignItems: "center" }, children: separator || defaultSeparator })
-        ] }, index);
-      })
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-breadcrumb a,
+          .dark .boost-breadcrumb a {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-breadcrumb a:hover,
+          .dark .boost-breadcrumb a:hover {
+            color: #818cf8 !important;
+          }
+          :root[data-theme="dark"] .boost-breadcrumb span[aria-current="page"],
+          .dark .boost-breadcrumb span[aria-current="page"] {
+            color: #f8fafc !important;
+          }
+        ` }),
+        items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          return /* @__PURE__ */ jsxs(React.Fragment, { children: [
+            /* @__PURE__ */ jsx("div", { style: { display: "inline-flex", alignItems: "center", gap: "6px" }, children: item.href && !isLast ? /* @__PURE__ */ jsxs(
+              "a",
+              {
+                href: item.href,
+                onClick: (e) => {
+                  if (onItemClick) {
+                    e.preventDefault();
+                    onItemClick(item.href, item);
+                  }
+                },
+                style: {
+                  color: "var(--boost-text-muted, #64748b)",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontWeight: 500,
+                  transition: "color 0.15s ease"
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.color = "var(--boost-primary, #2563eb)";
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.color = "var(--boost-text-muted, #64748b)";
+                },
+                children: [
+                  item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: item.icon }),
+                  /* @__PURE__ */ jsx("span", { children: item.label })
+                ]
+              }
+            ) : /* @__PURE__ */ jsxs(
+              "span",
+              {
+                style: {
+                  color: isLast ? "var(--boost-text, #0f172a)" : "var(--boost-text-muted, #64748b)",
+                  fontWeight: isLast ? 600 : 500,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px"
+                },
+                "aria-current": isLast ? "page" : void 0,
+                children: [
+                  item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: item.icon }),
+                  /* @__PURE__ */ jsx("span", { children: item.label })
+                ]
+              }
+            ) }),
+            !isLast && /* @__PURE__ */ jsx("span", { "aria-hidden": "true", style: { display: "inline-flex", alignItems: "center" }, children: separator || defaultSeparator })
+          ] }, index);
+        })
+      ]
     }
   );
 };
@@ -7124,11 +8986,19 @@ var PageWrapper = ({
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        backgroundColor: "#f8fafc",
+        backgroundColor: "var(--boost-bg, #f8fafc)",
+        color: "var(--boost-text, #0f172a)",
         fontFamily: "inherit",
         ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-page-wrapper,
+          .dark .boost-page-wrapper {
+            background-color: var(--boost-bg, #0b0f19) !important;
+            color: #f8fafc !important;
+          }
+        ` }),
         header,
         /* @__PURE__ */ jsxs("div", { style: { display: "flex", flex: 1 }, children: [
           sidebar,
@@ -7153,46 +9023,76 @@ var NavLink = ({
   ...props
 }) => {
   const activeState = active ?? isActive ?? false;
-  return /* @__PURE__ */ jsxs(
-    "a",
-    {
-      href,
-      className: `boost-nav-link ${activeState ? "active" : ""} ${className}`,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "8px 12px",
-        borderRadius: "6px",
-        textDecoration: "none",
-        fontSize: "14px",
-        fontWeight: isActive ? 600 : 500,
-        color: isActive ? "#2563eb" : "#475569",
-        backgroundColor: isActive ? "#eff6ff" : "transparent",
-        transition: "all 0.15s ease",
-        ...style
-      },
-      ...props,
-      children: [
-        leftIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: leftIcon }),
-        /* @__PURE__ */ jsx("span", { children }),
-        badge !== void 0 && /* @__PURE__ */ jsx(
-          "span",
-          {
-            style: {
-              fontSize: "11px",
-              padding: "2px 6px",
-              borderRadius: "9999px",
-              backgroundColor: isActive ? "#dbeafe" : "#f1f5f9",
-              color: isActive ? "#1d4ed8" : "#64748b"
-            },
-            children: badge
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-nav-link,
+          .dark .boost-nav-link {
+            color: #94a3b8 !important;
           }
-        ),
-        rightIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: rightIcon })
-      ]
-    }
-  );
+          :root[data-theme="dark"] .boost-nav-link:hover,
+          .dark .boost-nav-link:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          :root[data-theme="dark"] .boost-nav-link.active,
+          .dark .boost-nav-link.active {
+            color: #818cf8 !important;
+            background-color: rgba(99, 102, 241, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-nav-badge,
+          .dark .boost-nav-badge {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-nav-badge.active,
+          .dark .boost-nav-badge.active {
+            background-color: rgba(99, 102, 241, 0.25) !important;
+            color: #a5b4fc !important;
+          }
+        ` }),
+    /* @__PURE__ */ jsxs(
+      "a",
+      {
+        href,
+        className: `boost-nav-link ${activeState ? "active" : ""} ${className}`,
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px 14px",
+          borderRadius: "var(--boost-radius, 8px)",
+          textDecoration: "none",
+          fontSize: "14px",
+          fontWeight: activeState ? 600 : 500,
+          color: activeState ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #475569)",
+          backgroundColor: activeState ? "rgba(37, 99, 235, 0.08)" : "transparent",
+          transition: "all 0.15s ease",
+          ...style
+        },
+        ...props,
+        children: [
+          leftIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: leftIcon }),
+          /* @__PURE__ */ jsx("span", { children }),
+          badge !== void 0 && /* @__PURE__ */ jsx(
+            "span",
+            {
+              className: `boost-nav-badge ${activeState ? "active" : ""}`,
+              style: {
+                fontSize: "11px",
+                padding: "2px 7px",
+                borderRadius: "9999px",
+                backgroundColor: activeState ? "rgba(37, 99, 235, 0.12)" : "var(--boost-bg-subtle, #f1f5f9)",
+                color: activeState ? "var(--boost-primary, #1d4ed8)" : "var(--boost-text-muted, #64748b)",
+                fontWeight: 600
+              },
+              children: badge
+            }
+          ),
+          rightIcon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: rightIcon })
+        ]
+      }
+    )
+  ] });
 };
 NavLink.displayName = "NavLink";
 var DropdownMenu = ({
@@ -7220,49 +9120,73 @@ var DropdownMenu = ({
       style: { position: "relative", display: "inline-flex" },
       children: [
         /* @__PURE__ */ jsx("div", { onClick: () => setIsOpen((prev) => !prev), children: trigger }),
-        isOpen && /* @__PURE__ */ jsx(
+        isOpen && /* @__PURE__ */ jsxs(
           "div",
           {
+            className: "boost-dropdown-menu",
             style: {
               position: "absolute",
-              top: "calc(100% + 4px)",
+              top: "calc(100% + 6px)",
               [align === "right" ? "right" : "left"]: 0,
               zIndex: 500,
-              backgroundColor: "#ffffff",
-              border: "1px solid #e2e8f0",
-              borderRadius: "8px",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-              minWidth: "180px",
-              padding: "4px",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              border: "1px solid var(--boost-border, #e2e8f0)",
+              borderRadius: "var(--boost-radius, 10px)",
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)",
+              minWidth: "190px",
+              padding: "6px",
               fontFamily: "inherit"
             },
-            children: items.map((item) => /* @__PURE__ */ jsxs(
-              "div",
-              {
-                onClick: () => {
-                  if (item.disabled) return;
-                  setIsOpen(false);
-                  if (item.onClick) item.onClick();
+            children: [
+              /* @__PURE__ */ jsx("style", { children: `
+              :root[data-theme="dark"] .boost-dropdown-menu,
+              .dark .boost-dropdown-menu {
+                background-color: var(--boost-surface, #1e293b) !important;
+                border-color: rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-item,
+              .dark .boost-dropdown-item {
+                color: #f8fafc !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-item:hover:not(.disabled),
+              .dark .boost-dropdown-item:hover:not(.disabled) {
+                background-color: rgba(255, 255, 255, 0.06) !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-item.destructive,
+              .dark .boost-dropdown-item.destructive {
+                color: #f87171 !important;
+              }
+            ` }),
+              items.map((item) => /* @__PURE__ */ jsxs(
+                "div",
+                {
+                  onClick: () => {
+                    if (item.disabled) return;
+                    setIsOpen(false);
+                    if (item.onClick) item.onClick();
+                  },
+                  className: `boost-dropdown-item ${item.disabled ? "disabled" : ""} ${item.destructive ? "destructive" : ""}`,
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 12px",
+                    fontSize: "13px",
+                    borderRadius: "6px",
+                    cursor: item.disabled ? "not-allowed" : "pointer",
+                    opacity: item.disabled ? 0.45 : 1,
+                    color: item.destructive ? "#dc2626" : "var(--boost-text, #1e293b)",
+                    transition: "background-color 0.15s ease"
+                  },
+                  children: [
+                    item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: item.icon }),
+                    /* @__PURE__ */ jsx("span", { children: item.label })
+                  ]
                 },
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "8px 12px",
-                  fontSize: "13px",
-                  borderRadius: "4px",
-                  cursor: item.disabled ? "not-allowed" : "pointer",
-                  opacity: item.disabled ? 0.5 : 1,
-                  color: item.destructive ? "#dc2626" : "#1e293b",
-                  transition: "background-color 0.15s ease"
-                },
-                children: [
-                  item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: item.icon }),
-                  /* @__PURE__ */ jsx("span", { children: item.label })
-                ]
-              },
-              item.id
-            ))
+                item.id
+              ))
+            ]
           }
         )
       ]
@@ -7272,18 +9196,33 @@ var DropdownMenu = ({
 DropdownMenu.displayName = "DropdownMenu";
 var MegaMenu = ({
   trigger,
+  triggerLabel = "Explore Categories",
   sections,
   categories,
   featured,
-  className = ""
+  isOpen: controlledIsOpen,
+  onOpenChange,
+  onLinkClick,
+  className = "",
+  style
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [internalIsOpen, setInternalIsOpen] = React.useState(false);
+  const isControlled = controlledIsOpen !== void 0;
+  const open = isControlled ? controlledIsOpen : internalIsOpen;
+  const setOpen = (newOpen) => {
+    if (!isControlled) {
+      setInternalIsOpen(newOpen);
+    }
+    if (onOpenChange) {
+      onOpenChange(newOpen);
+    }
+  };
   const [activeCategory, setActiveCategory] = React.useState(categories?.[0]?.id || "");
   const menuRef = React.useRef(null);
   React.useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setIsOpen(false);
+        setOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -7297,26 +9236,61 @@ var MegaMenu = ({
     }
     return [];
   }, [sections, categories, activeCategory]);
+  const handleLinkSelect = (link, e) => {
+    if (onLinkClick) {
+      e.preventDefault();
+      onLinkClick(link);
+    }
+    setOpen(false);
+  };
   const defaultTrigger = /* @__PURE__ */ jsxs(
     "button",
     {
       type: "button",
+      onClick: () => setOpen(!open),
+      className: "boost-megamenu-btn",
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "6px",
-        padding: "8px 14px",
-        backgroundColor: "#ffffff",
-        border: "1px solid #cbd5e1",
-        borderRadius: "6px",
+        gap: "8px",
+        padding: "9px 16px",
+        backgroundColor: "var(--boost-surface, #ffffff)",
+        border: "1px solid var(--boost-border, #cbd5e1)",
+        borderRadius: "10px",
         fontSize: "13px",
         fontWeight: 600,
-        color: "#0f172a",
-        cursor: "pointer"
+        color: "var(--boost-text, #0f172a)",
+        cursor: "pointer",
+        boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0,0,0,0.05))",
+        transition: "all 0.15s ease"
       },
       children: [
-        /* @__PURE__ */ jsx("span", { children: "Browse Categories" }),
-        /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) })
+        /* @__PURE__ */ jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: "6px" }, children: [
+          /* @__PURE__ */ jsxs("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", children: [
+            /* @__PURE__ */ jsx("rect", { width: "7", height: "7", x: "3", y: "3", rx: "1" }),
+            /* @__PURE__ */ jsx("rect", { width: "7", height: "7", x: "14", y: "3", rx: "1" }),
+            /* @__PURE__ */ jsx("rect", { width: "7", height: "7", x: "14", y: "14", rx: "1" }),
+            /* @__PURE__ */ jsx("rect", { width: "7", height: "7", x: "3", y: "14", rx: "1" })
+          ] }),
+          triggerLabel
+        ] }),
+        /* @__PURE__ */ jsx(
+          "svg",
+          {
+            width: "14",
+            height: "14",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            strokeWidth: "2.2",
+            strokeLinecap: "round",
+            style: {
+              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.2s ease"
+            },
+            children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
+          }
+        )
       ]
     }
   );
@@ -7325,69 +9299,279 @@ var MegaMenu = ({
     {
       ref: menuRef,
       className: `boost-megamenu-wrapper ${className}`,
-      onMouseEnter: () => setIsOpen(true),
-      onMouseLeave: () => setIsOpen(false),
-      style: { position: "relative", display: "inline-flex", fontFamily: "inherit" },
+      onMouseEnter: () => {
+        if (typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches) {
+          setOpen(true);
+        }
+      },
+      onMouseLeave: () => {
+        if (typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches) {
+          setOpen(false);
+        }
+      },
+      style: { position: "relative", display: "inline-flex", fontFamily: "inherit", ...style },
       children: [
-        /* @__PURE__ */ jsx("div", { children: trigger || defaultTrigger }),
-        isOpen && /* @__PURE__ */ jsxs(
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-megamenu-btn {
+          background-color: var(--boost-surface, #1e293b) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-megamenu-panel {
+          background-color: var(--boost-surface, #1e293b) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+        }
+        :root[data-theme="dark"] .megamenu-category-btn {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .megamenu-category-btn:hover {
+          color: #ffffff !important;
+          background-color: rgba(255, 255, 255, 0.06) !important;
+        }
+        :root[data-theme="dark"] .megamenu-category-btn.active {
+          color: #818cf8 !important;
+          background-color: rgba(99, 102, 241, 0.16) !important;
+        }
+        :root[data-theme="dark"] .megamenu-section-title {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .megamenu-link-label {
+          color: #cbd5e1 !important;
+        }
+        :root[data-theme="dark"] .megamenu-link-row:hover .megamenu-link-label {
+          color: #818cf8 !important;
+        }
+        :root[data-theme="dark"] .megamenu-divider {
+          border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        @container (max-width: 650px) {
+          .boost-megamenu-panel {
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            width: calc(100% - 16px) !important;
+            max-width: 350px !important;
+            min-width: 0 !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            padding: 14px !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+          }
+          .boost-megamenu-categories-bar {
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            border-right: none !important;
+            border-bottom: 1px solid var(--boost-border, #e2e8f0) !important;
+            padding-right: 0 !important;
+            padding-bottom: 10px !important;
+            width: 100% !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .boost-megamenu-panel {
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: min(440px, calc(100vw - 32px)) !important;
+            min-width: 0 !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            padding: 16px !important;
+            max-height: 75vh !important;
+            overflow-y: auto !important;
+          }
+          .boost-megamenu-categories-bar {
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            border-right: none !important;
+            border-bottom: 1px solid var(--boost-border, #e2e8f0) !important;
+            padding-right: 0 !important;
+            padding-bottom: 12px !important;
+            width: 100% !important;
+          }
+        }
+      ` }),
+        /* @__PURE__ */ jsx("div", { children: typeof trigger === "function" ? trigger({ isOpen: open }) : trigger || defaultTrigger }),
+        open && /* @__PURE__ */ jsxs(
           "div",
           {
+            className: "boost-megamenu-panel",
             style: {
               position: "absolute",
-              top: "100%",
+              top: "calc(100% + 8px)",
               left: 0,
               zIndex: 500,
-              backgroundColor: "#ffffff",
-              border: "1px solid #e2e8f0",
-              borderRadius: "12px",
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-              padding: "20px 24px",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              border: "1px solid var(--boost-border, #e2e8f0)",
+              borderRadius: "16px",
+              boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.18)",
+              padding: "24px",
               display: "flex",
               gap: "28px",
-              minWidth: "580px",
-              fontFamily: "inherit"
+              minWidth: "640px",
+              maxWidth: "calc(100vw - 40px)",
+              fontFamily: "inherit",
+              boxSizing: "border-box",
+              animation: "boost-fadeIn 0.18s ease-out"
             },
             children: [
-              categories && categories.length > 1 && /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "4px", borderRight: "1px solid #f1f5f9", paddingRight: "16px", minWidth: "120px" }, children: categories.map((cat) => /* @__PURE__ */ jsx(
-                "button",
+              categories && categories.length > 1 && /* @__PURE__ */ jsx(
+                "div",
                 {
-                  onClick: () => setActiveCategory(cat.id),
+                  className: "megamenu-divider boost-megamenu-categories-bar",
                   style: {
-                    textAlign: "left",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    border: "none",
-                    fontSize: "13px",
-                    fontWeight: activeCategory === cat.id ? 700 : 500,
-                    color: activeCategory === cat.id ? "#2563eb" : "#475569",
-                    backgroundColor: activeCategory === cat.id ? "#eff6ff" : "transparent",
-                    cursor: "pointer"
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                    borderRight: "1px solid var(--boost-border, #f1f5f9)",
+                    paddingRight: "18px",
+                    minWidth: "130px"
                   },
-                  children: cat.label
-                },
-                cat.id
-              )) }),
-              /* @__PURE__ */ jsx("div", { style: { display: "flex", gap: "32px", flex: 1 }, children: effectiveSections.map((section, idx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px", minWidth: "140px" }, children: [
-                /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", fontWeight: 700, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.04em" }, children: section.title }),
-                /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: section.links.map((link, lIdx) => /* @__PURE__ */ jsxs(
-                  "a",
-                  {
-                    href: link.href,
-                    style: {
-                      textDecoration: "none",
-                      display: "flex",
-                      flexDirection: "column"
+                  children: categories.map((cat) => /* @__PURE__ */ jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => setActiveCategory(cat.id),
+                      className: `megamenu-category-btn ${activeCategory === cat.id ? "active" : ""}`,
+                      style: {
+                        textAlign: "left",
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        border: "none",
+                        fontSize: "13px",
+                        fontWeight: activeCategory === cat.id ? 700 : 500,
+                        color: activeCategory === cat.id ? "var(--boost-primary, #4f46e5)" : "var(--boost-text-muted, #475569)",
+                        backgroundColor: activeCategory === cat.id ? "rgba(79, 70, 229, 0.08)" : "transparent",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        whiteSpace: "nowrap",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      },
+                      children: [
+                        cat.icon,
+                        /* @__PURE__ */ jsx("span", { children: cat.label })
+                      ]
                     },
-                    children: [
-                      /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 500, color: "#334155" }, children: link.label }),
-                      link.description && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "#94a3b8" }, children: link.description })
-                    ]
+                    cat.id
+                  ))
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "div",
+                {
+                  style: {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                    gap: "24px",
+                    flex: 1
                   },
-                  lIdx
-                )) })
-              ] }, idx)) }),
-              featured && /* @__PURE__ */ jsx("div", { style: { borderLeft: "1px solid #f1f5f9", paddingLeft: "24px", minWidth: "180px" }, children: featured })
+                  children: effectiveSections.map((section, idx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+                    /* @__PURE__ */ jsx(
+                      "span",
+                      {
+                        className: "megamenu-section-title",
+                        style: {
+                          fontSize: "11px",
+                          fontWeight: 800,
+                          color: "var(--boost-text, #0f172a)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em"
+                        },
+                        children: section.title
+                      }
+                    ),
+                    /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "6px" }, children: section.links.map((link, lIdx) => /* @__PURE__ */ jsxs(
+                      "a",
+                      {
+                        href: link.href,
+                        onClick: (e) => handleLinkSelect(link, e),
+                        className: "megamenu-link-row",
+                        style: {
+                          textDecoration: "none",
+                          display: "flex",
+                          flexDirection: "column",
+                          padding: "4px 6px",
+                          borderRadius: "6px",
+                          transition: "background-color 0.15s ease"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                            /* @__PURE__ */ jsx(
+                              "span",
+                              {
+                                className: "megamenu-link-label",
+                                style: {
+                                  fontSize: "13px",
+                                  fontWeight: 500,
+                                  color: "var(--boost-text, #334155)",
+                                  transition: "color 0.15s ease"
+                                },
+                                children: link.label
+                              }
+                            ),
+                            link.badge && /* @__PURE__ */ jsx(
+                              "span",
+                              {
+                                style: {
+                                  fontSize: "9px",
+                                  fontWeight: 700,
+                                  backgroundColor: "rgba(239, 68, 68, 0.12)",
+                                  color: "#ef4444",
+                                  padding: "1px 5px",
+                                  borderRadius: "4px"
+                                },
+                                children: link.badge
+                              }
+                            )
+                          ] }),
+                          link.description && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-text-muted, #94a3b8)", marginTop: "2px" }, children: link.description })
+                        ]
+                      },
+                      lIdx
+                    )) })
+                  ] }, idx))
+                }
+              ),
+              featured !== void 0 ? /* @__PURE__ */ jsx("div", { className: "megamenu-divider", style: { borderLeft: "1px solid var(--boost-border, #f1f5f9)", paddingLeft: "20px", minWidth: "180px" }, children: featured }) : /* @__PURE__ */ jsx(
+                "div",
+                {
+                  className: "megamenu-divider",
+                  style: {
+                    borderLeft: "1px solid var(--boost-border, #f1f5f9)",
+                    paddingLeft: "20px",
+                    minWidth: "170px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between"
+                  },
+                  children: /* @__PURE__ */ jsxs(
+                    "div",
+                    {
+                      style: {
+                        background: "linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)",
+                        borderRadius: "12px",
+                        padding: "16px",
+                        border: "1px solid rgba(79, 70, 229, 0.2)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px"
+                      },
+                      children: [
+                        /* @__PURE__ */ jsx("span", { style: { fontSize: "10px", fontWeight: 800, color: "var(--boost-primary, #4f46e5)", letterSpacing: "0.04em" }, children: "\u26A1 FESTIVE DROP" }),
+                        /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 700, color: "var(--boost-text, #0f172a)", lineHeight: 1.3 }, children: "Up to 50% Off New Essentials" }),
+                        /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-text-muted, #64748b)" }, children: "Use code FESTIVE50 at checkout" })
+                      ]
+                    }
+                  )
+                }
+              )
             ]
           }
         )
@@ -7425,10 +9609,34 @@ var Pagination = ({
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
-        fontFamily: "inherit"
+        gap: "6px",
+        fontFamily: "inherit",
+        flexWrap: "wrap"
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-pagination-btn,
+          .dark .boost-pagination-btn {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-pagination-btn:hover:not(:disabled),
+          .dark .boost-pagination-btn:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+          }
+          :root[data-theme="dark"] .boost-pagination-btn.active,
+          .dark .boost-pagination-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            border-color: #6366f1 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4) !important;
+          }
+          :root[data-theme="dark"] .boost-pagination-ellipsis,
+          .dark .boost-pagination-ellipsis {
+            color: #64748b !important;
+          }
+        ` }),
         /* @__PURE__ */ jsx(
           "button",
           {
@@ -7436,18 +9644,20 @@ var Pagination = ({
             disabled: currentPage === 1,
             onClick: () => onPageChange(currentPage - 1),
             "aria-label": "Previous page",
+            className: "boost-pagination-btn",
             style: {
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "32px",
-              height: "32px",
-              border: "1px solid #cbd5e1",
-              borderRadius: "6px",
-              backgroundColor: "#ffffff",
-              color: "#334155",
+              width: "34px",
+              height: "34px",
+              border: "1px solid var(--boost-border, #cbd5e1)",
+              borderRadius: "var(--boost-radius, 8px)",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              color: "var(--boost-text, #334155)",
               cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              opacity: currentPage === 1 ? 0.4 : 1
+              opacity: currentPage === 1 ? 0.35 : 1,
+              transition: "all 0.15s ease"
             },
             children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" }) })
           }
@@ -7457,13 +9667,14 @@ var Pagination = ({
             return /* @__PURE__ */ jsx(
               "span",
               {
+                className: "boost-pagination-ellipsis",
                 style: {
-                  width: "32px",
-                  height: "32px",
+                  width: "30px",
+                  height: "34px",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#94a3b8",
+                  color: "var(--boost-muted, #94a3b8)",
                   fontSize: "13px"
                 },
                 children: "..."
@@ -7478,13 +9689,14 @@ var Pagination = ({
               type: "button",
               onClick: () => onPageChange(page),
               "aria-current": isCurrent ? "page" : void 0,
+              className: `boost-pagination-btn ${isCurrent ? "active" : ""}`,
               style: {
-                width: "32px",
-                height: "32px",
-                border: isCurrent ? "1px solid #2563eb" : "1px solid #cbd5e1",
-                borderRadius: "6px",
-                backgroundColor: isCurrent ? "#2563eb" : "#ffffff",
-                color: isCurrent ? "#ffffff" : "#334155",
+                width: "34px",
+                height: "34px",
+                border: isCurrent ? "1px solid var(--boost-primary, #2563eb)" : "1px solid var(--boost-border, #cbd5e1)",
+                borderRadius: "var(--boost-radius, 8px)",
+                backgroundColor: isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-surface, #ffffff)",
+                color: isCurrent ? "#ffffff" : "var(--boost-text, #334155)",
                 fontSize: "13px",
                 fontWeight: isCurrent ? 700 : 500,
                 cursor: "pointer",
@@ -7502,18 +9714,20 @@ var Pagination = ({
             disabled: currentPage === totalPages,
             onClick: () => onPageChange(currentPage + 1),
             "aria-label": "Next page",
+            className: "boost-pagination-btn",
             style: {
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "32px",
-              height: "32px",
-              border: "1px solid #cbd5e1",
-              borderRadius: "6px",
-              backgroundColor: "#ffffff",
-              color: "#334155",
+              width: "34px",
+              height: "34px",
+              border: "1px solid var(--boost-border, #cbd5e1)",
+              borderRadius: "var(--boost-radius, 8px)",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              color: "var(--boost-text, #334155)",
               cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-              opacity: currentPage === totalPages ? 0.4 : 1
+              opacity: currentPage === totalPages ? 0.35 : 1,
+              transition: "all 0.15s ease"
             },
             children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" }) })
           }
@@ -7546,15 +9760,50 @@ var Tabs = ({
   };
   const currentTab = tabList.find((t) => t.id === active) || tabList[0];
   return /* @__PURE__ */ jsxs("div", { className: `boost-tabs ${className}`, style: { fontFamily: "inherit", width: "100%" }, children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-tabs .boost-tab-header,
+          .dark .boost-tabs .boost-tab-header {
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-tabs .boost-tab-item,
+          .dark .boost-tabs .boost-tab-item {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-tabs .boost-tab-item:hover:not(:disabled),
+          .dark .boost-tabs .boost-tab-item:hover:not(:disabled) {
+            color: #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-tabs .boost-tab-item.active,
+          .dark .boost-tabs .boost-tab-item.active {
+            color: #818cf8 !important;
+            border-bottom-color: #6366f1 !important;
+          }
+          :root[data-theme="dark"] .boost-tabs .boost-tab-badge,
+          .dark .boost-tabs .boost-tab-badge {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-tabs .boost-tab-badge.active,
+          .dark .boost-tabs .boost-tab-badge.active {
+            background-color: rgba(99, 102, 241, 0.2) !important;
+            color: #818cf8 !important;
+          }
+          :root[data-theme="dark"] .boost-tabs .boost-tab-panel,
+          .dark .boost-tabs .boost-tab-panel {
+            color: #cbd5e1 !important;
+          }
+        ` }),
     /* @__PURE__ */ jsx(
       "div",
       {
         role: "tablist",
+        className: "boost-tab-header",
         style: {
           display: "flex",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
           gap: "8px",
-          overflowX: "auto"
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch"
         },
         children: tabList.map((tab) => {
           const isActive = tab.id === active;
@@ -7565,6 +9814,7 @@ var Tabs = ({
               "aria-selected": isActive,
               disabled: tab.disabled,
               onClick: () => handleTabClick(tab.id),
+              className: `boost-tab-item ${isActive ? "active" : ""}`,
               style: {
                 display: "inline-flex",
                 alignItems: "center",
@@ -7572,10 +9822,10 @@ var Tabs = ({
                 padding: "10px 16px",
                 fontSize: "14px",
                 fontWeight: isActive ? 600 : 500,
-                color: isActive ? "#2563eb" : "#64748b",
+                color: isActive ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #64748b)",
                 backgroundColor: "transparent",
                 border: "none",
-                borderBottom: isActive ? "2px solid #2563eb" : "2px solid transparent",
+                borderBottom: isActive ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
                 cursor: tab.disabled ? "not-allowed" : "pointer",
                 opacity: tab.disabled ? 0.5 : 1,
                 whiteSpace: "nowrap",
@@ -7587,12 +9837,14 @@ var Tabs = ({
                 tab.badge !== void 0 && /* @__PURE__ */ jsx(
                   "span",
                   {
+                    className: `boost-tab-badge ${isActive ? "active" : ""}`,
                     style: {
                       fontSize: "11px",
                       padding: "2px 6px",
                       borderRadius: "9999px",
-                      backgroundColor: isActive ? "#dbeafe" : "#f1f5f9",
-                      color: isActive ? "#1d4ed8" : "#64748b"
+                      backgroundColor: isActive ? "rgba(37, 99, 235, 0.1)" : "var(--boost-bg-subtle, #f1f5f9)",
+                      color: isActive ? "var(--boost-primary, #1d4ed8)" : "var(--boost-text-muted, #64748b)",
+                      fontWeight: 600
                     },
                     children: tab.badge
                   }
@@ -7604,7 +9856,7 @@ var Tabs = ({
         })
       }
     ),
-    /* @__PURE__ */ jsx("div", { role: "tabpanel", style: { padding: "16px 0" }, children: currentTab ? currentTab.content : null })
+    /* @__PURE__ */ jsx("div", { role: "tabpanel", className: "boost-tab-panel", style: { padding: "16px 0", color: "var(--boost-text, #334155)", fontSize: "14px", lineHeight: 1.6 }, children: currentTab ? currentTab.content : null })
   ] });
 };
 Tabs.displayName = "Tabs";
@@ -7616,7 +9868,7 @@ var Stepper = ({
   className = ""
 }) => {
   const activeIdx = currentStep !== void 0 ? currentStep - 1 : activeStep ?? 0;
-  return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       className: `boost-stepper ${className}`,
@@ -7626,80 +9878,116 @@ var Stepper = ({
         justifyContent: "space-between",
         width: "100%",
         fontFamily: "inherit",
-        position: "relative"
+        position: "relative",
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
+        padding: "4px 0"
       },
-      children: steps.map((step, idx) => {
-        const isCompleted = idx < activeIdx;
-        const isCurrent = idx === activeIdx;
-        const isClickable = onStepClick && idx <= activeIdx;
-        const displayLabel = step.label || step.title || "";
-        return /* @__PURE__ */ jsxs(
-          "div",
-          {
-            onClick: () => isClickable && onStepClick(idx),
-            style: {
-              display: "flex",
-              alignItems: "center",
-              flex: idx === steps.length - 1 ? "none" : 1,
-              cursor: isClickable ? "pointer" : "default"
-            },
-            children: [
-              /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-                /* @__PURE__ */ jsx(
-                  "div",
-                  {
-                    style: {
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "50%",
-                      backgroundColor: isCompleted ? "#16a34a" : isCurrent ? "#2563eb" : "#f1f5f9",
-                      color: isCompleted || isCurrent ? "#ffffff" : "#64748b",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "13px",
-                      fontWeight: 700,
-                      border: `2px solid ${isCompleted ? "#16a34a" : isCurrent ? "#2563eb" : "#cbd5e1"}`,
-                      transition: "all 0.2s ease",
-                      flexShrink: 0
-                    },
-                    children: isCompleted ? /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) : idx + 1
-                  }
-                ),
-                /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-stepper-circle.inactive,
+          .dark .boost-stepper-circle.inactive {
+            background-color: rgba(255, 255, 255, 0.06) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-stepper-circle.current,
+          .dark .boost-stepper-circle.current {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            border-color: #6366f1 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-stepper-label.current,
+          .dark .boost-stepper-label.current {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-stepper-label.inactive,
+          .dark .boost-stepper-label.inactive {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-stepper-line.inactive,
+          .dark .boost-stepper-line.inactive {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+          }
+        ` }),
+        steps.map((step, idx) => {
+          const isCompleted = idx < activeIdx;
+          const isCurrent = idx === activeIdx;
+          const isClickable = onStepClick && idx <= activeIdx;
+          const displayLabel = step.label || step.title || "";
+          const circleState = isCompleted ? "completed" : isCurrent ? "current" : "inactive";
+          return /* @__PURE__ */ jsxs(
+            "div",
+            {
+              onClick: () => isClickable && onStepClick(idx),
+              style: {
+                display: "flex",
+                alignItems: "center",
+                flex: idx === steps.length - 1 ? "none" : 1,
+                cursor: isClickable ? "pointer" : "default"
+              },
+              children: [
+                /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
                   /* @__PURE__ */ jsx(
-                    "span",
+                    "div",
                     {
+                      className: `boost-stepper-circle ${circleState}`,
                       style: {
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        backgroundColor: isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-bg-subtle, #f1f5f9)",
+                        color: isCompleted || isCurrent ? "#ffffff" : "var(--boost-muted, #64748b)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         fontSize: "13px",
-                        fontWeight: isCurrent ? 700 : 500,
-                        color: isCurrent ? "#0f172a" : "#64748b",
-                        whiteSpace: "nowrap"
+                        fontWeight: 700,
+                        border: `2px solid ${isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-border, #cbd5e1)"}`,
+                        transition: "all 0.2s ease",
+                        flexShrink: 0
                       },
-                      children: displayLabel
+                      children: isCompleted ? /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) : idx + 1
                     }
                   ),
-                  step.description && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "#94a3b8" }, children: step.description })
-                ] })
-              ] }),
-              idx < steps.length - 1 && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    flex: 1,
-                    height: "2px",
-                    backgroundColor: idx < activeIdx ? "#16a34a" : "#e2e8f0",
-                    margin: "0 12px",
-                    minWidth: "24px",
-                    transition: "background-color 0.2s ease"
+                  /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
+                    /* @__PURE__ */ jsx(
+                      "span",
+                      {
+                        className: `boost-stepper-label ${isCurrent ? "current" : "inactive"}`,
+                        style: {
+                          fontSize: "13px",
+                          fontWeight: isCurrent ? 700 : 500,
+                          color: isCurrent ? "var(--boost-text, #0f172a)" : "var(--boost-muted, #64748b)",
+                          whiteSpace: "nowrap"
+                        },
+                        children: displayLabel
+                      }
+                    ),
+                    step.description && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-muted, #94a3b8)" }, children: step.description })
+                  ] })
+                ] }),
+                idx < steps.length - 1 && /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    className: `boost-stepper-line ${idx < activeIdx ? "completed" : "inactive"}`,
+                    style: {
+                      flex: 1,
+                      height: "2px",
+                      backgroundColor: idx < activeIdx ? "#10b981" : "var(--boost-border, #e2e8f0)",
+                      margin: "0 12px",
+                      minWidth: "20px",
+                      transition: "background-color 0.2s ease"
+                    }
                   }
-                }
-              )
-            ]
-          },
-          step.id
-        );
-      })
+                )
+              ]
+            },
+            step.id
+          );
+        })
+      ]
     }
   );
 };
@@ -7718,35 +10006,48 @@ var BackButton = ({
       window.history.back();
     }
   };
-  return /* @__PURE__ */ jsxs(
-    "button",
-    {
-      type: "button",
-      onClick: handleClick,
-      className: `boost-back-btn ${className}`,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-        background: "none",
-        border: "none",
-        color: "#475569",
-        fontSize: "14px",
-        fontWeight: 500,
-        cursor: "pointer",
-        padding: "6px 8px",
-        borderRadius: "6px",
-        fontFamily: "inherit",
-        transition: "color 0.15s ease, background-color 0.15s ease",
-        ...style
-      },
-      ...props,
-      children: [
-        /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" }) }),
-        /* @__PURE__ */ jsx("span", { children: label })
-      ]
-    }
-  );
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-back-btn,
+          .dark .boost-back-btn {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-back-btn:hover,
+          .dark .boost-back-btn:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.06) !important;
+          }
+        ` }),
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: handleClick,
+        className: `boost-back-btn ${className}`,
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          background: "none",
+          border: "none",
+          color: "var(--boost-text-muted, #475569)",
+          fontSize: "14px",
+          fontWeight: 500,
+          cursor: "pointer",
+          padding: "6px 10px",
+          borderRadius: "var(--boost-radius, 8px)",
+          fontFamily: "inherit",
+          transition: "color 0.15s ease, background-color 0.15s ease",
+          ...style
+        },
+        ...props,
+        children: [
+          /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" }) }),
+          /* @__PURE__ */ jsx("span", { children: label })
+        ]
+      }
+    )
+  ] });
 };
 BackButton.displayName = "BackButton";
 function Table({
@@ -7758,87 +10059,124 @@ function Table({
   className = "",
   keyExtractor = (_, idx) => idx
 }) {
-  return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsxs(
     "div",
     {
       className: `boost-table-wrapper ${className}`,
       style: {
         width: "100%",
         overflowX: "auto",
-        border: bordered ? "1px solid #e2e8f0" : "none",
-        borderRadius: "8px",
+        WebkitOverflowScrolling: "touch",
+        border: bordered ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+        borderRadius: "var(--boost-radius, 12px)",
+        backgroundColor: "var(--boost-surface, #ffffff)",
+        boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0,0,0,0.03))",
         fontFamily: "inherit"
       },
-      children: /* @__PURE__ */ jsxs(
-        "table",
-        {
-          style: {
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: "13px",
-            textAlign: "left",
-            color: "#334155"
-          },
-          children: [
-            /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsx("tr", { style: { backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0" }, children: columns.map((col, idx) => /* @__PURE__ */ jsx(
-              "th",
-              {
-                style: {
-                  padding: "12px 16px",
-                  fontWeight: 600,
-                  color: "#0f172a",
-                  textAlign: col.align || "left",
-                  width: col.width,
-                  whiteSpace: "nowrap"
-                },
-                children: col.header
-              },
-              idx
-            )) }) }),
-            /* @__PURE__ */ jsx("tbody", { children: data.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx(
-              "td",
-              {
-                colSpan: columns.length,
-                style: {
-                  padding: "32px",
-                  textAlign: "center",
-                  color: "#94a3b8"
-                },
-                children: "No data available"
-              }
-            ) }) : data.map((row, rIdx) => {
-              const isEven = rIdx % 2 === 0;
-              return /* @__PURE__ */ jsx(
-                "tr",
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-table-wrapper,
+          .dark .boost-table-wrapper {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-table-wrapper thead tr,
+          .dark .boost-table-wrapper thead tr {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-table-wrapper th,
+          .dark .boost-table-wrapper th {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-table-wrapper td,
+          .dark .boost-table-wrapper td {
+            color: #cbd5e1 !important;
+            border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          :root[data-theme="dark"] .boost-table-wrapper tr.boost-table-row:hover,
+          .dark .boost-table-wrapper tr.boost-table-row:hover {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+          }
+          :root[data-theme="dark"] .boost-table-wrapper tr.boost-table-striped,
+          .dark .boost-table-wrapper tr.boost-table-striped {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+          }
+        ` }),
+        /* @__PURE__ */ jsxs(
+          "table",
+          {
+            style: {
+              width: "100%",
+              minWidth: "480px",
+              borderCollapse: "collapse",
+              fontSize: "13px",
+              textAlign: "left",
+              color: "var(--boost-text, #334155)"
+            },
+            children: [
+              /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsx("tr", { style: { backgroundColor: "var(--boost-bg-subtle, #f8fafc)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" }, children: columns.map((col, idx) => /* @__PURE__ */ jsx(
+                "th",
                 {
                   style: {
-                    backgroundColor: striped && !isEven ? "#f8fafc" : "#ffffff",
-                    borderBottom: rIdx === data.length - 1 ? "none" : "1px solid #f1f5f9",
-                    transition: hoverable ? "background-color 0.15s ease" : "none"
+                    padding: "13px 16px",
+                    fontWeight: 600,
+                    color: "var(--boost-text, #0f172a)",
+                    textAlign: col.align || "left",
+                    width: col.width,
+                    whiteSpace: "nowrap"
                   },
-                  children: columns.map((col, cIdx) => {
-                    const colKey = col.accessor || col.key;
-                    const content = typeof col.accessor === "function" ? col.accessor(row) : colKey ? row[colKey] : null;
-                    return /* @__PURE__ */ jsx(
-                      "td",
-                      {
-                        style: {
-                          padding: "12px 16px",
-                          textAlign: col.align || "left",
-                          verticalAlign: "middle"
-                        },
-                        children: content
-                      },
-                      cIdx
-                    );
-                  })
+                  children: col.header
                 },
-                keyExtractor(row, rIdx)
-              );
-            }) })
-          ]
-        }
-      )
+                idx
+              )) }) }),
+              /* @__PURE__ */ jsx("tbody", { children: data.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx(
+                "td",
+                {
+                  colSpan: columns.length,
+                  style: {
+                    padding: "36px",
+                    textAlign: "center",
+                    color: "var(--boost-muted, #94a3b8)"
+                  },
+                  children: "No data available"
+                }
+              ) }) : data.map((row, rIdx) => {
+                const isEven = rIdx % 2 === 0;
+                const isStriped = striped && !isEven;
+                return /* @__PURE__ */ jsx(
+                  "tr",
+                  {
+                    className: `boost-table-row ${isStriped ? "boost-table-striped" : ""}`,
+                    style: {
+                      backgroundColor: isStriped ? "#f8fafc" : "transparent",
+                      borderBottom: rIdx === data.length - 1 ? "none" : "1px solid var(--boost-border, #f1f5f9)",
+                      transition: hoverable ? "background-color 0.15s ease" : "none"
+                    },
+                    children: columns.map((col, cIdx) => {
+                      const colKey = col.accessor || col.key;
+                      const content = typeof col.accessor === "function" ? col.accessor(row) : colKey ? row[colKey] : null;
+                      return /* @__PURE__ */ jsx(
+                        "td",
+                        {
+                          style: {
+                            padding: "13px 16px",
+                            textAlign: col.align || "left",
+                            verticalAlign: "middle"
+                          },
+                          children: content
+                        },
+                        cIdx
+                      );
+                    })
+                  },
+                  keyExtractor(row, rIdx)
+                );
+              }) })
+            ]
+          }
+        )
+      ]
     }
   );
 }
@@ -7871,7 +10209,32 @@ function DataTable({
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
-  return /* @__PURE__ */ jsxs("div", { className: `boost-data-table ${className}`, style: { fontFamily: "inherit", display: "flex", flexDirection: "column", gap: "16px" }, children: [
+  return /* @__PURE__ */ jsxs("div", { className: `boost-data-table ${className}`, style: { fontFamily: "inherit", display: "flex", flexDirection: "column", gap: "16px", width: "100%" }, children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-data-table .boost-data-table-card,
+          .dark .boost-data-table .boost-data-table-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-data-table thead tr,
+          .dark .boost-data-table thead tr {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-data-table th,
+          .dark .boost-data-table th {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-data-table td,
+          .dark .boost-data-table td {
+            color: #cbd5e1 !important;
+            border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          :root[data-theme="dark"] .boost-data-table tbody tr:hover,
+          .dark .boost-data-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+          }
+        ` }),
     searchable && /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }, children: [
       /* @__PURE__ */ jsx("div", { style: { maxWidth: "300px", width: "100%" }, children: /* @__PURE__ */ jsx(
         SearchInput,
@@ -7885,7 +10248,7 @@ function DataTable({
           placeholder: searchPlaceholder
         }
       ) }),
-      /* @__PURE__ */ jsxs("span", { style: { fontSize: "13px", color: "#64748b" }, children: [
+      /* @__PURE__ */ jsxs("span", { style: { fontSize: "13px", color: "var(--boost-muted, #64748b)" }, children: [
         "Showing ",
         paginatedData.length,
         " of ",
@@ -7896,6 +10259,7 @@ function DataTable({
     /* @__PURE__ */ jsx(
       "div",
       {
+        className: "boost-data-table-card",
         style: {
           width: "100%",
           overflowX: "auto",
@@ -7908,8 +10272,8 @@ function DataTable({
         children: /* @__PURE__ */ jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "13px", textAlign: "left", color: "var(--boost-text, #334155)", minWidth: "480px" }, children: [
           /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsx("tr", { style: { backgroundColor: "var(--boost-bg, #f8fafc)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" }, children: columns.map((col, idx) => /* @__PURE__ */ jsx("th", { style: { padding: "13px 16px", fontWeight: 700, color: "var(--boost-text, #0f172a)", textAlign: col.align || "left", width: col.width, whiteSpace: "nowrap" }, children: col.header }, idx)) }) }),
           /* @__PURE__ */ jsx("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: columns.length, style: { padding: "36px", textAlign: "center", color: "var(--boost-text-muted, #94a3b8)" }, children: "No records matching your search" }) }) : paginatedData.map((row, rIdx) => /* @__PURE__ */ jsx("tr", { style: { borderBottom: rIdx === paginatedData.length - 1 ? "none" : "1px solid var(--boost-border, #f1f5f9)", transition: "background-color 0.1s ease" }, children: columns.map((col, cIdx) => {
-            const accessor = col.accessor;
-            const content = typeof accessor === "function" ? accessor(row) : accessor !== void 0 ? row[accessor] : "";
+            const accessor = col.accessor !== void 0 ? col.accessor : col.key;
+            const content = typeof accessor === "function" ? accessor(row) : accessor !== void 0 && row[accessor] !== void 0 ? row[accessor] : "";
             return /* @__PURE__ */ jsx("td", { style: { padding: "13px 16px", textAlign: col.align || "left" }, children: content }, cIdx);
           }) }, rIdx)) })
         ] })
@@ -7930,11 +10294,16 @@ var StatsCard = ({
   title,
   value,
   change,
+  trend,
   isPositive = true,
   period = "vs last month",
+  description,
   icon,
   className = ""
 }) => {
+  const computedChange = change !== void 0 ? change : typeof trend === "object" && trend !== null ? `${trend.value > 0 && !String(trend.value).includes("+") ? "+" : ""}${trend.value}%` : trend !== void 0 ? trend : void 0;
+  const computedIsPositive = typeof trend === "object" && trend !== null && trend.isPositive !== void 0 ? trend.isPositive : isPositive;
+  const computedPeriod = description || period;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -7951,6 +10320,14 @@ var StatsCard = ({
         transition: "transform 0.2s ease, box-shadow 0.2s ease"
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-stats-card,
+          .dark .boost-stats-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
           /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text-muted, #64748b)" }, children: title }),
           icon && /* @__PURE__ */ jsx(
@@ -7971,14 +10348,14 @@ var StatsCard = ({
           )
         ] }),
         /* @__PURE__ */ jsx("div", { style: { fontSize: "clamp(22px, 2.5vw, 28px)", fontWeight: 800, color: "var(--boost-text, #0f172a)", marginBottom: "8px", letterSpacing: "-0.02em" }, children: value }),
-        change !== void 0 && /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px", fontSize: "12px" }, children: [
+        computedChange !== void 0 && /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px", fontSize: "12px" }, children: [
           /* @__PURE__ */ jsxs(
             "span",
             {
               style: {
                 fontWeight: 700,
-                color: isPositive ? "#16a34a" : "#dc2626",
-                backgroundColor: isPositive ? "rgba(34, 197, 94, 0.1)" : "rgba(220, 38, 38, 0.1)",
+                color: computedIsPositive ? "#16a34a" : "#dc2626",
+                backgroundColor: computedIsPositive ? "rgba(34, 197, 94, 0.1)" : "rgba(220, 38, 38, 0.1)",
                 padding: "2px 8px",
                 borderRadius: "9999px",
                 display: "inline-flex",
@@ -7986,12 +10363,12 @@ var StatsCard = ({
                 gap: "3px"
               },
               children: [
-                isPositive ? /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "18 15 12 9 6 15" }) }) : /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) }),
-                change
+                computedIsPositive ? /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "18 15 12 9 6 15" }) }) : /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) }),
+                computedChange
               ]
             }
           ),
-          /* @__PURE__ */ jsx("span", { style: { color: "var(--boost-text-muted, #94a3b8)" }, children: period })
+          /* @__PURE__ */ jsx("span", { style: { color: "var(--boost-text-muted, #94a3b8)" }, children: computedPeriod })
         ] })
       ]
     }
@@ -8031,6 +10408,14 @@ var KPIWidget = ({
       },
       ...props,
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-kpi-widget,
+          .dark .boost-kpi-widget {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs(
           "div",
           {
@@ -8229,6 +10614,14 @@ var AreaChart = ({
         ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-area-chart,
+          .dark .boost-area-chart {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        ` }),
         (title || subtitle) && /* @__PURE__ */ jsxs("div", { style: { marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }, children: [
           /* @__PURE__ */ jsxs("div", { children: [
             title && /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 4px", fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
@@ -8486,6 +10879,14 @@ var BarChart = ({
         ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-bar-chart,
+          .dark .boost-bar-chart {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        ` }),
         (title || subtitle) && /* @__PURE__ */ jsxs("div", { style: { marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }, children: [
           /* @__PURE__ */ jsxs("div", { children: [
             title && /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 4px", fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
@@ -8757,6 +11158,14 @@ var DonutChart = ({
         ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-donut-chart,
+          .dark .boost-donut-chart {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        ` }),
         (title || subtitle) && /* @__PURE__ */ jsxs("div", { style: { marginBottom: "16px" }, children: [
           title && /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 4px", fontSize: "16px", fontWeight: 700, color: "var(--boost-text, #0f172a)", letterSpacing: "-0.01em" }, children: title }),
           subtitle && /* @__PURE__ */ jsx("p", { style: { margin: 0, fontSize: "13px", color: "var(--boost-text-muted, #64748b)" }, children: subtitle })
@@ -9144,8 +11553,15 @@ var NotificationCenter = ({
   className = ""
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [filter, setFilter] = React.useState("all");
   const containerRef = React.useRef(null);
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const filteredNotifications = React.useMemo(() => {
+    if (filter === "unread") {
+      return notifications.filter((n) => !n.read);
+    }
+    return notifications;
+  }, [notifications, filter]);
   React.useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -9164,6 +11580,30 @@ var NotificationCenter = ({
       className: `boost-notification-center ${className}`,
       style: { position: "relative", display: "inline-block" },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          @media (max-width: 640px) {
+            .boost-notification-popover {
+              position: fixed !important;
+              top: auto !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              border-radius: 20px 20px 0 0 !important;
+              max-height: 85vh !important;
+              box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important;
+              display: flex;
+              flex-direction: column;
+              z-index: 999999 !important;
+            }
+            .boost-notification-list {
+              flex: 1;
+              overflow-y: auto;
+              max-height: calc(85vh - 120px) !important;
+            }
+          }
+        ` }),
         /* @__PURE__ */ jsxs(
           "button",
           {
@@ -9227,213 +11667,281 @@ var NotificationCenter = ({
             ]
           }
         ),
-        isOpen && /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              top: "calc(100% + 8px)",
-              right: 0,
-              width: "360px",
-              maxWidth: "90vw",
-              backgroundColor: "var(--boost-bg, #ffffff)",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              borderRadius: "var(--boost-radius, 12px)",
-              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-              zIndex: 9999,
-              overflow: "hidden"
-            },
-            children: [
-              /* @__PURE__ */ jsxs(
-                "div",
-                {
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "14px 18px",
-                    borderBottom: "1px solid var(--boost-border, #e2e8f0)"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-                      /* @__PURE__ */ jsx("span", { style: { fontWeight: 700, fontSize: "15px", color: "var(--boost-text, #0f172a)" }, children: title }),
-                      unreadCount > 0 && /* @__PURE__ */ jsxs(
-                        "span",
+        isOpen && /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              style: {
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.3)",
+                zIndex: 99998,
+                display: "var(--boost-backdrop-display, none)"
+                // We can show this on mobile via CSS if needed, or just let handleClickOutside handle it.
+              },
+              onClick: () => setIsOpen(false),
+              className: "boost-notification-backdrop"
+            }
+          ),
+          /* @__PURE__ */ jsx("style", { children: `
+              @media (max-width: 640px) {
+                .boost-notification-backdrop {
+                  display: block !important;
+                }
+              }
+            ` }),
+          /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "boost-notification-popover",
+              style: {
+                position: "absolute",
+                top: "calc(100% + 8px)",
+                right: 0,
+                width: "360px",
+                maxWidth: "90vw",
+                backgroundColor: "var(--boost-bg, #ffffff)",
+                border: "1px solid var(--boost-border, #e2e8f0)",
+                borderRadius: "var(--boost-radius, 12px)",
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                zIndex: 99999,
+                overflow: "hidden"
+              },
+              children: [
+                /* @__PURE__ */ jsxs(
+                  "div",
+                  {
+                    style: {
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "14px 18px",
+                      borderBottom: "1px solid var(--boost-border, #e2e8f0)"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+                        /* @__PURE__ */ jsx("span", { style: { fontWeight: 700, fontSize: "15px", color: "var(--boost-text, #0f172a)" }, children: title }),
+                        unreadCount > 0 && /* @__PURE__ */ jsxs(
+                          "span",
+                          {
+                            style: {
+                              backgroundColor: "rgba(37, 99, 235, 0.1)",
+                              color: "var(--boost-primary, #2563eb)",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              padding: "2px 6px",
+                              borderRadius: "9999px"
+                            },
+                            children: [
+                              unreadCount,
+                              " new"
+                            ]
+                          }
+                        )
+                      ] }),
+                      onMarkAllAsRead && unreadCount > 0 && /* @__PURE__ */ jsx(
+                        "button",
                         {
+                          type: "button",
+                          onClick: onMarkAllAsRead,
                           style: {
-                            backgroundColor: "rgba(37, 99, 235, 0.1)",
+                            background: "none",
+                            border: "none",
                             color: "var(--boost-primary, #2563eb)",
-                            fontSize: "11px",
-                            fontWeight: 700,
-                            padding: "2px 6px",
-                            borderRadius: "9999px"
-                          },
-                          children: [
-                            unreadCount,
-                            " new"
-                          ]
-                        }
-                      )
-                    ] }),
-                    onMarkAllAsRead && unreadCount > 0 && /* @__PURE__ */ jsx(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: onMarkAllAsRead,
-                        style: {
-                          background: "none",
-                          border: "none",
-                          color: "var(--boost-primary, #2563eb)",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          padding: 0
-                        },
-                        children: "Mark all as read"
-                      }
-                    )
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsx("div", { style: { maxHeight: "340px", overflowY: "auto" }, children: notifications.length === 0 ? /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    padding: "36px 20px",
-                    textAlign: "center",
-                    color: "var(--boost-text-muted, #64748b)",
-                    fontSize: "13px"
-                  },
-                  children: emptyText
-                }
-              ) : notifications.map((item) => /* @__PURE__ */ jsxs(
-                "div",
-                {
-                  onClick: () => onItemClick && onItemClick(item),
-                  style: {
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    padding: "12px 18px",
-                    borderBottom: "1px solid var(--boost-border, #f1f5f9)",
-                    backgroundColor: item.read ? "transparent" : "rgba(37, 99, 235, 0.03)",
-                    cursor: onItemClick ? "pointer" : "default",
-                    transition: "background-color 0.15s ease"
-                  },
-                  children: [
-                    item.avatar ? /* @__PURE__ */ jsx(
-                      "img",
-                      {
-                        src: item.avatar,
-                        alt: "",
-                        style: {
-                          width: "36px",
-                          height: "36px",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          flexShrink: 0
-                        }
-                      }
-                    ) : item.icon ? /* @__PURE__ */ jsx(
-                      "div",
-                      {
-                        style: {
-                          width: "36px",
-                          height: "36px",
-                          borderRadius: "50%",
-                          backgroundColor: "rgba(37, 99, 235, 0.1)",
-                          color: "var(--boost-primary, #2563eb)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0
-                        },
-                        children: item.icon
-                      }
-                    ) : /* @__PURE__ */ jsx(
-                      "div",
-                      {
-                        style: {
-                          width: "8px",
-                          height: "8px",
-                          borderRadius: "50%",
-                          backgroundColor: item.read ? "transparent" : "#2563eb",
-                          marginTop: "6px",
-                          flexShrink: 0
-                        }
-                      }
-                    ),
-                    /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-                      /* @__PURE__ */ jsx(
-                        "div",
-                        {
-                          style: {
-                            fontSize: "13px",
-                            fontWeight: item.read ? 500 : 700,
-                            color: "var(--boost-text, #0f172a)",
-                            marginBottom: "2px",
-                            lineHeight: 1.4
-                          },
-                          children: item.title
-                        }
-                      ),
-                      item.description && /* @__PURE__ */ jsx(
-                        "div",
-                        {
-                          style: {
                             fontSize: "12px",
-                            color: "var(--boost-text-muted, #64748b)",
-                            lineHeight: 1.4,
-                            marginBottom: "4px"
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            padding: 0
                           },
-                          children: item.description
-                        }
-                      ),
-                      /* @__PURE__ */ jsx(
-                        "div",
-                        {
-                          style: {
-                            fontSize: "11px",
-                            color: "var(--boost-text-muted, #94a3b8)"
-                          },
-                          children: item.timestamp
+                          children: "Mark all read"
                         }
                       )
-                    ] })
-                  ]
-                },
-                item.id
-              )) }),
-              onClearAll && notifications.length > 0 && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    padding: "10px",
-                    textAlign: "center",
-                    borderTop: "1px solid var(--boost-border, #e2e8f0)",
-                    backgroundColor: "var(--boost-surface, #f8fafc)"
-                  },
-                  children: /* @__PURE__ */ jsx(
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "16px", padding: "0 18px", borderBottom: "1px solid var(--boost-border, #e2e8f0)" }, children: [
+                  /* @__PURE__ */ jsx(
                     "button",
                     {
                       type: "button",
-                      onClick: onClearAll,
+                      onClick: () => setFilter("all"),
                       style: {
                         background: "none",
                         border: "none",
-                        color: "var(--boost-text-muted, #64748b)",
-                        fontSize: "12px",
+                        borderBottom: filter === "all" ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
+                        color: filter === "all" ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #64748b)",
+                        padding: "10px 0",
+                        fontSize: "13px",
                         fontWeight: 600,
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
                       },
-                      children: "Clear all notifications"
+                      children: "All"
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => setFilter("unread"),
+                      style: {
+                        background: "none",
+                        border: "none",
+                        borderBottom: filter === "unread" ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
+                        color: filter === "unread" ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #64748b)",
+                        padding: "10px 0",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      },
+                      children: "Unread"
                     }
                   )
-                }
-              )
-            ]
-          }
-        )
+                ] }),
+                /* @__PURE__ */ jsx("div", { className: "boost-notification-list", style: { maxHeight: "340px", overflowY: "auto" }, children: filteredNotifications.length === 0 ? /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    style: {
+                      padding: "36px 20px",
+                      textAlign: "center",
+                      color: "var(--boost-text-muted, #64748b)",
+                      fontSize: "13px"
+                    },
+                    children: emptyText
+                  }
+                ) : filteredNotifications.map((item) => /* @__PURE__ */ jsxs(
+                  "div",
+                  {
+                    onClick: () => onItemClick && onItemClick(item),
+                    style: {
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "12px",
+                      padding: "12px 18px",
+                      borderBottom: "1px solid var(--boost-border, #f1f5f9)",
+                      backgroundColor: item.read ? "transparent" : "rgba(37, 99, 235, 0.03)",
+                      cursor: onItemClick ? "pointer" : "default",
+                      transition: "background-color 0.15s ease"
+                    },
+                    children: [
+                      item.avatar ? /* @__PURE__ */ jsx(
+                        "img",
+                        {
+                          src: item.avatar,
+                          alt: "",
+                          style: {
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            flexShrink: 0
+                          }
+                        }
+                      ) : item.icon ? /* @__PURE__ */ jsx(
+                        "div",
+                        {
+                          style: {
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(37, 99, 235, 0.1)",
+                            color: "var(--boost-primary, #2563eb)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0
+                          },
+                          children: item.icon
+                        }
+                      ) : /* @__PURE__ */ jsx(
+                        "div",
+                        {
+                          style: {
+                            width: "8px",
+                            height: "8px",
+                            borderRadius: "50%",
+                            backgroundColor: item.read ? "transparent" : "#2563eb",
+                            marginTop: "6px",
+                            flexShrink: 0
+                          }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                        /* @__PURE__ */ jsx(
+                          "div",
+                          {
+                            style: {
+                              fontSize: "13px",
+                              fontWeight: item.read ? 500 : 700,
+                              color: "var(--boost-text, #0f172a)",
+                              marginBottom: "2px",
+                              lineHeight: 1.4
+                            },
+                            children: item.title
+                          }
+                        ),
+                        item.description && /* @__PURE__ */ jsx(
+                          "div",
+                          {
+                            style: {
+                              fontSize: "12px",
+                              color: "var(--boost-text-muted, #64748b)",
+                              lineHeight: 1.4,
+                              marginBottom: "4px"
+                            },
+                            children: item.description
+                          }
+                        ),
+                        /* @__PURE__ */ jsx(
+                          "div",
+                          {
+                            style: {
+                              fontSize: "11px",
+                              color: "var(--boost-text-muted, #94a3b8)"
+                            },
+                            children: item.timestamp
+                          }
+                        )
+                      ] })
+                    ]
+                  },
+                  item.id
+                )) }),
+                onClearAll && notifications.length > 0 && /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    style: {
+                      padding: "10px",
+                      textAlign: "center",
+                      borderTop: "1px solid var(--boost-border, #e2e8f0)",
+                      backgroundColor: "var(--boost-surface, #f8fafc)"
+                    },
+                    children: /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: onClearAll,
+                        style: {
+                          background: "none",
+                          border: "none",
+                          color: "var(--boost-text-muted, #64748b)",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          cursor: "pointer"
+                        },
+                        children: "Clear all notifications"
+                      }
+                    )
+                  }
+                )
+              ]
+            }
+          )
+        ] })
       ]
     }
   );
@@ -9466,21 +11974,41 @@ var DateRangePicker = ({
         display: "inline-flex",
         flexDirection: "column",
         gap: "6px",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        maxWidth: "100%"
       },
       children: [
-        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "#334155" }, children: label }),
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-date-range-box,
+          .dark .boost-date-range-box {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-date-range-box input,
+          .dark .boost-date-range-box input {
+            color: #f8fafc !important;
+            color-scheme: dark !important;
+          }
+          :root[data-theme="dark"] .boost-date-range-picker label,
+          .dark .boost-date-range-picker label {
+            color: #e2e8f0 !important;
+          }
+        ` }),
+        label && /* @__PURE__ */ jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)" }, children: label }),
         /* @__PURE__ */ jsxs(
           "div",
           {
+            className: "boost-date-range-box",
             style: {
               display: "inline-flex",
               alignItems: "center",
               gap: "8px",
-              border: "1px solid #cbd5e1",
-              borderRadius: "6px",
-              padding: "4px 8px",
-              backgroundColor: "#ffffff"
+              border: "1px solid var(--boost-border, #cbd5e1)",
+              borderRadius: "var(--boost-radius, 8px)",
+              padding: "6px 12px",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              flexWrap: "wrap",
+              boxShadow: "var(--boost-shadow-sm, 0 1px 2px rgba(0,0,0,0.03))"
             },
             children: [
               /* @__PURE__ */ jsx(
@@ -9492,13 +12020,14 @@ var DateRangePicker = ({
                   style: {
                     border: "none",
                     fontSize: "13px",
-                    color: "#0f172a",
+                    color: "var(--boost-text, #0f172a)",
+                    backgroundColor: "transparent",
                     outline: "none",
                     fontFamily: "inherit"
                   }
                 }
               ),
-              /* @__PURE__ */ jsx("span", { style: { color: "#94a3b8", fontSize: "12px" }, children: "to" }),
+              /* @__PURE__ */ jsx("span", { style: { color: "var(--boost-muted, #94a3b8)", fontSize: "12px", fontWeight: 500 }, children: "to" }),
               /* @__PURE__ */ jsx(
                 "input",
                 {
@@ -9509,7 +12038,8 @@ var DateRangePicker = ({
                   style: {
                     border: "none",
                     fontSize: "13px",
-                    color: "#0f172a",
+                    color: "var(--boost-text, #0f172a)",
+                    backgroundColor: "transparent",
                     outline: "none",
                     fontFamily: "inherit"
                   }
@@ -9541,51 +12071,68 @@ var ExportButton = ({
       props.onClick(e);
     }
   };
-  return /* @__PURE__ */ jsxs(
-    "button",
-    {
-      onClick: handleClick,
-      disabled: loading || props.disabled,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "8px 14px",
-        fontSize: "13px",
-        fontWeight: 500,
-        color: "#334155",
-        backgroundColor: "#ffffff",
-        border: "1px solid #cbd5e1",
-        borderRadius: "6px",
-        cursor: loading || props.disabled ? "not-allowed" : "pointer",
-        opacity: loading || props.disabled ? 0.6 : 1,
-        transition: "all 0.15s ease",
-        ...style
-      },
-      ...props,
-      children: [
-        loading ? /* @__PURE__ */ jsxs(
-          "svg",
-          {
-            style: { animation: "spin 1s linear infinite", width: "14px", height: "14px" },
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            children: [
-              /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10", strokeDasharray: "32", strokeDashoffset: "10", opacity: "0.3" }),
-              /* @__PURE__ */ jsx("path", { d: "M12 2a10 10 0 0 1 10 10" })
-            ]
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-export-btn,
+          .dark .boost-export-btn {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
           }
-        ) : /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-          /* @__PURE__ */ jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-          /* @__PURE__ */ jsx("polyline", { points: "7 10 12 15 17 10" }),
-          /* @__PURE__ */ jsx("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
-        ] }),
-        /* @__PURE__ */ jsx("span", { children: displayLabel })
-      ]
-    }
-  );
+          :root[data-theme="dark"] .boost-export-btn:hover:not(:disabled),
+          .dark .boost-export-btn:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+          }
+        ` }),
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        onClick: handleClick,
+        disabled: loading || props.disabled,
+        className: `boost-export-btn ${props.className || ""}`,
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px 14px",
+          fontSize: "13px",
+          fontWeight: 500,
+          color: "var(--boost-text, #334155)",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #cbd5e1)",
+          borderRadius: "var(--boost-radius, 8px)",
+          cursor: loading || props.disabled ? "not-allowed" : "pointer",
+          opacity: loading || props.disabled ? 0.6 : 1,
+          boxShadow: "var(--boost-shadow-sm, 0 1px 2px rgba(0,0,0,0.03))",
+          transition: "all 0.15s ease",
+          ...style
+        },
+        ...props,
+        children: [
+          loading ? /* @__PURE__ */ jsxs(
+            "svg",
+            {
+              style: { animation: "spin 1s linear infinite", width: "14px", height: "14px" },
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2",
+              children: [
+                /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10", strokeDasharray: "32", strokeDashoffset: "10", opacity: "0.3" }),
+                /* @__PURE__ */ jsx("path", { d: "M12 2a10 10 0 0 1 10 10" })
+              ]
+            }
+          ) : /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+            /* @__PURE__ */ jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+            /* @__PURE__ */ jsx("polyline", { points: "7 10 12 15 17 10" }),
+            /* @__PURE__ */ jsx("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
+          ] }),
+          /* @__PURE__ */ jsx("span", { children: displayLabel })
+        ]
+      }
+    )
+  ] });
 };
 ExportButton.displayName = "ExportButton";
 var Filter = ({
@@ -9594,7 +12141,9 @@ var Filter = ({
   selectedValues = [],
   onChange,
   multiple = true,
-  clearable = true
+  clearable = true,
+  className = "",
+  style
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleOption = (val) => {
@@ -9614,11 +12163,48 @@ var Filter = ({
     e.stopPropagation();
     onChange?.([]);
   };
-  return /* @__PURE__ */ jsxs("div", { style: { position: "relative", display: "inline-block", fontFamily: "system-ui, -apple-system, sans-serif" }, children: [
+  return /* @__PURE__ */ jsxs("div", { className: `boost-filter-wrapper ${className || ""}`, style: { position: "relative", display: "inline-block", fontFamily: "inherit", ...style }, children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-filter-btn,
+          .dark .boost-filter-btn {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-filter-btn.active,
+          .dark .boost-filter-btn.active {
+            background-color: rgba(99, 102, 241, 0.2) !important;
+            border-color: var(--boost-primary, #6366f1) !important;
+            color: #818cf8 !important;
+          }
+          :root[data-theme="dark"] .boost-filter-dropdown,
+          .dark .boost-filter-dropdown {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-filter-dropdown .filter-header,
+          .dark .boost-filter-dropdown .filter-header {
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-filter-opt,
+          .dark .boost-filter-opt {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-filter-opt:hover,
+          .dark .boost-filter-opt:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          :root[data-theme="dark"] .boost-filter-opt.checked,
+          .dark .boost-filter-opt.checked {
+            background-color: rgba(99, 102, 241, 0.12) !important;
+          }
+        ` }),
     /* @__PURE__ */ jsxs(
       "button",
       {
         onClick: () => setIsOpen(!isOpen),
+        className: `boost-filter-btn ${selectedValues.length > 0 ? "active" : ""}`,
         style: {
           display: "inline-flex",
           alignItems: "center",
@@ -9626,11 +12212,12 @@ var Filter = ({
           padding: "8px 14px",
           fontSize: "13px",
           fontWeight: 500,
-          color: selectedValues.length > 0 ? "#2563eb" : "#334155",
-          backgroundColor: selectedValues.length > 0 ? "#eff6ff" : "#ffffff",
-          border: `1px solid ${selectedValues.length > 0 ? "#93c5fd" : "#cbd5e1"}`,
-          borderRadius: "6px",
-          cursor: "pointer"
+          color: selectedValues.length > 0 ? "var(--boost-primary, #2563eb)" : "var(--boost-text, #334155)",
+          backgroundColor: selectedValues.length > 0 ? "rgba(37, 99, 235, 0.08)" : "var(--boost-surface, #ffffff)",
+          border: `1px solid ${selectedValues.length > 0 ? "var(--boost-primary, #93c5fd)" : "var(--boost-border, #cbd5e1)"}`,
+          borderRadius: "var(--boost-radius, 8px)",
+          cursor: "pointer",
+          transition: "all 0.15s ease"
         },
         children: [
           /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polygon", { points: "22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" }) }),
@@ -9642,7 +12229,7 @@ var Filter = ({
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#2563eb",
+                backgroundColor: "var(--boost-primary, #2563eb)",
                 color: "#ffffff",
                 fontSize: "11px",
                 fontWeight: 600,
@@ -9672,21 +12259,22 @@ var Filter = ({
     isOpen && /* @__PURE__ */ jsxs(
       "div",
       {
+        className: "boost-filter-dropdown",
         style: {
           position: "absolute",
           top: "calc(100% + 6px)",
           left: 0,
           zIndex: 50,
-          minWidth: "200px",
-          backgroundColor: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "8px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+          minWidth: "220px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "var(--boost-radius, 10px)",
+          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
           padding: "8px"
         },
         children: [
-          /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 8px 8px", borderBottom: "1px solid #f1f5f9" }, children: [
-            /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", fontWeight: 600, color: "#64748b" }, children: "Options" }),
+          /* @__PURE__ */ jsxs("div", { className: "filter-header", style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 8px 8px", borderBottom: "1px solid var(--boost-border, #f1f5f9)" }, children: [
+            /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", fontWeight: 600, color: "var(--boost-muted, #64748b)" }, children: "Filter Options" }),
             clearable && selectedValues.length > 0 && /* @__PURE__ */ jsx(
               "button",
               {
@@ -9696,7 +12284,7 @@ var Filter = ({
                   border: "none",
                   color: "#ef4444",
                   fontSize: "11px",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   cursor: "pointer",
                   padding: 0
                 },
@@ -9704,22 +12292,24 @@ var Filter = ({
               }
             )
           ] }),
-          /* @__PURE__ */ jsx("div", { style: { maxHeight: "200px", overflowY: "auto", marginTop: "6px" }, children: options.map((opt) => {
+          /* @__PURE__ */ jsx("div", { style: { maxHeight: "220px", overflowY: "auto", marginTop: "6px" }, children: options.map((opt) => {
             const checked = selectedValues.includes(opt.value);
             return /* @__PURE__ */ jsxs(
               "div",
               {
                 onClick: () => toggleOption(opt.value),
+                className: `boost-filter-opt ${checked ? "checked" : ""}`,
                 style: {
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
-                  padding: "6px 8px",
-                  borderRadius: "4px",
+                  padding: "7px 10px",
+                  borderRadius: "6px",
                   cursor: "pointer",
                   fontSize: "13px",
-                  color: "#1e293b",
-                  backgroundColor: checked ? "#f8fafc" : "transparent"
+                  color: "var(--boost-text, #1e293b)",
+                  backgroundColor: checked ? "rgba(99, 102, 241, 0.08)" : "transparent",
+                  transition: "background-color 0.15s ease"
                 },
                 children: [
                   /* @__PURE__ */ jsx(
@@ -9732,7 +12322,7 @@ var Filter = ({
                     }
                   ),
                   /* @__PURE__ */ jsx("span", { style: { flex: 1 }, children: opt.label }),
-                  typeof opt.count === "number" && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "#94a3b8" }, children: opt.count })
+                  typeof opt.count === "number" && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-muted, #94a3b8)", fontWeight: 500 }, children: opt.count })
                 ]
               },
               opt.value
@@ -9749,7 +12339,9 @@ var Sort = ({
   currentValue = options[0]?.value || "",
   currentDirection = "asc",
   onChange,
-  label = "Sort by"
+  label = "Sort by",
+  className = "",
+  style
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleSelect = (val) => {
@@ -9763,23 +12355,62 @@ var Sort = ({
     onChange?.(currentValue, nextDir);
   };
   const currentOption = options.find((o) => o.value === currentValue);
-  return /* @__PURE__ */ jsxs("div", { style: { position: "relative", display: "inline-flex", alignItems: "center", fontFamily: "system-ui, -apple-system, sans-serif" }, children: [
+  return /* @__PURE__ */ jsxs("div", { className: `boost-sort-wrapper ${className || ""}`, style: { position: "relative", display: "inline-flex", alignItems: "center", fontFamily: "inherit", ...style }, children: [
+    /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-sort-box,
+          .dark .boost-sort-box {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-sort-btn,
+          .dark .boost-sort-btn {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-sort-dir-btn,
+          .dark .boost-sort-dir-btn {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-left-color: rgba(255, 255, 255, 0.1) !important;
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-sort-dropdown,
+          .dark .boost-sort-dropdown {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-sort-opt,
+          .dark .boost-sort-opt {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-sort-opt:hover,
+          .dark .boost-sort-opt:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+          :root[data-theme="dark"] .boost-sort-opt.active,
+          .dark .boost-sort-opt.active {
+            background-color: rgba(99, 102, 241, 0.12) !important;
+            color: #818cf8 !important;
+          }
+        ` }),
     /* @__PURE__ */ jsxs(
       "div",
       {
+        className: "boost-sort-box",
         style: {
           display: "inline-flex",
           alignItems: "center",
-          border: "1px solid #cbd5e1",
-          borderRadius: "6px",
-          backgroundColor: "#ffffff",
-          overflow: "hidden"
+          border: "1px solid var(--boost-border, #cbd5e1)",
+          borderRadius: "var(--boost-radius, 8px)",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          overflow: "hidden",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 2px rgba(0,0,0,0.03))"
         },
         children: [
           /* @__PURE__ */ jsxs(
             "button",
             {
               onClick: () => setIsOpen(!isOpen),
+              className: "boost-sort-btn",
               style: {
                 display: "inline-flex",
                 alignItems: "center",
@@ -9787,7 +12418,7 @@ var Sort = ({
                 padding: "8px 12px",
                 fontSize: "13px",
                 fontWeight: 500,
-                color: "#334155",
+                color: "var(--boost-text, #334155)",
                 backgroundColor: "transparent",
                 border: "none",
                 cursor: "pointer"
@@ -9799,11 +12430,11 @@ var Sort = ({
                   /* @__PURE__ */ jsx("line", { x1: "6", y1: "4", x2: "6", y2: "14" }),
                   /* @__PURE__ */ jsx("polyline", { points: "3 11 6 14 9 11" })
                 ] }),
-                /* @__PURE__ */ jsxs("span", { style: { color: "#64748b" }, children: [
+                /* @__PURE__ */ jsxs("span", { style: { color: "var(--boost-muted, #64748b)" }, children: [
                   label,
                   ":"
                 ] }),
-                /* @__PURE__ */ jsx("span", { children: currentOption?.label || currentValue }),
+                /* @__PURE__ */ jsx("span", { style: { fontWeight: 600 }, children: currentOption?.label || currentValue }),
                 /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) })
               ]
             }
@@ -9813,18 +12444,19 @@ var Sort = ({
             {
               onClick: handleToggleDirection,
               title: currentDirection === "asc" ? "Ascending" : "Descending",
+              className: "boost-sort-dir-btn",
               style: {
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "8px 10px",
-                backgroundColor: "#f8fafc",
-                borderLeft: "1px solid #e2e8f0",
+                backgroundColor: "var(--boost-bg-subtle, #f8fafc)",
+                borderLeft: "1px solid var(--boost-border, #e2e8f0)",
                 borderTop: "none",
                 borderRight: "none",
                 borderBottom: "none",
                 cursor: "pointer",
-                color: "#475569"
+                color: "var(--boost-muted, #475569)"
               },
               children: currentDirection === "asc" ? /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
                 /* @__PURE__ */ jsx("line", { x1: "12", y1: "19", x2: "12", y2: "5" }),
@@ -9841,44 +12473,50 @@ var Sort = ({
     isOpen && /* @__PURE__ */ jsx(
       "div",
       {
+        className: "boost-sort-dropdown",
         style: {
           position: "absolute",
           top: "calc(100% + 6px)",
           left: 0,
           zIndex: 50,
-          minWidth: "180px",
-          backgroundColor: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "8px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+          minWidth: "200px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "var(--boost-radius, 8px)",
+          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
           padding: "4px"
         },
-        children: options.map((opt) => /* @__PURE__ */ jsxs(
-          "button",
-          {
-            onClick: () => handleSelect(opt.value),
-            style: {
-              display: "flex",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "8px 12px",
-              fontSize: "13px",
-              color: opt.value === currentValue ? "#2563eb" : "#334155",
-              fontWeight: opt.value === currentValue ? 600 : 400,
-              backgroundColor: opt.value === currentValue ? "#eff6ff" : "transparent",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              textAlign: "left"
+        children: options.map((opt) => {
+          const isSelected = opt.value === currentValue;
+          return /* @__PURE__ */ jsxs(
+            "button",
+            {
+              onClick: () => handleSelect(opt.value),
+              className: `boost-sort-opt ${isSelected ? "active" : ""}`,
+              style: {
+                display: "flex",
+                width: "100%",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                fontSize: "13px",
+                color: isSelected ? "var(--boost-primary, #2563eb)" : "var(--boost-text, #334155)",
+                fontWeight: isSelected ? 600 : 400,
+                backgroundColor: isSelected ? "rgba(37, 99, 235, 0.08)" : "transparent",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                textAlign: "left",
+                transition: "background-color 0.15s ease"
+              },
+              children: [
+                /* @__PURE__ */ jsx("span", { children: opt.label }),
+                isSelected && /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) })
+              ]
             },
-            children: [
-              /* @__PURE__ */ jsx("span", { children: opt.label }),
-              opt.value === currentValue && /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) })
-            ]
-          },
-          opt.value
-        ))
+            opt.value
+          );
+        })
       }
     )
   ] });
@@ -9891,7 +12529,9 @@ var LoginForm = ({
   loading = false,
   errorMessage,
   title = "Sign In",
-  subtitle = "Welcome back! Please enter your details."
+  subtitle = "Welcome back! Please enter your details.",
+  className = "",
+  style
 }) => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -9930,6 +12570,7 @@ var LoginForm = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
+      className: `boost-auth-card ${className || ""}`,
       style: {
         maxWidth: "420px",
         width: "100%",
@@ -9941,9 +12582,29 @@ var LoginForm = ({
         boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
         fontFamily: "inherit",
         boxSizing: "border-box",
-        transition: "all 0.2s ease"
+        transition: "all 0.2s ease",
+        ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-auth-card,
+          .dark .boost-auth-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input,
+          .dark .boost-auth-input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input:focus,
+          .dark .boost-auth-input:focus {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "28px" }, children: [
           /* @__PURE__ */ jsx("h2", { style: { fontSize: "clamp(20px, 3vw, 24px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", margin: "0 0 8px", letterSpacing: "-0.02em" }, children: title }),
           /* @__PURE__ */ jsx("p", { style: { fontSize: "14px", color: "var(--boost-muted, #64748b)", margin: 0, lineHeight: 1.5 }, children: subtitle })
@@ -9987,6 +12648,7 @@ var LoginForm = ({
                   if (errors.identifier) setErrors((prev) => ({ ...prev, identifier: void 0 }));
                 },
                 placeholder: "you@example.com",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
@@ -10043,6 +12705,7 @@ var LoginForm = ({
                     if (errors.password) setErrors((prev) => ({ ...prev, password: void 0 }));
                   },
                   placeholder: "Enter your password",
+                  className: "boost-auth-input",
                   style: {
                     width: "100%",
                     boxSizing: "border-box",
@@ -10236,6 +12899,7 @@ var RegisterForm = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
+      className: "boost-auth-card",
       style: {
         maxWidth: "440px",
         width: "100%",
@@ -10250,6 +12914,25 @@ var RegisterForm = ({
         transition: "all 0.2s ease"
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-auth-card,
+          .dark .boost-auth-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input,
+          .dark .boost-auth-input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input:focus,
+          .dark .boost-auth-input:focus {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "28px" }, children: [
           /* @__PURE__ */ jsx("h2", { style: { fontSize: "clamp(20px, 3vw, 24px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", margin: "0 0 8px", letterSpacing: "-0.02em" }, children: title }),
           /* @__PURE__ */ jsx("p", { style: { fontSize: "14px", color: "var(--boost-muted, #64748b)", margin: 0, lineHeight: 1.5 }, children: subtitle })
@@ -10571,18 +13254,40 @@ var ForgotPassword = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
+      className: "boost-auth-card",
       style: {
-        maxWidth: "400px",
+        maxWidth: "420px",
         width: "100%",
         margin: "0 auto",
-        padding: "32px 24px",
-        backgroundColor: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-        fontFamily: "system-ui, -apple-system, sans-serif"
+        padding: "clamp(24px, 5vw, 36px) clamp(18px, 4vw, 28px)",
+        backgroundColor: "var(--boost-surface, #ffffff)",
+        border: "1px solid var(--boost-border, #e2e8f0)",
+        borderRadius: "var(--boost-radius, 16px)",
+        boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
+        fontFamily: "inherit",
+        boxSizing: "border-box",
+        transition: "all 0.2s ease"
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-auth-card,
+          .dark .boost-auth-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input,
+          .dark .boost-auth-input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input:focus,
+          .dark .boost-auth-input:focus {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "24px" }, children: [
           /* @__PURE__ */ jsx(
             "div",
@@ -10591,8 +13296,8 @@ var ForgotPassword = ({
                 width: "48px",
                 height: "48px",
                 borderRadius: "24px",
-                backgroundColor: "#eff6ff",
-                color: "#2563eb",
+                backgroundColor: "rgba(99, 102, 241, 0.12)",
+                color: "var(--boost-primary, #6366f1)",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -10604,25 +13309,23 @@ var ForgotPassword = ({
               ] })
             }
           ),
-          /* @__PURE__ */ jsx("h2", { style: { fontSize: "20px", fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }, children: "Forgot password?" }),
-          /* @__PURE__ */ jsx("p", { style: { fontSize: "13px", color: "#64748b", margin: 0, lineHeight: 1.4 }, children: "No worries, we will send you reset instructions." })
+          /* @__PURE__ */ jsx("h2", { style: { fontSize: "clamp(20px, 3vw, 22px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", margin: "0 0 6px", letterSpacing: "-0.02em" }, children: "Forgot password?" }),
+          /* @__PURE__ */ jsx("p", { style: { fontSize: "13px", color: "var(--boost-muted, #64748b)", margin: 0, lineHeight: 1.5 }, children: "No worries, we will send you reset instructions." })
         ] }),
-        successMessage ? /* @__PURE__ */ jsxs(
+        successMessage ? /* @__PURE__ */ jsx(
           "div",
           {
             style: {
               padding: "16px",
-              backgroundColor: "#f0fdf4",
-              border: "1px solid #bbf7d0",
+              backgroundColor: "rgba(16, 185, 129, 0.1)",
+              border: "1px solid rgba(16, 185, 129, 0.2)",
               borderRadius: "8px",
-              color: "#166534",
+              color: "#10b981",
               fontSize: "13px",
-              textAlign: "center"
+              textAlign: "center",
+              lineHeight: 1.5
             },
-            children: [
-              /* @__PURE__ */ jsx("div", { style: { fontWeight: 600, marginBottom: "4px" }, children: "Check your email" }),
-              /* @__PURE__ */ jsx("div", { children: successMessage })
-            ]
+            children: successMessage
           }
         ) : /* @__PURE__ */ jsxs("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", gap: "16px" }, children: [
           errorMessage && /* @__PURE__ */ jsxs(
@@ -10633,10 +13336,10 @@ var ForgotPassword = ({
                 alignItems: "center",
                 gap: "8px",
                 padding: "10px 14px",
-                backgroundColor: "#fef2f2",
-                border: "1px solid #fecaca",
-                borderRadius: "6px",
-                color: "#dc2626",
+                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid rgba(239, 68, 68, 0.2)",
+                borderRadius: "8px",
+                color: "#ef4444",
                 fontSize: "13px"
               },
               children: [
@@ -10650,7 +13353,7 @@ var ForgotPassword = ({
             }
           ),
           /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { style: { display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "6px" }, children: "Email address" }),
+            /* @__PURE__ */ jsx("label", { style: { display: "block", fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", marginBottom: "6px" }, children: "Email Address" }),
             /* @__PURE__ */ jsx(
               "input",
               {
@@ -10659,14 +13362,18 @@ var ForgotPassword = ({
                 value: email,
                 onChange: (e) => setEmail(e.target.value),
                 placeholder: "you@example.com",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
-                  padding: "10px 14px",
+                  padding: "11px 14px",
                   fontSize: "14px",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: "6px",
-                  outline: "none"
+                  backgroundColor: "var(--boost-surface, #ffffff)",
+                  color: "var(--boost-text, #0f172a)",
+                  border: "1px solid var(--boost-border, #cbd5e1)",
+                  borderRadius: "8px",
+                  outline: "none",
+                  transition: "border-color 0.2s, box-shadow 0.2s"
                 }
               }
             )
@@ -10678,19 +13385,21 @@ var ForgotPassword = ({
               disabled: loading,
               style: {
                 width: "100%",
-                padding: "11px",
-                backgroundColor: "#0f172a",
+                padding: "12px",
+                background: "linear-gradient(135deg, var(--boost-primary, #6366f1) 0%, #4f46e5 100%)",
                 color: "#ffffff",
                 fontSize: "14px",
                 fontWeight: 600,
-                borderRadius: "6px",
+                borderRadius: "8px",
                 border: "none",
                 cursor: loading ? "not-allowed" : "pointer",
                 opacity: loading ? 0.7 : 1,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px"
+                gap: "8px",
+                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
+                transition: "transform 0.15s ease, box-shadow 0.15s ease"
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
@@ -10707,7 +13416,7 @@ var ForgotPassword = ({
                     ]
                   }
                 ),
-                /* @__PURE__ */ jsx("span", { children: loading ? "Sending link..." : "Reset Password" })
+                /* @__PURE__ */ jsx("span", { children: "Send Reset Instructions" })
               ]
             }
           )
@@ -10773,18 +13482,40 @@ var ResetPassword = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
+      className: "boost-auth-card",
       style: {
-        maxWidth: "400px",
+        maxWidth: "420px",
         width: "100%",
         margin: "0 auto",
-        padding: "32px 24px",
-        backgroundColor: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-        fontFamily: "system-ui, -apple-system, sans-serif"
+        padding: "clamp(24px, 5vw, 36px) clamp(18px, 4vw, 28px)",
+        backgroundColor: "var(--boost-surface, #ffffff)",
+        border: "1px solid var(--boost-border, #e2e8f0)",
+        borderRadius: "var(--boost-radius, 16px)",
+        boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
+        fontFamily: "inherit",
+        boxSizing: "border-box",
+        transition: "all 0.2s ease"
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-auth-card,
+          .dark .boost-auth-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input,
+          .dark .boost-auth-input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input:focus,
+          .dark .boost-auth-input:focus {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "24px" }, children: [
           /* @__PURE__ */ jsx(
             "div",
@@ -10793,8 +13524,8 @@ var ResetPassword = ({
                 width: "48px",
                 height: "48px",
                 borderRadius: "24px",
-                backgroundColor: "#eff6ff",
-                color: "#2563eb",
+                backgroundColor: "rgba(99, 102, 241, 0.12)",
+                color: "var(--boost-primary, #6366f1)",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -10807,8 +13538,8 @@ var ResetPassword = ({
               ] })
             }
           ),
-          /* @__PURE__ */ jsx("h2", { style: { fontSize: "20px", fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }, children: "Set new password" }),
-          /* @__PURE__ */ jsx("p", { style: { fontSize: "13px", color: "#64748b", margin: 0 }, children: "Must be at least 8 characters long." })
+          /* @__PURE__ */ jsx("h2", { style: { fontSize: "clamp(20px, 3vw, 22px)", fontWeight: 700, color: "var(--boost-text, #0f172a)", margin: "0 0 6px", letterSpacing: "-0.02em" }, children: "Set new password" }),
+          /* @__PURE__ */ jsx("p", { style: { fontSize: "13px", color: "var(--boost-muted, #64748b)", margin: 0, lineHeight: 1.5 }, children: "Must be at least 8 characters long." })
         ] }),
         activeError && /* @__PURE__ */ jsxs(
           "div",
@@ -10819,10 +13550,10 @@ var ResetPassword = ({
               gap: "8px",
               padding: "10px 14px",
               marginBottom: "16px",
-              backgroundColor: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: "6px",
-              color: "#dc2626",
+              backgroundColor: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              borderRadius: "8px",
+              color: "#ef4444",
               fontSize: "13px"
             },
             children: [
@@ -10837,7 +13568,7 @@ var ResetPassword = ({
         ),
         /* @__PURE__ */ jsxs("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", gap: "16px" }, children: [
           /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { style: { display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "6px" }, children: "New Password" }),
+            /* @__PURE__ */ jsx("label", { style: { display: "block", fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", marginBottom: "6px" }, children: "New Password" }),
             /* @__PURE__ */ jsx(
               "input",
               {
@@ -10846,20 +13577,24 @@ var ResetPassword = ({
                 value: password,
                 onChange: (e) => setPassword(e.target.value),
                 placeholder: "Enter new password",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
-                  padding: "10px 14px",
+                  padding: "11px 14px",
                   fontSize: "14px",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: "6px",
-                  outline: "none"
+                  backgroundColor: "var(--boost-surface, #ffffff)",
+                  color: "var(--boost-text, #0f172a)",
+                  border: "1px solid var(--boost-border, #cbd5e1)",
+                  borderRadius: "8px",
+                  outline: "none",
+                  transition: "border-color 0.2s, box-shadow 0.2s"
                 }
               }
             )
           ] }),
           /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { style: { display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "6px" }, children: "Confirm Password" }),
+            /* @__PURE__ */ jsx("label", { style: { display: "block", fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", marginBottom: "6px" }, children: "Confirm Password" }),
             /* @__PURE__ */ jsx(
               "input",
               {
@@ -10868,14 +13603,18 @@ var ResetPassword = ({
                 value: confirmPassword,
                 onChange: (e) => setConfirmPassword(e.target.value),
                 placeholder: "Re-enter new password",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
-                  padding: "10px 14px",
+                  padding: "11px 14px",
                   fontSize: "14px",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: "6px",
-                  outline: "none"
+                  backgroundColor: "var(--boost-surface, #ffffff)",
+                  color: "var(--boost-text, #0f172a)",
+                  border: "1px solid var(--boost-border, #cbd5e1)",
+                  borderRadius: "8px",
+                  outline: "none",
+                  transition: "border-color 0.2s, box-shadow 0.2s"
                 }
               }
             )
@@ -10887,19 +13626,21 @@ var ResetPassword = ({
               disabled: loading,
               style: {
                 width: "100%",
-                padding: "11px",
-                backgroundColor: "#0f172a",
+                padding: "12px",
+                background: "linear-gradient(135deg, var(--boost-primary, #6366f1) 0%, #4f46e5 100%)",
                 color: "#ffffff",
                 fontSize: "14px",
                 fontWeight: 600,
-                borderRadius: "6px",
+                borderRadius: "8px",
                 border: "none",
                 cursor: loading ? "not-allowed" : "pointer",
                 opacity: loading ? 0.7 : 1,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px"
+                gap: "8px",
+                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
+                transition: "transform 0.15s ease, box-shadow 0.15s ease"
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
@@ -11035,6 +13776,25 @@ var CartDrawer = ({
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
         }
+        :root[data-theme="dark"] .boost-cart-drawer-panel,
+        .dark .boost-cart-drawer-panel {
+          background-color: var(--boost-bg, #0f172a) !important;
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-cart-header,
+        .dark .boost-cart-header,
+        :root[data-theme="dark"] .boost-shipping-banner,
+        .dark .boost-shipping-banner,
+        :root[data-theme="dark"] .boost-cart-footer,
+        .dark .boost-cart-footer {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        :root[data-theme="dark"] .boost-cart-qty,
+        .dark .boost-cart-qty {
+          background-color: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
       ` }),
         /* @__PURE__ */ jsxs(
           "div",
@@ -11055,6 +13815,7 @@ var CartDrawer = ({
               /* @__PURE__ */ jsxs(
                 "div",
                 {
+                  className: "boost-cart-header",
                   style: {
                     padding: "16px 20px",
                     borderBottom: "1px solid var(--boost-border, #e2e8f0)",
@@ -11109,6 +13870,7 @@ var CartDrawer = ({
               /* @__PURE__ */ jsxs(
                 "div",
                 {
+                  className: "boost-shipping-banner",
                   style: {
                     padding: "12px 20px",
                     backgroundColor: "var(--boost-surface, #f8fafc)",
@@ -11205,22 +13967,40 @@ var CartDrawer = ({
                     paddingBottom: "14px"
                   },
                   children: [
-                    item.image && /* @__PURE__ */ jsx(
-                      "img",
+                    /* @__PURE__ */ jsx(
+                      "div",
                       {
-                        src: item.image,
-                        alt: item.title,
                         style: {
                           width: "64px",
                           height: "64px",
-                          objectFit: "cover",
                           borderRadius: "10px",
                           border: "1px solid var(--boost-border, #e2e8f0)",
-                          backgroundColor: "var(--boost-surface, #f8fafc)"
-                        }
+                          backgroundColor: "var(--boost-surface, #f8fafc)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          overflow: "hidden"
+                        },
+                        children: item.image ? /* @__PURE__ */ jsx(
+                          "img",
+                          {
+                            src: item.image,
+                            alt: item.title,
+                            style: {
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover"
+                            }
+                          }
+                        ) : /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", style: { color: "var(--boost-text-muted, #94a3b8)" }, children: [
+                          /* @__PURE__ */ jsx("rect", { x: "3", y: "3", width: "18", height: "18", rx: "2", ry: "2" }),
+                          /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "8.5", r: "1.5" }),
+                          /* @__PURE__ */ jsx("polyline", { points: "21 15 16 10 5 21" })
+                        ] })
                       }
                     ),
-                    /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                    /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0, textAlign: "left" }, children: [
                       /* @__PURE__ */ jsx(
                         "div",
                         {
@@ -11235,8 +14015,8 @@ var CartDrawer = ({
                           children: item.title
                         }
                       ),
-                      item.variantTitle && /* @__PURE__ */ jsx("div", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)", marginTop: "2px" }, children: item.variantTitle }),
-                      /* @__PURE__ */ jsxs("div", { style: { fontSize: "14px", fontWeight: 800, color: "var(--boost-text, #0f172a)", marginTop: "4px" }, children: [
+                      item.variantTitle && /* @__PURE__ */ jsx("div", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)", marginTop: "4px" }, children: item.variantTitle }),
+                      /* @__PURE__ */ jsxs("div", { style: { fontSize: "14px", fontWeight: 800, color: "var(--boost-text, #0f172a)", marginTop: "6px" }, children: [
                         "\u20B9",
                         item.price
                       ] })
@@ -11244,6 +14024,7 @@ var CartDrawer = ({
                     /* @__PURE__ */ jsxs(
                       "div",
                       {
+                        className: "boost-cart-qty",
                         style: {
                           display: "flex",
                           alignItems: "center",
@@ -11336,6 +14117,7 @@ var CartDrawer = ({
               items.length > 0 && /* @__PURE__ */ jsxs(
                 "div",
                 {
+                  className: "boost-cart-footer",
                   style: {
                     padding: "16px 20px",
                     borderTop: "1px solid var(--boost-border, #e2e8f0)",
@@ -11387,12 +14169,15 @@ var StickyAddToCart = ({
   title,
   price,
   compareAtPrice,
+  originalPrice,
   image,
   onAddToCart,
   onBuyNow,
   inStock = true,
-  className = ""
+  className = "",
+  style
 }) => {
+  const finalComparePrice = compareAtPrice ?? originalPrice;
   const [quantity, setQuantity] = React.useState(1);
   const [isAdding, setIsAdding] = React.useState(false);
   const [isBuying, setIsBuying] = React.useState(false);
@@ -11420,110 +14205,212 @@ var StickyAddToCart = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-sticky-add-to-cart ${className}`,
+      className: `boost-sticky-bar ${className}`,
       style: {
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "#ffffff",
-        boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.08)",
-        borderTop: "1px solid #e5e7eb",
-        padding: "10px 16px",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        padding: "12px 20px",
         zIndex: 999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        fontFamily: "inherit"
+        fontFamily: "inherit",
+        color: "var(--boost-text-primary, #0f172a)",
+        transition: "all 0.3s ease",
+        containerType: "inline-size",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }, children: [
-          image && /* @__PURE__ */ jsx(
-            "img",
-            {
-              src: image,
-              alt: title,
-              style: { width: "44px", height: "44px", objectFit: "cover", borderRadius: "6px", border: "1px solid #e5e7eb" }
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-sticky-bar {
+            background-color: var(--boost-surface, rgba(255, 255, 255, 0.92));
+            box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid var(--boost-border, rgba(0, 0, 0, 0.08));
+          }
+          :root[data-theme="dark"] .boost-sticky-bar,
+          .dark .boost-sticky-bar {
+            background-color: var(--boost-surface, rgba(15, 23, 42, 0.95)) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.7) !important;
+            color: #f8fafc !important;
+          }
+          .boost-sticky-bar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 16px;
+            flex-wrap: wrap;
+          }
+          .boost-sticky-product {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            min-width: 0;
+          }
+          .boost-sticky-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .boost-sticky-qty {
+            display: flex;
+            align-items: center;
+            background: var(--boost-bg-muted, rgba(0,0,0,0.04));
+            border-radius: 8px;
+            border: 1px solid var(--boost-border, rgba(0,0,0,0.08));
+          }
+          .boost-sticky-btn-primary, .boost-sticky-btn-secondary {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s, background-color 0.2s;
+            white-space: nowrap;
+          }
+          .boost-sticky-btn-primary:active, .boost-sticky-btn-secondary:active {
+            transform: scale(0.98);
+          }
+          .boost-sticky-btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+          }
+          .boost-sticky-btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.45);
+          }
+          .boost-sticky-btn-secondary {
+            background-color: var(--boost-surface, rgba(255, 255, 255, 0.08));
+            color: var(--boost-text-primary, #0f172a);
+            border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.12));
+          }
+          
+          /* Dark mode specific overrides */
+          :root[data-theme="dark"] .boost-sticky-btn-secondary,
+          .dark .boost-sticky-btn-secondary {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #f8fafc;
+            border-color: rgba(255, 255, 255, 0.15);
+          }
+          :root[data-theme="dark"] .boost-sticky-qty,
+          .dark .boost-sticky-qty {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+          }
+
+          /* Mobile Optimization using Container Queries for perfect responsiveness anywhere */
+          @container (max-width: 600px) {
+            .boost-sticky-bar {
+              padding: 12px 16px !important;
             }
-          ),
-          /* @__PURE__ */ jsxs("div", { style: { minWidth: 0 }, children: [
-            /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "180px" }, children: title }),
-            /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }, children: [
-              /* @__PURE__ */ jsxs("span", { style: { fontSize: "14px", fontWeight: 700, color: "#111827" }, children: [
-                "\u20B9",
-                price
-              ] }),
-              compareAtPrice && compareAtPrice > price && /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", color: "#9ca3af", textDecoration: "line-through" }, children: [
-                "\u20B9",
-                compareAtPrice
-              ] })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", border: "1px solid #d1d5db", borderRadius: "6px", overflow: "hidden" }, children: [
-            /* @__PURE__ */ jsx(
-              "button",
+            .boost-sticky-bar-content {
+              flex-direction: column;
+              align-items: stretch;
+              gap: 12px;
+            }
+            .boost-sticky-product {
+              justify-content: space-between;
+              width: 100%;
+            }
+            .boost-sticky-product-title {
+              font-size: 13px !important;
+              max-width: 120px;
+            }
+            .boost-sticky-actions {
+              width: 100%;
+              justify-content: stretch;
+            }
+            .boost-sticky-actions > button {
+              flex: 1;
+              padding: 12px 8px;
+            }
+            .boost-sticky-qty {
+              display: none !important; /* Hide quantity to give buttons more space */
+            }
+          }
+        ` }),
+        /* @__PURE__ */ jsxs("div", { className: "boost-sticky-bar-content", children: [
+          /* @__PURE__ */ jsxs("div", { className: "boost-sticky-product", children: [
+            image && /* @__PURE__ */ jsx(
+              "img",
               {
-                onClick: () => setQuantity(Math.max(1, quantity - 1)),
-                "aria-label": "Decrease quantity",
-                disabled: isAdding || isBuying,
-                style: { padding: "6px 10px", border: "none", background: "#f9fafb", cursor: "pointer", fontSize: "14px", fontWeight: 600 },
-                children: "-"
+                src: image,
+                alt: title,
+                style: { width: "48px", height: "48px", objectFit: "cover", borderRadius: "8px", border: "1px solid var(--boost-border, rgba(0,0,0,0.1))" }
               }
             ),
-            /* @__PURE__ */ jsx("span", { style: { padding: "6px 8px", fontSize: "13px", fontWeight: 600, minWidth: "20px", textAlign: "center" }, children: quantity }),
+            /* @__PURE__ */ jsxs("div", { style: { minWidth: 0, flex: 1 }, children: [
+              /* @__PURE__ */ jsx("div", { className: "boost-sticky-product-title", style: { fontSize: "14px", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: title }),
+              /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }, children: [
+                /* @__PURE__ */ jsxs("span", { style: { fontSize: "16px", fontWeight: 700 }, children: [
+                  "\u20B9",
+                  price
+                ] }),
+                finalComparePrice && finalComparePrice > price && /* @__PURE__ */ jsxs("span", { style: { fontSize: "13px", color: "var(--boost-text-muted, #94a3b8)", textDecoration: "line-through" }, children: [
+                  "\u20B9",
+                  finalComparePrice
+                ] })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "boost-sticky-actions", children: [
+            /* @__PURE__ */ jsxs("div", { className: "boost-sticky-qty", children: [
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  onClick: () => setQuantity(Math.max(1, quantity - 1)),
+                  "aria-label": "Decrease quantity",
+                  disabled: isAdding || isBuying,
+                  style: { padding: "8px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "16px", fontWeight: 500, color: "inherit" },
+                  children: "-"
+                }
+              ),
+              /* @__PURE__ */ jsx("span", { style: { padding: "8px", fontSize: "14px", fontWeight: 600, minWidth: "32px", textAlign: "center" }, children: quantity }),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  onClick: () => setQuantity(quantity + 1),
+                  "aria-label": "Increase quantity",
+                  disabled: isAdding || isBuying,
+                  style: { padding: "8px 14px", border: "none", background: "transparent", cursor: "pointer", fontSize: "16px", fontWeight: 500, color: "inherit" },
+                  children: "+"
+                }
+              )
+            ] }),
             /* @__PURE__ */ jsx(
               "button",
               {
-                onClick: () => setQuantity(quantity + 1),
-                "aria-label": "Increase quantity",
+                onClick: handleAddToCart,
+                disabled: !inStock || isAdding || isBuying,
+                className: "boost-sticky-btn-primary",
+                style: {
+                  backgroundColor: !inStock ? "var(--boost-bg-muted, #9ca3af)" : addedFeedback ? "#10b981" : void 0,
+                  opacity: (!inStock || isAdding || isBuying) && !addedFeedback ? 0.7 : 1,
+                  cursor: !inStock || isAdding || isBuying ? "not-allowed" : "pointer"
+                },
+                children: !inStock ? "Sold Out" : isAdding ? "Adding..." : addedFeedback ? "Added! \u2713" : "Add to Cart"
+              }
+            ),
+            onBuyNow && inStock && /* @__PURE__ */ jsx(
+              "button",
+              {
+                onClick: handleBuyNow,
                 disabled: isAdding || isBuying,
-                style: { padding: "6px 10px", border: "none", background: "#f9fafb", cursor: "pointer", fontSize: "14px", fontWeight: 600 },
-                children: "+"
+                className: "boost-sticky-btn-secondary",
+                style: {
+                  opacity: isAdding || isBuying ? 0.7 : 1,
+                  cursor: isAdding || isBuying ? "not-allowed" : "pointer"
+                },
+                children: isBuying ? "Processing..." : "Buy Now"
               }
             )
-          ] }),
-          /* @__PURE__ */ jsx(
-            "button",
-            {
-              onClick: handleAddToCart,
-              disabled: !inStock || isAdding || isBuying,
-              style: {
-                backgroundColor: !inStock ? "#9ca3af" : addedFeedback ? "#16a34a" : "#000000",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "10px 16px",
-                fontSize: "13px",
-                fontWeight: 700,
-                cursor: inStock && !isAdding && !isBuying ? "pointer" : "not-allowed",
-                whiteSpace: "nowrap",
-                transition: "background-color 0.2s ease"
-              },
-              children: !inStock ? "Sold Out" : isAdding ? "Adding..." : addedFeedback ? "Added! \u2713" : "Add to Cart"
-            }
-          ),
-          onBuyNow && inStock && /* @__PURE__ */ jsx(
-            "button",
-            {
-              onClick: handleBuyNow,
-              disabled: isAdding || isBuying,
-              style: {
-                backgroundColor: isBuying ? "#1d4ed8" : "#2563eb",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "10px 16px",
-                fontSize: "13px",
-                fontWeight: 700,
-                cursor: !isAdding && !isBuying ? "pointer" : "not-allowed",
-                whiteSpace: "nowrap",
-                transition: "background-color 0.2s ease"
-              },
-              children: isBuying ? "Processing..." : "Buy Now"
-            }
-          )
+          ] })
         ] })
       ]
     }
@@ -11590,16 +14477,16 @@ var PincodeChecker = ({
     }
   };
   return /* @__PURE__ */ jsxs("div", { style: { margin: "14px 0", fontFamily: "inherit" }, className: `boost-pincode-checker ${className}`, children: [
-    /* @__PURE__ */ jsxs("div", { style: { fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }, children: [
-      /* @__PURE__ */ jsxs("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
-        /* @__PURE__ */ jsx("rect", { x: "1", y: "3", width: "15", height: "13" }),
+    /* @__PURE__ */ jsxs("div", { style: { fontSize: "14px", fontWeight: 600, color: "var(--boost-text-primary, inherit)", marginBottom: "10px", display: "flex", alignItems: "center", gap: "8px" }, children: [
+      /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", opacity: 0.8, children: [
+        /* @__PURE__ */ jsx("rect", { x: "1", y: "3", width: "15", height: "13", rx: "1" }),
         /* @__PURE__ */ jsx("polygon", { points: "16 8 20 8 23 11 23 16 16 16 16 8" }),
         /* @__PURE__ */ jsx("circle", { cx: "5.5", cy: "18.5", r: "2.5" }),
         /* @__PURE__ */ jsx("circle", { cx: "18.5", cy: "18.5", r: "2.5" })
       ] }),
-      /* @__PURE__ */ jsx("span", { children: "Check Delivery & COD Availability:" })
+      /* @__PURE__ */ jsx("span", { children: "Check Delivery & COD Availability" })
     ] }),
-    /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "8px", maxWidth: "320px" }, children: [
+    /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "8px", maxWidth: "340px" }, children: [
       /* @__PURE__ */ jsx(
         "input",
         {
@@ -11611,11 +14498,14 @@ var PincodeChecker = ({
           onKeyDown: (e) => e.key === "Enter" && handleCheck(),
           style: {
             flex: 1,
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #d1d5db",
-            fontSize: "13px",
-            outline: "none"
+            padding: "10px 14px",
+            borderRadius: "8px",
+            border: "1px solid var(--boost-border, #334155)",
+            backgroundColor: "transparent",
+            color: "var(--boost-text-primary, inherit)",
+            fontSize: "14px",
+            outline: "none",
+            transition: "border-color 0.2s"
           }
         }
       ),
@@ -11623,39 +14513,48 @@ var PincodeChecker = ({
         "button",
         {
           onClick: handleCheck,
-          disabled: loading,
+          disabled: loading || pincode.length !== 6,
           style: {
-            backgroundColor: "#000",
-            color: "#fff",
+            backgroundColor: "var(--boost-primary, #3b82f6)",
+            color: "#ffffff",
             border: "none",
-            borderRadius: "6px",
-            padding: "8px 16px",
-            fontSize: "13px",
+            borderRadius: "8px",
+            padding: "10px 20px",
+            fontSize: "14px",
             fontWeight: 600,
-            cursor: loading ? "not-allowed" : "pointer"
+            cursor: loading || pincode.length !== 6 ? "not-allowed" : "pointer",
+            opacity: loading || pincode.length !== 6 ? 0.6 : 1,
+            transition: "opacity 0.2s, background-color 0.2s"
           },
           children: loading ? "Checking..." : "Check"
         }
       )
     ] }),
-    error && /* @__PURE__ */ jsx("div", { style: { color: "#dc2626", fontSize: "12px", marginTop: "6px" }, children: error }),
-    result && /* @__PURE__ */ jsx("div", { style: { marginTop: "8px", fontSize: "12px", color: "#166534", background: "#f0fdf4", padding: "8px 12px", borderRadius: "6px", border: "1px solid #bbf7d0" }, children: result.isServiceable ? /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
-      /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
-        /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "#16a34a", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
+    error && /* @__PURE__ */ jsxs("div", { style: { color: "#ef4444", fontSize: "13px", marginTop: "8px", display: "flex", alignItems: "center", gap: "6px" }, children: [
+      /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+        /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
+        /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
+        /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
+      ] }),
+      /* @__PURE__ */ jsx("span", { children: error })
+    ] }),
+    result && /* @__PURE__ */ jsx("div", { style: { marginTop: "12px" }, children: result.isServiceable ? /* @__PURE__ */ jsxs("div", { style: { background: "rgba(34, 197, 94, 0.08)", padding: "12px 16px", borderRadius: "8px", border: "1px dashed rgba(34, 197, 94, 0.3)", display: "flex", flexDirection: "column", gap: "6px" }, children: [
+      /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#22c55e", fontSize: "14px" }, children: [
+        /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
         /* @__PURE__ */ jsxs("strong", { children: [
           "Delivery by ",
           result.estimatedDeliveryDate
         ] })
       ] }),
-      result.isCodAvailable && /* @__PURE__ */ jsxs("div", { style: { color: "#854d0e", display: "flex", alignItems: "center", gap: "6px" }, children: [
-        /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "#854d0e", strokeWidth: "2", children: [
+      result.isCodAvailable && /* @__PURE__ */ jsxs("div", { style: { color: "var(--boost-text-muted, #94a3b8)", fontSize: "13px", display: "flex", alignItems: "center", gap: "8px", marginLeft: "2px" }, children: [
+        /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
           /* @__PURE__ */ jsx("rect", { x: "2", y: "6", width: "20", height: "12", rx: "2" }),
           /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "2" })
         ] }),
         /* @__PURE__ */ jsx("span", { children: "Cash on Delivery (COD) is available" })
       ] })
-    ] }) : /* @__PURE__ */ jsxs("div", { style: { color: "#dc2626", display: "flex", alignItems: "center", gap: "6px" }, children: [
-      /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "#dc2626", strokeWidth: "2", children: [
+    ] }) : /* @__PURE__ */ jsxs("div", { style: { background: "rgba(239, 68, 68, 0.08)", padding: "12px 16px", borderRadius: "8px", border: "1px dashed rgba(239, 68, 68, 0.3)", color: "#ef4444", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 500 }, children: [
+      /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
         /* @__PURE__ */ jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
         /* @__PURE__ */ jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
       ] }),
@@ -11670,57 +14569,155 @@ var TrustBadges = ({
   showReturnsBadge = true,
   showSecureBadge = true,
   showGenuineBadge = true,
-  className = ""
+  className = "",
+  style
 }) => {
-  const containerStyle = {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "12px",
-    justifyContent: layout === "grid" ? "space-between" : "flex-start",
-    alignItems: "center",
-    padding: "12px",
-    backgroundColor: "#f9fafb",
-    borderRadius: "8px",
-    border: "1px solid #f3f4f6",
-    margin: "12px 0"
-  };
-  const badgeItemStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "#374151"
-  };
-  return /* @__PURE__ */ jsxs("div", { style: containerStyle, className: `boost-trust-badges ${className}`, children: [
-    showGenuineBadge && /* @__PURE__ */ jsxs("div", { style: badgeItemStyle, children: [
-      /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "#16a34a", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }) }),
-      /* @__PURE__ */ jsx("span", { children: "100% Genuine" })
-    ] }),
-    showReturnsBadge && /* @__PURE__ */ jsxs("div", { style: badgeItemStyle, children: [
-      /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "#2563eb", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
-        /* @__PURE__ */ jsx("path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" }),
-        /* @__PURE__ */ jsx("path", { d: "M21 3v5h-5" }),
-        /* @__PURE__ */ jsx("path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" }),
-        /* @__PURE__ */ jsx("path", { d: "M8 16H3v5" })
-      ] }),
-      /* @__PURE__ */ jsx("span", { children: "7-Day Easy Returns" })
-    ] }),
-    showCodBadge && /* @__PURE__ */ jsxs("div", { style: badgeItemStyle, children: [
-      /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "#d97706", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
-        /* @__PURE__ */ jsx("rect", { x: "2", y: "5", width: "20", height: "14", rx: "2" }),
-        /* @__PURE__ */ jsx("line", { x1: "2", y1: "10", x2: "22", y2: "10" })
-      ] }),
-      /* @__PURE__ */ jsx("span", { children: "COD Available" })
-    ] }),
-    showSecureBadge && /* @__PURE__ */ jsxs("div", { style: badgeItemStyle, children: [
-      /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "#4f46e5", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
-        /* @__PURE__ */ jsx("rect", { x: "3", y: "11", width: "18", height: "11", rx: "2", ry: "2" }),
-        /* @__PURE__ */ jsx("path", { d: "M7 11V7a5 5 0 0 1 10 0v4" })
-      ] }),
-      /* @__PURE__ */ jsx("span", { children: "256-Bit SSL Secure" })
-    ] })
-  ] });
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: `boost-trust-badges boost-layout-${layout} ${className}`,
+      style: {
+        backgroundColor: "var(--boost-surface, #f8fafc)",
+        borderRadius: "16px",
+        border: "1px solid var(--boost-border, rgba(0,0,0,0.06))",
+        padding: "20px",
+        margin: "16px 0",
+        fontFamily: "inherit",
+        ...style
+      },
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-trust-badges {
+            transition: all 0.2s ease;
+          }
+          
+          /* Grid Layout */
+          .boost-trust-badges.boost-layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+            gap: 20px;
+            align-items: start;
+          }
+
+          @media (max-width: 580px) {
+            .boost-trust-badges.boost-layout-grid {
+              grid-template-columns: repeat(2, 1fr);
+              gap: 14px;
+              padding: 16px !important;
+            }
+          }
+          
+          /* Row Layout */
+          .boost-trust-badges.boost-layout-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .boost-badge-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--boost-text-primary, #334155);
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .boost-badge-item:hover {
+            transform: translateY(-2px);
+          }
+
+          .boost-badge-item:hover .boost-badge-icon-wrapper {
+            transform: scale(1.08);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+          }
+          
+          .boost-layout-grid .boost-badge-item {
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+          }
+
+          .boost-badge-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--boost-bg-muted, #ffffff);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid var(--boost-border, rgba(0,0,0,0.05));
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+
+          .boost-layout-row .boost-layout-grid-only {
+            display: none;
+          }
+
+          /* Dark Mode Tweaks */
+          :root[data-theme="dark"] .boost-trust-badges,
+          .dark .boost-trust-badges {
+            background-color: var(--boost-surface, #1e293b);
+          }
+          :root[data-theme="dark"] .boost-badge-icon-wrapper,
+          .dark .boost-badge-icon-wrapper {
+            background: rgba(255,255,255,0.04);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            border-color: rgba(255,255,255,0.08);
+          }
+        ` }),
+        showGenuineBadge && /* @__PURE__ */ jsxs("div", { className: "boost-badge-item", children: [
+          /* @__PURE__ */ jsx("div", { className: "boost-badge-icon-wrapper", style: { color: "var(--boost-success, #10b981)" }, children: /* @__PURE__ */ jsx("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }) }) }),
+          /* @__PURE__ */ jsxs("span", { children: [
+            "100%",
+            /* @__PURE__ */ jsx("br", { className: "boost-layout-grid-only" }),
+            " Genuine"
+          ] })
+        ] }),
+        showReturnsBadge && /* @__PURE__ */ jsxs("div", { className: "boost-badge-item", children: [
+          /* @__PURE__ */ jsx("div", { className: "boost-badge-icon-wrapper", style: { color: "var(--boost-primary, #3b82f6)" }, children: /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+            /* @__PURE__ */ jsx("path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" }),
+            /* @__PURE__ */ jsx("path", { d: "M21 3v5h-5" }),
+            /* @__PURE__ */ jsx("path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" }),
+            /* @__PURE__ */ jsx("path", { d: "M8 16H3v5" })
+          ] }) }),
+          /* @__PURE__ */ jsxs("span", { children: [
+            "7-Day",
+            /* @__PURE__ */ jsx("br", { className: "boost-layout-grid-only" }),
+            " Easy Returns"
+          ] })
+        ] }),
+        showCodBadge && /* @__PURE__ */ jsxs("div", { className: "boost-badge-item", children: [
+          /* @__PURE__ */ jsx("div", { className: "boost-badge-icon-wrapper", style: { color: "var(--boost-warning, #f59e0b)" }, children: /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+            /* @__PURE__ */ jsx("rect", { x: "2", y: "5", width: "20", height: "14", rx: "2" }),
+            /* @__PURE__ */ jsx("line", { x1: "2", y1: "10", x2: "22", y2: "10" })
+          ] }) }),
+          /* @__PURE__ */ jsxs("span", { children: [
+            "COD",
+            /* @__PURE__ */ jsx("br", { className: "boost-layout-grid-only" }),
+            " Available"
+          ] })
+        ] }),
+        showSecureBadge && /* @__PURE__ */ jsxs("div", { className: "boost-badge-item", children: [
+          /* @__PURE__ */ jsx("div", { className: "boost-badge-icon-wrapper", style: { color: "var(--boost-danger, #ef4444)" }, children: /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+            /* @__PURE__ */ jsx("rect", { x: "3", y: "11", width: "18", height: "11", rx: "2", ry: "2" }),
+            /* @__PURE__ */ jsx("path", { d: "M7 11V7a5 5 0 0 1 10 0v4" })
+          ] }) }),
+          /* @__PURE__ */ jsxs("span", { children: [
+            "256-Bit SSL",
+            /* @__PURE__ */ jsx("br", { className: "boost-layout-grid-only" }),
+            " Secure"
+          ] })
+        ] })
+      ]
+    }
+  );
 };
 TrustBadges.displayName = "TrustBadges";
 var STAGES = [
@@ -11736,37 +14733,140 @@ var OrderTimeline = ({
   className = ""
 }) => {
   const currentIndex = STAGES.findIndex((s) => s.id === currentStage);
-  return /* @__PURE__ */ jsx("div", { className: `boost-order-timeline ${className}`, style: { padding: "16px 0", fontFamily: "inherit" }, children: /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }, children: [
-    /* @__PURE__ */ jsx("div", { style: { position: "absolute", top: "14px", left: "20px", right: "20px", height: "3px", backgroundColor: "#e5e7eb", zIndex: 0 } }),
-    STAGES.map((stage, idx) => {
-      const isPassed = idx <= currentIndex;
-      const isCurrent = idx === currentIndex;
-      return /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, minWidth: "60px" }, children: [
-        /* @__PURE__ */ jsx(
-          "div",
-          {
-            style: {
-              width: "28px",
-              height: "28px",
-              borderRadius: "999px",
-              backgroundColor: isPassed ? "#16a34a" : "#ffffff",
-              border: `2px solid ${isPassed ? "#16a34a" : "#d1d5db"}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              fontSize: "12px",
-              fontWeight: 700,
-              boxShadow: isCurrent ? "0 0 0 4px rgba(22, 163, 74, 0.2)" : "none"
-            },
-            children: isPassed ? "\u2713" : idx + 1
-          }
-        ),
-        /* @__PURE__ */ jsx("div", { style: { marginTop: "8px", fontSize: "11px", fontWeight: isCurrent ? 700 : 500, color: isCurrent ? "#111827" : "#6b7280", textAlign: "center" }, children: stage.label }),
-        dates[stage.id] && /* @__PURE__ */ jsx("div", { style: { fontSize: "10px", color: "#9ca3af", marginTop: "2px" }, children: dates[stage.id] })
-      ] }, stage.id);
-    })
-  ] }) });
+  const progressPercent = currentIndex >= 0 ? currentIndex / (STAGES.length - 1) * 100 : 0;
+  return /* @__PURE__ */ jsxs("div", { className: `boost-order-timeline ${className}`, style: { padding: "16px 8px", width: "100%", boxSizing: "border-box" }, children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        .boost-timeline-container {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          position: relative;
+          width: 100%;
+        }
+        .boost-timeline-track-bg {
+          position: absolute;
+          top: 15px;
+          left: 18px;
+          right: 18px;
+          height: 3px;
+          background-color: var(--boost-border, #e2e8f0);
+          z-index: 0;
+          border-radius: 9999px;
+        }
+        .boost-timeline-track-fill {
+          position: absolute;
+          top: 15px;
+          left: 18px;
+          height: 3px;
+          background: linear-gradient(90deg, #10b981, #059669);
+          z-index: 1;
+          border-radius: 9999px;
+          transition: width 0.4s ease;
+        }
+        :root[data-theme="dark"] .boost-timeline-track-bg,
+        .dark .boost-timeline-track-bg {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        .boost-timeline-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+          z-index: 2;
+          flex: 1;
+          max-width: 90px;
+        }
+        .boost-timeline-node {
+          width: 32px;
+          height: 32px;
+          border-radius: 9999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 700;
+          transition: all 0.3s ease;
+        }
+        .boost-timeline-node.passed {
+          background: #10b981;
+          color: #ffffff;
+          box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+        }
+        .boost-timeline-node.current {
+          background: #10b981;
+          color: #ffffff;
+          box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25), 0 4px 14px rgba(16, 185, 129, 0.4);
+          animation: boostPulse 2s infinite;
+        }
+        .boost-timeline-node.upcoming {
+          background: var(--boost-surface, #ffffff);
+          border: 2px solid var(--boost-border, #cbd5e1);
+          color: var(--boost-text-muted, #94a3b8);
+        }
+        :root[data-theme="dark"] .boost-timeline-node.upcoming,
+        .dark .boost-timeline-node.upcoming {
+          background: #111827 !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: rgba(255, 255, 255, 0.4) !important;
+        }
+        .boost-timeline-label {
+          margin-top: 8px;
+          font-size: 11px;
+          text-align: center;
+          line-height: 1.25;
+          letter-spacing: -0.01em;
+        }
+        .boost-timeline-label.current {
+          font-weight: 700;
+          color: var(--boost-text-primary, #0f172a);
+        }
+        .boost-timeline-label.passed {
+          font-weight: 600;
+          color: var(--boost-text-primary, #0f172a);
+        }
+        .boost-timeline-label.upcoming {
+          font-weight: 500;
+          color: var(--boost-text-muted, #94a3b8);
+        }
+        :root[data-theme="dark"] .boost-timeline-label.current,
+        .dark .boost-timeline-label.current {
+          color: #ffffff !important;
+        }
+        :root[data-theme="dark"] .boost-timeline-label.passed,
+        .dark .boost-timeline-label.passed {
+          color: #e2e8f0 !important;
+        }
+        :root[data-theme="dark"] .boost-timeline-label.upcoming,
+        .dark .boost-timeline-label.upcoming {
+          color: #64748b !important;
+        }
+        @keyframes boostPulse {
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+          70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+      ` }),
+    /* @__PURE__ */ jsxs("div", { className: "boost-timeline-container", children: [
+      /* @__PURE__ */ jsx("div", { className: "boost-timeline-track-bg" }),
+      /* @__PURE__ */ jsx(
+        "div",
+        {
+          className: "boost-timeline-track-fill",
+          style: { width: `calc(${progressPercent}% * 0.88)` }
+        }
+      ),
+      STAGES.map((stage, idx) => {
+        const isPassed = idx < currentIndex;
+        const isCurrent = idx === currentIndex;
+        const status = isCurrent ? "current" : isPassed ? "passed" : "upcoming";
+        return /* @__PURE__ */ jsxs("div", { className: "boost-timeline-step", children: [
+          /* @__PURE__ */ jsx("div", { className: `boost-timeline-node ${status}`, children: isPassed ? /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) : isCurrent ? /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "4", fill: "currentColor" }) }) : idx + 1 }),
+          /* @__PURE__ */ jsx("div", { className: `boost-timeline-label ${status}`, children: stage.label }),
+          dates[stage.id] && /* @__PURE__ */ jsx("div", { style: { fontSize: "10px", color: "var(--boost-text-muted, #94a3b8)", marginTop: "3px" }, children: dates[stage.id] })
+        ] }, stage.id);
+      })
+    ] })
+  ] });
 };
 OrderTimeline.displayName = "OrderTimeline";
 var StarRating = ({
@@ -11779,6 +14879,7 @@ var StarRating = ({
   className = ""
 }) => {
   const clamped = Math.max(0, Math.min(5, rating));
+  const gradientId = React.useId ? React.useId().replace(/:/g, "") : `half-star-${Math.random().toString(36).substring(2, 7)}`;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -11794,13 +14895,13 @@ var StarRating = ({
               width: size,
               height: size,
               viewBox: "0 0 24 24",
-              fill: isFilled ? color : isHalf ? "url(#half-star)" : "none",
+              fill: isFilled ? color : isHalf ? `url(#${gradientId})` : "none",
               stroke: color,
               strokeWidth: "2",
               strokeLinecap: "round",
               strokeLinejoin: "round",
               children: [
-                /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: "half-star", children: [
+                /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: gradientId, children: [
                   /* @__PURE__ */ jsx("stop", { offset: "50%", stopColor: color }),
                   /* @__PURE__ */ jsx("stop", { offset: "50%", stopColor: "transparent", stopOpacity: "1" })
                 ] }) }),
@@ -11810,9 +14911,9 @@ var StarRating = ({
             star
           );
         }) }),
-        showText && /* @__PURE__ */ jsxs("span", { style: { fontSize: `${size * 0.85}px`, fontWeight: 600, color: "#374151", marginLeft: "4px" }, children: [
+        showText && /* @__PURE__ */ jsxs("span", { style: { fontSize: `${size * 0.85}px`, fontWeight: 600, color: "var(--boost-text-primary, #374151)", marginLeft: "4px" }, children: [
           clamped.toFixed(1),
-          reviewCount !== void 0 && /* @__PURE__ */ jsxs("span", { style: { color: "#6b7280", fontWeight: 400, marginLeft: "2px" }, children: [
+          reviewCount !== void 0 && /* @__PURE__ */ jsxs("span", { style: { color: "var(--boost-text-muted, #9ca3af)", fontWeight: 400, marginLeft: "4px" }, children: [
             "(",
             reviewCount,
             ")"
@@ -12074,94 +15175,166 @@ var VariantSelector = ({
   ...props
 }) => {
   const values = selectedValues || props.selectedVariants || {};
-  return /* @__PURE__ */ jsx("div", { className: `boost-variant-selector ${className}`, style: { display: "flex", flexDirection: "column", gap: "16px", fontFamily: "inherit" }, children: groups.map((group) => {
-    const selected = values[group.name];
-    const isColor = group.type === "color";
-    return /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: [
-      /* @__PURE__ */ jsx("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", fontWeight: 800, textTransform: "uppercase", color: "#111827", letterSpacing: "0.05em" }, children: [
-        group.name,
-        ": ",
-        /* @__PURE__ */ jsx("span", { style: { fontWeight: 500, color: "#4b5563", textTransform: "none" }, children: selected || "None selected" })
-      ] }) }),
-      /* @__PURE__ */ jsx("div", { style: { display: "flex", flexWrap: "wrap", gap: "8px" }, children: group.options.map((opt) => {
-        const optVal = opt.value || opt.label || opt.name || opt.id || "";
-        const optDisplay = opt.label || opt.value || opt.name || opt.id;
-        const isSelected = selected === optVal || selected === opt.id;
-        const isOutOfStock = opt.inStock === false;
-        if (isColor && opt.colorHex) {
-          return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsxs("div", { className: `boost-variant-selector ${className}`, style: { display: "flex", flexDirection: "column", gap: "18px", width: "100%" }, children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        .boost-variant-label {
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          color: var(--boost-text-primary, #0f172a);
+          letter-spacing: 0.05em;
+        }
+        :root[data-theme="dark"] .boost-variant-label,
+        .dark .boost-variant-label {
+          color: #f8fafc !important;
+        }
+        .boost-variant-selected-val {
+          font-weight: 600;
+          color: var(--boost-primary, #6366f1);
+          text-transform: none;
+          margin-left: 4px;
+        }
+        .boost-variant-chip {
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 600;
+          border: 1px solid var(--boost-border, #e2e8f0);
+          background: var(--boost-surface, #ffffff);
+          color: var(--boost-text-primary, #0f172a);
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .boost-variant-chip:hover:not(:disabled) {
+          border-color: var(--boost-primary, #6366f1);
+          transform: translateY(-1px);
+        }
+        .boost-variant-chip.selected {
+          background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+          border-color: #4f46e5;
+          color: #ffffff !important;
+          box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+        :root[data-theme="dark"] .boost-variant-chip,
+        .dark .boost-variant-chip {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          color: #f1f5f9 !important;
+        }
+        :root[data-theme="dark"] .boost-variant-chip:hover:not(:disabled),
+        .dark .boost-variant-chip:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(99, 102, 241, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-variant-chip.selected,
+        .dark .boost-variant-chip.selected {
+          background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+          border-color: #6366f1 !important;
+          color: #ffffff !important;
+          box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45) !important;
+        }
+        .boost-color-swatch {
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          cursor: pointer;
+          position: relative;
+          padding: 0;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 2px solid rgba(0, 0, 0, 0.12);
+        }
+        .boost-color-swatch:hover:not(:disabled) {
+          transform: scale(1.1);
+        }
+        .boost-color-swatch.selected {
+          transform: scale(1.15);
+          box-shadow: 0 0 0 2px var(--boost-surface, #ffffff), 0 0 0 4px #6366f1;
+        }
+        :root[data-theme="dark"] .boost-color-swatch,
+        .dark .boost-color-swatch {
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+        :root[data-theme="dark"] .boost-color-swatch.selected,
+        .dark .boost-color-swatch.selected {
+          box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px #818cf8;
+        }
+      ` }),
+    groups.map((group) => {
+      const selected = values[group.name];
+      const isColor = group.type === "color";
+      return /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "10px" }, children: [
+        /* @__PURE__ */ jsx("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: /* @__PURE__ */ jsxs("span", { className: "boost-variant-label", children: [
+          group.name,
+          ":",
+          /* @__PURE__ */ jsx("span", { className: "boost-variant-selected-val", children: selected || "Select option" })
+        ] }) }),
+        /* @__PURE__ */ jsx("div", { style: { display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }, children: group.options.map((opt) => {
+          const optVal = opt.value || opt.label || opt.name || opt.id || "";
+          const optDisplay = opt.label || opt.value || opt.name || opt.id;
+          const isSelected = selected === optVal || selected === opt.id;
+          const isOutOfStock = opt.inStock === false;
+          if (isColor && opt.colorHex) {
+            return /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                disabled: isOutOfStock,
+                onClick: () => onChange && onChange(group.name, optVal, opt),
+                title: `${optDisplay}${isOutOfStock ? " (Sold Out)" : ""}`,
+                className: `boost-color-swatch ${isSelected ? "selected" : ""}`,
+                style: {
+                  backgroundColor: opt.colorHex,
+                  cursor: isOutOfStock ? "not-allowed" : "pointer",
+                  opacity: isOutOfStock ? 0.35 : 1
+                },
+                children: isOutOfStock && /* @__PURE__ */ jsx(
+                  "span",
+                  {
+                    style: {
+                      position: "absolute",
+                      top: "50%",
+                      left: "0",
+                      right: "0",
+                      height: "2px",
+                      backgroundColor: "#ef4444",
+                      transform: "rotate(-45deg)"
+                    }
+                  }
+                )
+              },
+              opt.id
+            );
+          }
+          return /* @__PURE__ */ jsxs(
             "button",
             {
               type: "button",
               disabled: isOutOfStock,
               onClick: () => onChange && onChange(group.name, optVal, opt),
-              title: `${optDisplay}${isOutOfStock ? " (Sold Out)" : ""}`,
+              className: `boost-variant-chip ${isSelected ? "selected" : ""}`,
               style: {
-                width: "34px",
-                height: "34px",
-                borderRadius: "999px",
-                backgroundColor: opt.colorHex,
-                border: isSelected ? "3px solid #000000" : "2px solid #e5e7eb",
-                outline: isSelected ? "2px solid #ffffff" : "none",
                 cursor: isOutOfStock ? "not-allowed" : "pointer",
-                opacity: isOutOfStock ? 0.35 : 1,
-                position: "relative",
-                transition: "transform 0.15s ease",
-                transform: isSelected ? "scale(1.1)" : "scale(1)",
-                padding: 0
+                textDecoration: isOutOfStock ? "line-through" : "none",
+                opacity: isOutOfStock ? 0.45 : 1
               },
-              children: isOutOfStock && /* @__PURE__ */ jsx(
-                "span",
-                {
-                  style: {
-                    position: "absolute",
-                    top: "50%",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    backgroundColor: "#ef4444",
-                    transform: "rotate(-45deg)"
-                  }
-                }
-              )
+              children: [
+                /* @__PURE__ */ jsx("span", { children: optDisplay }),
+                opt.priceDelta && opt.priceDelta > 0 && /* @__PURE__ */ jsxs("span", { style: { fontSize: "11px", marginLeft: "5px", opacity: 0.85 }, children: [
+                  "(+\u20B9",
+                  opt.priceDelta,
+                  ")"
+                ] })
+              ]
             },
             opt.id
           );
-        }
-        return /* @__PURE__ */ jsxs(
-          "button",
-          {
-            type: "button",
-            disabled: isOutOfStock,
-            onClick: () => onChange && onChange(group.name, optVal, opt),
-            style: {
-              padding: "8px 16px",
-              borderRadius: "10px",
-              fontSize: "13px",
-              fontWeight: isSelected ? 800 : 600,
-              border: isSelected ? "2px solid #000000" : "1px solid #d1d5db",
-              backgroundColor: isSelected ? "#000000" : "#ffffff",
-              color: isSelected ? "#ffffff" : isOutOfStock ? "#9ca3af" : "#111827",
-              cursor: isOutOfStock ? "not-allowed" : "pointer",
-              position: "relative",
-              textDecoration: isOutOfStock ? "line-through" : "none",
-              opacity: isOutOfStock ? 0.45 : 1,
-              transition: "all 0.15s ease"
-            },
-            children: [
-              /* @__PURE__ */ jsx("span", { children: optDisplay }),
-              opt.priceDelta && opt.priceDelta > 0 && /* @__PURE__ */ jsxs("span", { style: { fontSize: "11px", marginLeft: "4px", opacity: 0.8 }, children: [
-                "(+\u20B9",
-                opt.priceDelta,
-                ")"
-              ] })
-            ]
-          },
-          opt.id
-        );
-      }) })
-    ] }, group.name);
-  }) });
+        }) })
+      ] }, group.name);
+    })
+  ] });
 };
 VariantSelector.displayName = "VariantSelector";
 var ProductCard = ({
@@ -12480,8 +15653,8 @@ var QuantitySelector = ({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "space-between",
-        backgroundColor: "#f9fafb",
-        border: "1px solid #e5e7eb",
+        backgroundColor: "var(--boost-bg-subtle, rgba(255, 255, 255, 0.05))",
+        border: "1px solid var(--boost-border, rgba(255, 255, 255, 0.12))",
         borderRadius: "10px",
         padding: sizeStyles.padding,
         gap: sizeStyles.gap,
@@ -12503,14 +15676,14 @@ var QuantitySelector = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: value <= min ? "transparent" : "#ffffff",
-              color: value <= min ? "#9ca3af" : "#111827",
-              border: value <= min ? "none" : "1px solid #e5e7eb",
-              borderRadius: "6px",
+              backgroundColor: value <= min ? "transparent" : "var(--boost-surface, rgba(255, 255, 255, 0.1))",
+              color: value <= min ? "var(--boost-text-muted, #64748b)" : "var(--boost-text-primary, #0f172a)",
+              border: value <= min ? "none" : "1px solid var(--boost-border, rgba(255, 255, 255, 0.12))",
+              borderRadius: "7px",
               cursor: value <= min ? "not-allowed" : "pointer",
               fontWeight: 700,
               fontSize: sizeStyles.fontSize,
-              boxShadow: value <= min ? "none" : "0 1px 2px rgba(0,0,0,0.05)",
+              boxShadow: value <= min ? "none" : "0 1px 3px rgba(0,0,0,0.08)",
               transition: "all 0.15s ease"
             },
             children: /* @__PURE__ */ jsx("svg", { width: "12", height: "2", viewBox: "0 0 12 2", fill: "none", children: /* @__PURE__ */ jsx("path", { d: "M1 1H11", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round" }) })
@@ -12520,9 +15693,9 @@ var QuantitySelector = ({
           "span",
           {
             style: {
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: sizeStyles.fontSize,
-              color: "#111827",
+              color: "var(--boost-text-primary, #0f172a)",
               minWidth: "24px",
               textAlign: "center",
               fontVariantNumeric: "tabular-nums"
@@ -12543,14 +15716,14 @@ var QuantitySelector = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: value >= max ? "transparent" : "#ffffff",
-              color: value >= max ? "#9ca3af" : "#111827",
-              border: value >= max ? "none" : "1px solid #e5e7eb",
-              borderRadius: "6px",
+              backgroundColor: value >= max ? "transparent" : "var(--boost-surface, rgba(255, 255, 255, 0.1))",
+              color: value >= max ? "var(--boost-text-muted, #64748b)" : "var(--boost-text-primary, #0f172a)",
+              border: value >= max ? "none" : "1px solid var(--boost-border, rgba(255, 255, 255, 0.12))",
+              borderRadius: "7px",
               cursor: value >= max ? "not-allowed" : "pointer",
               fontWeight: 700,
               fontSize: sizeStyles.fontSize,
-              boxShadow: value >= max ? "none" : "0 1px 2px rgba(0,0,0,0.05)",
+              boxShadow: value >= max ? "none" : "0 1px 3px rgba(0,0,0,0.08)",
               transition: "all 0.15s ease"
             },
             children: /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", children: /* @__PURE__ */ jsx("path", { d: "M6 1V11M1 6H11", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round" }) })
@@ -12567,7 +15740,8 @@ var ReviewBreakdownBars = ({
   breakdown,
   onFilterByStar,
   selectedStar = null,
-  className = ""
+  className = "",
+  style
 }) => {
   const rows = [5, 4, 3, 2, 1].map((star) => {
     let count = 0;
@@ -12588,157 +15762,166 @@ var ReviewBreakdownBars = ({
       className: `boost-review-breakdown ${className}`,
       style: {
         display: "flex",
-        flexDirection: "row",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "32px",
-        padding: "24px",
-        backgroundColor: "#ffffff",
-        borderRadius: "16px",
-        border: "1px solid #f3f4f6"
+        gap: "40px",
+        padding: "32px",
+        backgroundColor: "var(--boost-surface, #ffffff)",
+        borderRadius: "24px",
+        border: "1px solid var(--boost-border, rgba(0,0,0,0.05))",
+        boxShadow: "0 20px 40px -20px var(--boost-shadow, rgba(0,0,0,0.05))",
+        fontFamily: "inherit",
+        width: "100%",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              minWidth: "140px",
-              padding: "12px 16px",
-              textAlign: "center"
-            },
-            children: [
-              /* @__PURE__ */ jsx(
-                "span",
-                {
-                  style: {
-                    fontSize: "48px",
-                    fontWeight: 800,
-                    color: "#111827",
-                    lineHeight: 1,
-                    letterSpacing: "-0.02em"
-                  },
-                  children: safeRating.toFixed(1)
-                }
-              ),
-              /* @__PURE__ */ jsx("div", { style: { marginTop: "8px" }, children: /* @__PURE__ */ jsx(StarRating, { rating: safeRating, size: 20 }) }),
-              /* @__PURE__ */ jsxs(
-                "span",
-                {
-                  style: {
-                    fontSize: "13px",
-                    color: "#6b7280",
-                    marginTop: "8px",
-                    fontWeight: 500
-                  },
-                  children: [
-                    "Based on ",
-                    safeTotal.toLocaleString(),
-                    " reviews"
-                  ]
-                }
-              )
-            ]
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-review-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 200px; /* Flex grow, shrink, and basis */
+            text-align: center;
           }
-        ),
-        /* @__PURE__ */ jsx(
-          "div",
-          {
-            style: {
-              flex: 1,
-              minWidth: "220px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "10px"
-            },
-            children: rows.map(({ star, count }) => {
-              const percent = safeTotal > 0 ? Math.round(count / safeTotal * 100) : 0;
-              const isSelected = selectedStar === star;
-              return /* @__PURE__ */ jsxs(
-                "div",
-                {
-                  onClick: () => onFilterByStar && onFilterByStar(star),
-                  role: onFilterByStar ? "button" : void 0,
-                  tabIndex: onFilterByStar ? 0 : void 0,
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    cursor: onFilterByStar ? "pointer" : "default",
-                    opacity: selectedStar !== null && !isSelected ? 0.45 : 1,
-                    transition: "opacity 0.2s ease"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxs(
-                      "div",
-                      {
-                        style: {
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          minWidth: "42px",
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          color: "#374151"
-                        },
-                        children: [
-                          /* @__PURE__ */ jsx("span", { children: star }),
-                          /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 20 20", fill: "#f59e0b", children: /* @__PURE__ */ jsx("path", { d: "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" }) })
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsx(
-                      "div",
-                      {
-                        style: {
-                          flex: 1,
-                          height: "8px",
-                          backgroundColor: "#f3f4f6",
-                          borderRadius: "9999px",
-                          overflow: "hidden",
-                          position: "relative"
-                        },
-                        children: /* @__PURE__ */ jsx(
-                          "div",
-                          {
-                            style: {
-                              height: "100%",
-                              width: `${percent}%`,
-                              backgroundColor: star >= 4 ? "#10b981" : star === 3 ? "#f59e0b" : "#ef4444",
-                              borderRadius: "9999px",
-                              transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-                            }
-                          }
-                        )
-                      }
-                    ),
-                    /* @__PURE__ */ jsxs(
-                      "span",
-                      {
-                        style: {
-                          minWidth: "38px",
-                          textAlign: "right",
-                          fontSize: "12px",
-                          color: "#6b7280",
-                          fontWeight: 500,
-                          fontVariantNumeric: "tabular-nums"
-                        },
-                        children: [
-                          percent,
-                          "%"
-                        ]
-                      }
-                    )
-                  ]
-                },
-                star
-              );
-            })
+          .boost-review-score {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--boost-text-primary, #0f172a);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
           }
-        )
+          .boost-review-stars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+          }
+          .boost-review-total {
+            font-size: 13px;
+            color: var(--boost-text-muted, #64748b);
+            font-weight: 500;
+          }
+          
+          .boost-review-right {
+            flex: 2 1 300px; /* Take up more space, wrap if < 300px */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+          
+          .boost-review-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+          }
+          .boost-review-row:hover {
+            transform: translateX(2px);
+          }
+          
+          .boost-review-star-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 44px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--boost-text-primary, #334155);
+          }
+          
+          .boost-review-track {
+            flex: 1;
+            height: 10px;
+            background-color: var(--boost-bg-muted, #f1f5f9);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            min-width: 100px; /* Ensure track never disappears completely */
+          }
+          
+          .boost-review-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+          }
+          .boost-review-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            border-radius: inherit;
+          }
+          
+          .boost-review-percent {
+            min-width: 40px;
+            text-align: right;
+            font-size: 13px;
+            color: var(--boost-text-secondary, #475569);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+          }
+
+          /* Dark Mode Tweaks */
+          :root[data-theme="dark"] .boost-review-track,
+          .dark .boost-review-track {
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+          }
+        ` }),
+        /* @__PURE__ */ jsxs("div", { className: "boost-review-left", children: [
+          /* @__PURE__ */ jsx("span", { className: "boost-review-score", children: safeRating.toFixed(1) }),
+          /* @__PURE__ */ jsx("div", { className: "boost-review-stars", children: /* @__PURE__ */ jsx(StarRating, { rating: safeRating, size: 24 }) }),
+          /* @__PURE__ */ jsxs("span", { className: "boost-review-total", children: [
+            "Based on ",
+            safeTotal.toLocaleString(),
+            " reviews"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: "boost-review-right", children: rows.map(({ star, count }) => {
+          const percent = safeTotal > 0 ? Math.round(count / safeTotal * 100) : 0;
+          const isSelected = selectedStar === star;
+          const fillColor = star >= 4 ? "var(--boost-success, #10b981)" : star === 3 ? "var(--boost-warning, #f59e0b)" : "var(--boost-danger, #ef4444)";
+          return /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "boost-review-row",
+              onClick: () => onFilterByStar && onFilterByStar(star),
+              role: onFilterByStar ? "button" : void 0,
+              tabIndex: onFilterByStar ? 0 : void 0,
+              style: {
+                cursor: onFilterByStar ? "pointer" : "default",
+                opacity: selectedStar !== null && !isSelected ? 0.35 : 1
+              },
+              children: [
+                /* @__PURE__ */ jsxs("div", { className: "boost-review-star-label", children: [
+                  /* @__PURE__ */ jsx("span", { children: star }),
+                  /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 20 20", fill: "var(--boost-warning, #f59e0b)", style: { filter: "drop-shadow(0 1px 2px rgba(245, 158, 11, 0.2))" }, children: /* @__PURE__ */ jsx("path", { d: "M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" }) })
+                ] }),
+                /* @__PURE__ */ jsx("div", { className: "boost-review-track", children: /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    className: "boost-review-fill",
+                    style: {
+                      width: `${percent}%`,
+                      backgroundColor: fillColor
+                    }
+                  }
+                ) }),
+                /* @__PURE__ */ jsxs("span", { className: "boost-review-percent", children: [
+                  percent,
+                  "%"
+                ] })
+              ]
+            },
+            star
+          );
+        }) })
       ]
     }
   );
@@ -12752,9 +15935,9 @@ var AnnouncementBar = ({
   linkUrl,
   linkText,
   closable = true,
-  backgroundColor = "#111827",
+  backgroundColor = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%)",
   textColor = "#ffffff",
-  accentColor = "#f59e0b",
+  accentColor = "#fbbf24",
   onClose,
   className = "",
   ...props
@@ -12792,17 +15975,19 @@ var AnnouncementBar = ({
     {
       className: `boost-announcement-bar ${className}`,
       style: {
-        backgroundColor,
+        background: backgroundColor,
         color: textColor,
-        padding: "8px 16px",
+        padding: "10px 18px",
         fontSize: "13px",
-        fontWeight: 500,
+        fontWeight: 600,
         position: "relative",
         zIndex: 50,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
+        borderRadius: "12px",
+        boxShadow: "0 4px 15px rgba(79, 70, 229, 0.25)",
         transition: "all 0.2s ease"
       },
       children: [
@@ -12912,6 +16097,7 @@ var LightningDealsBar = ({
   claimedQuantity,
   badgeColor = "#ef4444",
   className = "",
+  style,
   onExpire,
   hideOnExpire = true,
   ...props
@@ -12970,16 +16156,105 @@ var LightningDealsBar = ({
     {
       className: `boost-lightning-deals-bar ${className}`,
       style: {
-        backgroundColor: "#fffbeb",
-        border: "1px solid #fde68a",
-        borderRadius: "12px",
-        padding: "12px 16px",
+        borderRadius: "16px",
+        padding: "16px 20px",
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+        gap: "12px",
+        width: "100%",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-lightning-deals-bar {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(254, 226, 226, 0.25) 100%), var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, rgba(245, 158, 11, 0.25));
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+          }
+
+          :root[data-theme="dark"] .boost-lightning-deals-bar,
+          .dark .boost-lightning-deals-bar {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(239, 68, 68, 0.06) 100%), var(--boost-surface, #0f172a);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.4);
+          }
+
+          .boost-deal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+            text-transform: uppercase;
+          }
+
+          .boost-deal-badge-icon {
+            animation: boost-pulse 1.8s infinite;
+          }
+
+          @keyframes boost-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.85; }
+          }
+
+          .boost-timer-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 28px;
+            padding: 0 6px;
+            border-radius: 6px;
+            background: var(--boost-text-primary, #0f172a);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+          }
+
+          :root[data-theme="dark"] .boost-timer-box,
+          .dark .boost-timer-box {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+          }
+
+          .boost-timer-box.seconds {
+            background: #ef4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+          }
+
+          .boost-deal-track {
+            height: 8px;
+            background-color: var(--boost-bg-muted, rgba(0, 0, 0, 0.06));
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+          }
+
+          :root[data-theme="dark"] .boost-deal-track,
+          .dark .boost-deal-track {
+            background-color: rgba(255, 255, 255, 0.08);
+          }
+
+          .boost-deal-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+          }
+        ` }),
         /* @__PURE__ */ jsxs(
           "div",
           {
@@ -12988,115 +16263,56 @@ var LightningDealsBar = ({
               alignItems: "center",
               justifyContent: "space-between",
               flexWrap: "wrap",
-              gap: "8px"
+              gap: "12px"
             },
             children: [
+              /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxs("span", { className: "boost-deal-badge", style: { backgroundColor: badgeColor !== "#ef4444" ? badgeColor : void 0 }, children: [
+                /* @__PURE__ */ jsx("svg", { className: "boost-deal-badge-icon", width: "13", height: "13", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) }),
+                dealTitle
+              ] }) }),
               /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
                 /* @__PURE__ */ jsx(
                   "span",
                   {
                     style: {
-                      backgroundColor: badgeColor,
-                      color: "#ffffff",
-                      fontSize: "11px",
-                      fontWeight: 800,
-                      letterSpacing: "0.05em",
-                      padding: "3px 8px",
-                      borderRadius: "4px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "var(--boost-text-secondary, #64748b)",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "4px"
+                      lineHeight: 1
                     },
-                    children: dealTitle
+                    children: "Ends in:"
                   }
                 ),
-                /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 600, color: "#92400e" }, children: "Ends in:" })
-              ] }),
-              /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: [
-                /* @__PURE__ */ jsxs(
-                  "span",
-                  {
-                    style: {
-                      backgroundColor: "#1f2937",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: "12px",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      fontVariantNumeric: "tabular-nums"
-                    },
-                    children: [
-                      pad(timeLeft.hours),
-                      "h"
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsx("span", { style: { fontWeight: 800, color: "#92400e" }, children: ":" }),
-                /* @__PURE__ */ jsxs(
-                  "span",
-                  {
-                    style: {
-                      backgroundColor: "#1f2937",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: "12px",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      fontVariantNumeric: "tabular-nums"
-                    },
-                    children: [
-                      pad(timeLeft.minutes),
-                      "m"
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsx("span", { style: { fontWeight: 800, color: "#92400e" }, children: ":" }),
-                /* @__PURE__ */ jsxs(
-                  "span",
-                  {
-                    style: {
-                      backgroundColor: "#ef4444",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: "12px",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      fontVariantNumeric: "tabular-nums"
-                    },
-                    children: [
-                      pad(timeLeft.seconds),
-                      "s"
-                    ]
-                  }
-                )
+                /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: [
+                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box", children: [
+                    pad(timeLeft.hours),
+                    "h"
+                  ] }),
+                  /* @__PURE__ */ jsx("span", { style: { fontWeight: 800, color: "var(--boost-text-muted, #94a3b8)", lineHeight: 1 }, children: ":" }),
+                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box", children: [
+                    pad(timeLeft.minutes),
+                    "m"
+                  ] }),
+                  /* @__PURE__ */ jsx("span", { style: { fontWeight: 800, color: "var(--boost-text-muted, #94a3b8)", lineHeight: 1 }, children: ":" }),
+                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box seconds", children: [
+                    pad(timeLeft.seconds),
+                    "s"
+                  ] })
+                ] })
               ] })
             ]
           }
         ),
-        /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "6px" }, children: [
+          /* @__PURE__ */ jsx("div", { className: "boost-deal-track", children: /* @__PURE__ */ jsx(
             "div",
             {
-              style: {
-                height: "6px",
-                backgroundColor: "#e5e7eb",
-                borderRadius: "9999px",
-                overflow: "hidden"
-              },
-              children: /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    height: "100%",
-                    width: `${percent}%`,
-                    backgroundColor: percent > 85 ? "#dc2626" : "#f59e0b",
-                    borderRadius: "9999px",
-                    transition: "width 0.3s ease"
-                  }
-                }
-              )
+              className: "boost-deal-fill",
+              style: { width: `${percent}%` }
             }
-          ),
+          ) }),
           /* @__PURE__ */ jsxs(
             "div",
             {
@@ -13104,16 +16320,20 @@ var LightningDealsBar = ({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                fontSize: "11px",
-                color: "#78350f",
+                fontSize: "12px",
+                color: "var(--boost-text-primary, #334155)",
                 fontWeight: 600
               },
               children: [
-                /* @__PURE__ */ jsxs("span", { children: [
-                  percent,
-                  "% Claimed"
+                /* @__PURE__ */ jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: "4px" }, children: [
+                  "\u{1F525} ",
+                  /* @__PURE__ */ jsxs("strong", { children: [
+                    percent,
+                    "%"
+                  ] }),
+                  " Claimed"
                 ] }),
-                /* @__PURE__ */ jsx("span", { children: "Hurry, limited stock!" })
+                /* @__PURE__ */ jsx("span", { style: { color: percent > 80 ? "#dc2626" : "var(--boost-text-muted, #64748b)", fontWeight: 600 }, children: percent > 85 ? "\u26A1 Only a few left!" : "Hurry, limited stock!" })
               ]
             }
           )
@@ -13129,12 +16349,15 @@ var FrequentlyBoughtTogether = ({
   bundleDiscountPercentage = 10,
   currencySymbol = "\u20B9",
   onAddBundleToCart,
-  className = ""
+  onAddBundle,
+  className = "",
+  style
 }) => {
   const allItems = [mainProduct, ...suggestedItems];
   const [selectedIds, setSelectedIds] = React.useState(
     allItems.map((i) => i.id)
   );
+  const [imageErrors, setImageErrors] = React.useState({});
   const toggleItem = (id) => {
     if (selectedIds.includes(id)) {
       if (selectedIds.length > 1) {
@@ -13144,57 +16367,245 @@ var FrequentlyBoughtTogether = ({
       setSelectedIds([...selectedIds, id]);
     }
   };
+  const handleImageError = (id) => {
+    setImageErrors((prev) => ({ ...prev, [id]: true }));
+  };
   const selectedItems = allItems.filter((i) => selectedIds.includes(i.id));
   const subtotal = selectedItems.reduce((acc, item) => acc + item.price, 0);
+  const originalSubtotal = selectedItems.reduce(
+    (acc, item) => acc + (item.originalPrice || item.price),
+    0
+  );
   const discountAmount = selectedItems.length > 1 ? Math.round(subtotal * bundleDiscountPercentage / 100) : 0;
   const finalPrice = subtotal - discountAmount;
+  const totalSavings = originalSubtotal - finalPrice;
+  const handleAddToCart = () => {
+    if (onAddBundleToCart) {
+      onAddBundleToCart(selectedItems);
+    }
+    if (onAddBundle) {
+      onAddBundle(selectedItems.map((i) => i.id));
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
       className: `boost-frequently-bought ${className}`,
       style: {
-        backgroundColor: "#ffffff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "16px",
+        backgroundColor: "var(--boost-surface, #ffffff)",
+        border: "1px solid var(--boost-border, rgba(0, 0, 0, 0.08))",
+        borderRadius: "20px",
         padding: "24px",
         display: "flex",
         flexDirection: "column",
-        gap: "20px"
+        gap: "20px",
+        boxShadow: "0 12px 30px -10px var(--boost-shadow, rgba(0, 0, 0, 0.05))",
+        width: "100%",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
-          /* @__PURE__ */ jsx(
-            "h3",
-            {
-              style: {
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#111827",
-                margin: 0,
-                letterSpacing: "-0.01em"
-              },
-              children: "Frequently Bought Together"
-            }
-          ),
-          selectedItems.length > 1 && /* @__PURE__ */ jsxs(
-            "span",
-            {
-              style: {
-                backgroundColor: "#ecfdf5",
-                color: "#059669",
-                fontSize: "12px",
-                fontWeight: 700,
-                padding: "4px 10px",
-                borderRadius: "9999px",
-                border: "1px solid #a7f3d0"
-              },
-              children: [
-                "Save ",
-                bundleDiscountPercentage,
-                "% on Combo"
-              ]
-            }
-          )
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-frequently-bought {
+            transition: all 0.3s ease;
+          }
+
+          :root[data-theme="dark"] .boost-frequently-bought,
+          .dark .boost-frequently-bought {
+            background-color: var(--boost-surface, #111827) !important;
+            border-color: var(--boost-border, rgba(255, 255, 255, 0.1)) !important;
+            box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.5) !important;
+          }
+
+          .boost-fbt-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--boost-text-primary, #0f172a);
+            margin: 0;
+            letter-spacing: -0.02em;
+          }
+          :root[data-theme="dark"] .boost-fbt-title,
+          .dark .boost-fbt-title {
+            color: #f8fafc !important;
+          }
+
+          .boost-fbt-item-text {
+            color: var(--boost-text-primary, #0f172a);
+          }
+          :root[data-theme="dark"] .boost-fbt-item-text,
+          .dark .boost-fbt-item-text {
+            color: #f1f5f9 !important;
+          }
+
+          .boost-fbt-price {
+            color: var(--boost-text-primary, #0f172a);
+          }
+          :root[data-theme="dark"] .boost-fbt-price,
+          .dark .boost-fbt-price {
+            color: #ffffff !important;
+          }
+
+          .boost-fbt-total {
+            color: var(--boost-text-primary, #0f172a);
+          }
+          :root[data-theme="dark"] .boost-fbt-total,
+          .dark .boost-fbt-total {
+            color: #ffffff !important;
+          }
+
+          .boost-combo-badge {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.18) 100%);
+            color: var(--boost-success, #059669);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          :root[data-theme="dark"] .boost-combo-badge,
+          .dark .boost-combo-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+          }
+
+          .boost-bundle-card {
+            width: 96px;
+            height: 96px;
+            border-radius: 14px;
+            background: var(--boost-bg-muted, #f8fafc);
+            border: 2px solid var(--boost-border, rgba(0,0,0,0.06));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            overflow: visible;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+          }
+
+          .boost-bundle-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+          }
+
+          .boost-bundle-card.selected {
+            border-color: var(--boost-primary, #6366f1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            opacity: 1;
+          }
+
+          .boost-bundle-card.unselected {
+            opacity: 0.35;
+            filter: grayscale(80%);
+          }
+
+          :root[data-theme="dark"] .boost-bundle-card,
+          .dark .boost-bundle-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+          }
+
+          :root[data-theme="dark"] .boost-bundle-card.selected,
+          .dark .boost-bundle-card.selected {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+          }
+
+          .boost-bundle-check-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--boost-primary, #6366f1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            font-size: 11px;
+            font-weight: 800;
+            z-index: 5;
+            border: 2px solid var(--boost-surface, #ffffff);
+          }
+
+          :root[data-theme="dark"] .boost-bundle-check-badge,
+          .dark .boost-bundle-check-badge {
+            border-color: #111827;
+            background: #6366f1;
+          }
+
+          .boost-bundle-plus-chip {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--boost-bg-muted, #f1f5f9);
+            color: var(--boost-text-muted, #64748b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 1px solid var(--boost-border, rgba(0,0,0,0.06));
+          }
+
+          :root[data-theme="dark"] .boost-bundle-plus-chip,
+          .dark .boost-bundle-plus-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+          }
+
+          .boost-bundle-btn {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          }
+
+          .boost-bundle-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
+          }
+
+          .boost-bundle-btn:active {
+            transform: scale(0.98);
+          }
+
+          :root[data-theme="dark"] .boost-bundle-btn,
+          .dark .boost-bundle-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+          }
+        ` }),
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }, children: [
+          /* @__PURE__ */ jsx("h3", { className: "boost-fbt-title", children: "Frequently Bought Together" }),
+          selectedItems.length > 1 && /* @__PURE__ */ jsxs("span", { className: "boost-combo-badge", children: [
+            /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) }),
+            "Save ",
+            bundleDiscountPercentage,
+            "% on Combo"
+          ] })
         ] }),
         /* @__PURE__ */ jsx(
           "div",
@@ -13202,57 +16613,59 @@ var FrequentlyBoughtTogether = ({
             style: {
               display: "flex",
               alignItems: "center",
-              gap: "12px",
+              gap: "14px",
               overflowX: "auto",
-              paddingBottom: "8px"
+              padding: "12px 8px 12px 8px"
             },
             children: allItems.map((item, index) => {
               const isSelected = selectedIds.includes(item.id);
+              const hasError = !item.imageUrl || imageErrors[item.id];
               return /* @__PURE__ */ jsxs(React.Fragment, { children: [
-                index > 0 && /* @__PURE__ */ jsx(
-                  "span",
-                  {
-                    style: {
-                      fontSize: "20px",
-                      fontWeight: 700,
-                      color: "#9ca3af",
-                      flexShrink: 0
-                    },
-                    children: "+"
-                  }
-                ),
-                /* @__PURE__ */ jsx(
+                index > 0 && /* @__PURE__ */ jsx("div", { className: "boost-bundle-plus-chip", children: "+" }),
+                /* @__PURE__ */ jsxs(
                   "div",
                   {
                     onClick: () => toggleItem(item.id),
-                    style: {
-                      width: "90px",
-                      height: "90px",
-                      borderRadius: "12px",
-                      border: isSelected ? "2px solid #2563eb" : "1px solid #e5e7eb",
-                      backgroundColor: "#f9fafb",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "6px",
-                      cursor: "pointer",
-                      position: "relative",
-                      opacity: isSelected ? 1 : 0.4,
-                      transition: "all 0.2s ease",
-                      flexShrink: 0
-                    },
-                    children: /* @__PURE__ */ jsx(
-                      "img",
-                      {
-                        src: item.imageUrl,
-                        alt: item.title,
-                        style: {
-                          maxWidth: "100%",
-                          maxHeight: "100%",
-                          objectFit: "contain"
+                    className: `boost-bundle-card ${isSelected ? "selected" : "unselected"}`,
+                    title: item.title,
+                    children: [
+                      isSelected && /* @__PURE__ */ jsx("div", { className: "boost-bundle-check-badge", children: /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3.5", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) }),
+                      !hasError ? /* @__PURE__ */ jsx(
+                        "img",
+                        {
+                          src: item.imageUrl,
+                          alt: item.title,
+                          onError: () => handleImageError(item.id),
+                          style: {
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "8px"
+                          }
                         }
-                      }
-                    )
+                      ) : /* @__PURE__ */ jsxs(
+                        "div",
+                        {
+                          style: {
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "4px",
+                            color: "var(--boost-text-muted, #94a3b8)",
+                            textAlign: "center"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxs("svg", { width: "26", height: "26", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.75", strokeLinecap: "round", strokeLinejoin: "round", children: [
+                              /* @__PURE__ */ jsx("path", { d: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" }),
+                              /* @__PURE__ */ jsx("line", { x1: "3", y1: "6", x2: "21", y2: "6" }),
+                              /* @__PURE__ */ jsx("path", { d: "M16 10a4 4 0 0 1-8 0" })
+                            ] }),
+                            /* @__PURE__ */ jsx("span", { style: { fontSize: "9px", fontWeight: 600, maxWidth: "80px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: item.title })
+                          ]
+                        }
+                      )
+                    ]
                   }
                 )
               ] }, item.id);
@@ -13266,10 +16679,12 @@ var FrequentlyBoughtTogether = ({
             {
               style: {
                 display: "flex",
-                alignItems: "flex-start",
-                gap: "10px",
+                alignItems: "center",
+                gap: "12px",
                 fontSize: "13px",
-                cursor: "pointer"
+                cursor: "pointer",
+                padding: "4px 0",
+                userSelect: "none"
               },
               children: [
                 /* @__PURE__ */ jsx(
@@ -13279,20 +16694,60 @@ var FrequentlyBoughtTogether = ({
                     checked: isSelected,
                     onChange: () => toggleItem(item.id),
                     style: {
-                      marginTop: "3px",
-                      accentColor: "#2563eb",
-                      cursor: "pointer"
+                      width: "18px",
+                      height: "18px",
+                      accentColor: "var(--boost-primary, #6366f1)",
+                      cursor: "pointer",
+                      borderRadius: "4px",
+                      flexShrink: 0
                     }
                   }
                 ),
-                /* @__PURE__ */ jsxs("span", { style: { color: isSelected ? "#111827" : "#6b7280", flex: 1 }, children: [
-                  /* @__PURE__ */ jsx("span", { style: { fontWeight: 600 }, children: idx === 0 ? "This item: " : "" }),
-                  item.title,
-                  /* @__PURE__ */ jsxs("span", { style: { fontWeight: 700, marginLeft: "6px", color: "#111827" }, children: [
-                    currencySymbol,
-                    item.price.toLocaleString("en-IN")
-                  ] })
-                ] })
+                /* @__PURE__ */ jsxs(
+                  "span",
+                  {
+                    className: "boost-fbt-item-text",
+                    style: {
+                      flex: 1,
+                      lineHeight: 1.4,
+                      transition: "color 0.2s ease",
+                      opacity: isSelected ? 1 : 0.5
+                    },
+                    children: [
+                      /* @__PURE__ */ jsx("span", { style: { fontWeight: 600 }, children: idx === 0 ? "This item: " : "" }),
+                      item.title,
+                      /* @__PURE__ */ jsxs(
+                        "span",
+                        {
+                          className: "boost-fbt-price",
+                          style: {
+                            fontWeight: 700,
+                            marginLeft: "8px"
+                          },
+                          children: [
+                            currencySymbol,
+                            item.price.toLocaleString("en-IN")
+                          ]
+                        }
+                      ),
+                      item.originalPrice && item.originalPrice > item.price && /* @__PURE__ */ jsxs(
+                        "span",
+                        {
+                          style: {
+                            fontSize: "12px",
+                            color: "var(--boost-text-muted, #94a3b8)",
+                            textDecoration: "line-through",
+                            marginLeft: "6px"
+                          },
+                          children: [
+                            currencySymbol,
+                            item.originalPrice.toLocaleString("en-IN")
+                          ]
+                        }
+                      )
+                    ]
+                  }
+                )
               ]
             },
             item.id
@@ -13307,23 +16762,35 @@ var FrequentlyBoughtTogether = ({
               alignItems: "center",
               justifyContent: "space-between",
               gap: "16px",
-              paddingTop: "16px",
-              borderTop: "1px solid #f3f4f6"
+              paddingTop: "18px",
+              borderTop: "1px solid var(--boost-border, rgba(0,0,0,0.06))"
             },
             children: [
               /* @__PURE__ */ jsxs("div", { children: [
                 /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "baseline", gap: "8px" }, children: [
-                  /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", color: "#6b7280" }, children: "Total price:" }),
-                  /* @__PURE__ */ jsxs("span", { style: { fontSize: "20px", fontWeight: 800, color: "#111827" }, children: [
-                    currencySymbol,
-                    finalPrice.toLocaleString("en-IN")
-                  ] }),
+                  /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", color: "var(--boost-text-secondary, #64748b)", fontWeight: 500 }, children: "Total price:" }),
+                  /* @__PURE__ */ jsxs(
+                    "span",
+                    {
+                      className: "boost-fbt-total",
+                      style: {
+                        fontSize: "22px",
+                        fontWeight: 800,
+                        letterSpacing: "-0.02em",
+                        fontVariantNumeric: "tabular-nums"
+                      },
+                      children: [
+                        currencySymbol,
+                        finalPrice.toLocaleString("en-IN")
+                      ]
+                    }
+                  ),
                   discountAmount > 0 && /* @__PURE__ */ jsxs(
                     "span",
                     {
                       style: {
                         fontSize: "14px",
-                        color: "#9ca3af",
+                        color: "var(--boost-text-muted, #94a3b8)",
                         textDecoration: "line-through"
                       },
                       children: [
@@ -13333,36 +16800,43 @@ var FrequentlyBoughtTogether = ({
                     }
                   )
                 ] }),
-                discountAmount > 0 && /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", color: "#059669", fontWeight: 600 }, children: [
-                  "You save ",
-                  currencySymbol,
-                  discountAmount.toLocaleString("en-IN"),
-                  " (",
-                  bundleDiscountPercentage,
-                  "% OFF)"
-                ] })
+                discountAmount > 0 && /* @__PURE__ */ jsxs(
+                  "div",
+                  {
+                    style: {
+                      fontSize: "12px",
+                      color: "var(--boost-success, #10b981)",
+                      fontWeight: 700,
+                      marginTop: "2px"
+                    },
+                    children: [
+                      "\u{1F389} You save ",
+                      currencySymbol,
+                      totalSavings > 0 ? totalSavings.toLocaleString("en-IN") : discountAmount.toLocaleString("en-IN"),
+                      " (",
+                      bundleDiscountPercentage,
+                      "% combo discount)"
+                    ]
+                  }
+                )
               ] }),
               /* @__PURE__ */ jsxs(
                 "button",
                 {
                   type: "button",
-                  onClick: () => onAddBundleToCart && onAddBundleToCart(selectedItems),
-                  style: {
-                    backgroundColor: "#facc15",
-                    color: "#111827",
-                    fontWeight: 700,
-                    fontSize: "13px",
-                    padding: "10px 20px",
-                    borderRadius: "9999px",
-                    border: "1px solid #eab308",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-                  },
+                  onClick: handleAddToCart,
+                  className: "boost-bundle-btn",
                   children: [
-                    "Add ",
-                    selectedItems.length,
-                    " items to Cart"
+                    /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+                      /* @__PURE__ */ jsx("path", { d: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" }),
+                      /* @__PURE__ */ jsx("line", { x1: "3", y1: "6", x2: "21", y2: "6" }),
+                      /* @__PURE__ */ jsx("path", { d: "M16 10a4 4 0 0 1-8 0" })
+                    ] }),
+                    /* @__PURE__ */ jsxs("span", { children: [
+                      "Add ",
+                      selectedItems.length,
+                      " items to Cart"
+                    ] })
                   ]
                 }
               )
@@ -13378,168 +16852,311 @@ var DEFAULT_OFFERS = [
   {
     id: "hdfc-instant",
     type: "instant",
-    title: "Bank Offer: 10% Instant Discount",
-    description: "Up to \u20B91,500 on HDFC Bank Credit & Debit Card EMI transactions on min purchase \u20B95,000.",
+    title: "10% Instant Discount on HDFC Bank Cards",
+    description: "Up to \u20B91,500 on HDFC Credit & Debit Card EMI transactions on min purchase \u20B95,000.",
     code: "HDFC10"
   },
   {
-    id: "sbi-instant",
+    id: "icici-instant",
     type: "instant",
-    title: "Bank Offer: Flat \u20B91,250 Off",
-    description: "On SBI Credit Card Non-EMI transactions on orders above \u20B910,000.",
-    code: "SBISPECIAL"
+    title: "Flat \u20B91,250 Off on ICICI Bank Cards",
+    description: "Applicable on Credit Card transactions for orders above \u20B910,000.",
+    code: "ICICISPECIAL"
   },
   {
     id: "no-cost-emi",
     type: "emi",
-    title: "No Cost EMI Available",
-    description: "Avail No Cost EMI on select cards for orders above \u20B93,000. Interest savings upfront."
+    title: "No Cost EMI Available up to 12 Months",
+    description: "Avail No Cost EMI on select credit cards for orders above \u20B93,000."
   },
   {
-    id: "supercoins-offer",
+    id: "upi-cashback",
     type: "cashback",
-    title: "SuperCoins / Pay Cashback",
-    description: "Get extra 5% cashback or 4 SuperCoins per \u20B9100 for Gold & SuperStar members."
+    title: "Flat \u20B9100 Cashback on UPI Transactions",
+    description: "Instant cashback credited directly to bank account on PhonePe, GPay, or Paytm.",
+    code: "UPIBOOST"
   }
 ];
 var BankOffersAccordion = ({
   offers = DEFAULT_OFFERS,
-  className = ""
+  className = "",
+  style
 }) => {
   const [expanded, setExpanded] = React.useState(false);
+  const [copiedCode, setCopiedCode] = React.useState(null);
   const displayedOffers = expanded ? offers : offers.slice(0, 2);
+  const handleCopy = (code, e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2e3);
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
       className: `boost-bank-offers ${className}`,
       style: {
-        backgroundColor: "#f8fafc",
-        border: "1px solid #e2e8f0",
-        borderRadius: "12px",
-        padding: "16px",
+        borderRadius: "18px",
+        padding: "20px",
         display: "flex",
         flexDirection: "column",
-        gap: "12px"
+        gap: "16px",
+        width: "100%",
+        boxSizing: "border-box",
+        ...style
       },
       children: [
-        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-          /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "#2563eb", strokeWidth: "2", children: [
-            /* @__PURE__ */ jsx("rect", { x: "1", y: "4", width: "22", height: "16", rx: "2", ry: "2" }),
-            /* @__PURE__ */ jsx("line", { x1: "1", y1: "10", x2: "23", y2: "10" })
-          ] }),
-          /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 700, color: "#1e293b" }, children: "Available Offers & Discounts" }),
-          /* @__PURE__ */ jsxs(
-            "span",
-            {
-              style: {
-                backgroundColor: "#dbeafe",
-                color: "#1d4ed8",
-                fontSize: "11px",
-                fontWeight: 700,
-                padding: "2px 6px",
-                borderRadius: "4px",
-                marginLeft: "auto"
-              },
-              children: [
-                offers.length,
-                " Offers"
-              ]
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-bank-offers {
+            background-color: var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.08));
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+          }
+
+          :root[data-theme="dark"] .boost-bank-offers,
+          .dark .boost-bank-offers {
+            background-color: var(--boost-surface, #111827) !important;
+            border-color: var(--boost-border, rgba(255, 255, 255, 0.1)) !important;
+            box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5) !important;
+          }
+
+          .boost-bank-header-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--boost-text-primary, #0f172a);
+            letter-spacing: -0.01em;
+          }
+
+          :root[data-theme="dark"] .boost-bank-header-title,
+          .dark .boost-bank-header-title {
+            color: #f8fafc !important;
+          }
+
+          .boost-bank-count-pill {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(99, 102, 241, 0.15) 100%);
+            color: var(--boost-primary, #4f46e5);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 9999px;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+          }
+
+          :root[data-theme="dark"] .boost-bank-count-pill,
+          .dark .boost-bank-count-pill {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border-color: rgba(165, 180, 252, 0.3);
+          }
+
+          .boost-offer-row {
+            background-color: var(--boost-bg-muted, #f8fafc);
+            border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.05));
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+
+          .boost-offer-row:hover {
+            transform: translateX(2px);
+            border-color: rgba(99, 102, 241, 0.3);
+          }
+
+          :root[data-theme="dark"] .boost-offer-row,
+          .dark .boost-offer-row {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+          }
+
+          .boost-offer-row-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--boost-text-primary, #0f172a);
+            line-height: 1.3;
+          }
+
+          :root[data-theme="dark"] .boost-offer-row-title,
+          .dark .boost-offer-row-title {
+            color: #f1f5f9 !important;
+          }
+
+          .boost-offer-row-desc {
+            font-size: 12px;
+            color: var(--boost-text-secondary, #64748b);
+            margin: 0;
+            line-height: 1.45;
+          }
+
+          :root[data-theme="dark"] .boost-offer-row-desc,
+          .dark .boost-offer-row-desc {
+            color: #94a3b8 !important;
+          }
+
+          .boost-copy-chip {
+            font-size: 11px;
+            font-family: monospace;
+            font-weight: 700;
+            background: var(--boost-surface, #ffffff);
+            color: var(--boost-primary, #4f46e5);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px dashed rgba(99, 102, 241, 0.4);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+          }
+
+          .boost-copy-chip:hover {
+            background: rgba(99, 102, 241, 0.1);
+          }
+
+          :root[data-theme="dark"] .boost-copy-chip,
+          .dark .boost-copy-chip {
+            background: rgba(99, 102, 241, 0.15);
+            color: #c7d2fe;
+            border-color: rgba(165, 180, 252, 0.4);
+          }
+
+          .boost-expand-btn {
+            background: none;
+            border: none;
+            color: var(--boost-primary, #4f46e5);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 0 2px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+          }
+
+          .boost-expand-btn:hover {
+            color: #3730a3;
+          }
+
+          :root[data-theme="dark"] .boost-expand-btn,
+          .dark .boost-expand-btn {
+            color: #818cf8 !important;
+          }
+          :root[data-theme="dark"] .boost-expand-btn:hover,
+          .dark .boost-expand-btn:hover {
+            color: #a5b4fc !important;
+          }
+          @media (max-width: 480px) {
+            .boost-bank-offers {
+              padding: 14px 16px !important;
+              gap: 12px !important;
             }
-          )
+            .boost-bank-header-title {
+              font-size: 13.5px !important;
+            }
+          }
+        ` }),
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", width: "100%" }, children: [
+          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", minWidth: 0, flex: 1 }, children: [
+            /* @__PURE__ */ jsx(
+              "div",
+              {
+                style: {
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "7px",
+                  background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)",
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  boxShadow: "0 2px 6px rgba(79, 70, 229, 0.3)"
+                },
+                children: /* @__PURE__ */ jsxs("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+                  /* @__PURE__ */ jsx("rect", { x: "2", y: "5", width: "20", height: "14", rx: "2" }),
+                  /* @__PURE__ */ jsx("line", { x1: "2", y1: "10", x2: "22", y2: "10" })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsx("span", { className: "boost-bank-header-title", style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }, children: "Bank Offers & Discounts" })
+          ] }),
+          /* @__PURE__ */ jsxs("span", { className: "boost-bank-count-pill", children: [
+            offers.length,
+            " Offers"
+          ] })
         ] }),
-        /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: displayedOffers.map((offer) => /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              backgroundColor: "#ffffff",
-              border: "1px solid #edf2f7",
-              borderRadius: "8px",
-              padding: "10px 12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px"
-            },
-            children: [
-              /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+        /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "10px" }, children: displayedOffers.map((offer) => {
+          const offerDesc = offer.description || offer.terms || "";
+          return /* @__PURE__ */ jsxs("div", { className: "boost-offer-row", children: [
+            /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", flex: "1 1 180px", minWidth: 0 }, children: [
                 /* @__PURE__ */ jsx(
                   "span",
                   {
                     style: {
-                      width: "6px",
-                      height: "6px",
-                      borderRadius: "9999px",
-                      backgroundColor: "#2563eb",
+                      width: "7px",
+                      height: "7px",
+                      borderRadius: "50%",
+                      backgroundColor: "var(--boost-primary, #6366f1)",
                       flexShrink: 0
                     }
                   }
                 ),
-                /* @__PURE__ */ jsx("span", { style: { fontSize: "12px", fontWeight: 700, color: "#0f172a" }, children: offer.title }),
-                offer.code && /* @__PURE__ */ jsx(
-                  "span",
-                  {
-                    style: {
-                      fontSize: "10px",
-                      fontFamily: "monospace",
-                      fontWeight: 700,
-                      backgroundColor: "#f1f5f9",
-                      color: "#475569",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      border: "1px dashed #cbd5e1",
-                      marginLeft: "auto"
-                    },
-                    children: offer.code
-                  }
-                )
+                /* @__PURE__ */ jsx("span", { className: "boost-offer-row-title", style: { wordBreak: "break-word" }, children: offer.title })
               ] }),
-              /* @__PURE__ */ jsx(
-                "p",
+              offer.code && /* @__PURE__ */ jsx(
+                "button",
                 {
-                  style: {
-                    fontSize: "11px",
-                    color: "#64748b",
-                    margin: "0 0 0 12px",
-                    lineHeight: 1.4
-                  },
-                  children: offer.description
+                  type: "button",
+                  onClick: (e) => handleCopy(offer.code, e),
+                  className: "boost-copy-chip",
+                  title: "Click to copy coupon code",
+                  children: copiedCode === offer.code ? /* @__PURE__ */ jsx("span", { style: { color: "var(--boost-success, #10b981)", fontWeight: 800 }, children: "\u2713 COPIED" }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+                    /* @__PURE__ */ jsx("span", { children: offer.code }),
+                    /* @__PURE__ */ jsxs("svg", { width: "11", height: "11", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+                      /* @__PURE__ */ jsx("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }),
+                      /* @__PURE__ */ jsx("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" })
+                    ] })
+                  ] })
                 }
               )
-            ]
-          },
-          offer.id
-        )) }),
+            ] }),
+            offerDesc && /* @__PURE__ */ jsx("p", { className: "boost-offer-row-desc", style: { paddingLeft: "15px" }, children: offerDesc })
+          ] }, offer.id);
+        }) }),
         offers.length > 2 && /* @__PURE__ */ jsxs(
           "button",
           {
             type: "button",
             onClick: () => setExpanded(!expanded),
-            style: {
-              background: "none",
-              border: "none",
-              color: "#2563eb",
-              fontSize: "12px",
-              fontWeight: 600,
-              padding: "4px 0",
-              cursor: "pointer",
-              textAlign: "left",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px"
-            },
+            className: "boost-expand-btn",
             children: [
-              expanded ? "Show Less Offers" : `View ${offers.length - 2} More Offers`,
+              /* @__PURE__ */ jsx("span", { children: expanded ? "Show Less Offers" : `View All ${offers.length} Offers` }),
               /* @__PURE__ */ jsx(
                 "svg",
                 {
-                  width: "12",
-                  height: "12",
+                  width: "14",
+                  height: "14",
                   viewBox: "0 0 24 24",
                   fill: "none",
                   stroke: "currentColor",
                   strokeWidth: "2.5",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
                   style: {
                     transform: expanded ? "rotate(180deg)" : "none",
-                    transition: "transform 0.2s"
+                    transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
                   },
                   children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
                 }
@@ -13669,6 +17286,7 @@ AssuredBadge.displayName = "AssuredBadge";
 var DualMobileActionBar = ({
   price,
   compareAtPrice,
+  originalPrice,
   currencySymbol = "\u20B9",
   isWishlisted = false,
   isInCart = false,
@@ -13676,10 +17294,14 @@ var DualMobileActionBar = ({
   onBuyNow,
   onToggleWishlist,
   position,
+  addToCartText = "Add to Cart",
+  buyNowText = "Buy Now",
   className = "",
+  style,
   ...props
 }) => {
   const isRelative = position === "relative" || props.position === "relative";
+  const effectiveOriginalPrice = compareAtPrice ?? originalPrice ?? props.originalPrice;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     !isRelative && /* @__PURE__ */ jsx("style", { children: `
           @media (min-width: 768px) {
@@ -13688,6 +17310,118 @@ var DualMobileActionBar = ({
             }
           }
         ` }),
+    /* @__PURE__ */ jsx("style", { children: `
+        .boost-dual-mobile-action-bar {
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.08));
+          box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        :root[data-theme="dark"] .boost-dual-mobile-action-bar,
+        .dark .boost-dual-mobile-action-bar {
+          background: rgba(17, 24, 39, 0.9) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .boost-dual-price-val {
+          color: var(--boost-text-primary, #0f172a);
+          font-weight: 800;
+          font-size: 16px;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          font-variant-numeric: tabular-nums;
+        }
+
+        :root[data-theme="dark"] .boost-dual-price-val,
+        .dark .boost-dual-price-val {
+          color: #ffffff !important;
+        }
+
+        .boost-dual-btn-cart {
+          background: var(--boost-bg-muted, #f1f5f9);
+          color: var(--boost-text-primary, #0f172a);
+          border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.08));
+          font-weight: 700;
+          font-size: 13px;
+          border-radius: 12px;
+          height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          flex: 1;
+        }
+
+        .boost-dual-btn-cart:hover {
+          transform: translateY(-1px);
+          background: #e2e8f0;
+        }
+
+        :root[data-theme="dark"] .boost-dual-btn-cart,
+        .dark .boost-dual-btn-cart {
+          background: rgba(255, 255, 255, 0.08) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-dual-btn-cart:hover,
+        .dark .boost-dual-btn-cart:hover {
+          background: rgba(255, 255, 255, 0.14) !important;
+        }
+
+        .boost-dual-btn-buy {
+          background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+          color: #ffffff;
+          border: none;
+          font-weight: 700;
+          font-size: 13px;
+          border-radius: 12px;
+          height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+          flex: 1;
+        }
+
+        .boost-dual-btn-buy:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+        }
+
+        .boost-dual-btn-buy:active,
+        .boost-dual-btn-cart:active {
+          transform: scale(0.98);
+        }
+
+        .boost-wishlist-btn {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.08));
+          background: var(--boost-surface, #ffffff);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: all 0.2s ease;
+        }
+
+        :root[data-theme="dark"] .boost-wishlist-btn,
+        .dark .boost-wishlist-btn {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+      ` }),
     /* @__PURE__ */ jsxs(
       "div",
       {
@@ -13698,26 +17432,24 @@ var DualMobileActionBar = ({
           left: isRelative ? void 0 : 0,
           right: isRelative ? void 0 : 0,
           width: "100%",
-          backgroundColor: "#0f172a",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          borderRadius: isRelative ? "12px" : 0,
+          borderRadius: isRelative ? "18px" : "16px 16px 0 0",
           padding: "12px 16px",
           zIndex: isRelative ? 1 : 50,
           display: "flex",
           alignItems: "center",
           gap: "12px",
-          boxShadow: isRelative ? "0 8px 24px rgba(0, 0, 0, 0.3)" : "0 -4px 16px rgba(0, 0, 0, 0.08)",
-          boxSizing: "border-box"
+          boxSizing: "border-box",
+          ...style
         },
         children: [
-          price !== void 0 && /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", minWidth: "65px", flexShrink: 0 }, children: [
-            /* @__PURE__ */ jsxs("span", { style: { color: "#ffffff", fontWeight: 800, fontSize: "15px", lineHeight: 1.1 }, children: [
+          price !== void 0 && /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", flexShrink: 0 }, children: [
+            /* @__PURE__ */ jsxs("span", { className: "boost-dual-price-val", children: [
               currencySymbol,
               Number(price).toLocaleString()
             ] }),
-            compareAtPrice && compareAtPrice > price && /* @__PURE__ */ jsxs("span", { style: { color: "#94a3b8", fontSize: "11px", textDecoration: "line-through" }, children: [
+            effectiveOriginalPrice && effectiveOriginalPrice > price && /* @__PURE__ */ jsxs("span", { style: { color: "var(--boost-text-muted, #94a3b8)", fontSize: "11px", textDecoration: "line-through", fontWeight: 500 }, children: [
               currencySymbol,
-              Number(compareAtPrice).toLocaleString()
+              Number(effectiveOriginalPrice).toLocaleString()
             ] })
           ] }),
           onToggleWishlist && /* @__PURE__ */ jsx(
@@ -13726,27 +17458,19 @@ var DualMobileActionBar = ({
               type: "button",
               onClick: onToggleWishlist,
               "aria-label": "Wishlist",
-              style: {
-                width: "44px",
-                height: "44px",
-                borderRadius: "8px",
-                border: "1px solid #e5e7eb",
-                backgroundColor: "#ffffff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                flexShrink: 0
-              },
+              className: "boost-wishlist-btn",
               children: /* @__PURE__ */ jsx(
                 "svg",
                 {
-                  width: "20",
-                  height: "20",
+                  width: "18",
+                  height: "18",
                   viewBox: "0 0 24 24",
                   fill: isWishlisted ? "#ef4444" : "none",
-                  stroke: isWishlisted ? "#ef4444" : "#6b7280",
-                  strokeWidth: "2",
+                  stroke: isWishlisted ? "#ef4444" : "currentColor",
+                  strokeWidth: "2.2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  style: { color: isWishlisted ? "#ef4444" : "var(--boost-text-secondary, #64748b)" },
                   children: /* @__PURE__ */ jsx("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" })
                 }
               )
@@ -13757,30 +17481,14 @@ var DualMobileActionBar = ({
             {
               type: "button",
               onClick: onAddToCart,
-              style: {
-                flex: 1,
-                height: "44px",
-                backgroundColor: "#ff9f00",
-                color: "#ffffff",
-                fontWeight: 700,
-                fontSize: "14px",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                boxShadow: "0 2px 4px rgba(255, 159, 0, 0.3)",
-                transition: "transform 0.1s active"
-              },
+              className: "boost-dual-btn-cart",
               children: [
-                /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+                /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", children: [
                   /* @__PURE__ */ jsx("circle", { cx: "9", cy: "21", r: "1" }),
                   /* @__PURE__ */ jsx("circle", { cx: "20", cy: "21", r: "1" }),
                   /* @__PURE__ */ jsx("path", { d: "M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" })
                 ] }),
-                isInCart ? "In Cart" : "Add to Cart"
+                /* @__PURE__ */ jsx("span", { children: isInCart ? "In Cart" : addToCartText })
               ]
             }
           ),
@@ -13789,26 +17497,10 @@ var DualMobileActionBar = ({
             {
               type: "button",
               onClick: onBuyNow,
-              style: {
-                flex: 1,
-                height: "44px",
-                backgroundColor: "#fb641b",
-                color: "#ffffff",
-                fontWeight: 700,
-                fontSize: "14px",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                boxShadow: "0 2px 4px rgba(251, 100, 27, 0.3)",
-                transition: "transform 0.1s active"
-              },
+              className: "boost-dual-btn-buy",
               children: [
-                /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) }),
-                "Buy Now"
+                /* @__PURE__ */ jsx("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) }),
+                /* @__PURE__ */ jsx("span", { children: buyNowText })
               ]
             }
           )
@@ -13844,11 +17536,11 @@ var Price = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className,
+      className: `boost-price ${className}`,
       style: {
         display: "inline-flex",
         flexWrap: "wrap",
-        alignItems: "baseline",
+        alignItems: "center",
         gap: "8px",
         fontFamily: "system-ui, -apple-system, sans-serif",
         ...style
@@ -13860,8 +17552,9 @@ var Price = ({
             style: {
               fontSize: currentSize.current,
               fontWeight: 700,
-              color: "#0f172a",
-              letterSpacing: "-0.5px"
+              color: "var(--boost-text-primary, inherit)",
+              letterSpacing: "-0.5px",
+              lineHeight: 1
             },
             children: [
               currencySymbol,
@@ -13874,9 +17567,10 @@ var Price = ({
           {
             style: {
               fontSize: currentSize.original,
-              color: "#94a3b8",
+              color: "var(--boost-text-muted, #94a3b8)",
               textDecoration: "line-through",
-              fontWeight: 400
+              fontWeight: 400,
+              lineHeight: 1
             },
             children: [
               currencySymbol,
@@ -13890,11 +17584,15 @@ var Price = ({
             style: {
               fontSize: currentSize.discount,
               fontWeight: 700,
-              color: "#16a34a",
-              backgroundColor: "#dcfce7",
-              padding: "2px 6px",
-              borderRadius: "4px",
-              lineHeight: 1.2
+              color: "var(--boost-success, #16a34a)",
+              backgroundColor: "var(--boost-success-bg, rgba(22, 163, 74, 0.12))",
+              border: "1px solid rgba(22, 163, 74, 0.25)",
+              padding: "2px 8px",
+              borderRadius: "6px",
+              lineHeight: 1.2,
+              display: "inline-flex",
+              alignItems: "center",
+              letterSpacing: "0.02em"
             },
             children: [
               discountPercent,
@@ -13902,7 +17600,8 @@ var Price = ({
             ]
           }
         ),
-        hasDiscount && showSavings && /* @__PURE__ */ jsxs("span", { style: { width: "100%", fontSize: "12px", color: "#16a34a", fontWeight: 500 }, children: [
+        hasDiscount && showSavings && /* @__PURE__ */ jsxs("span", { style: { width: "100%", fontSize: "12px", color: "var(--boost-success, #16a34a)", fontWeight: 600, marginTop: "4px", display: "flex", alignItems: "center", gap: "4px" }, children: [
+          /* @__PURE__ */ jsx("span", { style: { display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "currentColor" } }),
           "You save ",
           currencySymbol,
           formatNumber2(savingsAmount)
@@ -13942,131 +17641,150 @@ var AddToCart = ({
     setQuantity(nextQty);
     onQuantityChange?.(nextQty);
   };
-  if (showStepperOnAdd && quantity > 0) {
-    return /* @__PURE__ */ jsxs(
-      "div",
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("style", { children: `
+        .boost-add-to-cart-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px 22px;
+          background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 700;
+          border-radius: 12px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+        .boost-add-to-cart-btn:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+        }
+        .boost-add-to-cart-btn:active:not(:disabled) {
+          transform: scale(0.98);
+        }
+        .boost-add-to-cart-stepper {
+          display: inline-flex;
+          align-items: center;
+          border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.1));
+          border-radius: 12px;
+          overflow: hidden;
+          background: var(--boost-surface, #ffffff);
+          box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.08);
+          transition: all 0.2s ease;
+        }
+        :root[data-theme="dark"] .boost-add-to-cart-stepper,
+        .dark .boost-add-to-cart-stepper {
+          background: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          box-shadow: 0 4px 20px -3px rgba(0, 0, 0, 0.4) !important;
+        }
+        .boost-stepper-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 38px;
+          height: 40px;
+          background: transparent;
+          border: none;
+          color: var(--boost-text-primary, #0f172a);
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 700;
+          transition: background-color 0.15s ease;
+        }
+        .boost-stepper-btn:hover:not(:disabled) {
+          background-color: rgba(99, 102, 241, 0.1);
+          color: #6366f1;
+        }
+        :root[data-theme="dark"] .boost-stepper-btn,
+        .dark .boost-stepper-btn {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-stepper-btn:hover:not(:disabled),
+        .dark .boost-stepper-btn:hover:not(:disabled) {
+          background-color: rgba(255, 255, 255, 0.12) !important;
+          color: #818cf8 !important;
+        }
+        .boost-stepper-qty {
+          min-width: 38px;
+          text-align: center;
+          font-size: 14px;
+          font-weight: 800;
+          color: var(--boost-text-primary, #0f172a);
+          font-variant-numeric: tabular-nums;
+        }
+        :root[data-theme="dark"] .boost-stepper-qty,
+        .dark .boost-stepper-qty {
+          color: #ffffff !important;
+        }
+      ` }),
+    showStepperOnAdd && quantity > 0 ? /* @__PURE__ */ jsxs("div", { className: "boost-add-to-cart-stepper", style, children: [
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          type: "button",
+          onClick: handleDecrement,
+          className: "boost-stepper-btn",
+          "aria-label": "Decrease quantity",
+          children: quantity === 1 ? /* @__PURE__ */ jsxs("svg", { width: "15", height: "15", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+            /* @__PURE__ */ jsx("polyline", { points: "3 6 5 6 21 6" }),
+            /* @__PURE__ */ jsx("path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" })
+          ] }) : /* @__PURE__ */ jsx("span", { children: "\u2212" })
+        }
+      ),
+      /* @__PURE__ */ jsx("span", { className: "boost-stepper-qty", children: quantity }),
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          type: "button",
+          onClick: handleIncrement,
+          disabled: quantity >= maxQuantity,
+          className: "boost-stepper-btn",
+          "aria-label": "Increase quantity",
+          style: { opacity: quantity >= maxQuantity ? 0.35 : 1, cursor: quantity >= maxQuantity ? "not-allowed" : "pointer" },
+          children: "+"
+        }
+      )
+    ] }) : /* @__PURE__ */ jsxs(
+      "button",
       {
+        type: "button",
+        onClick: handleAdd,
+        disabled: disabled || loading,
+        className: "boost-add-to-cart-btn",
         style: {
-          display: "inline-flex",
-          alignItems: "center",
-          border: "1px solid #0f172a",
-          borderRadius: "6px",
-          overflow: "hidden",
-          backgroundColor: "#ffffff",
-          fontFamily: "system-ui, -apple-system, sans-serif",
+          opacity: disabled ? 0.6 : 1,
+          cursor: disabled || loading ? "not-allowed" : "pointer",
           ...style
         },
         children: [
-          /* @__PURE__ */ jsx(
-            "button",
+          loading ? /* @__PURE__ */ jsxs(
+            "svg",
             {
-              type: "button",
-              onClick: handleDecrement,
-              style: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "36px",
-                height: "38px",
-                backgroundColor: "#ffffff",
-                border: "none",
-                color: "#0f172a",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: 600
-              },
-              children: quantity === 1 ? /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
-                /* @__PURE__ */ jsx("polyline", { points: "3 6 5 6 21 6" }),
-                /* @__PURE__ */ jsx("path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" })
-              ] }) : /* @__PURE__ */ jsx("span", { children: "-" })
+              style: { animation: "spin 1s linear infinite", width: "16px", height: "16px" },
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2.5",
+              children: [
+                /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10", strokeDasharray: "32", strokeDashoffset: "10", opacity: "0.3" }),
+                /* @__PURE__ */ jsx("path", { d: "M12 2a10 10 0 0 1 10 10" })
+              ]
             }
-          ),
-          /* @__PURE__ */ jsx(
-            "span",
-            {
-              style: {
-                minWidth: "36px",
-                textAlign: "center",
-                fontSize: "14px",
-                fontWeight: 700,
-                color: "#0f172a"
-              },
-              children: quantity
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            "button",
-            {
-              type: "button",
-              onClick: handleIncrement,
-              disabled: quantity >= maxQuantity,
-              style: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "36px",
-                height: "38px",
-                backgroundColor: "#ffffff",
-                border: "none",
-                color: quantity >= maxQuantity ? "#cbd5e1" : "#0f172a",
-                cursor: quantity >= maxQuantity ? "not-allowed" : "pointer",
-                fontSize: "16px",
-                fontWeight: 600
-              },
-              children: "+"
-            }
-          )
+          ) : /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+            /* @__PURE__ */ jsx("path", { d: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" }),
+            /* @__PURE__ */ jsx("line", { x1: "3", y1: "6", x2: "21", y2: "6" }),
+            /* @__PURE__ */ jsx("path", { d: "M16 10a4 4 0 0 1-8 0" })
+          ] }),
+          /* @__PURE__ */ jsx("span", { children: label })
         ]
       }
-    );
-  }
-  return /* @__PURE__ */ jsxs(
-    "button",
-    {
-      type: "button",
-      onClick: handleAdd,
-      disabled: disabled || loading,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px",
-        padding: "10px 20px",
-        backgroundColor: "#0f172a",
-        color: "#ffffff",
-        fontSize: "14px",
-        fontWeight: 600,
-        borderRadius: "6px",
-        border: "none",
-        cursor: disabled || loading ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.6 : 1,
-        fontFamily: "system-ui, -apple-system, sans-serif",
-        transition: "background-color 0.15s ease",
-        ...style
-      },
-      children: [
-        loading ? /* @__PURE__ */ jsxs(
-          "svg",
-          {
-            style: { animation: "spin 1s linear infinite", width: "16px", height: "16px" },
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            strokeWidth: "2",
-            children: [
-              /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10", strokeDasharray: "32", strokeDashoffset: "10", opacity: "0.3" }),
-              /* @__PURE__ */ jsx("path", { d: "M12 2a10 10 0 0 1 10 10" })
-            ]
-          }
-        ) : /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-          /* @__PURE__ */ jsx("path", { d: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" }),
-          /* @__PURE__ */ jsx("line", { x1: "3", y1: "6", x2: "21", y2: "6" }),
-          /* @__PURE__ */ jsx("path", { d: "M16 10a4 4 0 0 1-8 0" })
-        ] }),
-        /* @__PURE__ */ jsx("span", { children: label })
-      ]
-    }
-  );
+    )
+  ] });
 };
 AddToCart.displayName = "AddToCart";
 var CouponInput = ({
@@ -14093,27 +17811,38 @@ var CouponInput = ({
     return /* @__PURE__ */ jsxs(
       "div",
       {
+        className: "boost-coupon-applied",
         style: {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "10px 14px",
-          backgroundColor: "#f0fdf4",
-          border: "1px dashed #86efac",
-          borderRadius: "8px",
+          padding: "12px 16px",
+          backgroundColor: "rgba(34, 197, 94, 0.08)",
+          border: "1px dashed rgba(34, 197, 94, 0.4)",
+          borderRadius: "12px",
           fontFamily: "system-ui, -apple-system, sans-serif",
           ...style
         },
         children: [
-          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-            /* @__PURE__ */ jsx("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "#16a34a", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }),
+          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
+            /* @__PURE__ */ jsx(
+              "div",
+              {
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "26px",
+                  height: "26px",
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(34, 197, 94, 0.15)"
+                },
+                children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "#22c55e", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) })
+              }
+            ),
             /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 700, color: "#15803d", letterSpacing: "0.5px" }, children: appliedCode }),
-              discountText && /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", color: "#166534", marginLeft: "6px" }, children: [
-                "(",
-                discountText,
-                ")"
-              ] })
+              /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 700, color: "#22c55e", letterSpacing: "0.5px" }, children: appliedCode }),
+              discountText && /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", color: "var(--boost-text-muted, #94a3b8)", marginLeft: "8px" }, children: discountText })
             ] })
           ] }),
           /* @__PURE__ */ jsx(
@@ -14122,13 +17851,13 @@ var CouponInput = ({
               type: "button",
               onClick: handleRemove,
               style: {
-                background: "none",
+                background: "transparent",
                 border: "none",
                 color: "#ef4444",
-                fontSize: "12px",
+                fontSize: "13px",
                 fontWeight: 600,
                 cursor: "pointer",
-                padding: "2px 6px"
+                padding: "4px 8px"
               },
               children: "Remove"
             }
@@ -14153,16 +17882,16 @@ var CouponInput = ({
               {
                 style: {
                   position: "absolute",
-                  left: "10px",
+                  left: "12px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "#94a3b8",
+                  color: "var(--boost-text-muted, #94a3b8)",
                   display: "flex",
                   alignItems: "center"
                 },
-                children: /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-                  /* @__PURE__ */ jsx("rect", { x: "2", y: "5", width: "20", height: "14", rx: "2" }),
-                  /* @__PURE__ */ jsx("line", { x1: "2", y1: "10", x2: "22", y2: "10" })
+                children: /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+                  /* @__PURE__ */ jsx("path", { d: "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" }),
+                  /* @__PURE__ */ jsx("line", { x1: "7", y1: "7", x2: "7.01", y2: "7" })
                 ] })
               }
             ),
@@ -14176,13 +17905,16 @@ var CouponInput = ({
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
-                  padding: "9px 12px 9px 34px",
-                  fontSize: "13px",
+                  padding: "12px 12px 12px 38px",
+                  fontSize: "14px",
                   fontWeight: 500,
                   textTransform: "uppercase",
-                  border: `1px solid ${error ? "#ef4444" : "#cbd5e1"}`,
-                  borderRadius: "6px",
-                  outline: "none"
+                  color: "var(--boost-text-primary, inherit)",
+                  backgroundColor: "transparent",
+                  border: `1px solid ${error ? "#ef4444" : "var(--boost-border, #334155)"}`,
+                  borderRadius: "8px",
+                  outline: "none",
+                  transition: "border-color 0.2s"
                 }
               }
             )
@@ -14193,24 +17925,25 @@ var CouponInput = ({
               type: "submit",
               disabled: !code.trim() || loading,
               style: {
-                padding: "9px 16px",
-                backgroundColor: "#0f172a",
+                padding: "0 20px",
+                backgroundColor: "var(--boost-primary, #3b82f6)",
                 color: "#ffffff",
-                fontSize: "13px",
+                fontSize: "14px",
                 fontWeight: 600,
-                borderRadius: "6px",
+                borderRadius: "8px",
                 border: "none",
                 cursor: !code.trim() || loading ? "not-allowed" : "pointer",
                 opacity: !code.trim() || loading ? 0.6 : 1,
                 display: "flex",
                 alignItems: "center",
-                gap: "6px"
+                gap: "8px",
+                transition: "opacity 0.2s, background-color 0.2s"
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
                   "svg",
                   {
-                    style: { animation: "spin 1s linear infinite", width: "14px", height: "14px" },
+                    style: { animation: "spin 1s linear infinite", width: "16px", height: "16px" },
                     viewBox: "0 0 24 24",
                     fill: "none",
                     stroke: "currentColor",
@@ -14228,8 +17961,8 @@ var CouponInput = ({
         ]
       }
     ),
-    error && /* @__PURE__ */ jsxs("div", { style: { fontSize: "12px", color: "#ef4444", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }, children: [
-      /* @__PURE__ */ jsxs("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+    error && /* @__PURE__ */ jsxs("div", { style: { fontSize: "13px", color: "#ef4444", marginTop: "8px", display: "flex", alignItems: "center", gap: "6px" }, children: [
+      /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
         /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
         /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
         /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
@@ -14766,6 +18499,8 @@ var HeroSection = ({
   primaryAction,
   secondaryAction,
   media,
+  backgroundImage,
+  overlayOpacity = 0.5,
   align = "center",
   showGlow = true,
   glowColor = "rgba(37, 99, 235, 0.15)",
@@ -14774,21 +18509,69 @@ var HeroSection = ({
   ...props
 }) => {
   const isCenter = align === "center";
+  const isRight = align === "right";
+  const hasBg = !!backgroundImage;
   return /* @__PURE__ */ jsxs(
     "section",
     {
       className: `boost-hero-section ${className}`,
       style: {
         position: "relative",
-        padding: "clamp(48px, 8vw, 96px) clamp(16px, 4vw, 32px)",
+        padding: "clamp(64px, 10vw, 120px) clamp(16px, 4vw, 32px)",
         overflow: "hidden",
         width: "100%",
         boxSizing: "border-box",
+        backgroundImage: hasBg ? `url(${backgroundImage})` : void 0,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         ...style
       },
       ...props,
       children: [
-        showGlow && /* @__PURE__ */ jsx(
+        /* @__PURE__ */ jsx("style", { children: `
+        @media (max-width: 640px) {
+          .boost-hero-section {
+            padding: 48px 20px !important;
+          }
+          .boost-hero-title {
+            font-size: 32px !important;
+            line-height: 1.2 !important;
+          }
+          .boost-hero-desc {
+            font-size: 16px !important;
+            margin-bottom: 24px !important;
+          }
+          .boost-hero-buttons {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            width: 100% !important;
+          }
+          .boost-hero-buttons button {
+            width: 100% !important;
+          }
+          .boost-hero-content {
+            text-align: center !important;
+          }
+          .boost-hero-content p {
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+        }
+      ` }),
+        hasBg && /* @__PURE__ */ jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              inset: 0,
+              backgroundColor: "#000",
+              opacity: overlayOpacity,
+              zIndex: 0
+            }
+          }
+        ),
+        !hasBg && showGlow && /* @__PURE__ */ jsx(
           "div",
           {
             style: {
@@ -14810,21 +18593,22 @@ var HeroSection = ({
         /* @__PURE__ */ jsxs(
           "div",
           {
+            className: "boost-hero-layout",
             style: {
               position: "relative",
               zIndex: 1,
               maxWidth: "1200px",
               margin: "0 auto",
               display: "flex",
-              flexDirection: isCenter ? "column" : "row",
+              flexDirection: isCenter ? "column" : isRight ? "row-reverse" : "row",
               flexWrap: "wrap",
               alignItems: "center",
               justifyContent: isCenter ? "center" : "space-between",
               gap: "clamp(32px, 5vw, 56px)",
-              textAlign: isCenter ? "center" : "left"
+              textAlign: isCenter ? "center" : isRight ? "right" : "left"
             },
             children: [
-              /* @__PURE__ */ jsxs("div", { style: { maxWidth: isCenter ? "820px" : "620px", width: "100%", flex: isCenter ? "none" : "1 1 300px" }, children: [
+              /* @__PURE__ */ jsxs("div", { className: "boost-hero-content", style: { maxWidth: isCenter ? "820px" : "620px", width: "100%", flex: isCenter ? "none" : "1 1 300px" }, children: [
                 badge && /* @__PURE__ */ jsx(
                   "div",
                   {
@@ -14834,9 +18618,9 @@ var HeroSection = ({
                       gap: "8px",
                       padding: "6px 14px",
                       borderRadius: "9999px",
-                      backgroundColor: "rgba(37, 99, 235, 0.1)",
-                      border: "1px solid rgba(37, 99, 235, 0.22)",
-                      color: "var(--boost-primary, #2563eb)",
+                      backgroundColor: hasBg ? "rgba(255, 255, 255, 0.15)" : "rgba(37, 99, 235, 0.1)",
+                      border: hasBg ? "1px solid rgba(255, 255, 255, 0.3)" : "1px solid rgba(37, 99, 235, 0.22)",
+                      color: hasBg ? "#ffffff" : "var(--boost-primary, #2563eb)",
                       fontSize: "13px",
                       fontWeight: 600,
                       marginBottom: "20px",
@@ -14849,13 +18633,14 @@ var HeroSection = ({
                 /* @__PURE__ */ jsx(
                   "h1",
                   {
+                    className: "boost-hero-title",
                     style: {
-                      fontSize: "clamp(32px, 5.2vw, 60px)",
+                      fontSize: "clamp(36px, 5.2vw, 64px)",
                       fontWeight: 800,
                       lineHeight: 1.12,
                       letterSpacing: "-0.035em",
                       margin: "0 0 20px 0",
-                      color: "var(--boost-text, #0f172a)"
+                      color: hasBg ? "#ffffff" : "var(--boost-text, #0f172a)"
                     },
                     children: title
                   }
@@ -14863,14 +18648,15 @@ var HeroSection = ({
                 description && /* @__PURE__ */ jsx(
                   "p",
                   {
+                    className: "boost-hero-desc",
                     style: {
-                      fontSize: "clamp(15px, 2vw, 19px)",
+                      fontSize: "clamp(16px, 2vw, 20px)",
                       lineHeight: 1.65,
-                      color: "var(--boost-text-muted, #64748b)",
+                      color: hasBg ? "rgba(255, 255, 255, 0.85)" : "var(--boost-text-muted, #64748b)",
                       margin: "0 0 32px 0",
                       maxWidth: isCenter ? "700px" : "100%",
-                      marginLeft: isCenter ? "auto" : 0,
-                      marginRight: isCenter ? "auto" : 0
+                      marginLeft: isCenter ? "auto" : isRight ? "auto" : 0,
+                      marginRight: isCenter ? "auto" : isRight ? 0 : "auto"
                     },
                     children: description
                   }
@@ -14878,11 +18664,12 @@ var HeroSection = ({
                 (primaryAction || secondaryAction) && /* @__PURE__ */ jsxs(
                   "div",
                   {
+                    className: "boost-hero-buttons",
                     style: {
                       display: "flex",
                       flexWrap: "wrap",
                       gap: "12px",
-                      justifyContent: isCenter ? "center" : "flex-start",
+                      justifyContent: isCenter ? "center" : isRight ? "flex-end" : "flex-start",
                       alignItems: "center"
                     },
                     children: [
@@ -14892,7 +18679,7 @@ var HeroSection = ({
                           type: "button",
                           onClick: primaryAction.onClick,
                           style: {
-                            padding: "13px 28px",
+                            padding: "14px 32px",
                             borderRadius: "var(--boost-radius, 12px)",
                             backgroundColor: "var(--boost-primary, #2563eb)",
                             color: "#ffffff",
@@ -14912,13 +18699,14 @@ var HeroSection = ({
                           type: "button",
                           onClick: secondaryAction.onClick,
                           style: {
-                            padding: "13px 28px",
+                            padding: "14px 32px",
                             borderRadius: "var(--boost-radius, 12px)",
-                            backgroundColor: "var(--boost-surface, transparent)",
-                            color: "var(--boost-text, inherit)",
+                            backgroundColor: hasBg ? "rgba(255, 255, 255, 0.1)" : "var(--boost-surface, transparent)",
+                            color: hasBg ? "#ffffff" : "var(--boost-text, inherit)",
                             fontSize: "15px",
                             fontWeight: 600,
-                            border: "1px solid var(--boost-border, #cbd5e1)",
+                            border: hasBg ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid var(--boost-border, #cbd5e1)",
+                            backdropFilter: hasBg ? "blur(8px)" : "none",
                             cursor: "pointer",
                             transition: "all 0.15s ease"
                           },
@@ -15117,6 +18905,19 @@ var PricingTable = ({
       },
       ...props,
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-pricing-card,
+          .dark .boost-pricing-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.is-popular,
+          .dark .boost-pricing-card.is-popular {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25) !important;
+          }
+        ` }),
         showToggle && /* @__PURE__ */ jsxs(
           "div",
           {
@@ -15206,6 +19007,7 @@ var PricingTable = ({
             },
             children: tiers.map((tier) => {
               const rawPrice = activeCycle === "annual" && tier.priceAnnual !== void 0 ? tier.priceAnnual : tier.priceMonthly;
+              const rawOriginalPrice = activeCycle === "annual" && tier.originalPriceAnnual !== void 0 ? tier.originalPriceAnnual : tier.originalPriceMonthly;
               const currency = tier.currency || "$";
               const isPop = tier.isPopular;
               return /* @__PURE__ */ jsxs(
@@ -15248,18 +19050,35 @@ var PricingTable = ({
                       }
                     ),
                     /* @__PURE__ */ jsxs("div", { children: [
-                      /* @__PURE__ */ jsx(
-                        "h3",
-                        {
-                          style: {
-                            fontSize: "20px",
-                            fontWeight: 700,
-                            margin: "0 0 8px 0",
-                            color: "var(--boost-text, #0f172a)"
-                          },
-                          children: tier.name
-                        }
-                      ),
+                      /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
+                        /* @__PURE__ */ jsx(
+                          "h3",
+                          {
+                            style: {
+                              fontSize: "20px",
+                              fontWeight: 700,
+                              margin: 0,
+                              color: "var(--boost-text, #0f172a)"
+                            },
+                            children: tier.name
+                          }
+                        ),
+                        tier.badge && /* @__PURE__ */ jsx(
+                          "span",
+                          {
+                            style: {
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              backgroundColor: "rgba(34, 197, 94, 0.1)",
+                              color: "#16a34a",
+                              padding: "2px 8px",
+                              borderRadius: "9999px",
+                              border: "1px solid rgba(34, 197, 94, 0.2)"
+                            },
+                            children: tier.badge
+                          }
+                        )
+                      ] }),
                       tier.description && /* @__PURE__ */ jsx(
                         "p",
                         {
@@ -15280,7 +19099,8 @@ var PricingTable = ({
                             display: "flex",
                             alignItems: "baseline",
                             gap: "4px",
-                            marginBottom: "28px"
+                            marginBottom: "28px",
+                            flexWrap: "wrap"
                           },
                           children: [
                             /* @__PURE__ */ jsx(
@@ -15308,7 +19128,19 @@ var PricingTable = ({
                                   activeCycle === "annual" ? "yr" : "mo"
                                 ]
                               }
-                            )
+                            ),
+                            rawOriginalPrice && /* @__PURE__ */ jsx("div", { style: { width: "100%", marginTop: "2px" }, children: /* @__PURE__ */ jsx(
+                              "span",
+                              {
+                                style: {
+                                  fontSize: "15px",
+                                  color: "var(--boost-text-muted, #94a3b8)",
+                                  textDecoration: "line-through",
+                                  fontWeight: 500
+                                },
+                                children: typeof rawOriginalPrice === "number" ? `${currency}${rawOriginalPrice}` : rawOriginalPrice
+                              }
+                            ) })
                           ]
                         }
                       ),
@@ -15450,19 +19282,28 @@ var TestimonialCard = ({
     {
       className: `boost-testimonial-card ${className}`,
       style: {
-        padding: "30px",
-        borderRadius: "var(--boost-radius, 14px)",
-        backgroundColor: "var(--boost-surface, #f8fafc)",
+        padding: "24px",
+        borderRadius: "var(--boost-radius, 16px)",
+        backgroundColor: "var(--boost-surface, #ffffff)",
         border: "1px solid var(--boost-border, #e2e8f0)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         boxSizing: "border-box",
         position: "relative",
+        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
         ...style
       },
       ...props,
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          :root[data-theme="dark"] .boost-testimonial-card,
+          .dark .boost-testimonial-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { children: [
           /* @__PURE__ */ jsxs(
             "div",
@@ -15566,7 +19407,7 @@ var TestimonialCard = ({
                 children: [
                   finalRole,
                   finalRole && finalCompany ? " at " : "",
-                  authorCompany
+                  finalCompany
                 ]
               }
             )
@@ -15635,6 +19476,38 @@ var FAQSection = ({
       },
       ...props,
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-faq-item {
+            background-color: var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, #e2e8f0);
+            border-radius: var(--boost-radius, 14px);
+            overflow: hidden;
+            transition: all 0.2s ease;
+          }
+          :root[data-theme="dark"] .boost-faq-item,
+          .dark .boost-faq-item {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          .boost-faq-item.is-open {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15) !important;
+          }
+          .boost-faq-search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, #e2e8f0);
+            border-radius: var(--boost-radius, 10px);
+            padding: 10px 16px;
+            gap: 10px;
+          }
+          :root[data-theme="dark"] .boost-faq-search-box,
+          .dark .boost-faq-search-box {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+          }
+        ` }),
         /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "40px" }, children: [
           /* @__PURE__ */ jsx(
             "h2",
@@ -15660,70 +19533,56 @@ var FAQSection = ({
             }
           )
         ] }),
-        searchable && /* @__PURE__ */ jsx("div", { style: { marginBottom: "32px" }, children: /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: "var(--boost-surface, #f8fafc)",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              borderRadius: "var(--boost-radius, 8px)",
-              padding: "10px 16px",
-              gap: "10px"
-            },
-            children: [
-              /* @__PURE__ */ jsxs(
-                "svg",
-                {
-                  width: "18",
-                  height: "18",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "#64748b",
-                  strokeWidth: "2",
-                  children: [
-                    /* @__PURE__ */ jsx("circle", { cx: "11", cy: "11", r: "8" }),
-                    /* @__PURE__ */ jsx("line", { x1: "21", y1: "21", x2: "16.65", y2: "16.65" })
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                "input",
-                {
-                  type: "text",
-                  value: searchQuery,
-                  onChange: (e) => setSearchQuery(e.target.value),
-                  placeholder: searchPlaceholder,
-                  style: {
-                    border: "none",
-                    outline: "none",
-                    background: "transparent",
-                    width: "100%",
-                    fontSize: "14px",
-                    color: "var(--boost-text, #0f172a)"
-                  }
-                }
-              ),
-              searchQuery && /* @__PURE__ */ jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => setSearchQuery(""),
-                  style: {
-                    background: "none",
-                    border: "none",
-                    color: "#94a3b8",
-                    cursor: "pointer",
-                    padding: 0,
-                    fontSize: "14px"
-                  },
-                  children: "\u2715"
-                }
-              )
-            ]
-          }
-        ) }),
+        searchable && /* @__PURE__ */ jsx("div", { style: { marginBottom: "32px" }, children: /* @__PURE__ */ jsxs("div", { className: "boost-faq-search-box", children: [
+          /* @__PURE__ */ jsxs(
+            "svg",
+            {
+              width: "18",
+              height: "18",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "#64748b",
+              strokeWidth: "2",
+              children: [
+                /* @__PURE__ */ jsx("circle", { cx: "11", cy: "11", r: "8" }),
+                /* @__PURE__ */ jsx("line", { x1: "21", y1: "21", x2: "16.65", y2: "16.65" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "input",
+            {
+              type: "text",
+              value: searchQuery,
+              onChange: (e) => setSearchQuery(e.target.value),
+              placeholder: searchPlaceholder,
+              style: {
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                width: "100%",
+                fontSize: "14px",
+                color: "var(--boost-text, #0f172a)"
+              }
+            }
+          ),
+          searchQuery && /* @__PURE__ */ jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setSearchQuery(""),
+              style: {
+                background: "none",
+                border: "none",
+                color: "#94a3b8",
+                cursor: "pointer",
+                padding: 0,
+                fontSize: "14px"
+              },
+              children: "\u2715"
+            }
+          )
+        ] }) }),
         /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "14px" }, children: filteredItems.length === 0 ? /* @__PURE__ */ jsx(
           "div",
           {
@@ -15740,14 +19599,7 @@ var FAQSection = ({
           return /* @__PURE__ */ jsxs(
             "div",
             {
-              style: {
-                borderRadius: "var(--boost-radius, 14px)",
-                border: isOpen ? "1px solid var(--boost-primary, #2563eb)" : "1px solid var(--boost-border, #e2e8f0)",
-                backgroundColor: "var(--boost-surface, #f8fafc)",
-                overflow: "hidden",
-                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                boxShadow: isOpen ? "0 4px 16px rgba(37, 99, 235, 0.08)" : "none"
-              },
+              className: `boost-faq-item ${isOpen ? "is-open" : ""}`,
               children: [
                 /* @__PURE__ */ jsxs(
                   "button",
@@ -15856,6 +19708,61 @@ var LogoCloud = ({
       },
       ...props,
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-logo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px 24px;
+          }
+          .boost-logo-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: var(--boost-surface, rgba(255, 255, 255, 0.8));
+            border: 1px solid var(--boost-border, rgba(0, 0, 0, 0.07));
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--boost-text-primary, #0f172a);
+          }
+          .boost-logo-item:hover {
+            filter: none !important;
+            opacity: 1 !important;
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 24px -6px rgba(99, 102, 241, 0.15);
+          }
+          @media (max-width: 640px) {
+            .boost-logo-grid {
+              gap: 12px 14px;
+            }
+            .boost-logo-item {
+              padding: 8px 14px;
+            }
+            .boost-logo-item img {
+              max-height: 24px !important;
+              max-width: 90px !important;
+            }
+          }
+          :root[data-theme="dark"] .boost-logo-item,
+          .dark .boost-logo-item {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-logo-item:hover,
+          .dark .boost-logo-item:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 8px 25px -6px rgba(99, 102, 241, 0.3) !important;
+          }
+          :root[data-theme="dark"] .boost-logo-item img,
+          .dark .boost-logo-item img {
+            filter: invert(1) brightness(1.8) contrast(1.1);
+          }
+        ` }),
         title && /* @__PURE__ */ jsx(
           "p",
           {
@@ -15870,50 +19777,46 @@ var LogoCloud = ({
             children: title
           }
         ),
-        /* @__PURE__ */ jsx(
-          "div",
-          {
-            style: {
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "40px 48px"
-            },
-            children: logos.map((item, idx) => {
-              const content = /* @__PURE__ */ jsx(
-                "div",
+        /* @__PURE__ */ jsx("div", { className: "boost-logo-grid", children: logos.map((item, idx) => {
+          const content = /* @__PURE__ */ jsx(
+            "div",
+            {
+              title: item.name,
+              className: "boost-logo-item",
+              style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                filter: grayscale ? "grayscale(100%) opacity(60%)" : "none",
+                transition: "filter 0.2s ease, transform 0.2s ease",
+                cursor: item.href ? "pointer" : "default"
+              },
+              children: item.imageUrl ? /* @__PURE__ */ jsx(
+                "img",
                 {
-                  title: item.name,
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    filter: grayscale ? "grayscale(100%) opacity(60%)" : "none",
-                    transition: "filter 0.2s ease, transform 0.2s ease",
-                    cursor: item.href ? "pointer" : "default"
-                  },
-                  children: item.logo
-                },
-                idx
-              );
-              if (item.href) {
-                return /* @__PURE__ */ jsx(
-                  "a",
-                  {
-                    href: item.href,
-                    target: "_blank",
-                    rel: "noopener noreferrer",
-                    style: { textDecoration: "none", color: "inherit" },
-                    children: content
-                  },
-                  idx
-                );
-              }
-              return content;
-            })
+                  src: item.imageUrl,
+                  alt: item.name,
+                  style: { maxHeight: "36px", maxWidth: "160px", objectFit: "contain" }
+                }
+              ) : item.logo
+            },
+            idx
+          );
+          if (item.href) {
+            return /* @__PURE__ */ jsx(
+              "a",
+              {
+                href: item.href,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                style: { textDecoration: "none", color: "inherit" },
+                children: content
+              },
+              idx
+            );
           }
-        )
+          return content;
+        }) })
       ]
     }
   );
@@ -15923,6 +19826,8 @@ var CTASection = ({
   badge,
   title,
   description,
+  backgroundImage,
+  overlayOpacity,
   primaryAction,
   secondaryAction,
   showNewsletter = false,
@@ -15944,7 +19849,10 @@ var CTASection = ({
   };
   const isCard = variant === "card";
   const isGradient = variant === "gradient";
-  return /* @__PURE__ */ jsx(
+  const hasBgImage = !!backgroundImage;
+  const overlayAlpha = overlayOpacity ?? 0.6;
+  const backgroundStyle = hasBgImage ? `linear-gradient(rgba(0, 0, 0, ${overlayAlpha}), rgba(0, 0, 0, ${overlayAlpha})), url(${backgroundImage}) center/cover no-repeat` : isGradient ? "linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)" : "var(--boost-primary, #2563eb)";
+  return /* @__PURE__ */ jsxs(
     "section",
     {
       className: `boost-cta-section ${className}`,
@@ -15955,188 +19863,196 @@ var CTASection = ({
         ...style
       },
       ...props,
-      children: /* @__PURE__ */ jsxs(
-        "div",
-        {
-          style: {
-            maxWidth: isCard ? "1100px" : "100%",
-            margin: "0 auto",
-            borderRadius: isCard ? "var(--boost-radius, 24px)" : "0px",
-            background: isGradient ? "linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)" : "var(--boost-primary, #2563eb)",
-            color: "#ffffff",
-            padding: "clamp(36px, 6vw, 60px) clamp(20px, 4vw, 48px)",
-            textAlign: "center",
-            boxShadow: isCard ? "var(--boost-shadow-glow, 0 20px 40px rgba(37, 99, 235, 0.25))" : "none",
-            boxSizing: "border-box",
-            position: "relative",
-            overflow: "hidden"
-          },
-          children: [
-            badge && /* @__PURE__ */ jsx(
-              "div",
-              {
-                style: {
-                  display: "inline-block",
-                  padding: "6px 14px",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  fontSize: "12px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  marginBottom: "16px"
-                },
-                children: badge
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              "h2",
-              {
-                style: {
-                  fontSize: "clamp(28px, 4.5vw, 46px)",
-                  fontWeight: 800,
-                  lineHeight: 1.2,
-                  margin: "0 0 16px 0",
-                  color: "#ffffff",
-                  letterSpacing: "-0.02em"
-                },
-                children: title
-              }
-            ),
-            description && /* @__PURE__ */ jsx(
-              "p",
-              {
-                style: {
-                  fontSize: "clamp(15px, 1.8vw, 18px)",
-                  lineHeight: 1.6,
-                  color: "rgba(255, 255, 255, 0.85)",
-                  margin: "0 auto 36px auto",
-                  maxWidth: "650px"
-                },
-                children: description
-              }
-            ),
-            showNewsletter ? submitted ? /* @__PURE__ */ jsx(
-              "div",
-              {
-                style: {
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "12px 24px",
-                  borderRadius: "8px",
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  color: "#ffffff",
-                  fontWeight: 600
-                },
-                children: "\u2713 Thank you! We have sent a confirmation link to your inbox."
-              }
-            ) : /* @__PURE__ */ jsxs(
-              "form",
-              {
-                onSubmit: handleSubmit,
-                style: {
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                  gap: "10px",
-                  maxWidth: "480px",
-                  margin: "0 auto"
-                },
-                children: [
-                  /* @__PURE__ */ jsx(
-                    "input",
-                    {
-                      type: "email",
-                      required: true,
-                      value: email,
-                      onChange: (e) => setEmail(e.target.value),
-                      placeholder: newsletterPlaceholder,
-                      style: {
-                        flex: 1,
-                        minWidth: "220px",
-                        padding: "12px 18px",
-                        borderRadius: "var(--boost-radius, 8px)",
-                        border: "none",
-                        outline: "none",
-                        fontSize: "15px",
-                        color: "#0f172a"
+      children: [
+        /* @__PURE__ */ jsx("style", { children: `
+          .boost-cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+          }
+          @media (max-width: 640px) {
+            .boost-cta-buttons {
+              flex-direction: column;
+              width: 100%;
+            }
+            .boost-cta-buttons button {
+              width: 100%;
+            }
+          }
+        ` }),
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            style: {
+              maxWidth: isCard ? "1100px" : "100%",
+              margin: "0 auto",
+              borderRadius: isCard ? "var(--boost-radius, 24px)" : "0px",
+              background: backgroundStyle,
+              color: "#ffffff",
+              padding: "clamp(36px, 6vw, 60px) clamp(20px, 4vw, 48px)",
+              textAlign: "center",
+              boxShadow: isCard ? "var(--boost-shadow-glow, 0 20px 40px rgba(37, 99, 235, 0.25))" : "none",
+              boxSizing: "border-box",
+              position: "relative",
+              overflow: "hidden"
+            },
+            children: [
+              badge && /* @__PURE__ */ jsx(
+                "div",
+                {
+                  style: {
+                    display: "inline-block",
+                    padding: "6px 14px",
+                    borderRadius: "9999px",
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    marginBottom: "16px"
+                  },
+                  children: badge
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "h2",
+                {
+                  style: {
+                    fontSize: "clamp(28px, 4.5vw, 46px)",
+                    fontWeight: 800,
+                    lineHeight: 1.2,
+                    margin: "0 0 16px 0",
+                    color: "#ffffff",
+                    letterSpacing: "-0.02em"
+                  },
+                  children: title
+                }
+              ),
+              description && /* @__PURE__ */ jsx(
+                "p",
+                {
+                  style: {
+                    fontSize: "clamp(15px, 1.8vw, 18px)",
+                    lineHeight: 1.6,
+                    color: "rgba(255, 255, 255, 0.85)",
+                    margin: "0 auto 36px auto",
+                    maxWidth: "650px"
+                  },
+                  children: description
+                }
+              ),
+              showNewsletter ? submitted ? /* @__PURE__ */ jsx(
+                "div",
+                {
+                  style: {
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "12px 24px",
+                    borderRadius: "8px",
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    color: "#ffffff",
+                    fontWeight: 600
+                  },
+                  children: "\u2713 Thank you! We have sent a confirmation link to your inbox."
+                }
+              ) : /* @__PURE__ */ jsxs(
+                "form",
+                {
+                  onSubmit: handleSubmit,
+                  style: {
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    gap: "10px",
+                    maxWidth: "480px",
+                    margin: "0 auto"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx(
+                      "input",
+                      {
+                        type: "email",
+                        required: true,
+                        value: email,
+                        onChange: (e) => setEmail(e.target.value),
+                        placeholder: newsletterPlaceholder,
+                        style: {
+                          flex: 1,
+                          minWidth: "220px",
+                          padding: "12px 18px",
+                          borderRadius: "var(--boost-radius, 8px)",
+                          border: "none",
+                          outline: "none",
+                          fontSize: "15px",
+                          color: "#0f172a"
+                        }
                       }
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    "button",
-                    {
-                      type: "submit",
-                      style: {
-                        padding: "12px 24px",
-                        borderRadius: "var(--boost-radius, 8px)",
-                        border: "none",
-                        backgroundColor: "#0f172a",
-                        color: "#ffffff",
-                        fontSize: "15px",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        transition: "background-color 0.15s ease"
-                      },
-                      children: newsletterButtonText
-                    }
-                  )
-                ]
-              }
-            ) : (primaryAction || secondaryAction) && /* @__PURE__ */ jsxs(
-              "div",
-              {
-                style: {
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                  gap: "14px"
-                },
-                children: [
-                  primaryAction && /* @__PURE__ */ jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: primaryAction.onClick,
-                      style: {
-                        padding: "14px 30px",
-                        borderRadius: "var(--boost-radius, 8px)",
-                        backgroundColor: "#ffffff",
-                        color: "var(--boost-primary, #2563eb)",
-                        fontSize: "15px",
-                        fontWeight: 700,
-                        border: "none",
-                        cursor: "pointer",
-                        boxShadow: "0 4px 14px rgba(0, 0, 0, 0.15)"
-                      },
-                      children: primaryAction.label
-                    }
-                  ),
-                  secondaryAction && /* @__PURE__ */ jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: secondaryAction.onClick,
-                      style: {
-                        padding: "14px 30px",
-                        borderRadius: "var(--boost-radius, 8px)",
-                        backgroundColor: "transparent",
-                        color: "#ffffff",
-                        fontSize: "15px",
-                        fontWeight: 600,
-                        border: "1px solid rgba(255, 255, 255, 0.4)",
-                        cursor: "pointer"
-                      },
-                      children: secondaryAction.label
-                    }
-                  )
-                ]
-              }
-            )
-          ]
-        }
-      )
+                    ),
+                    /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        type: "submit",
+                        style: {
+                          padding: "12px 24px",
+                          borderRadius: "var(--boost-radius, 8px)",
+                          border: "none",
+                          backgroundColor: "#0f172a",
+                          color: "#ffffff",
+                          fontSize: "15px",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "background-color 0.15s ease"
+                        },
+                        children: newsletterButtonText
+                      }
+                    )
+                  ]
+                }
+              ) : (primaryAction || secondaryAction) && /* @__PURE__ */ jsxs("div", { className: "boost-cta-buttons", children: [
+                primaryAction && /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: primaryAction.onClick,
+                    style: {
+                      padding: "14px 30px",
+                      borderRadius: "var(--boost-radius, 8px)",
+                      backgroundColor: "#ffffff",
+                      color: "var(--boost-primary, #2563eb)",
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      border: "none",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 14px rgba(0, 0, 0, 0.15)"
+                    },
+                    children: primaryAction.label
+                  }
+                ),
+                secondaryAction && /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: secondaryAction.onClick,
+                    style: {
+                      padding: "14px 30px",
+                      borderRadius: "var(--boost-radius, 8px)",
+                      backgroundColor: "transparent",
+                      color: "#ffffff",
+                      fontSize: "15px",
+                      fontWeight: 600,
+                      border: "1px solid rgba(255, 255, 255, 0.4)",
+                      cursor: "pointer"
+                    },
+                    children: secondaryAction.label
+                  }
+                )
+              ] })
+            ]
+          }
+        )
+      ]
     }
   );
 };

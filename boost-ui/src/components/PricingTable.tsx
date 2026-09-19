@@ -11,6 +11,9 @@ export interface PricingTier {
   description?: string;
   priceMonthly: number | string;
   priceAnnual?: number | string;
+  originalPriceMonthly?: number | string;
+  originalPriceAnnual?: number | string;
+  badge?: string;
   currency?: string;
   features: (string | PricingFeature)[];
   isPopular?: boolean;
@@ -65,6 +68,21 @@ export const PricingTable: React.FC<PricingTableProps> = ({
       }}
       {...props}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-pricing-card,
+          .dark .boost-pricing-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.is-popular,
+          .dark .boost-pricing-card.is-popular {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25) !important;
+          }
+        `}
+      </style>
       {showToggle && (
         <div
           style={{
@@ -150,6 +168,11 @@ export const PricingTable: React.FC<PricingTableProps> = ({
               ? tier.priceAnnual
               : tier.priceMonthly;
 
+          const rawOriginalPrice =
+            activeCycle === 'annual' && tier.originalPriceAnnual !== undefined
+              ? tier.originalPriceAnnual
+              : tier.originalPriceMonthly;
+
           const currency = tier.currency || '$';
           const isPop = tier.isPopular;
 
@@ -198,16 +221,33 @@ export const PricingTable: React.FC<PricingTableProps> = ({
               )}
 
               <div>
-                <h3
-                  style={{
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    margin: '0 0 8px 0',
-                    color: 'var(--boost-text, #0f172a)',
-                  }}
-                >
-                  {tier.name}
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <h3
+                    style={{
+                      fontSize: '20px',
+                      fontWeight: 700,
+                      margin: 0,
+                      color: 'var(--boost-text, #0f172a)',
+                    }}
+                  >
+                    {tier.name}
+                  </h3>
+                  {tier.badge && (
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        color: '#16a34a',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                        border: '1px solid rgba(34, 197, 94, 0.2)',
+                      }}
+                    >
+                      {tier.badge}
+                    </span>
+                  )}
+                </div>
                 {tier.description && (
                   <p
                     style={{
@@ -228,6 +268,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                     alignItems: 'baseline',
                     gap: '4px',
                     marginBottom: '28px',
+                    flexWrap: 'wrap',
                   }}
                 >
                   <span
@@ -249,6 +290,20 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                   >
                     /{activeCycle === 'annual' ? 'yr' : 'mo'}
                   </span>
+                  {rawOriginalPrice && (
+                    <div style={{ width: '100%', marginTop: '2px' }}>
+                      <span
+                        style={{
+                          fontSize: '15px',
+                          color: 'var(--boost-text-muted, #94a3b8)',
+                          textDecoration: 'line-through',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {typeof rawOriginalPrice === 'number' ? `${currency}${rawOriginalPrice}` : rawOriginalPrice}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div

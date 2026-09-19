@@ -8,6 +8,7 @@ export interface ToastProps {
   title?: string;
   message: string;
   variant?: ToastVariant;
+  type?: ToastVariant;
   onClose?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -16,13 +17,16 @@ export interface ToastProps {
 export const Toast: React.FC<ToastProps> = ({
   title,
   message,
-  variant = 'info',
+  variant,
+  type,
   onClose,
   className = '',
   style,
 }) => {
+  const activeVariant = type || variant || 'info';
+
   const getTheme = () => {
-    switch (variant) {
+    switch (activeVariant) {
       case 'success': return { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', icon: '#16a34a' };
       case 'warning': return { bg: '#fffbeb', border: '#fde68a', text: '#854d0e', icon: '#d97706' };
       case 'error': return { bg: '#fef2f2', border: '#fecaca', text: '#991b1b', icon: '#dc2626' };
@@ -35,7 +39,7 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      className={`boost-toast ${className}`}
+      className={`boost-toast boost-toast-${activeVariant} ${className}`}
       role="alert"
       style={{
         display: 'flex',
@@ -44,8 +48,8 @@ export const Toast: React.FC<ToastProps> = ({
         padding: '12px 16px',
         backgroundColor: theme.bg,
         border: `1px solid ${theme.border}`,
-        borderRadius: '8px',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        borderRadius: '10px',
+        boxShadow: '0 10px 25px -3px rgba(0, 0, 0, 0.12)',
         fontFamily: 'inherit',
         maxWidth: '380px',
         width: '100%',
@@ -53,27 +57,40 @@ export const Toast: React.FC<ToastProps> = ({
         ...style,
       }}
     >
+      <style>{`
+        :root[data-theme="dark"] .boost-toast {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.6) !important;
+        }
+        :root[data-theme="dark"] .boost-toast-title {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-toast-msg {
+          color: #cbd5e1 !important;
+        }
+      `}</style>
       <div style={{ marginTop: '2px', display: 'flex', color: theme.icon, flexShrink: 0 }}>
-        {variant === 'success' && (
+        {activeVariant === 'success' && (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}
-        {variant === 'error' && (
+        {activeVariant === 'error' && (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
           </svg>
         )}
-        {variant === 'warning' && (
+        {activeVariant === 'warning' && (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
             <line x1="12" y1="9" x2="12" y2="13" />
             <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         )}
-        {variant === 'info' && (
+        {activeVariant === 'info' && (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="16" x2="12" y2="12" />
@@ -84,11 +101,11 @@ export const Toast: React.FC<ToastProps> = ({
 
       <div style={{ flex: 1, minWidth: 0 }}>
         {title && (
-          <div style={{ fontSize: '14px', fontWeight: 600, color: theme.text, marginBottom: '2px' }}>
+          <div className="boost-toast-title" style={{ fontSize: '14px', fontWeight: 600, color: theme.text, marginBottom: '2px' }}>
             {title}
           </div>
         )}
-        <div style={{ fontSize: '13px', color: theme.text, lineHeight: 1.4 }}>
+        <div className="boost-toast-msg" style={{ fontSize: '13px', color: theme.text, lineHeight: 1.4 }}>
           {message}
         </div>
       </div>

@@ -4,8 +4,10 @@ export interface StatsCardProps {
   title: string;
   value: string | number;
   change?: string | number;
+  trend?: { value: number | string; isPositive?: boolean } | string | number;
   isPositive?: boolean;
   period?: string;
+  description?: string;
   icon?: React.ReactNode;
   className?: string;
 }
@@ -14,11 +16,27 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   title,
   value,
   change,
+  trend,
   isPositive = true,
   period = 'vs last month',
+  description,
   icon,
   className = '',
 }) => {
+  // Normalize change & isPositive from trend if provided
+  const computedChange = change !== undefined 
+    ? change 
+    : typeof trend === 'object' && trend !== null 
+      ? `${(trend as any).value > 0 && !String((trend as any).value).includes('+') ? '+' : ''}${(trend as any).value}%` 
+      : trend !== undefined 
+        ? trend 
+        : undefined;
+  
+  const computedIsPositive = typeof trend === 'object' && trend !== null && (trend as any).isPositive !== undefined
+    ? (trend as any).isPositive
+    : isPositive;
+
+  const computedPeriod = description || period;
   return (
     <div
       className={`boost-stats-card ${className}`}
@@ -34,6 +52,16 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-stats-card,
+          .dark .boost-stats-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        `}
+      </style>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
         <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--boost-text-muted, #64748b)' }}>
           {title}
@@ -60,13 +88,13 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         {value}
       </div>
 
-      {change !== undefined && (
+      {computedChange !== undefined && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
           <span
             style={{
               fontWeight: 700,
-              color: isPositive ? '#16a34a' : '#dc2626',
-              backgroundColor: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+              color: computedIsPositive ? '#16a34a' : '#dc2626',
+              backgroundColor: computedIsPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(220, 38, 38, 0.1)',
               padding: '2px 8px',
               borderRadius: '9999px',
               display: 'inline-flex',
@@ -74,7 +102,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
               gap: '3px',
             }}
           >
-            {isPositive ? (
+            {computedIsPositive ? (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="18 15 12 9 6 15" />
               </svg>
@@ -83,9 +111,9 @@ export const StatsCard: React.FC<StatsCardProps> = ({
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             )}
-            {change}
+            {computedChange}
           </span>
-          <span style={{ color: 'var(--boost-text-muted, #94a3b8)' }}>{period}</span>
+          <span style={{ color: 'var(--boost-text-muted, #94a3b8)' }}>{computedPeriod}</span>
         </div>
       )}
     </div>

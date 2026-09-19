@@ -7,6 +7,7 @@ export interface CopyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   timeout?: number;
   variant?: 'outline' | 'ghost' | 'solid';
   size?: 'sm' | 'md';
+  iconOnly?: boolean;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
   timeout = 2000,
   variant = 'outline',
   size = 'md',
+  iconOnly = false,
   className = '',
   style,
   ...props
@@ -77,8 +79,8 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
         display: 'inline-flex',
         alignItems: 'center',
         gap: '6px',
-        padding: isSmall ? '4px 8px' : '6px 12px',
-        borderRadius: 'var(--boost-radius, 6px)',
+        padding: iconOnly ? (isSmall ? '6px' : '8px') : isSmall ? '4px 8px' : '6px 12px',
+        borderRadius: iconOnly ? 'var(--boost-radius, 8px)' : 'var(--boost-radius, 6px)',
         fontSize: isSmall ? '12px' : '13px',
         fontWeight: 600,
         cursor: 'pointer',
@@ -86,6 +88,8 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
         ...getVariantStyles(),
         ...style,
       }}
+      aria-label={copied ? copiedLabel : label}
+      title={copied ? copiedLabel : label}
       {...props}
     >
       {copied ? (
@@ -116,7 +120,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
       )}
-      <span>{copied ? copiedLabel : label}</span>
+      {!iconOnly && <span>{copied ? copiedLabel : label}</span>}
     </button>
   );
 };

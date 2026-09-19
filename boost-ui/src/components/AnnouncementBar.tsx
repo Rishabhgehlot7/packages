@@ -23,9 +23,9 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
   linkUrl,
   linkText,
   closable = true,
-  backgroundColor = '#111827',
+  backgroundColor = 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%)',
   textColor = '#ffffff',
-  accentColor = '#f59e0b',
+  accentColor = '#fbbf24',
   onClose,
   className = '',
   ...props
@@ -70,17 +70,19 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
     <div
       className={`boost-announcement-bar ${className}`}
       style={{
-        backgroundColor,
+        background: backgroundColor,
         color: textColor,
-        padding: '8px 16px',
+        padding: '10px 18px',
         fontSize: '13px',
-        fontWeight: 500,
+        fontWeight: 600,
         position: 'relative',
         zIndex: 50,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
+        borderRadius: '12px',
+        boxShadow: '0 4px 15px rgba(79, 70, 229, 0.25)',
         transition: 'all 0.2s ease',
       }}
     >

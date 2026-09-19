@@ -41,7 +41,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             style={{
               width: '16px',
               height: '16px',
-              accentColor: '#2563eb',
+              accentColor: 'var(--boost-primary, #2563eb)',
               cursor: disabled ? 'not-allowed' : 'pointer',
               margin: 0,
             }}
@@ -52,12 +52,12 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {(label || description) && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {label && (
-              <span style={{ fontSize: '14px', fontWeight: 500, color: '#1e293b' }}>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--boost-text, #1e293b)' }}>
                 {label}
               </span>
             )}
             {description && (
-              <span style={{ fontSize: '12px', color: '#64748b' }}>
+              <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}>
                 {description}
               </span>
             )}

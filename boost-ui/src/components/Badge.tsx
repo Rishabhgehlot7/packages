@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export type BadgeVariant = 'default' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning';
+export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning' | 'info';
 
 export interface BadgeProps {
   children: React.ReactNode;
@@ -18,7 +18,7 @@ export const Badge: React.FC<BadgeProps> = ({
   const getTheme = () => {
     switch (variant) {
       case 'secondary':
-        return { bg: 'var(--boost-surface, #f1f5f9)', color: 'var(--boost-text, #334155)', border: '1px solid var(--boost-border, #e2e8f0)' };
+        return { bg: 'var(--boost-surface-secondary, #f1f5f9)', color: 'var(--boost-text, #334155)', border: '1px solid var(--boost-border, #e2e8f0)' };
       case 'outline':
         return { bg: 'transparent', color: 'var(--boost-text, #0f172a)', border: '1px solid var(--boost-border, #cbd5e1)' };
       case 'success':
@@ -27,6 +27,9 @@ export const Badge: React.FC<BadgeProps> = ({
         return { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)' };
       case 'warning':
         return { bg: 'rgba(245, 158, 11, 0.12)', color: '#d97706', border: '1px solid rgba(245, 158, 11, 0.25)' };
+      case 'info':
+        return { bg: 'rgba(14, 165, 233, 0.12)', color: '#0284c7', border: '1px solid rgba(14, 165, 233, 0.25)' };
+      case 'primary':
       case 'default':
       default:
         return { bg: 'var(--boost-primary, #2563eb)', color: '#ffffff', border: '1px solid transparent' };
@@ -41,7 +44,7 @@ export const Badge: React.FC<BadgeProps> = ({
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        padding: '2px 8px',
+        padding: '2.5px 8.5px',
         fontSize: '11px',
         fontWeight: 600,
         borderRadius: '9999px',
@@ -51,6 +54,7 @@ export const Badge: React.FC<BadgeProps> = ({
         letterSpacing: '0.02em',
         fontFamily: 'inherit',
         lineHeight: 1.4,
+        userSelect: 'none',
         ...style,
       }}
     >
@@ -58,6 +62,5 @@ export const Badge: React.FC<BadgeProps> = ({
     </span>
   );
 };
-
 
 Badge.displayName = 'Badge';

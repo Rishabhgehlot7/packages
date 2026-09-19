@@ -8,6 +8,7 @@ export interface SwitchProps {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
@@ -20,6 +21,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
       disabled = false,
       size = 'md',
       className = '',
+      style,
     },
     ref
   ) => {
@@ -45,8 +47,20 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
           opacity: disabled ? 0.6 : 1,
           userSelect: 'none',
           fontFamily: 'inherit',
+          ...style,
         }}
       >
+        <style>{`
+          .boost-switch-btn {
+            background-color: #cbd5e1;
+          }
+          :root[data-theme="dark"] .boost-switch-btn:not([aria-checked="true"]) {
+            background-color: #334155 !important;
+          }
+          .boost-switch-btn[aria-checked="true"] {
+            background-color: var(--boost-primary, #2563eb) !important;
+          }
+        `}</style>
         <button
           ref={ref}
           type="button"
@@ -54,17 +68,18 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
           aria-checked={checked}
           disabled={disabled}
           onClick={() => !disabled && onChange(!checked)}
+          className="boost-switch-btn"
           style={{
             width: `${s.width}px`,
             height: `${s.height}px`,
-            backgroundColor: checked ? '#2563eb' : '#cbd5e1',
             borderRadius: '9999px',
             position: 'relative',
-            transition: 'background-color 0.2s ease',
+            transition: 'background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             border: 'none',
             padding: 0,
             cursor: disabled ? 'not-allowed' : 'pointer',
             outline: 'none',
+            flexShrink: 0,
           }}
         >
           <span
@@ -77,8 +92,8 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
               top: '50%',
               left: '3px',
               transform: `translateY(-50%) translateX(${checked ? `${s.translate}px` : '0px'})`,
-              transition: 'transform 0.2s ease',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+              transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.25)',
               display: 'block',
             }}
           />
@@ -87,12 +102,12 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
         {(label || description) && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {label && (
-              <span style={{ fontSize: '14px', fontWeight: 500, color: '#1e293b' }}>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--boost-text, #1e293b)' }}>
                 {label}
               </span>
             )}
             {description && (
-              <span style={{ fontSize: '12px', color: '#64748b' }}>
+              <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}>
                 {description}
               </span>
             )}

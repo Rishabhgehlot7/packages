@@ -47,7 +47,34 @@ export function DataTable<T extends Record<string, any>>({
   );
 
   return (
-    <div className={`boost-data-table ${className}`} style={{ fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className={`boost-data-table ${className}`} style={{ fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-data-table .boost-data-table-card,
+          .dark .boost-data-table .boost-data-table-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-data-table thead tr,
+          .dark .boost-data-table thead tr {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-data-table th,
+          .dark .boost-data-table th {
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-data-table td,
+          .dark .boost-data-table td {
+            color: #cbd5e1 !important;
+            border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+          }
+          :root[data-theme="dark"] .boost-data-table tbody tr:hover,
+          .dark .boost-data-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+          }
+        `}
+      </style>
       {searchable && (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ maxWidth: '300px', width: '100%' }}>
@@ -62,13 +89,14 @@ export function DataTable<T extends Record<string, any>>({
           />
         </div>
 
-        <span style={{ fontSize: '13px', color: '#64748b' }}>
+        <span style={{ fontSize: '13px', color: 'var(--boost-muted, #64748b)' }}>
           Showing {paginatedData.length} of {filteredData.length} records
         </span>
       </div>
       )}
 
       <div
+        className="boost-data-table-card"
         style={{
           width: '100%',
           overflowX: 'auto',
@@ -100,10 +128,10 @@ export function DataTable<T extends Record<string, any>>({
               paginatedData.map((row, rIdx) => (
                 <tr key={rIdx} style={{ borderBottom: rIdx === paginatedData.length - 1 ? 'none' : '1px solid var(--boost-border, #f1f5f9)', transition: 'background-color 0.1s ease' }}>
                   {columns.map((col, cIdx) => {
-                    const accessor = col.accessor;
+                    const accessor = col.accessor !== undefined ? col.accessor : (col as any).key;
                     const content = typeof accessor === 'function'
                       ? accessor(row)
-                      : accessor !== undefined
+                      : accessor !== undefined && row[accessor] !== undefined
                         ? row[accessor]
                         : '';
                     return (

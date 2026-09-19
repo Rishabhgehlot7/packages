@@ -8,6 +8,8 @@ export interface LoginFormProps {
   errorMessage?: string;
   title?: string;
   subtitle?: string;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -18,6 +20,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   errorMessage,
   title = 'Sign In',
   subtitle = 'Welcome back! Please enter your details.',
+  className = '',
+  style,
 }) => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -59,6 +63,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   return (
     <div
+      className={`boost-auth-card ${className || ''}`}
       style={{
         maxWidth: '420px',
         width: '100%',
@@ -71,8 +76,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         fontFamily: 'inherit',
         boxSizing: 'border-box',
         transition: 'all 0.2s ease',
+        ...style,
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-auth-card,
+          .dark .boost-auth-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input,
+          .dark .boost-auth-input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-auth-input:focus,
+          .dark .boost-auth-input:focus {
+            border-color: var(--boost-primary, #6366f1) !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+          }
+        `}
+      </style>
       <div style={{ textAlign: 'center', marginBottom: '28px' }}>
         <h2 style={{ fontSize: 'clamp(20px, 3vw, 24px)', fontWeight: 700, color: 'var(--boost-text, #0f172a)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>{title}</h2>
         <p style={{ fontSize: '14px', color: 'var(--boost-muted, #64748b)', margin: 0, lineHeight: 1.5 }}>{subtitle}</p>
@@ -116,6 +143,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               if (errors.identifier) setErrors(prev => ({ ...prev, identifier: undefined }));
             }}
             placeholder="you@example.com"
+            className="boost-auth-input"
             style={{
               width: '100%',
               boxSizing: 'border-box',
@@ -168,6 +196,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
               }}
               placeholder="Enter your password"
+              className="boost-auth-input"
               style={{
                 width: '100%',
                 boxSizing: 'border-box',

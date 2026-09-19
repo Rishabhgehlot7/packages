@@ -48,6 +48,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         boxSizing: 'border-box',
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-sidebar,
+          .dark .boost-sidebar {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-right-color: rgba(255, 255, 255, 0.1) !important;
+          }
+          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item,
+          .dark .boost-sidebar .sidebar-nav-item {
+            color: #cbd5e1 !important;
+          }
+          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item:hover,
+          .dark .boost-sidebar .sidebar-nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item.active,
+          .dark .boost-sidebar .sidebar-nav-item.active {
+            background-color: rgba(99, 102, 241, 0.15) !important;
+            color: #818cf8 !important;
+          }
+        `}
+      </style>
       {header && (
         <div style={{ padding: '16px', borderBottom: '1px solid var(--boost-border, #f1f5f9)' }}>
           {header}
@@ -68,6 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               return (
                 <div
                   key={item.id}
+                  className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
                   onClick={() => {
                     if (item.onClick) item.onClick();
                     if (onSelect) onSelect(item.id);

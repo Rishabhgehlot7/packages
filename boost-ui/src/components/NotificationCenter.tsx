@@ -31,9 +31,17 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   className = '',
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [filter, setFilter] = React.useState<'all' | 'unread'>('all');
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const filteredNotifications = React.useMemo(() => {
+    if (filter === 'unread') {
+      return notifications.filter((n) => !n.read);
+    }
+    return notifications;
+  }, [notifications, filter]);
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -53,6 +61,32 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       className={`boost-notification-center ${className}`}
       style={{ position: 'relative', display: 'inline-block' }}
     >
+      <style>
+        {`
+          @media (max-width: 640px) {
+            .boost-notification-popover {
+              position: fixed !important;
+              top: auto !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              border-radius: 20px 20px 0 0 !important;
+              max-height: 85vh !important;
+              box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important;
+              display: flex;
+              flex-direction: column;
+              z-index: 999999 !important;
+            }
+            .boost-notification-list {
+              flex: 1;
+              overflow-y: auto;
+              max-height: calc(85vh - 120px) !important;
+            }
+          }
+        `}
+      </style>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -111,21 +145,43 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       </button>
 
       {isOpen && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: 0,
-            width: '360px',
-            maxWidth: '90vw',
-            backgroundColor: 'var(--boost-bg, #ffffff)',
-            border: '1px solid var(--boost-border, #e2e8f0)',
-            borderRadius: 'var(--boost-radius, 12px)',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-            zIndex: 9999,
-            overflow: 'hidden',
-          }}
-        >
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.3)',
+              zIndex: 99998,
+              display: 'var(--boost-backdrop-display, none)', // We can show this on mobile via CSS if needed, or just let handleClickOutside handle it.
+            }}
+            onClick={() => setIsOpen(false)}
+            className="boost-notification-backdrop"
+          />
+          <style>
+            {`
+              @media (max-width: 640px) {
+                .boost-notification-backdrop {
+                  display: block !important;
+                }
+              }
+            `}
+          </style>
+          <div
+            className="boost-notification-popover"
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              right: 0,
+              width: '360px',
+              maxWidth: '90vw',
+              backgroundColor: 'var(--boost-bg, #ffffff)',
+              border: '1px solid var(--boost-border, #e2e8f0)',
+              borderRadius: 'var(--boost-radius, 12px)',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+              zIndex: 99999,
+              overflow: 'hidden',
+            }}
+          >
           <div
             style={{
               display: 'flex',
@@ -169,13 +225,50 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   padding: 0,
                 }}
               >
-                Mark all as read
+                Mark all read
               </button>
             )}
           </div>
 
-          <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
-            {notifications.length === 0 ? (
+          <div style={{ display: 'flex', gap: '16px', padding: '0 18px', borderBottom: '1px solid var(--boost-border, #e2e8f0)' }}>
+            <button
+              type="button"
+              onClick={() => setFilter('all')}
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: filter === 'all' ? '2px solid var(--boost-primary, #2563eb)' : '2px solid transparent',
+                color: filter === 'all' ? 'var(--boost-primary, #2563eb)' : 'var(--boost-text-muted, #64748b)',
+                padding: '10px 0',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilter('unread')}
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: filter === 'unread' ? '2px solid var(--boost-primary, #2563eb)' : '2px solid transparent',
+                color: filter === 'unread' ? 'var(--boost-primary, #2563eb)' : 'var(--boost-text-muted, #64748b)',
+                padding: '10px 0',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Unread
+            </button>
+          </div>
+
+          <div className="boost-notification-list" style={{ maxHeight: '340px', overflowY: 'auto' }}>
+            {filteredNotifications.length === 0 ? (
               <div
                 style={{
                   padding: '36px 20px',
@@ -187,7 +280,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 {emptyText}
               </div>
             ) : (
-              notifications.map((item) => (
+              filteredNotifications.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => onItemClick && onItemClick(item)}
@@ -307,6 +400,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

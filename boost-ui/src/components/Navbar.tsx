@@ -10,12 +10,16 @@ export interface NavLinkItem {
 
 export interface NavbarProps {
   brandName?: string;
+  logo?: React.ReactNode;
   logoUrl?: string;
+  brandBadge?: string;
   navLinks?: NavLinkItem[];
+  activeHref?: string;
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (val: string) => void;
   onSearchSubmit?: (val: string) => void;
+  showSearch?: boolean;
   cartCount?: number;
   wishlistCount?: number;
   onCartClick?: () => void;
@@ -28,22 +32,28 @@ export interface NavbarProps {
   announcementText?: string;
   announcementLink?: string;
   onAnnouncementClose?: () => void;
+  actions?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   brandName = 'BoostStore',
+  logo,
   logoUrl,
+  brandBadge,
   navLinks = [
     { label: 'Shop All', href: '/products' },
     { label: 'Best Sellers', href: '/collections/bestsellers', badge: 'HOT' },
     { label: 'New Arrivals', href: '/collections/new' },
     { label: 'Sale', href: '/collections/sale', isHighlight: true },
   ],
+  activeHref,
   searchPlaceholder = 'Search for products, brands...',
   searchValue,
   onSearchChange,
   onSearchSubmit,
+  showSearch = true,
   cartCount = 0,
   wishlistCount = 0,
   onCartClick,
@@ -56,7 +66,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   announcementText,
   announcementLink,
   onAnnouncementClose,
+  actions,
   className = '',
+  style,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState(searchValue || '');
@@ -108,6 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         width: '100%',
         boxSizing: 'border-box',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
+        ...style,
       }}
     >
       {announcementText && announcementVisible && (
@@ -168,6 +181,30 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
       <style>{`
+        :root[data-theme="dark"] .boost-navbar {
+          background-color: rgba(15, 23, 42, 0.92) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar input {
+          background-color: rgba(30, 41, 59, 0.8) !important;
+          color: #f8fafc !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor:hover,
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor.is-active {
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-mobile-search-bar {
+          background-color: #0f172a !important;
+          border-top-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar .boost-navbar-mobile-drawer {
+          background-color: rgba(15, 23, 42, 0.98) !important;
+          border-top-color: rgba(255, 255, 255, 0.1) !important;
+        }
         @media (max-width: 992px) {
           .boost-navbar .boost-desktop-nav {
             display: none !important;
@@ -250,7 +287,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               gap: '10px',
             }}
           >
-            {logoUrl ? (
+            {logo ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>{logo}</div>
+            ) : logoUrl ? (
               <img src={logoUrl} alt={brandName} style={{ height: '32px', width: 'auto' }} />
             ) : (
               <span
@@ -282,6 +321,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </svg>
                 </span>
                 {brandName}
+                {brandBadge && (
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                      color: 'var(--boost-primary, #2563eb)',
+                      padding: '2px 7px',
+                      borderRadius: '6px',
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    {brandBadge}
+                  </span>
+                )}
               </span>
             )}
           </a>
@@ -613,6 +667,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             )}
           </button>
+
+          {actions && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {actions}
+            </div>
+          )}
         </div>
       </div>
 

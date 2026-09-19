@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 export interface MobileBottomNavItem {
   id: string;
@@ -11,119 +11,179 @@ export interface MobileBottomNavItem {
 export interface MobileBottomNavProps {
   items: MobileBottomNavItem[];
   activeId?: string;
+  defaultActiveId?: string;
   onChange?: (id: string, href?: string) => void;
+  showLabels?: boolean;
+  activeColor?: string;
+  variant?: 'glass' | 'floating' | 'solid';
+  className?: string;
   style?: React.CSSProperties;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-  items,
+  items = [],
   activeId,
+  defaultActiveId,
   onChange,
+  showLabels = true,
+  activeColor = '#4f46e5',
+  variant = 'glass',
+  className = '',
   style,
 }) => {
+  const [internalActiveId, setInternalActiveId] = React.useState(activeId || defaultActiveId || items[0]?.id);
+
+  React.useEffect(() => {
+    if (activeId !== undefined) {
+      setInternalActiveId(activeId);
+    }
+  }, [activeId]);
+
+  const handleItemClick = (id: string, href?: string) => {
+    setInternalActiveId(id);
+    if (onChange) {
+      onChange(id, href);
+    }
+  };
+
+  const isFloating = variant === 'floating';
+
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        minHeight: '60px',
-        backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.7))',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        zIndex: 999,
-        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
-        paddingTop: '6px',
-        boxShadow: 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
-        fontFamily: 'inherit',
-        boxSizing: 'border-box',
-        ...style,
-      }}
-    >
-      {items.map((item) => {
-        const isActive = item.id === activeId;
-        return (
-          <button
-            key={item.id}
-            onClick={() => onChange?.(item.id, item.href)}
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              position: 'relative',
-              padding: '6px 0',
-              color: isActive ? 'var(--boost-primary, #0f172a)' : 'var(--boost-muted, #64748b)',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
-            <div
+    <>
+      <style>{`
+        :root[data-theme="dark"] .boost-mobile-bottom-nav {
+          background-color: rgba(15, 23, 42, 0.94) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-nav-btn {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active {
+          color: #818cf8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active .boost-icon-pill {
+          background-color: rgba(99, 102, 241, 0.18) !important;
+        }
+      `}</style>
+      <nav
+        className={`boost-mobile-bottom-nav ${className}`}
+        style={{
+          position: 'fixed',
+          bottom: isFloating ? '12px' : 0,
+          left: isFloating ? '16px' : 0,
+          right: isFloating ? '16px' : 0,
+          margin: isFloating ? '0 auto' : undefined,
+          maxWidth: isFloating ? '440px' : undefined,
+          borderRadius: isFloating ? '24px' : undefined,
+          zIndex: 50,
+          backgroundColor: variant === 'solid'
+            ? 'var(--boost-surface, #ffffff)'
+            : 'var(--boost-glass-bg, rgba(255, 255, 255, 0.92))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderTop: isFloating ? 'none' : '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+          border: isFloating ? '1px solid var(--boost-border, rgba(226, 232, 240, 0.8))' : undefined,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          padding: isFloating
+            ? '8px 10px'
+            : '6px 4px calc(6px + env(safe-area-inset-bottom, 8px))',
+          boxShadow: isFloating
+            ? '0 12px 30px rgba(0, 0, 0, 0.15)'
+            : 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
+          fontFamily: 'inherit',
+          boxSizing: 'border-box',
+          ...style,
+        }}
+      >
+        {items.map((item) => {
+          const isActive = item.id === internalActiveId;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => handleItemClick(item.id, item.href)}
+              className={`boost-mobile-nav-btn ${isActive ? 'is-active' : ''}`}
               style={{
-                position: 'relative',
+                flex: 1,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '4px 14px',
-                borderRadius: '999px',
-                backgroundColor: isActive ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
-                transition: 'background-color 0.2s ease',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                position: 'relative',
+                padding: '4px 6px',
+                color: isActive ? activeColor : 'var(--boost-text-muted, #64748b)',
+                transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
-              {item.icon || (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? 2.3 : 1.8}>
-                  <circle cx="12" cy="12" r="9" />
-                </svg>
-              )}
-              {item.badge !== undefined && (
+              <div
+                className="boost-icon-pill"
+                style={{
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '3px 12px',
+                  borderRadius: '999px',
+                  backgroundColor: isActive ? 'rgba(79, 70, 229, 0.12)' : 'transparent',
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                {item.icon || (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? 2.3 : 1.8}>
+                    <circle cx="12" cy="12" r="9" />
+                  </svg>
+                )}
+                {item.badge !== undefined && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '-2px',
+                      right: '0px',
+                      minWidth: '16px',
+                      height: '16px',
+                      borderRadius: '8px',
+                      backgroundColor: '#ef4444',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 4px',
+                      boxShadow: '0 2px 5px rgba(239, 68, 68, 0.4)',
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              {showLabels && (
                 <span
                   style={{
-                    position: 'absolute',
-                    top: '-2px',
-                    right: '-4px',
-                    minWidth: '16px',
-                    height: '16px',
-                    borderRadius: '8px',
-                    backgroundColor: '#ef4444',
-                    color: '#ffffff',
                     fontSize: '10px',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0 4px',
-                    boxShadow: '0 2px 5px rgba(239, 68, 68, 0.4)',
+                    fontWeight: isActive ? 700 : 500,
+                    marginTop: '2px',
+                    letterSpacing: '-0.01em',
+                    lineHeight: 1.2,
                   }}
                 >
-                  {item.badge}
+                  {item.label}
                 </span>
               )}
-            </div>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: isActive ? 600 : 500,
-                marginTop: '3px',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              {item.label}
-            </span>
-          </button>
-        );
-      })}
-    </nav>
+            </button>
+          );
+        })}
+      </nav>
+    </>
   );
 };
-
 
 MobileBottomNav.displayName = 'MobileBottomNav';

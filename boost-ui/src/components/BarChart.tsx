@@ -100,6 +100,16 @@ export const BarChart: React.FC<BarChartProps> = ({
         ...style,
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-bar-chart,
+          .dark .boost-bar-chart {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        `}
+      </style>
       {(title || subtitle) && (
         <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>

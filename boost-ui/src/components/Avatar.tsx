@@ -6,6 +6,7 @@ export interface AvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   status?: 'online' | 'offline' | 'busy' | 'away';
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
@@ -14,6 +15,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   size = 'md',
   status,
   className = '',
+  style,
 }) => {
   const [imgError, setImgError] = React.useState(false);
 
@@ -58,8 +60,8 @@ export const Avatar: React.FC<AvatarProps> = ({
         width: `${s.dim}px`,
         height: `${s.dim}px`,
         borderRadius: '50%',
-        backgroundColor: '#e2e8f0',
-        color: '#334155',
+        background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+        color: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'inherit',
@@ -67,6 +69,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         fontSize: `${s.font}px`,
         userSelect: 'none',
         flexShrink: 0,
+        ...style,
       }}
     >
       {src && !imgError ? (
@@ -95,7 +98,8 @@ export const Avatar: React.FC<AvatarProps> = ({
             height: `${s.dot}px`,
             borderRadius: '50%',
             backgroundColor: statusColor,
-            border: '2px solid #ffffff',
+            border: '2px solid var(--boost-surface, #ffffff)',
+            boxSizing: 'content-box',
           }}
         />
       )}
@@ -141,7 +145,7 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
           key={index}
           style={{
             marginLeft: index === 0 ? 0 : `${spacing}px`,
-            border: '2px solid #ffffff',
+            border: '2px solid var(--boost-surface, #ffffff)',
             borderRadius: '50%',
             display: 'inline-flex',
             zIndex: visibleAvatars.length - index,
@@ -157,9 +161,9 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
         <div
           style={{
             marginLeft: `${spacing}px`,
-            border: '2px solid #ffffff',
+            border: '2px solid var(--boost-surface, #ffffff)',
             borderRadius: '50%',
-            backgroundColor: 'var(--boost-surface, #f1f5f9)',
+            backgroundColor: 'var(--boost-surface-secondary, #f1f5f9)',
             color: 'var(--boost-text, #0f172a)',
             display: 'inline-flex',
             alignItems: 'center',
@@ -178,8 +182,6 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
     </div>
   );
 };
-
-
 
 Avatar.displayName = 'Avatar';
 AvatarGroup.displayName = 'AvatarGroup';

@@ -43,19 +43,30 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({
     <div
       className={`boost-testimonial-card ${className}`}
       style={{
-        padding: '30px',
-        borderRadius: 'var(--boost-radius, 14px)',
-        backgroundColor: 'var(--boost-surface, #f8fafc)',
+        padding: '24px',
+        borderRadius: 'var(--boost-radius, 16px)',
+        backgroundColor: 'var(--boost-surface, #ffffff)',
         border: '1px solid var(--boost-border, #e2e8f0)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
         position: 'relative',
+        boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
         ...style,
       }}
       {...props}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-testimonial-card,
+          .dark .boost-testimonial-card {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+          }
+        `}
+      </style>
       <div>
         <div
           style={{
@@ -156,7 +167,7 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({
             >
               {finalRole}
               {finalRole && finalCompany ? ' at ' : ''}
-              {authorCompany}
+              {finalCompany}
             </span>
           )}
         </div>

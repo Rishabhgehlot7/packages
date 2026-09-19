@@ -7,6 +7,7 @@ export interface LinkButtonProps extends React.AnchorHTMLAttributes<HTMLAnchorEl
   size?: ButtonSize;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  fullWidth?: boolean;
 }
 
 export const LinkButton: React.FC<LinkButtonProps> = ({
@@ -16,6 +17,7 @@ export const LinkButton: React.FC<LinkButtonProps> = ({
   size = 'md',
   leftIcon,
   rightIcon,
+  fullWidth = false,
   className = '',
   style,
   ...props
@@ -23,37 +25,64 @@ export const LinkButton: React.FC<LinkButtonProps> = ({
   const getVariantStyles = (): React.CSSProperties => {
     switch (variant) {
       case 'secondary':
-        return { backgroundColor: '#f1f5f9', color: '#0f172a', border: '1px solid #e2e8f0' };
+        return {
+          backgroundColor: 'var(--boost-surface-secondary, #f1f5f9)',
+          color: 'var(--boost-text, #0f172a)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+        };
       case 'outline':
-        return { backgroundColor: 'transparent', color: '#0f172a', border: '1px solid #cbd5e1' };
+        return {
+          backgroundColor: 'transparent',
+          color: 'var(--boost-text, #0f172a)',
+          border: '1px solid var(--boost-border, #cbd5e1)',
+        };
       case 'ghost':
-        return { backgroundColor: 'transparent', color: '#0f172a', border: 'none' };
+        return {
+          backgroundColor: 'transparent',
+          color: 'var(--boost-text, #0f172a)',
+          border: 'none',
+        };
       case 'destructive':
-        return { backgroundColor: '#dc2626', color: '#ffffff', border: 'none' };
+        return {
+          backgroundColor: 'var(--boost-danger, #dc2626)',
+          color: '#ffffff',
+          border: 'none',
+        };
       case 'link':
-        return { backgroundColor: 'transparent', color: '#2563eb', border: 'none', padding: 0, textDecoration: 'underline' };
+        return {
+          backgroundColor: 'transparent',
+          color: 'var(--boost-primary, #2563eb)',
+          border: 'none',
+          padding: 0,
+          textDecoration: 'underline',
+        };
       case 'primary':
       default:
-        return { backgroundColor: '#2563eb', color: '#ffffff', border: 'none' };
+        return {
+          backgroundColor: 'var(--boost-primary, #2563eb)',
+          color: '#ffffff',
+          border: 'none',
+        };
     }
   };
 
   const getSizeStyles = (): React.CSSProperties => {
     if (variant === 'link') return {};
     switch (size) {
-      case 'sm': return { padding: '6px 12px', fontSize: '12px', borderRadius: '4px' };
-      case 'lg': return { padding: '12px 24px', fontSize: '16px', borderRadius: '8px' };
+      case 'sm': return { padding: '6px 14px', fontSize: '12px', borderRadius: 'var(--boost-radius, 8px)' };
+      case 'lg': return { padding: '13px 26px', fontSize: '15px', borderRadius: 'var(--boost-radius, 12px)' };
       case 'md':
-      default: return { padding: '9px 16px', fontSize: '14px', borderRadius: '6px' };
+      default: return { padding: '9px 18px', fontSize: '14px', borderRadius: 'var(--boost-radius, 10px)' };
     }
   };
 
   return (
     <a
       href={href}
-      className={`boost-link-btn ${className}`}
+      className={`boost-link-btn boost-btn-${variant} ${className}`}
       style={{
-        display: 'inline-flex',
+        display: fullWidth ? 'flex' : 'inline-flex',
+        width: fullWidth ? '100%' : 'auto',
         alignItems: 'center',
         justifyContent: 'center',
         gap: '8px',
@@ -61,6 +90,7 @@ export const LinkButton: React.FC<LinkButtonProps> = ({
         fontWeight: 600,
         cursor: 'pointer',
         transition: 'all 0.15s ease',
+        boxSizing: 'border-box',
         ...getSizeStyles(),
         ...getVariantStyles(),
         ...style,
@@ -74,5 +104,5 @@ export const LinkButton: React.FC<LinkButtonProps> = ({
   );
 };
 
-
 LinkButton.displayName = 'LinkButton';
+

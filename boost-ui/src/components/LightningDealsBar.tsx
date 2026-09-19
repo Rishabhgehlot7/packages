@@ -10,6 +10,7 @@ export interface LightningDealsBarProps {
   claimedQuantity?: number;
   badgeColor?: string;
   className?: string;
+  style?: React.CSSProperties;
   onExpire?: () => void;
   hideOnExpire?: boolean;
 }
@@ -24,6 +25,7 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
   claimedQuantity,
   badgeColor = '#ef4444',
   className = '',
+  style,
   onExpire,
   hideOnExpire = true,
   ...props
@@ -95,16 +97,108 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
     <div
       className={`boost-lightning-deals-bar ${className}`}
       style={{
-        backgroundColor: '#fffbeb',
-        border: '1px solid #fde68a',
-        borderRadius: '12px',
-        padding: '12px 16px',
+        borderRadius: '16px',
+        padding: '16px 20px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        gap: '12px',
+        width: '100%',
+        boxSizing: 'border-box',
+        ...style,
       }}
     >
+      <style>
+        {`
+          .boost-lightning-deals-bar {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(254, 226, 226, 0.25) 100%), var(--boost-surface, #ffffff);
+            border: 1px solid var(--boost-border, rgba(245, 158, 11, 0.25));
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+          }
+
+          :root[data-theme="dark"] .boost-lightning-deals-bar,
+          .dark .boost-lightning-deals-bar {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(239, 68, 68, 0.06) 100%), var(--boost-surface, #0f172a);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.4);
+          }
+
+          .boost-deal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+            text-transform: uppercase;
+          }
+
+          .boost-deal-badge-icon {
+            animation: boost-pulse 1.8s infinite;
+          }
+
+          @keyframes boost-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.85; }
+          }
+
+          .boost-timer-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 28px;
+            padding: 0 6px;
+            border-radius: 6px;
+            background: var(--boost-text-primary, #0f172a);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+          }
+
+          :root[data-theme="dark"] .boost-timer-box,
+          .dark .boost-timer-box {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+          }
+
+          .boost-timer-box.seconds {
+            background: #ef4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+          }
+
+          .boost-deal-track {
+            height: 8px;
+            background-color: var(--boost-bg-muted, rgba(0, 0, 0, 0.06));
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+          }
+
+          :root[data-theme="dark"] .boost-deal-track,
+          .dark .boost-deal-track {
+            background-color: rgba(255, 255, 255, 0.08);
+          }
+
+          .boost-deal-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+          }
+        `}
+      </style>
+
       {/* Top Header: Badge + Countdown Timer */}
       <div
         style={{
@@ -112,95 +206,54 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '8px',
+          gap: '12px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span
-            style={{
-              backgroundColor: badgeColor,
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: 800,
-              letterSpacing: '0.05em',
-              padding: '3px 8px',
-              borderRadius: '4px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span className="boost-deal-badge" style={{ backgroundColor: badgeColor !== '#ef4444' ? badgeColor : undefined }}>
+            <svg className="boost-deal-badge-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
             {dealTitle}
-          </span>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#92400e' }}>
-            Ends in:
           </span>
         </div>
 
-        {/* Digital Clock Boxes */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {/* Countdown Timer with aligned 'Ends in:' */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span
             style={{
-              backgroundColor: '#1f2937',
-              color: '#ffffff',
-              fontWeight: 700,
               fontSize: '12px',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              fontVariantNumeric: 'tabular-nums',
+              fontWeight: 600,
+              color: 'var(--boost-text-secondary, #64748b)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              lineHeight: 1,
             }}
           >
-            {pad(timeLeft.hours)}h
+            Ends in:
           </span>
-          <span style={{ fontWeight: 800, color: '#92400e' }}>:</span>
-          <span
-            style={{
-              backgroundColor: '#1f2937',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '12px',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {pad(timeLeft.minutes)}m
-          </span>
-          <span style={{ fontWeight: 800, color: '#92400e' }}>:</span>
-          <span
-            style={{
-              backgroundColor: '#ef4444',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '12px',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {pad(timeLeft.seconds)}s
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span className="boost-timer-box">
+              {pad(timeLeft.hours)}h
+            </span>
+            <span style={{ fontWeight: 800, color: 'var(--boost-text-muted, #94a3b8)', lineHeight: 1 }}>:</span>
+            <span className="boost-timer-box">
+              {pad(timeLeft.minutes)}m
+            </span>
+            <span style={{ fontWeight: 800, color: 'var(--boost-text-muted, #94a3b8)', lineHeight: 1 }}>:</span>
+            <span className="boost-timer-box seconds">
+              {pad(timeLeft.seconds)}s
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Bottom Claim Progress Bar */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <div
-          style={{
-            height: '6px',
-            backgroundColor: '#e5e7eb',
-            borderRadius: '9999px',
-            overflow: 'hidden',
-          }}
-        >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div className="boost-deal-track">
           <div
-            style={{
-              height: '100%',
-              width: `${percent}%`,
-              backgroundColor: percent > 85 ? '#dc2626' : '#f59e0b',
-              borderRadius: '9999px',
-              transition: 'width 0.3s ease',
-            }}
+            className="boost-deal-fill"
+            style={{ width: `${percent}%` }}
           />
         </div>
         <div
@@ -208,18 +261,21 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            fontSize: '11px',
-            color: '#78350f',
+            fontSize: '12px',
+            color: 'var(--boost-text-primary, #334155)',
             fontWeight: 600,
           }}
         >
-          <span>{percent}% Claimed</span>
-          <span>Hurry, limited stock!</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            🔥 <strong>{percent}%</strong> Claimed
+          </span>
+          <span style={{ color: percent > 80 ? '#dc2626' : 'var(--boost-text-muted, #64748b)', fontWeight: 600 }}>
+            {percent > 85 ? '⚡ Only a few left!' : 'Hurry, limited stock!'}
+          </span>
         </div>
       </div>
     </div>
   );
 };
-
 
 LightningDealsBar.displayName = 'LightningDealsBar';

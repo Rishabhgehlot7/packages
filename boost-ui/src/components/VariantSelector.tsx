@@ -36,20 +36,110 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
   const values = selectedValues || (props as any).selectedVariants || {};
 
   return (
-    <div className={`boost-variant-selector ${className}`} style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontFamily: 'inherit' }}>
+    <div className={`boost-variant-selector ${className}`} style={{ display: 'flex', flexDirection: 'column', gap: '18px', width: '100%' }}>
+      <style>{`
+        .boost-variant-label {
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          color: var(--boost-text-primary, #0f172a);
+          letter-spacing: 0.05em;
+        }
+        :root[data-theme="dark"] .boost-variant-label,
+        .dark .boost-variant-label {
+          color: #f8fafc !important;
+        }
+        .boost-variant-selected-val {
+          font-weight: 600;
+          color: var(--boost-primary, #6366f1);
+          text-transform: none;
+          margin-left: 4px;
+        }
+        .boost-variant-chip {
+          padding: 8px 16px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 600;
+          border: 1px solid var(--boost-border, #e2e8f0);
+          background: var(--boost-surface, #ffffff);
+          color: var(--boost-text-primary, #0f172a);
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .boost-variant-chip:hover:not(:disabled) {
+          border-color: var(--boost-primary, #6366f1);
+          transform: translateY(-1px);
+        }
+        .boost-variant-chip.selected {
+          background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+          border-color: #4f46e5;
+          color: #ffffff !important;
+          box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+        :root[data-theme="dark"] .boost-variant-chip,
+        .dark .boost-variant-chip {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          color: #f1f5f9 !important;
+        }
+        :root[data-theme="dark"] .boost-variant-chip:hover:not(:disabled),
+        .dark .boost-variant-chip:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(99, 102, 241, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-variant-chip.selected,
+        .dark .boost-variant-chip.selected {
+          background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+          border-color: #6366f1 !important;
+          color: #ffffff !important;
+          box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45) !important;
+        }
+        .boost-color-swatch {
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          cursor: pointer;
+          position: relative;
+          padding: 0;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 2px solid rgba(0, 0, 0, 0.12);
+        }
+        .boost-color-swatch:hover:not(:disabled) {
+          transform: scale(1.1);
+        }
+        .boost-color-swatch.selected {
+          transform: scale(1.15);
+          box-shadow: 0 0 0 2px var(--boost-surface, #ffffff), 0 0 0 4px #6366f1;
+        }
+        :root[data-theme="dark"] .boost-color-swatch,
+        .dark .boost-color-swatch {
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+        :root[data-theme="dark"] .boost-color-swatch.selected,
+        .dark .boost-color-swatch.selected {
+          box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px #818cf8;
+        }
+      `}</style>
+
       {groups.map((group) => {
         const selected = values[group.name];
         const isColor = group.type === 'color';
 
         return (
-          <div key={group.name} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div key={group.name} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', color: '#111827', letterSpacing: '0.05em' }}>
-                {group.name}: <span style={{ fontWeight: 500, color: '#4b5563', textTransform: 'none' }}>{selected || 'None selected'}</span>
+              <span className="boost-variant-label">
+                {group.name}:
+                <span className="boost-variant-selected-val">
+                  {selected || 'Select option'}
+                </span>
               </span>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
               {group.options.map((opt) => {
                 const optVal = opt.value || opt.label || opt.name || opt.id || '';
                 const optDisplay = opt.label || opt.value || opt.name || opt.id;
@@ -57,7 +147,6 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                 const isOutOfStock = opt.inStock === false;
 
                 if (isColor && opt.colorHex) {
-                  // Color Swatch Circle
                   return (
                     <button
                       key={opt.id}
@@ -65,19 +154,11 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                       disabled={isOutOfStock}
                       onClick={() => onChange && onChange(group.name, optVal, opt)}
                       title={`${optDisplay}${isOutOfStock ? ' (Sold Out)' : ''}`}
+                      className={`boost-color-swatch ${isSelected ? 'selected' : ''}`}
                       style={{
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: '999px',
                         backgroundColor: opt.colorHex,
-                        border: isSelected ? '3px solid #000000' : '2px solid #e5e7eb',
-                        outline: isSelected ? '2px solid #ffffff' : 'none',
                         cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                         opacity: isOutOfStock ? 0.35 : 1,
-                        position: 'relative',
-                        transition: 'transform 0.15s ease',
-                        transform: isSelected ? 'scale(1.1)' : 'scale(1)',
-                        padding: 0,
                       }}
                     >
                       {isOutOfStock && (
@@ -97,31 +178,22 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                   );
                 }
 
-                // Standard Chip / Pill
                 return (
                   <button
                     key={opt.id}
                     type="button"
                     disabled={isOutOfStock}
                     onClick={() => onChange && onChange(group.name, optVal, opt)}
+                    className={`boost-variant-chip ${isSelected ? 'selected' : ''}`}
                     style={{
-                      padding: '8px 16px',
-                      borderRadius: '10px',
-                      fontSize: '13px',
-                      fontWeight: isSelected ? 800 : 600,
-                      border: isSelected ? '2px solid #000000' : '1px solid #d1d5db',
-                      backgroundColor: isSelected ? '#000000' : '#ffffff',
-                      color: isSelected ? '#ffffff' : isOutOfStock ? '#9ca3af' : '#111827',
                       cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                      position: 'relative',
                       textDecoration: isOutOfStock ? 'line-through' : 'none',
                       opacity: isOutOfStock ? 0.45 : 1,
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     <span>{optDisplay}</span>
                     {opt.priceDelta && opt.priceDelta > 0 && (
-                      <span style={{ fontSize: '11px', marginLeft: '4px', opacity: 0.8 }}>
+                      <span style={{ fontSize: '11px', marginLeft: '5px', opacity: 0.85 }}>
                         (+₹{opt.priceDelta})
                       </span>
                     )}
@@ -135,6 +207,5 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
     </div>
   );
 };
-
 
 VariantSelector.displayName = 'VariantSelector';

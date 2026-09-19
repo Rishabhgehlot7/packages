@@ -3,28 +3,46 @@ import * as React from 'react';
 export interface MobileBottomBarItem {
   id: string;
   label: string;
-  icon: 'home' | 'search' | 'categories' | 'wishlist' | 'cart' | 'account';
+  icon: 'home' | 'search' | 'categories' | 'wishlist' | 'cart' | 'account' | React.ReactNode;
   badge?: number | string;
   href?: string;
 }
 
 export interface MobileBottomBarProps {
   activeTab?: string;
+  defaultActiveTab?: string;
   cartCount?: number;
   wishlistCount?: number;
   items?: MobileBottomBarItem[];
   onTabChange?: (tabId: string, href?: string) => void;
+  showLabels?: boolean;
+  activeColor?: string;
+  variant?: 'glass' | 'solid' | 'floating';
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
-  activeTab = 'home',
+  activeTab,
+  defaultActiveTab = 'home',
   cartCount = 0,
   wishlistCount = 0,
   items,
   onTabChange,
+  showLabels = true,
+  activeColor = '#4f46e5',
+  variant = 'glass',
   className = '',
+  style,
 }) => {
+  const [internalActiveTab, setInternalActiveTab] = React.useState(activeTab || defaultActiveTab);
+
+  React.useEffect(() => {
+    if (activeTab !== undefined) {
+      setInternalActiveTab(activeTab);
+    }
+  }, [activeTab]);
+
   const defaultItems: MobileBottomBarItem[] = [
     { id: 'home', label: 'Home', icon: 'home', href: '/' },
     { id: 'search', label: 'Search', icon: 'search', href: '/search' },
@@ -35,11 +53,22 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
 
   const barItems = items || defaultItems;
 
-  const renderIcon = (type: MobileBottomBarItem['icon'], isActive: boolean) => {
-    const stroke = isActive ? 'var(--boost-primary, #0f172a)' : 'var(--boost-muted, #64748b)';
+  const handleItemClick = (id: string, href?: string) => {
+    setInternalActiveTab(id);
+    if (onTabChange) {
+      onTabChange(id, href);
+    }
+  };
+
+  const renderIcon = (icon: MobileBottomBarItem['icon'], isActive: boolean) => {
+    if (typeof icon !== 'string') {
+      return icon;
+    }
+
+    const stroke = 'currentColor';
     const strokeWidth = isActive ? '2.3' : '1.8';
 
-    switch (type) {
+    switch (icon) {
       case 'home':
         return (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth}>
@@ -88,94 +117,146 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     }
   };
 
-  return (
-    <nav
-      className={`boost-mobile-bottom-bar ${className}`}
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.9))',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.7))',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '6px 4px calc(6px + env(safe-area-inset-bottom, 8px))',
-        boxShadow: 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
-      }}
-    >
-      {barItems.map((item) => {
-        const isActive = activeTab === item.id;
-        const badgeValue = item.id === 'cart' ? cartCount || item.badge : item.id === 'wishlist' ? wishlistCount || item.badge : item.badge;
+  const isFloating = variant === 'floating';
 
-        return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onTabChange && onTabChange(item.id, item.href)}
-            aria-label={item.label}
-            style={{
-              position: 'relative',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              padding: '4px 12px',
-              flex: 1,
-              maxWidth: '80px',
-              color: isActive ? '#111827' : '#6b7280',
-              transition: 'color 0.15s ease, transform 0.1s ease',
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              {renderIcon(item.icon, isActive)}
-              {Boolean(badgeValue) && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-8px',
-                    backgroundColor: item.id === 'cart' ? '#111827' : '#ef4444',
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    borderRadius: '9999px',
-                    minWidth: '16px',
-                    height: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0 3px',
-                    lineHeight: 1,
-                  }}
-                >
-                  {badgeValue}
-                </span>
-              )}
-            </div>
-            <span
+  return (
+    <>
+      <style>{`
+        :root[data-theme="dark"] .boost-mobile-bottom-bar {
+          background-color: rgba(15, 23, 42, 0.94) !important;
+          border-top-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn {
+          color: #94a3b8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn.is-active {
+          color: #818cf8 !important;
+        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-badge-cart {
+          background-color: #6366f1 !important;
+          color: #ffffff !important;
+        }
+      `}</style>
+      <nav
+        className={`boost-mobile-bottom-bar ${className}`}
+        style={{
+          position: 'fixed',
+          bottom: isFloating ? '12px' : 0,
+          left: isFloating ? '16px' : 0,
+          right: isFloating ? '16px' : 0,
+          margin: isFloating ? '0 auto' : undefined,
+          maxWidth: isFloating ? '440px' : undefined,
+          borderRadius: isFloating ? '24px' : undefined,
+          zIndex: 50,
+          backgroundColor: variant === 'solid'
+            ? 'var(--boost-surface, #ffffff)'
+            : 'var(--boost-glass-bg, rgba(255, 255, 255, 0.92))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderTop: isFloating ? 'none' : '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+          border: isFloating ? '1px solid var(--boost-border, rgba(226, 232, 240, 0.8))' : undefined,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          padding: isFloating
+            ? '8px 10px'
+            : '6px 4px calc(6px + env(safe-area-inset-bottom, 8px))',
+          boxShadow: isFloating
+            ? '0 12px 30px rgba(0, 0, 0, 0.15)'
+            : 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
+          fontFamily: 'inherit',
+          boxSizing: 'border-box',
+          ...style,
+        }}
+      >
+        {barItems.map((item) => {
+          const isActive = internalActiveTab === item.id;
+          const badgeValue = item.id === 'cart' ? cartCount || item.badge : item.id === 'wishlist' ? wishlistCount || item.badge : item.badge;
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => handleItemClick(item.id, item.href)}
+              aria-label={item.label}
+              className={`boost-bottom-btn ${isActive ? 'is-active' : ''}`}
               style={{
-                fontSize: '11px',
-                fontWeight: isActive ? 700 : 500,
-                letterSpacing: '-0.01em',
+                position: 'relative',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '3px',
+                padding: '4px 8px',
+                flex: 1,
+                maxWidth: '80px',
+                color: isActive ? activeColor : 'var(--boost-text-muted, #64748b)',
+                transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
-              {item.label}
-            </span>
-          </button>
-        );
-      })}
-    </nav>
+              <div
+                style={{
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '3px 12px',
+                  borderRadius: '999px',
+                  backgroundColor: isActive ? 'rgba(99, 102, 241, 0.12)' : 'transparent',
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                {renderIcon(item.icon, isActive)}
+                {Boolean(badgeValue) && (
+                  <span
+                    className={item.id === 'cart' ? 'boost-badge-cart' : ''}
+                    style={{
+                      position: 'absolute',
+                      top: '-2px',
+                      right: '0px',
+                      backgroundColor: item.id === 'cart' ? '#0f172a' : '#ef4444',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      borderRadius: '9999px',
+                      minWidth: '16px',
+                      height: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 4px',
+                      lineHeight: 1,
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    {badgeValue}
+                  </span>
+                )}
+              </div>
+              {showLabels && (
+                <span
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: isActive ? 700 : 500,
+                    letterSpacing: '-0.01em',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {item.label}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+    </>
   );
 };
-
 
 MobileBottomBar.displayName = 'MobileBottomBar';

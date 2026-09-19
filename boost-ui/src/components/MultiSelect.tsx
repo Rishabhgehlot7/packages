@@ -14,6 +14,7 @@ export interface MultiSelectProps {
   error?: string;
   className?: string;
   disabled?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -25,6 +26,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   error,
   className = '',
   disabled = false,
+  style,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -63,16 +65,56 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         fontFamily: 'inherit',
         position: 'relative',
         width: '100%',
+        ...style,
       }}
     >
+      <style>{`
+        .boost-multiselect-input {
+          background-color: var(--boost-surface, #ffffff);
+          border: 1px solid var(--boost-border, #cbd5e1);
+          color: var(--boost-text, #0f172a);
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        :root[data-theme="dark"] .boost-multiselect-input {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          color: #f8fafc !important;
+        }
+        .boost-multiselect-dropdown {
+          background-color: var(--boost-surface, #ffffff);
+          border: 1px solid var(--boost-border, #e2e8f0);
+          color: var(--boost-text, #0f172a);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+        }
+        :root[data-theme="dark"] .boost-multiselect-dropdown {
+          background-color: #1e293b !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: #f8fafc !important;
+          box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.6) !important;
+        }
+        .boost-multiselect-option {
+          transition: background-color 0.15s ease;
+          color: var(--boost-text, #0f172a);
+        }
+        :root[data-theme="dark"] .boost-multiselect-option {
+          color: #f8fafc !important;
+        }
+        .boost-multiselect-option:hover {
+          background-color: var(--boost-surface-secondary, #f1f5f9);
+        }
+        :root[data-theme="dark"] .boost-multiselect-option:hover {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+      `}</style>
       {label && (
-        <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+        <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--boost-text, #334155)' }}>
           {label}
         </label>
       )}
 
       <div
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
+        className="boost-multiselect-input"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -80,15 +122,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           gap: '6px',
           padding: '6px 12px',
           minHeight: '38px',
-          backgroundColor: disabled ? '#f8fafc' : '#ffffff',
-          border: `1px solid ${error ? '#ef4444' : isOpen ? '#2563eb' : '#cbd5e1'}`,
-          borderRadius: '6px',
+          borderRadius: 'var(--boost-radius, 8px)',
           cursor: disabled ? 'not-allowed' : 'pointer',
           boxSizing: 'border-box',
+          borderColor: error ? '#ef4444' : isOpen ? 'var(--boost-primary, #2563eb)' : undefined,
         }}
       >
         {value.length === 0 ? (
-          <span style={{ fontSize: '14px', color: '#94a3b8' }}>{placeholder}</span>
+          <span style={{ fontSize: '14px', color: 'var(--boost-text-muted, #94a3b8)' }}>{placeholder}</span>
         ) : (
           value.map((val) => {
             const opt = options.find((o) => o.value === val);
@@ -98,24 +139,30 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  backgroundColor: '#e0e7ff',
-                  color: '#3730a3',
+                  gap: '5px',
+                  backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                  color: '#6366f1',
+                  border: '1px solid rgba(99, 102, 241, 0.25)',
                   padding: '2px 8px',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   fontSize: '12px',
-                  fontWeight: 500,
+                  fontWeight: 600,
                 }}
               >
                 <span>{opt ? opt.label : val}</span>
                 <span
                   onClick={(e) => removeChip(e, val)}
+                  role="button"
+                  aria-label={`Remove ${opt ? opt.label : val}`}
                   style={{
                     display: 'inline-flex',
                     cursor: 'pointer',
                     fontSize: '14px',
                     lineHeight: 1,
+                    opacity: 0.7,
                   }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.7')}
                 >
                   &times;
                 </span>
@@ -124,8 +171,19 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           })
         )}
 
-        <span style={{ marginLeft: 'auto', display: 'inline-flex', color: '#64748b' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', color: 'var(--boost-text-muted, #64748b)' }}>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            style={{
+              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          >
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </span>
@@ -133,15 +191,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
       {isOpen && (
         <div
+          className="boost-multiselect-dropdown"
           style={{
             position: 'absolute',
             top: 'calc(100% + 4px)',
             left: 0,
             right: 0,
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '6px',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            borderRadius: 'var(--boost-radius, 8px)',
             zIndex: 100,
             maxHeight: '200px',
             overflowY: 'auto',
@@ -154,21 +210,21 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               <div
                 key={opt.value}
                 onClick={() => toggleOption(opt.value)}
+                className="boost-multiselect-option"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '8px 12px',
-                  fontSize: '13px',
-                  borderRadius: '4px',
+                  fontSize: '13.5px',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  backgroundColor: isSelected ? '#f1f5f9' : 'transparent',
-                  color: '#0f172a',
+                  backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'transparent',
                 }}
               >
                 <span>{opt.label}</span>
                 {isSelected && (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--boost-primary, #2563eb)" strokeWidth="2.5">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 )}
@@ -179,13 +235,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       )}
 
       {error && (
-        <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 500 }}>
+        <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}>
           {error}
         </span>
       )}
     </div>
   );
 };
-
 
 MultiSelect.displayName = 'MultiSelect';

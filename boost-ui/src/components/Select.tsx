@@ -45,13 +45,34 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           width: fullWidth ? '100%' : 'auto',
         }}
       >
+        <style>{`
+          .boost-select {
+            background-color: var(--boost-surface, #ffffff);
+            color: var(--boost-text, #0f172a);
+            border: 1px solid var(--boost-border, #cbd5e1);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          :root[data-theme="dark"] .boost-select {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-select option {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+          }
+          .boost-select:focus {
+            border-color: var(--boost-primary, #2563eb) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+          }
+        `}</style>
         {label && (
           <label
             htmlFor={selectId}
             style={{
               fontSize: '13px',
               fontWeight: 600,
-              color: '#334155',
+              color: 'var(--boost-text, #334155)',
             }}
           >
             {label}
@@ -63,21 +84,21 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             disabled={disabled}
+            className="boost-select"
             style={{
               width: '100%',
-              paddingTop: '8px',
-              paddingBottom: '8px',
+              paddingTop: '9px',
+              paddingBottom: '9px',
               paddingLeft: '12px',
               paddingRight: '36px',
               fontSize: '14px',
-              color: '#0f172a',
-              backgroundColor: disabled ? '#f8fafc' : '#ffffff',
-              border: `1px solid ${error ? '#ef4444' : '#cbd5e1'}`,
-              borderRadius: '6px',
+              borderRadius: 'var(--boost-radius, 8px)',
               outline: 'none',
               appearance: 'none',
+              WebkitAppearance: 'none',
               cursor: disabled ? 'not-allowed' : 'pointer',
               boxSizing: 'border-box',
+              borderColor: error ? '#ef4444' : undefined,
               ...style,
             }}
             {...props}
@@ -102,8 +123,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               top: '50%',
               transform: 'translateY(-50%)',
               pointerEvents: 'none',
-              color: '#64748b',
-              display: 'inline-flex',
+              color: 'var(--boost-text-muted, #64748b)',
+              display: 'flex',
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -113,11 +134,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         </div>
 
         {error ? (
-          <span style={{ fontSize: '12px', color: '#dc2626', fontWeight: 500 }}>
+          <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 500 }}>
             {error}
           </span>
         ) : helperText ? (
-          <span style={{ fontSize: '12px', color: '#64748b' }}>
+          <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #64748b)' }}>
             {helperText}
           </span>
         ) : null}

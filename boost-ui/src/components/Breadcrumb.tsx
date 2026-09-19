@@ -42,6 +42,22 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
         ...style,
       }}
     >
+      <style>
+        {`
+          :root[data-theme="dark"] .boost-breadcrumb a,
+          .dark .boost-breadcrumb a {
+            color: #94a3b8 !important;
+          }
+          :root[data-theme="dark"] .boost-breadcrumb a:hover,
+          .dark .boost-breadcrumb a:hover {
+            color: #818cf8 !important;
+          }
+          :root[data-theme="dark"] .boost-breadcrumb span[aria-current="page"],
+          .dark .boost-breadcrumb span[aria-current="page"] {
+            color: #f8fafc !important;
+          }
+        `}
+      </style>
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
 

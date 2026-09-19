@@ -8,6 +8,7 @@ export interface OTPInputProps {
   disabled?: boolean;
   error?: string;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const OTPInput = React.forwardRef<HTMLInputElement, OTPInputProps>(
@@ -20,6 +21,7 @@ export const OTPInput = React.forwardRef<HTMLInputElement, OTPInputProps>(
       disabled = false,
       error,
       className = '',
+      style,
     },
     ref
   ) => {
@@ -72,9 +74,47 @@ export const OTPInput = React.forwardRef<HTMLInputElement, OTPInputProps>(
           alignItems: 'center',
           gap: '8px',
           fontFamily: 'inherit',
+          maxWidth: '100%',
+          ...style,
         }}
       >
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <style>
+          {`
+            .boost-otp-box {
+              width: 44px;
+              height: 52px;
+              font-size: 22px;
+              font-weight: 700;
+              text-align: center;
+              border-radius: 12px;
+              outline: none;
+              transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+              background-color: var(--boost-surface, #ffffff);
+              border: 1.5px solid var(--boost-border, #cbd5e1);
+              color: var(--boost-text-primary, #0f172a);
+            }
+            :root[data-theme="dark"] .boost-otp-box,
+            .dark .boost-otp-box {
+              background-color: rgba(255, 255, 255, 0.08) !important;
+              border-color: rgba(255, 255, 255, 0.2) !important;
+              color: #ffffff !important;
+            }
+            .boost-otp-box:focus {
+              border-color: var(--boost-primary, #6366f1) !important;
+              box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+              background-color: rgba(99, 102, 241, 0.08) !important;
+            }
+            @media (max-width: 420px) {
+              .boost-otp-box {
+                width: 38px;
+                height: 46px;
+                font-size: 18px;
+                border-radius: 8px;
+              }
+            }
+          `}
+        </style>
+        <div style={{ display: 'flex', gap: '8px', maxWidth: '100%', flexWrap: 'wrap', justifyContent: 'center' }}>
           {Array.from({ length }).map((_, idx) => (
             <input
               key={idx}
@@ -87,18 +127,10 @@ export const OTPInput = React.forwardRef<HTMLInputElement, OTPInputProps>(
               onKeyDown={(e) => handleKeyDown(e, idx)}
               onPaste={handlePaste}
               disabled={disabled}
+              className="boost-otp-box"
               style={{
-                width: '42px',
-                height: '48px',
-                fontSize: '20px',
-                fontWeight: 700,
-                textAlign: 'center',
-                color: '#0f172a',
-                backgroundColor: disabled ? '#f8fafc' : '#ffffff',
-                border: `1.5px solid ${error ? '#ef4444' : value[idx] ? '#2563eb' : '#cbd5e1'}`,
-                borderRadius: '8px',
-                outline: 'none',
-                transition: 'all 0.15s ease',
+                borderColor: error ? '#ef4444' : value[idx] ? 'var(--boost-primary, #6366f1)' : undefined,
+                boxShadow: value[idx] ? '0 0 0 2px rgba(99, 102, 241, 0.2)' : undefined,
               }}
             />
           ))}
