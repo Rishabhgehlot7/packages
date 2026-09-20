@@ -282,6 +282,311 @@ async function runAll() {
     assert.strictEqual(typeof client.guestCart.merge, 'function');
   });
 
+  // Test 14: BoostCommunicationsProvider Integration
+  await test('BoostCommunicationsProvider initializes and handles dispatch', async () => {
+    let sentPayload = null;
+    const mockComms = {
+      sendOTP: async (params) => {
+        sentPayload = params;
+      },
+    };
+
+    const commsProvider = pkg.BoostCommunicationsProvider({
+      client: mockComms,
+      channel: 'whatsapp',
+    });
+
+    assert.strictEqual(commsProvider.id, 'boost-communications');
+    await commsProvider.sendOtp({ phone: '+919988776655', otp: '445566' });
+    assert.strictEqual(sentPayload.phone, '+919988776655');
+    assert.strictEqual(sentPayload.otp, '445566');
+    assert.strictEqual(sentPayload.channel, 'whatsapp');
+  });
+
+  // Test 15: OTP Rate Limiter & SMS Bombing Protection
+  await test('Rate Limiter blocks 4th consecutive OTP request (HTTP 429)', async () => {
+    const rateAuth = createBoostAuth({
+      secret: 'rate-limit-test-secret-min-32-chars-long',
+      rateLimit: {
+        maxPerPhone: 3,
+        windowSecondsPhone: 60,
+      },
+    });
+
+    const makeReq = () =>
+      new Request('http://localhost:3000/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-forwarded-for': '10.0.0.1' },
+        body: JSON.stringify({ phone: '+919111222333' }),
+      });
+
+    // 1st request -> 200
+    const res1 = await rateAuth.handleRequest(makeReq());
+    assert.strictEqual(res1.status, 200);
+
+    // 2nd request -> 200
+    const res2 = await rateAuth.handleRequest(makeReq());
+    assert.strictEqual(res2.status, 200);
+
+    // 3rd request -> 200
+    const res3 = await rateAuth.handleRequest(makeReq());
+    assert.strictEqual(res3.status, 200);
+
+    // 4th request -> 429 Too Many Requests!
+    const res4 = await rateAuth.handleRequest(makeReq());
+    assert.strictEqual(res4.status, 429, '4th request must be blocked with HTTP 429');
+    const data4 = await res4.json();
+    assert.ok(data4.error.includes('Too many OTP requests'));
+    assert.ok(res4.headers.get('Retry-After'));
+  });
+
+  // Test 16: Next.js 1-Line Route Protection Middleware
+  await test('createAuthMiddleware redirects unauthenticated user to loginUrl', async () => {
+    const middleware = pkg.createAuthMiddleware(auth, {
+      protectedRoutes: ['/dashboard', '/account'],
+      loginUrl: '/login',
+    });
+
+    // Unauthenticated request to /dashboard
+    const req = new Request('http://localhost:3000/dashboard');
+    const res = await middleware(req);
+
+    assert.strictEqual(res.status, 302, 'Should redirect to login');
+    const location = res.headers.get('Location');
+    assert.ok(location.includes('/login'));
+    assert.ok(location.includes('callbackUrl=%2Fdashboard'));
+  });
+
+  // Test 17: Sliding Session Renewal in GET /session
+  await test('GET /session auto-renews cookie when past 50% lifetime', async () => {
+    const shortAuth = createBoostAuth({
+      secret: 'sliding-session-test-secret-32-chars-long',
+      sessionExpirySeconds: 10, // 10s
+    });
+
+    const session = shortAuth.createSession({ id: 'usr_slide_1', phone: '+919988776655' });
+    const sessionReq = new Request('http://localhost:3000/api/auth/session', {
+      method: 'GET',
+      headers: { cookie: `boost_session=${session.token}` },
+    });
+
+    const sessionRes = await shortAuth.handleRequest(sessionReq);
+    assert.strictEqual(sessionRes.status, 200);
+    const data = await sessionRes.json();
+    assert.strictEqual(data.authenticated, true);
+    assert.strictEqual(data.user.userId, 'usr_slide_1');
+  });
+
+  // Test 18: Next.js Server Components & Server Actions Helper (getServerSession)
+  await test('auth.getServerSession resolves user directly from headers/cookies', async () => {
+    const session = auth.createSession({
+      id: 'usr_rsc_99',
+      name: 'Server User',
+      phone: '+919999999999',
+    });
+
+    // Directly pass headers / cookies context
+    const serverSession = await auth.getServerSession({
+      cookies: { boost_session: session.token },
+    });
+
+    assert.ok(serverSession);
+    assert.strictEqual(serverSession.userId, 'usr_rsc_99');
+    assert.strictEqual(serverSession.name, 'Server User');
+  });
+
+  // Test 19: Sign in with Apple Provider
+  await test('AppleProvider builds authorization URL and configures scopes', () => {
+    const apple = pkg.AppleProvider({
+      clientId: 'com.booststore.app',
+      clientSecret: 'dummy-apple-secret',
+    });
+
+    assert.strictEqual(apple.id, 'apple');
+    assert.ok(apple.authorizationUrl.includes('appleid.apple.com'));
+
+    const profile = apple.profile({ email: 'john@privaterelay.appleid.com' }, { accessToken: 'xyz' });
+    assert.strictEqual(profile.email, 'john@privaterelay.appleid.com');
+  });
+
+  // Test 20: Email OTP & Passwordless Magic Links
+  await test('Email OTP generation, dispatch, and verification', async () => {
+    let sentEmail = null;
+    const emailAuth = createBoostAuth({
+      secret: 'email-otp-test-secret-min-32-chars-long',
+      providers: [
+        pkg.EmailOtpProvider({
+          sendEmail: async (payload) => {
+            sentEmail = payload;
+          },
+        }),
+      ],
+    });
+
+    // 1. Send Email OTP
+    const sendReq = new Request('http://localhost:3000/api/auth/email-otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'client@booststore.in' }),
+    });
+
+    const sendRes = await emailAuth.handleRequest(sendReq);
+    assert.strictEqual(sendRes.status, 200);
+    const sendData = await sendRes.json();
+    assert.strictEqual(sendData.success, true);
+    assert.strictEqual(sendData.email, 'client@booststore.in');
+    assert.ok(sentEmail);
+    assert.strictEqual(sentEmail.email, 'client@booststore.in');
+    assert.ok(sentEmail.otp);
+
+    // 2. Verify Email OTP
+    const verifyReq = new Request('http://localhost:3000/api/auth/email-otp/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'client@booststore.in',
+        otp: sentEmail.otp,
+        verificationToken: sendData.verificationToken,
+      }),
+    });
+
+    const verifyRes = await emailAuth.handleRequest(verifyReq);
+    assert.strictEqual(verifyRes.status, 200);
+    const verifyData = await verifyRes.json();
+    assert.strictEqual(verifyData.success, true);
+    assert.strictEqual(verifyData.user.email, 'client@booststore.in');
+  });
+
+  // Test 21: Native RFC 6238 TOTP 2FA Engine (Google Authenticator)
+  await test('TOTPManager generates and verifies 6-digit tokens and URI', () => {
+    const secret = pkg.TOTPManager.generateSecret();
+    assert.ok(secret);
+    assert.strictEqual(typeof secret, 'string');
+
+    // Build URI for QR code
+    const uri = pkg.TOTPManager.generateOtpAuthUri({
+      secret,
+      accountName: 'admin@booststore.in',
+      issuer: 'BoostStore',
+    });
+    assert.ok(uri.startsWith('otpauth://totp/'));
+    assert.ok(uri.includes('secret='));
+
+    // Generate and verify current token
+    const token = pkg.TOTPManager.generateToken(secret);
+    assert.strictEqual(token.length, 6);
+    const isValid = pkg.TOTPManager.verifyToken(token, secret);
+    assert.strictEqual(isValid, true, 'Current TOTP token must be valid');
+
+    // Reject wrong token
+    const isWrongValid = pkg.TOTPManager.verifyToken('000000', secret);
+    assert.strictEqual(isWrongValid, false, 'Invalid token must be rejected');
+  });
+
+  // Test 22: B2B Organizations & Teams
+  await test('OrganizationManager creates orgs, adds members, and lists memberships', async () => {
+    const { organization, membership } = await auth.organizations.create({
+      name: 'Acme Enterprise',
+      userId: 'usr_founder_1',
+    });
+
+    assert.ok(organization.id);
+    assert.strictEqual(organization.name, 'Acme Enterprise');
+    assert.strictEqual(membership.role, 'owner');
+
+    // Add team member
+    const teamMember = await auth.organizations.addMember({
+      organizationId: organization.id,
+      userId: 'usr_engineer_2',
+      role: 'member',
+    });
+    assert.strictEqual(teamMember.role, 'member');
+
+    // List user orgs
+    const founderOrgs = await auth.organizations.listUserOrganizations('usr_founder_1');
+    assert.strictEqual(founderOrgs.length, 1);
+    assert.strictEqual(founderOrgs[0].role, 'owner');
+
+    const memberOrgs = await auth.organizations.listUserOrganizations('usr_engineer_2');
+    assert.strictEqual(memberOrgs.length, 1);
+    assert.strictEqual(memberOrgs[0].role, 'member');
+  });
+
+  // Test 23: Native Zero-Dependency Password Hashing & Timing-Safe Verification
+  await test('hashPassword and verifyPassword using crypto.scrypt', async () => {
+    const plain = 'SuperSecretP@ss123!';
+    const hash = await pkg.hashPassword(plain);
+
+    assert.ok(hash.includes(':'), 'Hash must contain salt and derived key');
+    const valid = await pkg.verifyPassword(plain, hash);
+    assert.strictEqual(valid, true, 'Correct password must verify successfully');
+
+    const wrong = await pkg.verifyPassword('WrongPassword!', hash);
+    assert.strictEqual(wrong, false, 'Wrong password must fail verification');
+  });
+
+  // Test 24: Email with Password authentication via CredentialsProvider & Router
+  await test('Email + Password sign-in via CredentialsProvider and /signin/credentials route', async () => {
+    const userDb = {
+      'alice@example.com': {
+        id: 'usr_alice_123',
+        email: 'alice@example.com',
+        name: 'Alice Smith',
+        passwordHash: await pkg.hashPassword('MySecurePass!'),
+      },
+    };
+
+    const authWithCredentials = pkg.createBoostAuth({
+      secret: 'super-secret-key-that-is-at-least-32-chars-long-12345',
+      providers: [
+        pkg.CredentialsProvider({
+          authorize: async (credentials) => {
+            const user = userDb[credentials.email];
+            if (!user) return null;
+            const valid = await pkg.verifyPassword(credentials.password, user.passwordHash);
+            if (!valid) return null;
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: 'customer',
+            };
+          },
+        }),
+      ],
+    });
+
+    // Valid login
+    const validReq = new Request('http://localhost:3000/api/auth/signin/credentials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'alice@example.com',
+        password: 'MySecurePass!',
+      }),
+    });
+
+    const validRes = await authWithCredentials.handleRequest(validReq);
+    assert.strictEqual(validRes.status, 200);
+    const validData = await validRes.json();
+    assert.strictEqual(validData.success, true);
+    assert.strictEqual(validData.user.email, 'alice@example.com');
+    assert.ok(validData.token, 'Session token must be returned');
+
+    // Invalid password
+    const invalidReq = new Request('http://localhost:3000/api/auth/signin/credentials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'alice@example.com',
+        password: 'WrongPassword!',
+      }),
+    });
+
+    const invalidRes = await authWithCredentials.handleRequest(invalidReq);
+    assert.strictEqual(invalidRes.status, 401);
+  });
+
   console.log(`\n🎉 All ${passed} tests in @boostengine/auth passed successfully!\n`);
 }
 

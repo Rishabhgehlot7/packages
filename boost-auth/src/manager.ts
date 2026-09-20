@@ -17,11 +17,13 @@ import {
 } from './types';
 import { TokenManager } from './tokens';
 import { AuthRouter } from './router';
+import { OrganizationManager } from './organizations';
 
 export class BoostAuth {
   private config: Required<Pick<AuthConfig, 'secret' | 'sessionExpirySeconds' | 'cookieName' | 'otpExpirySeconds' | 'otpLength' | 'secureCookies' | 'basePath'>> & AuthConfig;
   private tokenManager: TokenManager;
   private router: AuthRouter;
+  readonly organizations: OrganizationManager;
 
   constructor(config: AuthConfig) {
     if (!config.secret) {
@@ -44,6 +46,7 @@ export class BoostAuth {
 
     this.tokenManager = new TokenManager(this.config.secret);
     this.router = new AuthRouter(this);
+    this.organizations = new OrganizationManager();
   }
 
   /**
@@ -82,6 +85,58 @@ export class BoostAuth {
 
   getConfig(): AuthConfig {
     return { ...this.config };
+  }
+
+  getTokenManager(): TokenManager {
+    return this.tokenManager;
+  }
+
+  /**
+   * Universal Server-side Session resolver for Next.js Server Components, Server Actions, & APIs.
+   * Can be called with explicit headers/cookies or zero arguments in Next.js App Router!
+   */
+  async getServerSession(context?: any): Promise<SessionTokenPayload | null> {
+    let token: string | null = null;
+
+    if (context) {
+      if (typeof context.get === 'function') {
+        token = this.extractSessionToken(context);
+      } else if (context.headers) {
+        token = this.extractSessionToken(context.headers);
+      } else if (context.cookies) {
+        if (typeof context.cookies.get === 'function') {
+          const cookieObj = context.cookies.get(this.config.cookieName);
+          token = typeof cookieObj === 'object' ? cookieObj?.value : cookieObj;
+        } else {
+          token = context.cookies[this.config.cookieName];
+        }
+      } else {
+        token = this.extractSessionToken(context);
+      }
+    } else {
+      // Auto-detect Next.js App Router cookies()
+      try {
+        const { cookies, headers } = require('next/headers');
+        if (typeof cookies === 'function') {
+          const store = await cookies();
+          const cookieObj = store.get ? store.get(this.config.cookieName) : null;
+          token = typeof cookieObj === 'object' ? cookieObj?.value : cookieObj;
+        }
+        if (!token && typeof headers === 'function') {
+          const headerStore = await headers();
+          token = this.extractSessionToken(headerStore);
+        }
+      } catch {
+        // Not in Next.js Server Component or next/headers not in scope
+      }
+    }
+
+    if (!token) return null;
+
+    const verified = this.verifySession(token);
+    if (!verified.isValid || !verified.user) return null;
+
+    return verified.user;
   }
 
   /**
@@ -129,9 +184,11 @@ export class BoostAuth {
   /**
    * Creates a signed session token and prepares HTTP cookie parameters
    */
-  createSession(user: AuthUser | UserProfile): { token: string; cookie: CookieHeaderResult } {
+  createSession(user: AuthUser | UserProfile | SessionTokenPayload): { token: string; cookie: CookieHeaderResult } {
+    const userId = ('id' in user && user.id) ? user.id : (user as SessionTokenPayload).userId;
     const payload: SessionTokenPayload = {
-      userId: user.id,
+      userId,
+      id: userId,
       phone: user.phone || undefined,
       email: user.email || undefined,
       name: user.name || undefined,

@@ -1,7 +1,8 @@
 import * as crypto from 'crypto';
 import { BoostAuth } from './manager';
 import { OAuthHelper } from './providers/oauth';
-import { OAuthProviderConfig, CredentialsProviderConfig, PhoneOtpProviderConfig, AuthUser } from './types';
+import { OAuthProviderConfig, CredentialsProviderConfig, PhoneOtpProviderConfig, EmailOtpProviderConfig, AuthUser } from './types';
+import { defaultRateLimiter } from './security/rate-limiter';
 
 export class AuthRouter {
   private auth: BoostAuth;
@@ -37,6 +38,15 @@ export class AuthRouter {
 
       if (subpath === '/otp/verify' && method === 'POST') {
         return await this.handleVerifyOtp(request);
+      }
+
+      // 1b. Email OTP Routes
+      if (subpath === '/email-otp/send' && method === 'POST') {
+        return await this.handleSendEmailOtp(request);
+      }
+
+      if (subpath === '/email-otp/verify' && method === 'POST') {
+        return await this.handleVerifyEmailOtp(request);
       }
 
       // 2. Credentials Sign In
@@ -102,6 +112,57 @@ export class AuthRouter {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
+    }
+
+    // Rate Limiting (SMS Bombing & Bot Attack Shield)
+    const rateLimitConfig = this.auth.getConfig().rateLimit;
+    if (rateLimitConfig?.enabled !== false) {
+      const ip =
+        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+        request.headers.get('x-real-ip') ||
+        '127.0.0.1';
+
+      // 1. IP Rate Limit
+      const ipLimit = rateLimitConfig?.maxPerIp ?? 5;
+      const ipWindow = rateLimitConfig?.windowSecondsIp ?? 60;
+      const ipCheck = defaultRateLimiter.check(`ip:${ip}`, ipLimit, ipWindow);
+
+      if (!ipCheck.allowed) {
+        return new Response(
+          JSON.stringify({
+            error: 'Too many requests from this IP. Please wait before requesting another OTP.',
+            retryAfter: ipCheck.retryAfterSeconds,
+          }),
+          {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'Retry-After': String(ipCheck.retryAfterSeconds),
+            },
+          }
+        );
+      }
+
+      // 2. Phone Rate Limit (Max 3 OTPs per 10 minutes)
+      const phoneLimit = rateLimitConfig?.maxPerPhone ?? 3;
+      const phoneWindow = rateLimitConfig?.windowSecondsPhone ?? 600;
+      const phoneCheck = defaultRateLimiter.check(`phone:${phone.trim()}`, phoneLimit, phoneWindow);
+
+      if (!phoneCheck.allowed) {
+        return new Response(
+          JSON.stringify({
+            error: `Too many OTP requests for ${phone}. Please try again in ${Math.ceil(phoneCheck.retryAfterSeconds / 60)} minutes.`,
+            retryAfter: phoneCheck.retryAfterSeconds,
+          }),
+          {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'Retry-After': String(phoneCheck.retryAfterSeconds),
+            },
+          }
+        );
+      }
     }
 
     const otpRes = this.auth.generateOTP({
@@ -180,6 +241,145 @@ export class AuthRouter {
 
     // Create session
     const session = this.auth.createSession(user);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        user,
+        token: session.token,
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Set-Cookie': session.cookie.headerString,
+        },
+      }
+    );
+  }
+
+  private async handleSendEmailOtp(request: Request): Promise<Response> {
+    const body = await request.json().catch(() => ({}));
+    const email = body.email;
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return new Response(JSON.stringify({ error: 'Valid email address is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const emailProvider = this.auth
+      .getProviders()
+      .find((p) => p.type === 'email-otp') as EmailOtpProviderConfig | undefined;
+
+    const length = body.otpLength || emailProvider?.otpLength || 6;
+    const expirySec = body.expirySeconds || emailProvider?.expirySeconds || 600;
+
+    // Generate numeric OTP
+    let otp = '';
+    const digits = '0123456789';
+    const randomBytes = crypto.randomBytes(length);
+    for (let i = 0; i < length; i++) {
+      otp += digits[randomBytes[i] % 10];
+    }
+
+    const expiresAt = Math.floor(Date.now() / 1000) + expirySec;
+    const tokenManager = (this.auth as any).tokenManager;
+    const verificationToken = tokenManager.createStatelessOtpToken(cleanEmail, otp, expiresAt);
+
+    const baseUrl = this.auth.getBaseUrl(request);
+    const magicLink = `${baseUrl}${this.auth.getBasePath()}/email-otp/verify?email=${encodeURIComponent(cleanEmail)}&otp=${otp}&verificationToken=${encodeURIComponent(verificationToken)}`;
+
+    if (emailProvider && emailProvider.sendEmail) {
+      await emailProvider.sendEmail({ email: cleanEmail, otp, magicLink });
+    }
+
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        email: cleanEmail,
+        verificationToken,
+        expiresAt,
+        ...(isDev ? { devOtp: otp, magicLink } : {}),
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  private async handleVerifyEmailOtp(request: Request): Promise<Response> {
+    let email: string = '';
+    let otp: string = '';
+    let verificationToken: string = '';
+
+    if (request.method === 'GET') {
+      const url = new URL(request.url);
+      email = url.searchParams.get('email') || '';
+      otp = url.searchParams.get('otp') || '';
+      verificationToken = url.searchParams.get('verificationToken') || '';
+    } else {
+      const body = await request.json().catch(() => ({}));
+      email = body.email;
+      otp = body.otp;
+      verificationToken = body.verificationToken;
+    }
+
+    if (!email || !otp || !verificationToken) {
+      return new Response(
+        JSON.stringify({ error: 'email, otp, and verificationToken are required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const tokenManager = (this.auth as any).tokenManager;
+    const verification = tokenManager.verifyStatelessOtp(cleanEmail, otp, verificationToken);
+
+    if (!verification.valid) {
+      return new Response(
+        JSON.stringify({ success: false, error: verification.error || 'Invalid or expired OTP' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    let user: AuthUser;
+    const adapter = this.auth.getAdapter();
+
+    if (adapter) {
+      const existing = await adapter.getUserByEmail(cleanEmail);
+      if (existing) {
+        user = existing;
+      } else {
+        user = await adapter.createUser({
+          email: cleanEmail,
+          name: cleanEmail.split('@')[0],
+          emailVerified: new Date().toISOString(),
+          role: 'customer',
+        });
+      }
+    } else {
+      user = {
+        id: `usr_${crypto.createHash('md5').update(cleanEmail).digest('hex').slice(0, 12)}`,
+        email: cleanEmail,
+        name: cleanEmail.split('@')[0],
+        role: 'customer',
+      };
+    }
+
+    const session = this.auth.createSession(user);
+
+    if (request.method === 'GET') {
+      // Magic Link click -> redirect to dashboard with Set-Cookie
+      const resHeaders = new Headers();
+      resHeaders.set('Location', '/');
+      resHeaders.append('Set-Cookie', session.cookie.headerString);
+      return new Response(null, { status: 302, headers: resHeaders });
+    }
 
     return new Response(
       JSON.stringify({
@@ -412,12 +612,26 @@ export class AuthRouter {
       );
     }
 
+    const headers = new Headers({ 'Content-Type': 'application/json' });
+
+    // Sliding Session Auto-Renewal: If active user is past 50% lifetime, extend cookie
+    if (verified.user.exp && verified.user.iat) {
+      const now = Math.floor(Date.now() / 1000);
+      const totalDuration = verified.user.exp - verified.user.iat;
+      const elapsed = now - verified.user.iat;
+
+      if (elapsed > totalDuration / 2) {
+        const renewed = this.auth.createSession(verified.user);
+        headers.set('Set-Cookie', renewed.cookie.headerString);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         authenticated: true,
         user: verified.user,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers }
     );
   }
 

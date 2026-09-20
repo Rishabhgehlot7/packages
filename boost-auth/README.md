@@ -26,6 +26,18 @@
 
 ---
 
+## ⚡ Native Synergy with BoostEngine Ecosystem
+
+`@boostengine/auth` is designed to work seamlessly with our sister packages:
+
+1. **[`@boostengine/communications`](https://www.npmjs.com/package/@boostengine/communications)**:
+   * **Multi-Tier Smart OTP Fallback**: Automatically sends OTP on **WhatsApp ➔ SMS ➔ Voice Call**.
+   * Works out of the box with `BoostCommunicationsProvider()`.
+2. **[`@boostengine/ui`](https://www.npmjs.com/package/@boostengine/ui)**:
+   * **Drop-in UI Suite**: Zero-config `<SignInCard />`, auto-focusing OTP boxes, and responsive modals.
+
+---
+
 ## 📦 Installation
 
 ```bash
@@ -79,9 +91,47 @@ import { auth } from '@/lib/auth';
 export const { GET, POST } = toNextJsHandler(auth);
 ```
 
+### 3. Next.js 1-Line Route Protection (`middleware.ts`)
+
+```typescript
+import { createAuthMiddleware } from '@boostengine/auth';
+import { auth } from '@/lib/auth';
+
+export default createAuthMiddleware(auth, {
+  protectedRoutes: ['/dashboard', '/account', '/checkout'],
+  loginUrl: '/login',
+  afterLoginUrl: '/dashboard', // Redirect already-authenticated users from /login
+});
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/account/:path*', '/checkout/:path*', '/login'],
+};
+```
+
 ---
 
-### 3. Node.js & Express (`server.ts`)
+### 4. Next.js Server Components & Server Actions (`page.tsx` / `actions.ts`)
+
+Direct in-memory session fetch without external network calls:
+
+```typescript
+// app/dashboard/page.tsx (Server Component)
+import { auth } from '@/lib/auth';
+
+export default async function DashboardPage() {
+  const session = await auth.getServerSession();
+
+  return (
+    <div>
+      <h1>Welcome back, {session?.name || session?.phone}!</h1>
+    </div>
+  );
+}
+```
+
+---
+
+### 5. Node.js & Express (`server.ts`)
 
 ```typescript
 import express from 'express';
@@ -178,6 +228,63 @@ export function LoginCard() {
 
 ---
 
+## 🔑 Email & Password Authentication
+
+`@boostengine/auth` provides enterprise-grade, timing-attack resistant password hashing out-of-the-box using native Node.js `crypto.scrypt` (OWASP recommended, zero external `bcrypt` dependencies required!).
+
+### 1. Server Configuration (`lib/auth.ts`)
+```typescript
+import { createBoostAuth, CredentialsProvider, hashPassword, verifyPassword } from '@boostengine/auth';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  providers: [
+    CredentialsProvider({
+      name: 'Email & Password',
+      authorize: async (credentials) => {
+        // 1. Fetch user from your database
+        const user = await db.user.findUnique({ where: { email: credentials.email } });
+        if (!user || !user.passwordHash) return null;
+
+        // 2. Timing-safe password verification
+        const isValid = await verifyPassword(credentials.password, user.passwordHash);
+        if (!isValid) return null;
+
+        // 3. Return user profile (session created automatically)
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role || 'customer',
+        };
+      },
+    }),
+  ],
+});
+
+// To hash password upon user registration / signup:
+// const passwordHash = await hashPassword('plain-user-password');
+```
+
+### 2. Client-side Sign In
+```typescript
+import { authClient } from '@/lib/auth-client';
+
+const handleLogin = async () => {
+  try {
+    const res = await authClient.signIn.emailPassword({
+      email: 'user@example.com',
+      password: 'plain-user-password',
+    });
+    console.log('Logged in user:', res.user);
+  } catch (err) {
+    alert('Invalid email or password');
+  }
+};
+```
+
+---
+
 ## 🗄️ Database Adapters
 
 Choose any database, or run completely **Stateless (Zero DB)**:
@@ -240,9 +347,119 @@ const merged = await authClient.guestCart.merge(localCartItems, userCartItems);
 
 ---
 
-## 🛠️ CLI Utilities
+## 🛡️ Built-in OTP Rate Limiting (SMS Bombing Shield)
+
+Protect your SMS bills against malicious bots and SMS bombing out of the box with zero external dependencies:
+
+```typescript
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  rateLimit: {
+    maxPerPhone: 3,          // Max 3 OTP requests
+    windowSecondsPhone: 600, // per 10 minutes
+    maxPerIp: 5,             // Max 5 OTP requests
+    windowSecondsIp: 60,     // per 1 minute
+  },
+});
+```
+
+---
+
+## 🍎 Sign in with Apple (iOS & App Store Compliant)
+
+Required by Apple App Store guidelines for iOS & React Native mobile applications:
+
+```typescript
+import { AppleProvider } from '@boostengine/auth';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  providers: [
+    AppleProvider({
+      clientId: 'com.yourcompany.app.web',
+      clientSecret: process.env.APPLE_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+---
+
+## ✉️ Email OTP & Passwordless Magic Links
+
+Perfect for international customers and B2B users:
+
+```typescript
+import { EmailOtpProvider } from '@boostengine/auth';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  providers: [
+    EmailOtpProvider({
+      sendEmail: async ({ email, otp, magicLink }) => {
+        // Send using Resend, SendGrid, or @boostengine/communications
+        console.log(`Email OTP to ${email}: ${otp}, Magic Link: ${magicLink}`);
+      },
+    }),
+  ],
+});
+```
+
+---
+
+## 🔐 Two-Factor Authentication (TOTP / Google Authenticator)
+
+RFC 6238 compliant 2FA with zero external dependencies:
+
+```typescript
+import { TOTPManager } from '@boostengine/auth';
+
+// 1. Generate Base32 secret
+const secret = TOTPManager.generateSecret();
+
+// 2. Build QR Code URI for Google Authenticator / Authy
+const uri = TOTPManager.generateOtpAuthUri({
+  secret,
+  accountName: 'user@example.com',
+  issuer: 'BoostStore',
+});
+
+// 3. Verify 6-digit user input
+const isValid = TOTPManager.verifyToken(userInputCode, secret);
+```
+
+---
+
+## 🏢 Multi-Tenant Organizations & Teams (B2B SaaS)
+
+Easily build workspaces and team roles:
+
+```typescript
+// Create organization (creator automatically becomes 'owner')
+const { organization, membership } = await auth.organizations.create({
+  name: 'Acme Corp',
+  userId: 'usr_123',
+});
+
+// Add member with specific role
+await auth.organizations.addMember({
+  organizationId: organization.id,
+  userId: 'usr_456',
+  role: 'admin', // 'owner' | 'admin' | 'member'
+});
+
+// List user's workspaces
+const userOrgs = await auth.organizations.listUserOrganizations('usr_123');
+```
+
+---
+
+## 🛠️ CLI Utilities & 30-Second Setup Wizard
 
 ```bash
+# 🚀 Interactive Project Setup Wizard (Scaffolds lib/auth.ts, route.ts, and .env)
+npx @boostengine/auth init
+
 # Generate high-entropy 256-bit secret for .env
 npx @boostengine/auth generate-secret
 

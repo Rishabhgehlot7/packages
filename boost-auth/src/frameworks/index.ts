@@ -1,2 +1,9 @@
-export { toNextJsHandler, toPagesHandler, type NextJsHandlers } from './next';
+export {
+  toNextJsHandler,
+  toPagesHandler,
+  getServerSession,
+  createAuthMiddleware,
+  type NextJsHandlers,
+  type AuthMiddlewareOptions,
+} from './next';
 export { toNodeHandler } from './node';

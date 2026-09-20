@@ -124,6 +124,13 @@ export class BoostAuthClient {
     },
 
     /**
+     * Sign in with Email and Password
+     */
+    emailPassword: async (params: { email: string; password: string; [key: string]: any }) => {
+      return await this.signIn.credentials(params);
+    },
+
+    /**
      * Initiate OAuth Social Login (Google, GitHub, Discord, etc.)
      */
     social: async (params: { provider: string; callbackUrl?: string }) => {
@@ -236,4 +243,4 @@ export function createAuthClient(config: ClientConfig): BoostAuthClient {
 }
 
 export { AuthStorage, WebStorage, MemoryStorage } from './storage';
-export { AuthProvider, useSession, type AuthContextValue } from './react';
+export { AuthProvider, useSession, SignInCard, type AuthContextValue, type SignInCardProps } from './react';

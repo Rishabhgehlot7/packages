@@ -58,6 +58,19 @@ export interface AuthConfig {
    * Custom lifecycle callbacks
    */
   callbacks?: AuthCallbacks;
+
+  /**
+   * Rate limiting configuration for OTP endpoints (SMS Bombing Shield)
+   */
+  rateLimit?: RateLimitConfig;
+}
+
+export interface RateLimitConfig {
+  enabled?: boolean;
+  maxPerPhone?: number; // default: 3 OTPs
+  windowSecondsPhone?: number; // default: 600s (10 minutes)
+  maxPerIp?: number; // default: 5 requests
+  windowSecondsIp?: number; // default: 60s (1 minute)
 }
 
 // ---------------------------------------------------------------------------
@@ -108,6 +121,7 @@ export interface AuthSession {
 
 export interface SessionTokenPayload {
   userId: string;
+  id?: string;
   phone?: string;
   email?: string;
   name?: string;
@@ -197,7 +211,20 @@ export interface PhoneOtpProviderConfig {
   sendOtp?: (params: { phone: string; otp: string }) => Promise<boolean | void>;
 }
 
-export type AuthProvider = OAuthProviderConfig | CredentialsProviderConfig | PhoneOtpProviderConfig;
+export interface EmailOtpProviderConfig {
+  id: string;
+  name: string;
+  type: 'email-otp';
+  otpLength?: number;
+  expirySeconds?: number;
+  sendEmail: (params: { email: string; otp: string; magicLink?: string }) => Promise<boolean | void>;
+}
+
+export type AuthProvider =
+  | OAuthProviderConfig
+  | CredentialsProviderConfig
+  | PhoneOtpProviderConfig
+  | EmailOtpProviderConfig;
 
 // ---------------------------------------------------------------------------
 // Callbacks & Lifecycle

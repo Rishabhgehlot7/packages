@@ -11,6 +11,105 @@ if (command === 'generate-secret') {
   const secret = crypto.randomBytes(32).toString('hex');
   console.log('🔑 Generated Secure Auth Secret (Add this to your .env file):');
   console.log(`\n  BOOST_AUTH_SECRET=${secret}\n`);
+} else if (command === 'init') {
+  const readline = require('readline');
+  const fs = require('fs');
+  const path = require('path');
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const question = (query) => new Promise((resolve) => rl.question(query, resolve));
+
+  async function runInit() {
+    console.log('✨ Welcome to the @boostengine/auth Project Setup Wizard!\n');
+
+    const framework = (await question('1. Select Framework (nextjs / express) [nextjs]: ')).trim().toLowerCase() || 'nextjs';
+    const db = (await question('2. Select Database (stateless / prisma / mongodb / drizzle) [stateless]: ')).trim().toLowerCase() || 'stateless';
+    const useComms = (await question('3. Use @boostengine/communications for Multi-tier WhatsApp/SMS OTP? (yes / no) [yes]: ')).trim().toLowerCase() !== 'no';
+
+    const secret = crypto.randomBytes(32).toString('hex');
+
+    // 1. Write or append to .env
+    const envPath = path.join(process.cwd(), '.env');
+    let envContent = '';
+    if (fs.existsSync(envPath)) {
+      envContent = fs.readFileSync(envPath, 'utf-8');
+    }
+    if (!envContent.includes('BOOST_AUTH_SECRET=')) {
+      fs.appendFileSync(envPath, `\n# @boostengine/auth Secret\nBOOST_AUTH_SECRET=${secret}\n`);
+      console.log('  ✅ Appended BOOST_AUTH_SECRET to .env');
+    }
+
+    // 2. Generate lib/auth.ts
+    const libDir = path.join(process.cwd(), 'lib');
+    if (!fs.existsSync(libDir)) {
+      fs.mkdirSync(libDir, { recursive: true });
+    }
+
+    let adapterImport = '';
+    let adapterConfig = '';
+    if (db === 'prisma') {
+      adapterImport = "import { prismaAdapter } from '@boostengine/auth/adapters';\nimport { prisma } from './prisma';\n";
+      adapterConfig = "  adapter: prismaAdapter(prisma),\n";
+    } else if (db === 'mongodb') {
+      adapterImport = "import { mongodbAdapter } from '@boostengine/auth/adapters';\n";
+      adapterConfig = "  // adapter: mongodbAdapter(db),\n";
+    } else if (db === 'drizzle') {
+      adapterImport = "import { drizzleAdapter } from '@boostengine/auth/adapters';\n";
+      adapterConfig = "  // adapter: drizzleAdapter(db, schema, { eq, and }),\n";
+    }
+
+    let commsImport = useComms ? "  BoostCommunicationsProvider,\n" : "";
+    let commsProvider = useComms ? "    BoostCommunicationsProvider(), // Auto fallback: WhatsApp -> SMS -> Voice\n" : "    PhoneOtpProvider(),\n";
+
+    const authFileContent = `import {
+  createBoostAuth,
+  GoogleProvider,
+  GitHubProvider,
+${commsImport}} from '@boostengine/auth';
+${adapterImport}
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+${adapterConfig}  providers: [
+${commsProvider}    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    }),
+  ],
+});
+`;
+
+    const authFilePath = path.join(libDir, 'auth.ts');
+    fs.writeFileSync(authFilePath, authFileContent, 'utf-8');
+    console.log('  ✅ Created lib/auth.ts');
+
+    // 3. If Next.js, create App Router handler
+    if (framework === 'nextjs') {
+      const routeDir = path.join(process.cwd(), 'app', 'api', 'auth', '[...boost]');
+      fs.mkdirSync(routeDir, { recursive: true });
+      const routeContent = `import { toNextJsHandler } from '@boostengine/auth';
+import { auth } from '@/lib/auth';
+
+export const { GET, POST } = toNextJsHandler(auth);
+`;
+      fs.writeFileSync(path.join(routeDir, 'route.ts'), routeContent, 'utf-8');
+      console.log('  ✅ Created app/api/auth/[...boost]/route.ts');
+    }
+
+    console.log('\n🎉 Setup Complete! You are ready to authenticate users with @boostengine/auth.');
+    console.log('\nNext steps:');
+    if (useComms) {
+      console.log('  1. npm install @boostengine/communications (for omnichannel OTPs)');
+    }
+    console.log('  2. Start your development server: npm run dev\n');
+
+    rl.close();
+  }
+
+  runInit();
 } else if (command === 'schema') {
   const target = args[1] || 'prisma';
   if (target === 'prisma') {
@@ -132,6 +231,7 @@ export const sessions = pgTable('sessions', {
   console.log(`   Set-Cookie: ${session.cookie.headerString}\n`);
 } else {
   console.log('Usage:');
+  console.log('  npx @boostengine/auth init                Interactive 30-second project setup wizard');
   console.log('  npx @boostengine/auth generate-secret     Generate high-entropy random secret for .env');
   console.log('  npx @boostengine/auth schema [prisma|drizzle] Print starter DB schemas for adapters');
   console.log('  npx @boostengine/auth demo                Run interactive stateless auth & session simulation');

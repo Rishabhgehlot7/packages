@@ -20,8 +20,11 @@ export {
   GoogleProvider,
   GitHubProvider,
   DiscordProvider,
+  AppleProvider,
   CredentialsProvider,
   PhoneOtpProvider,
+  EmailOtpProvider,
+  BoostCommunicationsProvider,
   OAuthHelper,
 } from './providers';
 
@@ -30,7 +33,10 @@ export {
   toNextJsHandler,
   toPagesHandler,
   toNodeHandler,
+  getServerSession,
+  createAuthMiddleware,
   type NextJsHandlers,
+  type AuthMiddlewareOptions,
 } from './frameworks';
 
 // Client SDK
@@ -39,11 +45,26 @@ export {
   BoostAuthClient,
   AuthProvider,
   useSession,
+  SignInCard,
   type ClientConfig,
   type ClientSessionState,
   type AuthContextValue,
+  type SignInCardProps,
   type AuthStorage,
 } from './client';
+
+// Security & 2FA
+export { TOTPManager } from './security/totp';
+export { defaultRateLimiter, InMemoryRateLimiter } from './security/rate-limiter';
+export { hashPassword, verifyPassword } from './security/password';
+
+// Organizations & B2B SaaS
+export {
+  OrganizationManager,
+  type Organization,
+  type OrganizationMember,
+  type CreateOrgParams,
+} from './organizations';
 
 // Types
 export type {
@@ -59,6 +80,7 @@ export type {
   OAuthTokens,
   CredentialsProviderConfig,
   PhoneOtpProviderConfig,
+  EmailOtpProviderConfig,
   AuthCallbacks,
   CreateOTPParams,
   OTPResult,

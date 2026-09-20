@@ -13,7 +13,12 @@
 
 ### Server Setup (`lib/auth.ts`):
 ```typescript
-import { createBoostAuth, GoogleProvider, GitHubProvider } from '@boostengine/auth';
+import {
+  createBoostAuth,
+  GoogleProvider,
+  GitHubProvider,
+  BoostCommunicationsProvider, // Official multi-tier OTP dispatcher
+} from '@boostengine/auth';
 import { prismaAdapter } from '@boostengine/auth/adapters';
 import { prisma } from '@/lib/prisma'; // Optional: remove adapter for zero-DB stateless mode
 
@@ -21,6 +26,8 @@ export const auth = createBoostAuth({
   secret: process.env.BOOST_AUTH_SECRET!,
   adapter: prismaAdapter(prisma), // Optional
   providers: [
+    // Native Omnichannel OTP: WhatsApp -> SMS -> Voice Call auto-fallback!
+    BoostCommunicationsProvider(),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -35,6 +42,22 @@ import { toNextJsHandler } from '@boostengine/auth';
 import { auth } from '@/lib/auth';
 
 export const { GET, POST } = toNextJsHandler(auth);
+```
+
+### Next.js Route Protection Middleware (`middleware.ts`):
+```typescript
+import { createAuthMiddleware } from '@boostengine/auth';
+import { auth } from '@/lib/auth';
+
+export default createAuthMiddleware(auth, {
+  protectedRoutes: ['/dashboard', '/account', '/checkout'],
+  loginUrl: '/login',
+  afterLoginUrl: '/dashboard',
+});
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/account/:path*', '/checkout/:path*', '/login'],
+};
 ```
 
 ### Client Setup (`lib/auth-client.ts`):
@@ -116,12 +139,75 @@ app.use('/api/auth', toNodeHandler(auth));
 
 ---
 
-## 4. API Endpoints Handled by Router
+## 4. Email & Password with Native crypto.scrypt Recipe
+
+```typescript
+import { createBoostAuth, CredentialsProvider, hashPassword, verifyPassword } from '@boostengine/auth';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  providers: [
+    CredentialsProvider({
+      authorize: async (credentials) => {
+        const user = await db.user.findUnique({ where: { email: credentials.email } });
+        if (!user || !user.passwordHash) return null;
+        const valid = await verifyPassword(credentials.password, user.passwordHash);
+        if (!valid) return null;
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
+      },
+    }),
+  ],
+});
+
+// Client login:
+// await authClient.signIn.emailPassword({ email: 'user@example.com', password: 'password123' });
+```
+
+---
+
+## 5. Two-Factor Authentication (TOTP 2FA) Recipe
+
+```typescript
+import { TOTPManager } from '@boostengine/auth';
+
+// 1. Generate Secret & QR Code URI for Google Authenticator / Authy
+const secret = TOTPManager.generateSecret();
+const qrUri = TOTPManager.getQRCodeUri({ secret, accountName: 'user@example.com', issuer: 'MyApp' });
+
+// 2. Verify 6-digit user token
+const isValid = TOTPManager.verifyToken(tokenFromUser, secret);
+```
+
+---
+
+## 6. Multi-tenant B2B SaaS Organizations Recipe
+
+```typescript
+// Create Organization
+const { organization, membership } = await auth.organizations.create({
+  name: 'Acme Corp',
+  userId: session.userId,
+});
+
+// Add Team Member with Role ('owner' | 'admin' | 'member')
+await auth.organizations.addMember({
+  organizationId: organization.id,
+  userId: 'usr_new_hire',
+  role: 'member',
+});
+```
+
+---
+
+## 7. API Endpoints Handled by Router
 - `POST /api/auth/otp/send`: `{ phone: string }` -> `{ success: true, verificationToken, expiresAt }`
 - `POST /api/auth/otp/verify`: `{ phone, otp, verificationToken }` -> `{ success: true, user, token }` (Sets session cookie)
+- `POST /api/auth/email-otp/send`: `{ email: string }` -> `{ success: true, verificationToken }`
+- `POST /api/auth/email-otp/verify`: `{ email, otp, verificationToken }` -> `{ success: true, user, token }`
 - `POST /api/auth/signin/credentials`: `{ email, password, ... }` -> `{ success: true, user, token }`
 - `GET  /api/auth/signin/:provider`: Redirects to OAuth provider with state and PKCE.
 - `GET  /api/auth/callback/:provider`: Exchanges OAuth code, creates/links user, sets cookie, redirects to `callbackUrl`.
-- `GET  /api/auth/session`: Returns `{ authenticated: boolean, user: AuthUser | null }`.
+- `GET  /api/auth/session`: Returns `{ authenticated: boolean, user: AuthUser | null }` (with sliding renewal).
 - `POST /api/auth/signout`: Clears session cookie and deletes session.
 - `POST /api/auth/guest-cart/merge`: Merges anonymous guest items with authenticated cart items.
+
