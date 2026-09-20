@@ -39,9 +39,9 @@ export const Card = /* @__PURE__ */ React.forwardRef<HTMLDivElement, CardProps>(
       switch (preset) {
         case 'neo-brutalism':
           return {
-            border: '3px solid #000000',
+            border: '3px solid var(--boost-border, #000000)',
             borderRadius: '2px',
-            boxShadow: '5px 5px 0px #000000',
+            boxShadow: '5px 5px 0px var(--boost-border, #000000)',
             backgroundColor: 'var(--boost-surface, #ffffff)',
           };
         case 'glassmorphism':
@@ -58,7 +58,7 @@ export const Card = /* @__PURE__ */ React.forwardRef<HTMLDivElement, CardProps>(
             backgroundColor: 'var(--boost-surface, #e8ebf0)',
             border: 'none',
             borderRadius: '20px',
-            boxShadow: NEURO_LIGHT,
+            boxShadow: 'var(--card-shadow, 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff)',
           };
         case 'gradient-glow':
           return {

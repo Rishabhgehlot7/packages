@@ -35,7 +35,7 @@ export const Switch = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Switch
     const getPresetStyles = (): { track: React.CSSProperties; thumb: React.CSSProperties } => {
       switch (preset) {
         case 'neo-brutalism':
-          return { track: { borderRadius: '6px', border: '2px solid #000' }, thumb: { borderRadius: '3px' } };
+          return { track: { borderRadius: '6px', border: '2px solid var(--boost-border, #000000)' }, thumb: { borderRadius: '3px' } };
         case 'glassmorphism':
           return {
             track: {
@@ -49,11 +49,11 @@ export const Switch = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Switch
         case 'neumorphism':
           return {
             track: {
-              backgroundColor: '#d7dce3',
+              backgroundColor: 'var(--boost-surface-secondary, #d7dce3)',
               border: 'none',
-              boxShadow: 'inset 4px 4px 8px #c5cad3, inset -4px -4px 8px #ffffff',
+              boxShadow: 'var(--canvas-shadow, inset 4px 4px 8px #c5cad3, inset -4px -4px 8px #ffffff)',
             },
-            thumb: { backgroundColor: '#eef0f4', boxShadow: '3px 3px 6px rgba(0, 0, 0, 0.2)' },
+            thumb: { backgroundColor: 'var(--boost-surface, #eef0f4)', boxShadow: '3px 3px 6px rgba(0, 0, 0, 0.2)' },
           };
         case 'gradient-glow':
           return { track: {}, thumb: { boxShadow: '0 0 8px rgba(99, 102, 241, 0.4)' } };

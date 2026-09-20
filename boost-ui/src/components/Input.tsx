@@ -39,8 +39,8 @@ export const Input = /* @__PURE__ */ React.forwardRef<HTMLInputElement, InputPro
         case 'neo-brutalism':
           return {
             borderRadius: '0px',
-            border: '2px solid #000',
-            backgroundColor: '#ffffff',
+            border: '2px solid var(--boost-border, #000000)',
+            backgroundColor: 'var(--boost-surface, #ffffff)',
             boxShadow: 'none',
           };
         case 'glassmorphism':
@@ -57,7 +57,7 @@ export const Input = /* @__PURE__ */ React.forwardRef<HTMLInputElement, InputPro
             borderRadius: '16px',
             border: 'none',
             backgroundColor: 'var(--boost-surface, #eef0f4)',
-            boxShadow: '6px 6px 12px #c5cad3, -6px -6px 12px #ffffff',
+            boxShadow: 'var(--card-shadow, 6px 6px 12px #c5cad3, -6px -6px 12px #ffffff)',
           };
         case 'gradient-glow':
           return {

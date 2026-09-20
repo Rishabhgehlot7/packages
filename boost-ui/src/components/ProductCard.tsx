@@ -75,10 +75,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     switch (preset) {
       case 'neo-brutalism':
         return {
-          border: '3px solid #000000',
+          border: '3px solid var(--boost-border, #000000)',
           borderRadius: '2px',
-          backgroundColor: '#ffffff',
-          boxShadow: isHovered ? '6px 6px 0px #000000' : '4px 4px 0px #000000',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          boxShadow: isHovered ? '6px 6px 0px var(--boost-border, #000000)' : '4px 4px 0px var(--boost-border, #000000)',
           transform: isHovered ? 'translate(-2px, -2px)' : 'none',
         };
       case 'glassmorphism':
@@ -97,8 +97,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           border: 'none',
           borderRadius: '20px',
           boxShadow: isHovered
-            ? '8px 8px 18px #c5cad3, -8px -8px 18px #ffffff'
-            : '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff',
+            ? 'var(--card-shadow-hover, 8px 8px 18px #c5cad3, -8px -8px 18px #ffffff)'
+            : 'var(--card-shadow, 6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff)',
           transform: isHovered ? 'translateY(-2px)' : 'none',
         };
       case 'gradient-glow':
@@ -146,8 +146,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       case 'neo-brutalism':
         return {
           borderRadius: '0px',
-          border: '2px solid #000000',
-          boxShadow: '2px 2px 0px #000000',
+          border: '2px solid var(--boost-border, #000000)',
+          boxShadow: '2px 2px 0px var(--boost-border, #000000)',
         };
       case 'glassmorphism':
         return {
@@ -177,9 +177,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         return {
           backgroundColor: 'var(--boost-primary, #2563eb)',
           color: '#ffffff',
-          border: '2px solid #000000',
+          border: '2px solid var(--boost-border, #000000)',
           borderRadius: '0px',
-          boxShadow: '3px 3px 0px #000000',
+          boxShadow: '3px 3px 0px var(--boost-border, #000000)',
           fontWeight: 800,
         };
       case 'glassmorphism':

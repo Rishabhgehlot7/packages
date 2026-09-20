@@ -57,7 +57,7 @@ export const Alert: React.FC<AlertProps> = ({
       case 'glassmorphism':
         return { ...base, backgroundColor: `${colors.bg}`, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: `1px solid ${colors.border}`, borderRadius: '14px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' };
       case 'neumorphism':
-        return { ...base, backgroundColor: '#e0e5ec', border: 'none', borderRadius: '16px', boxShadow: '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff', borderLeft: `4px solid ${colors.iconColor}` };
+        return { ...base, backgroundColor: 'var(--boost-surface, #e0e5ec)', border: 'none', borderRadius: '16px', boxShadow: 'var(--card-shadow, 6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff)', borderLeft: `4px solid ${colors.iconColor}` };
       case 'gradient-glow':
         return { ...base, backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: '12px', boxShadow: `0 0 16px ${colors.bg}` };
       case 'material-you':

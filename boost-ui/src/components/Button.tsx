@@ -114,31 +114,56 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
 
     const getPresetStyles = (): React.CSSProperties => {
       if (variant === 'link') return {};
+      const isPrimary = variant === 'primary';
+      const isDestructive = variant === 'destructive';
+      const isSolid = isPrimary || isDestructive;
+
       switch (preset) {
         case 'neo-brutalism':
           return {
-            border: '2px solid #000',
+            border: '2px solid var(--boost-border, #000000)',
             borderRadius: '0px',
-            boxShadow: '3px 3px 0 #000',
+            boxShadow: '3px 3px 0 var(--boost-border, #000000)',
+            fontWeight: 700,
+            ...(!isSolid ? {
+              backgroundColor: 'var(--boost-surface, #ffffff)',
+              color: 'var(--boost-text, #0f172a)',
+            } : {}),
           };
         case 'glassmorphism':
           return {
-            backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
-            border: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+            border: isSolid
+              ? '1px solid rgba(255, 255, 255, 0.25)'
+              : '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+            boxShadow: isPrimary
+              ? '0 6px 20px rgba(37, 99, 235, 0.35)'
+              : isDestructive
+              ? '0 6px 20px rgba(220, 38, 38, 0.35)'
+              : '0 6px 20px rgba(0, 0, 0, 0.1)',
+            ...(!isSolid ? {
+              backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
+              color: 'var(--boost-text, #0f172a)',
+            } : {}),
           };
         case 'neumorphism':
           return {
-            backgroundColor: 'var(--boost-surface, #e8ebf0)',
-            border: 'none',
             borderRadius: presetTokens.neumorphism.radius,
-            boxShadow: NEURO_LIGHT,
+            border: 'none',
+            boxShadow: 'var(--card-shadow, 6px 6px 14px #c5cad3, -6px -6px 14px #ffffff)',
+            ...(!isSolid ? {
+              backgroundColor: 'var(--boost-surface, #e8ebf0)',
+              color: 'var(--boost-text, #0f172a)',
+            } : {}),
           };
         case 'gradient-glow':
           return {
-            boxShadow: '0 0 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.45)',
+            boxShadow: isPrimary
+              ? '0 0 20px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(99, 102, 241, 0.45)'
+              : isDestructive
+              ? '0 0 20px rgba(239, 68, 68, 0.45)'
+              : '0 0 14px rgba(99, 102, 241, 0.25)',
           };
         case 'material-you':
           return {
@@ -147,14 +172,18 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
           };
         case 'dark-first':
           return {
-            backgroundColor: 'var(--boost-surface, #0b0f17)',
-            color: 'var(--boost-text, #f8fafc)',
             border: '1px solid var(--boost-border, #232a37)',
+            ...(!isSolid ? {
+              backgroundColor: 'var(--boost-surface, #0b0f17)',
+              color: 'var(--boost-text, #f8fafc)',
+            } : {}),
           };
         case 'minimal':
         default:
           return {
-            border: '1px solid var(--boost-border, #e2e8f0)',
+            ...(!isSolid ? {
+              border: '1px solid var(--boost-border, #e2e8f0)',
+            } : {}),
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
           };
       }

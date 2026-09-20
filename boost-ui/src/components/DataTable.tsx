@@ -208,28 +208,28 @@ export function DataTable<T extends Record<string, any>>({
       case 'neo-brutalism':
         return {
           ...base,
-          border: '3px solid #000',
+          border: '3px solid var(--boost-border, #000000)',
           borderRadius: '2px',
-          backgroundColor: '#ffffff',
-          boxShadow: '5px 5px 0px #000',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          boxShadow: '5px 5px 0px var(--boost-border, #000000)',
         };
       case 'glassmorphism':
         return {
           ...base,
-          border: '1px solid rgba(255, 255, 255, 0.4)',
+          border: '1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.4))',
           borderRadius: '16px',
-          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.75))',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.07)',
         };
       case 'neumorphism':
         return {
           ...base,
           border: 'none',
           borderRadius: '16px',
-          backgroundColor: '#e0e5ec',
-          boxShadow: '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff',
+          backgroundColor: 'var(--boost-surface, #e0e5ec)',
+          boxShadow: 'var(--card-shadow, 6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff)',
         };
       case 'gradient-glow':
         return {
