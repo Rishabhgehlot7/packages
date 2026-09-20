@@ -1123,8 +1123,8 @@ PresetSwitcher.displayName = "PresetSwitcher";
 // src/tokens.json
 var tokens_default = {
   $schema: "https://tokens.studio/schemas/token-engine-schema.json",
-  name: "@boostengine/ui Design Tokens",
-  version: "1.8.2",
+  name: "@boostengine/ui Tokens",
+  version: "2.0.0",
   colors: {
     brand: {
       primary: { value: "#2563eb", type: "color", description: "Primary brand action color" },
