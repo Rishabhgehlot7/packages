@@ -12,7 +12,7 @@ export interface FlexProps extends React.HTMLAttributes<HTMLDivElement> {
   style?: React.CSSProperties;
 }
 
-export const Flex = React.forwardRef<HTMLDivElement, FlexProps>(
+export const Flex = /* @__PURE__ */ React.forwardRef<HTMLDivElement, FlexProps>(
   (
     {
       children,

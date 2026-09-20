@@ -10,12 +10,20 @@ export interface PincodeCheckResult {
 export interface PincodeCheckerProps {
   onCheck?: (pincode: string) => Promise<PincodeCheckResult> | PincodeCheckResult;
   defaultPincode?: string;
+  label?: string;
+  placeholder?: string;
+  buttonText?: string;
+  locale?: string;
   className?: string;
 }
 
 export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
   onCheck,
   defaultPincode = '',
+  label = 'Check Delivery & Serviceability',
+  placeholder = 'Enter Postal / PIN Code',
+  buttonText = 'Check',
+  locale = 'en-US',
   className = '',
 }) => {
   const [pincode, setPincode] = React.useState(defaultPincode);
@@ -35,8 +43,8 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
 
   const handleCheck = async () => {
     const clean = pincode.trim();
-    if (!/^\d{6}$/.test(clean)) {
-      setError('Please enter a valid 6-digit Indian pincode');
+    if (!clean || clean.length < 3) {
+      setError('Please enter a valid postal code');
       setResult(null);
       return;
     }
@@ -49,7 +57,7 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
       if (onCheck) {
         // Network resilience: 10-second timeout guard against hung connections
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Pincode check timed out. Please try again.')), 10000)
+          setTimeout(() => reject(new Error('Postal code check timed out. Please try again.')), 10000)
         );
         const res = await Promise.race([Promise.resolve(onCheck(clean)), timeoutPromise]);
 
@@ -65,7 +73,7 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
         if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
           setResult({
             isServiceable: true,
-            estimatedDeliveryDate: deliveryDate.toLocaleDateString('en-IN', options),
+            estimatedDeliveryDate: deliveryDate.toLocaleDateString(locale, options),
             isCodAvailable: true,
             courier: 'Express Courier',
           });
@@ -73,7 +81,7 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
       }
     } catch (err: any) {
       if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
-        setError(err.message || 'Failed to verify pincode');
+        setError(err.message || 'Failed to verify postal code');
       }
     } finally {
       if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
@@ -91,16 +99,16 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
           <circle cx="5.5" cy="18.5" r="2.5" />
           <circle cx="18.5" cy="18.5" r="2.5" />
         </svg>
-        <span>Check Delivery & COD Availability</span>
+        <span>{label}</span>
       </div>
 
       <div style={{ display: 'flex', gap: '8px', maxWidth: '340px' }}>
         <input
           type="text"
-          maxLength={6}
-          placeholder="Enter 6-digit Pincode"
+          maxLength={10}
+          placeholder={placeholder}
           value={pincode}
-          onChange={(e: any) => setPincode(e.target.value.replace(/\D/g, ''))}
+          onChange={(e: any) => setPincode(e.target.value)}
           onKeyDown={(e: any) => e.key === 'Enter' && handleCheck()}
           style={{
             flex: 1,
@@ -116,7 +124,7 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
         />
         <button
           onClick={handleCheck}
-          disabled={loading || pincode.length !== 6}
+          disabled={loading || !pincode.trim()}
           style={{
             backgroundColor: 'var(--boost-primary, #3b82f6)',
             color: '#ffffff',
@@ -125,12 +133,12 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
             padding: '10px 20px',
             fontSize: '14px',
             fontWeight: 600,
-            cursor: loading || pincode.length !== 6 ? 'not-allowed' : 'pointer',
-            opacity: loading || pincode.length !== 6 ? 0.6 : 1,
+            cursor: loading || !pincode.trim() ? 'not-allowed' : 'pointer',
+            opacity: loading || !pincode.trim() ? 0.6 : 1,
             transition: 'opacity 0.2s, background-color 0.2s',
           }}
         >
-          {loading ? 'Checking...' : 'Check'}
+          {loading ? 'Checking...' : buttonText}
         </button>
       </div>
 
@@ -171,7 +179,7 @@ export const PincodeChecker: React.FC<PincodeCheckerProps> = ({
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
-              <span>Pincode currently not serviceable for delivery</span>
+              <span>Postal code currently not serviceable for delivery</span>
             </div>
           )}
         </div>

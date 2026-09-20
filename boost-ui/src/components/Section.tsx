@@ -10,7 +10,7 @@ export interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   style?: React.CSSProperties;
 }
 
-export const Section = React.forwardRef<HTMLElement, SectionProps>(
+export const Section = /* @__PURE__ */ React.forwardRef<HTMLElement, SectionProps>(
   (
     {
       children,

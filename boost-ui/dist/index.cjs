@@ -1,6 +1,8 @@
 'use client';
 'use strict';
 
+var chunk7ATXFRAR_cjs = require('./chunk-7ATXFRAR.cjs');
+var chunkJ3GEA4YJ_cjs = require('./chunk-J3GEA4YJ.cjs');
 var React = require('react');
 var jsxRuntime = require('react/jsx-runtime');
 var ReactDOM = require('react-dom');
@@ -26,424 +28,6 @@ function _interopNamespace(e) {
 var React__namespace = /*#__PURE__*/_interopNamespace(React);
 var ReactDOM__namespace = /*#__PURE__*/_interopNamespace(ReactDOM);
 
-// src/hooks/index.ts
-function useMediaQuery(query) {
-  const [matches, setMatches] = React__namespace.useState(false);
-  React__namespace.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia(query);
-    setMatches(mediaQuery.matches);
-    const handler = (event) => setMatches(event.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, [query]);
-  return matches;
-}
-function useClickOutside(handler) {
-  const ref = React__namespace.useRef(null);
-  React__namespace.useEffect(() => {
-    const listener = (event) => {
-      if (!ref.current || ref.current.contains(event.target)) return;
-      handler();
-    };
-    document.addEventListener("mousedown", listener);
-    document.addEventListener("touchstart", listener);
-    return () => {
-      document.removeEventListener("mousedown", listener);
-      document.removeEventListener("touchstart", listener);
-    };
-  }, [handler]);
-  return ref;
-}
-function useDebounce(value, delayMs = 300) {
-  const [debouncedValue, setDebouncedValue] = React__namespace.useState(value);
-  React__namespace.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delayMs);
-    return () => clearTimeout(timer);
-  }, [value, delayMs]);
-  return debouncedValue;
-}
-function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = React__namespace.useState(() => {
-    if (typeof window === "undefined") return initialValue;
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch {
-      return initialValue;
-    }
-  });
-  const setValue = React__namespace.useCallback(
-    (value) => {
-      try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        setStoredValue(valueToStore);
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
-        }
-      } catch (error) {
-        console.warn(`useLocalStorage: Failed to set "${key}"`, error);
-      }
-    },
-    [key, storedValue]
-  );
-  const removeValue = React__namespace.useCallback(() => {
-    try {
-      setStoredValue(initialValue);
-      if (typeof window !== "undefined") {
-        window.localStorage.removeItem(key);
-      }
-    } catch (error) {
-      console.warn(`useLocalStorage: Failed to remove "${key}"`, error);
-    }
-  }, [key, initialValue]);
-  return [storedValue, setValue, removeValue];
-}
-function useWindowSize() {
-  const [size, setSize] = React__namespace.useState({ width: 0, height: 0 });
-  React__namespace.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const updateSize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
-  return size;
-}
-function useScrollPosition() {
-  const [scroll, setScroll] = React__namespace.useState({ scrollX: 0, scrollY: 0 });
-  React__namespace.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handler = () => setScroll({ scrollX: window.scrollX, scrollY: window.scrollY });
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
-  }, []);
-  return scroll;
-}
-function usePrevious(value) {
-  const ref = React__namespace.useRef(void 0);
-  React__namespace.useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
-function useCopyToClipboard(resetMs = 2e3) {
-  const [copied, setCopied] = React__namespace.useState(false);
-  const timerRef = React__namespace.useRef(null);
-  const copy = React__namespace.useCallback(
-    async (text) => {
-      if (!navigator?.clipboard) return false;
-      try {
-        await navigator.clipboard.writeText(text);
-        setCopied(true);
-        if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => setCopied(false), resetMs);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    [resetMs]
-  );
-  React__namespace.useEffect(() => () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
-  return { copy, copied };
-}
-function useToggle(initial = false) {
-  const [value, setValue] = React__namespace.useState(initial);
-  const toggle = React__namespace.useCallback(() => setValue((v) => !v), []);
-  return [value, toggle, setValue];
-}
-function useIntersectionObserver(options = {}) {
-  const ref = React__namespace.useRef(null);
-  const [isIntersecting, setIsIntersecting] = React__namespace.useState(false);
-  React__namespace.useEffect(() => {
-    if (!ref.current || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsIntersecting(entry.isIntersecting);
-    }, options);
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [options]);
-  return [ref, isIntersecting];
-}
-var useIsomorphicLayoutEffect = typeof window !== "undefined" ? React__namespace.useLayoutEffect : React__namespace.useEffect;
-function useForm({
-  initialValues,
-  validate,
-  schema,
-  onSubmit
-}) {
-  const [values, setValues] = React__namespace.useState(initialValues);
-  const [errors, setErrors] = React__namespace.useState({});
-  const [touched, setTouched] = React__namespace.useState({});
-  const [isSubmitting, setIsSubmitting] = React__namespace.useState(false);
-  const runValidation = React__namespace.useCallback(
-    (vals) => {
-      let combinedErrors = {};
-      if (schema && typeof schema.safeParse === "function") {
-        const result = schema.safeParse(vals);
-        if (!result.success && result.error?.issues) {
-          for (const issue of result.error.issues) {
-            const field = issue.path[0];
-            if (field && !combinedErrors[field]) {
-              combinedErrors[field] = issue.message;
-            }
-          }
-        }
-      }
-      if (validate) {
-        const customErrs = validate(vals);
-        combinedErrors = { ...combinedErrors, ...customErrs };
-      }
-      return combinedErrors;
-    },
-    [validate, schema]
-  );
-  const handleChange = React__namespace.useCallback(
-    (field, value) => {
-      setValues((prev) => {
-        const next = { ...prev, [field]: value };
-        if (touched[field]) {
-          const errs = runValidation(next);
-          setErrors(errs);
-        }
-        return next;
-      });
-    },
-    [touched, runValidation]
-  );
-  const handleBlur = React__namespace.useCallback(
-    (field) => {
-      setTouched((prev) => ({ ...prev, [field]: true }));
-      const errs = runValidation(values);
-      setErrors(errs);
-    },
-    [runValidation, values]
-  );
-  const reset = React__namespace.useCallback(() => {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
-    setIsSubmitting(false);
-  }, [initialValues]);
-  const handleSubmit = React__namespace.useCallback(
-    async (e) => {
-      if (e && typeof e.preventDefault === "function") {
-        e.preventDefault();
-      }
-      const allTouched = Object.keys(values).reduce((acc, key) => {
-        acc[key] = true;
-        return acc;
-      }, {});
-      setTouched(allTouched);
-      const errs = runValidation(values);
-      setErrors(errs);
-      if (Object.keys(errs).length > 0) return;
-      if (onSubmit) {
-        setIsSubmitting(true);
-        try {
-          await onSubmit(values);
-        } finally {
-          setIsSubmitting(false);
-        }
-      }
-    },
-    [values, runValidation, onSubmit]
-  );
-  return {
-    values,
-    errors,
-    touched,
-    isSubmitting,
-    handleChange,
-    handleBlur,
-    setValues,
-    setErrors,
-    setTouched,
-    reset,
-    handleSubmit
-  };
-}
-function useFocusTrap(ref, isActive) {
-  React__namespace.useEffect(() => {
-    if (!isActive || !ref.current) return;
-    const element = ref.current;
-    const focusableSelectors = [
-      "a[href]",
-      "button:not([disabled])",
-      "textarea:not([disabled])",
-      'input:not([disabled]):not([type="hidden"])',
-      "select:not([disabled])",
-      '[tabindex]:not([tabindex="-1"])'
-    ].join(",");
-    const focusableElements = Array.from(element.querySelectorAll(focusableSelectors));
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    const handleKeyDown = (e) => {
-      if (e.key !== "Tab") return;
-      if (focusableElements.length === 0) {
-        e.preventDefault();
-        return;
-      }
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    };
-    if (firstElement && !element.contains(document.activeElement)) {
-      setTimeout(() => firstElement.focus(), 10);
-    }
-    element.addEventListener("keydown", handleKeyDown);
-    return () => {
-      element.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isActive, ref]);
-}
-function useAnnounce() {
-  const announce = React__namespace.useCallback((message, mode = "polite") => {
-    if (typeof document === "undefined") return;
-    const containerId = `boost-a11y-live-${mode}`;
-    let container = document.getElementById(containerId);
-    if (!container) {
-      container = document.createElement("div");
-      container.id = containerId;
-      container.setAttribute("aria-live", mode);
-      container.setAttribute("aria-atomic", "true");
-      container.setAttribute("role", mode === "assertive" ? "alert" : "status");
-      Object.assign(container.style, {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        padding: "0",
-        margin: "-1px",
-        overflow: "hidden",
-        clip: "rect(0, 0, 0, 0)",
-        whiteSpace: "nowrap",
-        border: "0"
-      });
-      document.body.appendChild(container);
-    }
-    container.textContent = "";
-    setTimeout(() => {
-      if (container) {
-        container.textContent = message;
-      }
-    }, 50);
-  }, []);
-  return announce;
-}
-
-// src/utils/index.ts
-function cn(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-function formatCurrency(amount, currency = "INR", locale = "en-IN") {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
-    maximumFractionDigits: 2
-  }).format(amount);
-}
-function formatNumber(value, locale = "en-IN", options) {
-  return new Intl.NumberFormat(locale, options).format(value);
-}
-function formatDate(date, locale = "en-IN", options = { day: "numeric", month: "short", year: "numeric" }) {
-  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
-  if (isNaN(d.getTime())) return "Invalid Date";
-  return new Intl.DateTimeFormat(locale, options).format(d);
-}
-function formatRelativeTime(date) {
-  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
-  const seconds = Math.round((d.getTime() - Date.now()) / 1e3);
-  const absSeconds = Math.abs(seconds);
-  const suffix = seconds < 0 ? " ago" : " from now";
-  const prefix = seconds < 0 ? "" : "in ";
-  if (absSeconds < 60) return seconds < 0 ? "just now" : "in a few seconds";
-  if (absSeconds < 3600) return `${prefix}${Math.floor(absSeconds / 60)} minute${Math.floor(absSeconds / 60) !== 1 ? "s" : ""}${suffix}`;
-  if (absSeconds < 86400) return `${prefix}${Math.floor(absSeconds / 3600)} hour${Math.floor(absSeconds / 3600) !== 1 ? "s" : ""}${suffix}`;
-  if (absSeconds < 2592e3) return `${prefix}${Math.floor(absSeconds / 86400)} day${Math.floor(absSeconds / 86400) !== 1 ? "s" : ""}${suffix}`;
-  if (absSeconds < 31536e3) return `${prefix}${Math.floor(absSeconds / 2592e3)} month${Math.floor(absSeconds / 2592e3) !== 1 ? "s" : ""}${suffix}`;
-  return `${prefix}${Math.floor(absSeconds / 31536e3)} year${Math.floor(absSeconds / 31536e3) !== 1 ? "s" : ""}${suffix}`;
-}
-function truncate(text, maxLength, ellipsis = "...") {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - ellipsis.length) + ellipsis;
-}
-function slugify(text) {
-  return text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
-}
-function generateId(length = 8) {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-}
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-function groupBy(array, key) {
-  return array.reduce((acc, item) => {
-    const groupKey = String(item[key]);
-    if (!acc[groupKey]) acc[groupKey] = [];
-    acc[groupKey].push(item);
-    return acc;
-  }, {});
-}
-function deepMerge(target, source) {
-  const result = { ...target };
-  for (const key in source) {
-    const sourceVal = source[key];
-    const targetVal = result[key];
-    if (sourceVal !== null && typeof sourceVal === "object" && !Array.isArray(sourceVal) && typeof targetVal === "object" && targetVal !== null && !Array.isArray(targetVal)) {
-      result[key] = deepMerge(
-        targetVal,
-        sourceVal
-      );
-    } else if (sourceVal !== void 0) {
-      result[key] = sourceVal;
-    }
-  }
-  return result;
-}
-function omit(obj, keys) {
-  const result = { ...obj };
-  keys.forEach((k) => delete result[k]);
-  return result;
-}
-function pick(obj, keys) {
-  return keys.reduce((acc, k) => {
-    if (k in obj) acc[k] = obj[k];
-    return acc;
-  }, {});
-}
-function debounce(fn, delayMs) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delayMs);
-  };
-}
-function getInitials(name, maxChars = 2) {
-  if (!name) return "";
-  return name.trim().split(/\s+/).slice(0, maxChars).map((word) => word[0]?.toUpperCase() ?? "").join("");
-}
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-}
-function isValidIndianPincode(pincode) {
-  return /^[1-9][0-9]{5}$/.test(pincode.trim());
-}
-function isValidIndianMobile(mobile) {
-  return /^[6-9]\d{9}$/.test(mobile.replace(/[\s\-+]/g, ""));
-}
 var defaultLightTokens = {
   primary: "#2563eb",
   primaryHover: "#1d4ed8",
@@ -467,7 +51,8 @@ var defaultDarkTokens = {
   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
 };
 var BoostThemeContext = React__namespace.createContext(void 0);
-if (typeof document !== "undefined") {
+function injectBoostGlobalStyles() {
+  if (typeof document === "undefined") return;
   const STYLE_ID = "__boost_ui_defaults__";
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement("style");
@@ -603,8 +188,13 @@ var BoostProvider = ({
   syncDocumentClass = true,
   tokens = {},
   darkTokens = {},
+  currency = "$",
+  locale = "en-US",
   className = ""
 }) => {
+  React__namespace.useEffect(() => {
+    injectBoostGlobalStyles();
+  }, []);
   const [internalMode, setInternalMode] = React__namespace.useState(() => {
     if (typeof window !== "undefined" && storageKey) {
       try {
@@ -700,7 +290,9 @@ var BoostProvider = ({
         resolvedMode,
         setMode,
         toggleMode,
-        tokens: currentTokens
+        tokens: currentTokens,
+        currency,
+        locale
       },
       children: [
         /* @__PURE__ */ jsxRuntime.jsx("style", { dangerouslySetInnerHTML: { __html: cssVariables } }),
@@ -733,10 +325,19 @@ var useTheme = () => {
       },
       toggleMode: () => {
       },
-      tokens: defaultLightTokens
+      tokens: defaultLightTokens,
+      currency: "$",
+      locale: "en-US"
     };
   }
   return context;
+};
+var useCurrency = () => {
+  const theme = useTheme();
+  return {
+    currency: theme.currency || "$",
+    locale: theme.locale || "en-US"
+  };
 };
 BoostProvider.displayName = "BoostProvider";
 var ThemeToggle = ({
@@ -987,7 +588,140 @@ var ThemeToggle = ({
   );
 };
 ThemeToggle.displayName = "ThemeToggle";
-var Button = React__namespace.forwardRef(
+
+// src/tokens.json
+var tokens_default = {
+  $schema: "https://tokens.studio/schemas/token-engine-schema.json",
+  name: "@boostengine/ui Design Tokens",
+  version: "1.8.2",
+  colors: {
+    brand: {
+      primary: { value: "#2563eb", type: "color", description: "Primary brand action color" },
+      primaryHover: { value: "#1d4ed8", type: "color" },
+      primaryDark: { value: "#3b82f6", type: "color" },
+      primaryDarkHover: { value: "#60a5fa", type: "color" }
+    },
+    neutral: {
+      bgLight: { value: "#ffffff", type: "color" },
+      bgDark: { value: "#090d16", type: "color" },
+      surfaceLight: { value: "#f8fafc", type: "color" },
+      surfaceDark: { value: "#0f172a", type: "color" },
+      surfaceSecondaryLight: { value: "#f1f5f9", type: "color" },
+      surfaceSecondaryDark: { value: "#1e293b", type: "color" },
+      borderLight: { value: "#e2e8f0", type: "color" },
+      borderDark: { value: "#1e293b", type: "color" }
+    },
+    text: {
+      light: { value: "#0f172a", type: "color" },
+      lightMuted: { value: "#64748b", type: "color" },
+      dark: { value: "#f8fafc", type: "color" },
+      darkMuted: { value: "#94a3b8", type: "color" }
+    },
+    feedback: {
+      success: { value: "#16a34a", type: "color" },
+      successLight: { value: "rgba(22, 163, 74, 0.12)", type: "color" },
+      warning: { value: "#f59e0b", type: "color" },
+      warningLight: { value: "rgba(245, 158, 11, 0.12)", type: "color" },
+      destructive: { value: "#ef4444", type: "color" },
+      destructiveLight: { value: "rgba(239, 68, 68, 0.12)", type: "color" },
+      info: { value: "#0ea5e9", type: "color" },
+      infoLight: { value: "rgba(14, 165, 233, 0.12)", type: "color" }
+    }
+  },
+  spacing: {
+    "0": { value: "0px", type: "spacing" },
+    "1": { value: "4px", type: "spacing" },
+    "2": { value: "8px", type: "spacing" },
+    "3": { value: "12px", type: "spacing" },
+    "4": { value: "16px", type: "spacing" },
+    "5": { value: "20px", type: "spacing" },
+    "6": { value: "24px", type: "spacing" },
+    "8": { value: "32px", type: "spacing" },
+    "10": { value: "40px", type: "spacing" },
+    "12": { value: "48px", type: "spacing" },
+    "16": { value: "64px", type: "spacing" },
+    "20": { value: "80px", type: "spacing" },
+    "24": { value: "96px", type: "spacing" }
+  },
+  radii: {
+    none: { value: "0px", type: "borderRadius" },
+    sm: { value: "4px", type: "borderRadius" },
+    md: { value: "8px", type: "borderRadius" },
+    lg: { value: "12px", type: "borderRadius" },
+    xl: { value: "16px", type: "borderRadius" },
+    "2xl": { value: "20px", type: "borderRadius" },
+    "3xl": { value: "24px", type: "borderRadius" },
+    full: { value: "9999px", type: "borderRadius" }
+  },
+  typography: {
+    fontFamilies: {
+      sans: { value: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", type: "fontFamilies" },
+      mono: { value: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", type: "fontFamilies" }
+    },
+    fontSizes: {
+      xs: { value: "12px", type: "fontSizes" },
+      sm: { value: "14px", type: "fontSizes" },
+      base: { value: "16px", type: "fontSizes" },
+      lg: { value: "18px", type: "fontSizes" },
+      xl: { value: "20px", type: "fontSizes" },
+      "2xl": { value: "24px", type: "fontSizes" },
+      "3xl": { value: "30px", type: "fontSizes" },
+      "4xl": { value: "36px", type: "fontSizes" },
+      "5xl": { value: "48px", type: "fontSizes" }
+    },
+    fontWeights: {
+      normal: { value: 400, type: "fontWeights" },
+      medium: { value: 500, type: "fontWeights" },
+      semibold: { value: 600, type: "fontWeights" },
+      bold: { value: 700, type: "fontWeights" },
+      extrabold: { value: 800, type: "fontWeights" }
+    }
+  },
+  shadows: {
+    sm: { value: "0 1px 3px rgba(0, 0, 0, 0.05)", type: "boxShadow" },
+    md: { value: "0 4px 16px -2px rgba(0, 0, 0, 0.08)", type: "boxShadow" },
+    lg: { value: "0 12px 32px -4px rgba(0, 0, 0, 0.12)", type: "boxShadow" },
+    glow: { value: "0 0 24px rgba(37, 99, 235, 0.25)", type: "boxShadow" }
+  },
+  transitions: {
+    fast: { value: "0.15s cubic-bezier(0.16, 1, 0.3, 1)", type: "transition" },
+    normal: { value: "0.25s cubic-bezier(0.16, 1, 0.3, 1)", type: "transition" },
+    slow: { value: "0.35s cubic-bezier(0.16, 1, 0.3, 1)", type: "transition" }
+  }
+};
+
+// src/tokens.ts
+var boostTokens = tokens_default;
+function createTailwindPreset() {
+  return {
+    theme: {
+      extend: {
+        colors: {
+          boost: {
+            primary: "var(--boost-primary, #2563eb)",
+            "primary-hover": "var(--boost-primary-hover, #1d4ed8)",
+            bg: "var(--boost-bg, #ffffff)",
+            surface: "var(--boost-surface, #f8fafc)",
+            "surface-secondary": "var(--boost-surface-secondary, #f1f5f9)",
+            text: "var(--boost-text, #0f172a)",
+            "text-muted": "var(--boost-text-muted, #64748b)",
+            border: "var(--boost-border, #e2e8f0)"
+          }
+        },
+        borderRadius: {
+          boost: "var(--boost-radius, 12px)"
+        },
+        boxShadow: {
+          "boost-sm": "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))",
+          "boost-md": "var(--boost-shadow-md, 0 4px 16px -2px rgba(0, 0, 0, 0.08))",
+          "boost-lg": "var(--boost-shadow-lg, 0 12px 32px -4px rgba(0, 0, 0, 0.12))",
+          "boost-glow": "var(--boost-shadow-glow, 0 0 24px rgba(37, 99, 235, 0.22))"
+        }
+      }
+    }
+  };
+}
+var Button = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
     variant = "primary",
@@ -1135,7 +869,7 @@ var Button = React__namespace.forwardRef(
   }
 );
 Button.displayName = "Button";
-var IconButton = React__namespace.forwardRef(
+var IconButton = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     icon,
     label,
@@ -1536,7 +1270,7 @@ var CopyButton = ({
   );
 };
 CopyButton.displayName = "CopyButton";
-var Input = React__namespace.forwardRef(
+var Input = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     label,
     error,
@@ -1663,7 +1397,7 @@ var Input = React__namespace.forwardRef(
   }
 );
 Input.displayName = "Input";
-var Textarea = React__namespace.forwardRef(
+var Textarea = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     label,
     error,
@@ -1783,12 +1517,12 @@ var Textarea = React__namespace.forwardRef(
   }
 );
 Textarea.displayName = "Textarea";
-var Select = React__namespace.forwardRef(
+var Select = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     label,
     error,
     helperText,
-    options,
+    options = [],
     placeholder,
     fullWidth = true,
     disabled,
@@ -1899,9 +1633,10 @@ var Select = React__namespace.forwardRef(
 Select.displayName = "Select";
 var MultiSelect = ({
   label,
-  options,
-  value,
-  onChange,
+  options = [],
+  value = [],
+  onChange = () => {
+  },
   placeholder = "Select options...",
   error,
   className = "",
@@ -1910,6 +1645,7 @@ var MultiSelect = ({
 }) => {
   const [isOpen, setIsOpen] = React__namespace.useState(false);
   const containerRef = React__namespace.useRef(null);
+  const safeValue = Array.isArray(value) ? value : [];
   React__namespace.useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -1920,15 +1656,15 @@ var MultiSelect = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const toggleOption = (val) => {
-    if (value.includes(val)) {
-      onChange(value.filter((v) => v !== val));
+    if (safeValue.includes(val)) {
+      onChange(safeValue.filter((v) => v !== val));
     } else {
-      onChange([...value, val]);
+      onChange([...safeValue, val]);
     }
   };
   const removeChip = (e, val) => {
     e.stopPropagation();
-    onChange(value.filter((v) => v !== val));
+    onChange(safeValue.filter((v) => v !== val));
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
@@ -2002,7 +1738,7 @@ var MultiSelect = ({
               borderColor: error ? "#ef4444" : isOpen ? "var(--boost-primary, #2563eb)" : void 0
             },
             children: [
-              value.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "14px", color: "var(--boost-text-muted, #94a3b8)" }, children: placeholder }) : value.map((val) => {
+              safeValue.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "14px", color: "var(--boost-text-muted, #94a3b8)" }, children: placeholder }) : safeValue.map((val) => {
                 const opt = options.find((o) => o.value === val);
                 return /* @__PURE__ */ jsxRuntime.jsxs(
                   "span",
@@ -2111,7 +1847,7 @@ var MultiSelect = ({
   );
 };
 MultiSelect.displayName = "MultiSelect";
-var Checkbox = React__namespace.forwardRef(
+var Checkbox = /* @__PURE__ */ React__namespace.forwardRef(
   ({ label, description, indeterminate, checked, disabled, className = "", style, ...props }, ref) => {
     const inputRef = React__namespace.useRef(null);
     React__namespace.useImperativeHandle(ref, () => inputRef.current);
@@ -2162,7 +1898,7 @@ var Checkbox = React__namespace.forwardRef(
   }
 );
 Checkbox.displayName = "Checkbox";
-var Radio = React__namespace.forwardRef(
+var Radio = /* @__PURE__ */ React__namespace.forwardRef(
   ({ label, description, className = "", style, disabled, ...props }, ref) => {
     return /* @__PURE__ */ jsxRuntime.jsxs(
       "label",
@@ -2186,17 +1922,15 @@ var Radio = React__namespace.forwardRef(
               type: "radio",
               disabled,
               style: {
-                width: "16px",
-                height: "16px",
+                marginTop: "3px",
                 accentColor: "var(--boost-primary, #2563eb)",
-                cursor: disabled ? "not-allowed" : "pointer",
-                marginTop: "2px"
+                cursor: disabled ? "not-allowed" : "pointer"
               },
               ...props
             }
           ),
           (label || description) && /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
-            label && /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--boost-text, #1e293b)" }, children: label }),
+            label && /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--boost-text, #0f172a)" }, children: label }),
             description && /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: description })
           ] })
         ]
@@ -2206,10 +1940,11 @@ var Radio = React__namespace.forwardRef(
 );
 Radio.displayName = "Radio";
 var RadioGroup = ({
-  name,
-  options,
+  name = "radio-group",
+  options = [],
   value,
-  onChange,
+  onChange = () => {
+  },
   orientation = "vertical",
   className = "",
   style,
@@ -2247,10 +1982,11 @@ var RadioGroup = ({
   );
 };
 RadioGroup.displayName = "RadioGroup";
-var Switch = React__namespace.forwardRef(
+var Switch = /* @__PURE__ */ React__namespace.forwardRef(
   ({
-    checked,
-    onChange,
+    checked = false,
+    onChange = () => {
+    },
     label,
     description,
     disabled = false,
@@ -2351,7 +2087,8 @@ Switch.displayName = "Switch";
 var DatePicker = ({
   label,
   value,
-  onChange,
+  onChange = () => {
+  },
   minDate,
   maxDate,
   min,
@@ -2359,14 +2096,20 @@ var DatePicker = ({
   error,
   helperText,
   disabled = false,
+  id: explicitId,
   className = "",
   style
 }) => {
+  const generatedId = React__namespace.useId ? React__namespace.useId().replace(/:/g, "") : `date-picker-${Math.random().toString(36).substring(2, 7)}`;
+  const inputId = explicitId || (label ? `datepicker-${label.toLowerCase().replace(/\s+/g, "-")}` : generatedId);
+  const helpId = `${inputId}-desc`;
   const effectiveMin = min || minDate;
   const effectiveMax = max || maxDate;
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
+      role: "group",
+      "aria-label": label || "Date picker",
       className: `boost-datepicker-wrapper ${className}`,
       style: {
         display: "flex",
@@ -2377,16 +2120,27 @@ var DatePicker = ({
         ...style
       },
       children: [
-        label && /* @__PURE__ */ jsxRuntime.jsx("label", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", letterSpacing: "-0.01em" }, children: label }),
+        label && /* @__PURE__ */ jsxRuntime.jsx(
+          "label",
+          {
+            htmlFor: inputId,
+            style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text, #334155)", letterSpacing: "-0.01em" },
+            children: label
+          }
+        ),
         /* @__PURE__ */ jsxRuntime.jsx("div", { style: { position: "relative", width: "100%" }, children: /* @__PURE__ */ jsxRuntime.jsx(
           "input",
           {
+            id: inputId,
             type: "date",
-            value,
+            value: value || "",
             onChange: (e) => onChange(e.target.value),
             min: effectiveMin,
             max: effectiveMax,
             disabled,
+            "aria-label": label || "Select date",
+            "aria-invalid": Boolean(error),
+            "aria-describedby": error || helperText ? helpId : void 0,
             style: {
               width: "100%",
               padding: "10px 14px",
@@ -2402,7 +2156,7 @@ var DatePicker = ({
             }
           }
         ) }),
-        error ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "var(--boost-danger, #ef4444)", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
+        error ? /* @__PURE__ */ jsxRuntime.jsx("span", { id: helpId, role: "alert", style: { fontSize: "12px", color: "var(--boost-danger, #ef4444)", fontWeight: 500 }, children: error }) : helperText ? /* @__PURE__ */ jsxRuntime.jsx("span", { id: helpId, style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)" }, children: helperText }) : null
       ]
     }
   );
@@ -2601,7 +2355,7 @@ var FileUpload = ({
   );
 };
 FileUpload.displayName = "FileUpload";
-var SearchInput = React__namespace.forwardRef(
+var SearchInput = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     value,
     onChange,
@@ -2740,11 +2494,12 @@ var FormField = ({
   );
 };
 FormField.displayName = "FormField";
-var OTPInput = React__namespace.forwardRef(
+var OTPInput = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     length = 6,
-    value,
-    onChange,
+    value = "",
+    onChange = () => {
+    },
     onComplete,
     disabled = false,
     error,
@@ -3355,6 +3110,8 @@ var Toast = ({
         return { bg: "#fffbeb", border: "#fde68a", text: "#854d0e", icon: "#d97706" };
       case "error":
         return { bg: "#fef2f2", border: "#fecaca", text: "#991b1b", icon: "#dc2626" };
+      case "loading":
+        return { bg: "#f8fafc", border: "#e2e8f0", text: "#334155", icon: "#2563eb" };
       case "info":
       default:
         return { bg: "#eff6ff", border: "#bfdbfe", text: "#1e40af", icon: "#2563eb" };
@@ -3386,6 +3143,10 @@ var Toast = ({
       },
       children: [
         /* @__PURE__ */ jsxRuntime.jsx("style", { children: `
+        @keyframes boost-toast-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         :root[data-theme="dark"] .boost-toast {
           background-color: #1e293b !important;
           border-color: rgba(255, 255, 255, 0.12) !important;
@@ -3399,6 +3160,22 @@ var Toast = ({
         }
       ` }),
         /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { marginTop: "2px", display: "flex", color: theme.icon, flexShrink: 0 }, children: [
+          activeVariant === "loading" && /* @__PURE__ */ jsxRuntime.jsxs(
+            "svg",
+            {
+              width: "18",
+              height: "18",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              strokeWidth: "2.5",
+              style: { animation: "boost-toast-spin 0.8s linear infinite" },
+              children: [
+                /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "12", cy: "12", r: "10", strokeOpacity: "0.25" }),
+                /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M12 2a10 10 0 0 1 10 10" })
+              ]
+            }
+          ),
           activeVariant === "success" && /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "20 6 9 17 4 12" }) }),
           activeVariant === "error" && /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
             /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "12", cy: "12", r: "10" }),
@@ -3480,6 +3257,22 @@ var ToastProvider = ({
     fn.error = (message, title) => addToast({ message, title, variant: "error" });
     fn.warning = (message, title) => addToast({ message, title, variant: "warning" });
     fn.info = (message, title) => addToast({ message, title, variant: "info" });
+    fn.loading = (message, title) => addToast({ message, title, variant: "loading", duration: 0 });
+    fn.promise = async (promise, options) => {
+      const id = addToast({ message: options.loading, variant: "loading", duration: 0 });
+      try {
+        const data = await promise;
+        dismiss(id);
+        const successMsg = typeof options.success === "function" ? options.success(data) : options.success;
+        addToast({ message: successMsg, variant: "success" });
+        return data;
+      } catch (err) {
+        dismiss(id);
+        const errorMsg = typeof options.error === "function" ? options.error(err) : options.error;
+        addToast({ message: errorMsg, variant: "error" });
+        throw err;
+      }
+    };
     fn.dismiss = dismiss;
     return fn;
   }, [addToast, dismiss]);
@@ -3552,6 +3345,11 @@ var useToast = () => {
             if (typeof window !== "undefined") console.info(`[Toast Info] ${msg}`);
             return "";
           },
+          loading: (msg) => {
+            if (typeof window !== "undefined") console.info(`[Toast Loading] ${msg}`);
+            return "";
+          },
+          promise: async (p) => await p,
           dismiss: () => {
           }
         }
@@ -4043,7 +3841,7 @@ var SuccessMessage = ({
   );
 };
 SuccessMessage.displayName = "SuccessMessage";
-var Card = React__namespace.forwardRef(
+var Card = /* @__PURE__ */ React__namespace.forwardRef(
   ({ hoverable = false, variant = "elevated", className = "", style, children, ...props }, ref) => {
     const isGlass = variant === "glass";
     const isOutlined = variant === "outlined";
@@ -4644,6 +4442,17 @@ var Tooltip = ({
 }) => {
   const [isVisible, setIsVisible] = React__namespace.useState(false);
   const containerRef = React__namespace.useRef(null);
+  const tooltipId = React__namespace.useId ? React__namespace.useId().replace(/:/g, "") : `tooltip-${Math.random().toString(36).substring(2, 7)}`;
+  React__namespace.useEffect(() => {
+    if (!isVisible) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsVisible(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isVisible]);
   React__namespace.useEffect(() => {
     const handleTouchOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -4688,6 +4497,7 @@ var Tooltip = ({
     "div",
     {
       ref: containerRef,
+      "aria-describedby": content && isVisible ? tooltipId : void 0,
       className: `boost-tooltip-wrapper ${className}`,
       onMouseEnter: () => setIsVisible(true),
       onMouseLeave: () => setIsVisible(false),
@@ -4719,9 +4529,10 @@ var Tooltip = ({
         }
       ` }),
         children,
-        isVisible && /* @__PURE__ */ jsxRuntime.jsx(
+        isVisible && content && /* @__PURE__ */ jsxRuntime.jsx(
           "div",
           {
+            id: tooltipId,
             role: "tooltip",
             className: "boost-tooltip-bubble",
             style: {
@@ -4953,7 +4764,7 @@ var Divider = ({
 };
 Divider.displayName = "Divider";
 var Accordion = ({
-  items,
+  items = [],
   allowMultiple = false,
   defaultExpanded = [],
   variant = "default",
@@ -5349,7 +5160,7 @@ var Modal = ({
   showCloseButton = true
 }) => {
   const modalRef = React__namespace.useRef(null);
-  useFocusTrap(modalRef, isOpen);
+  chunk7ATXFRAR_cjs.useFocusTrap(modalRef, isOpen);
   React__namespace.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -5548,7 +5359,7 @@ var Drawer = ({
 }) => {
   const effectivePlacement = position || placement || "right";
   const drawerRef = React__namespace.useRef(null);
-  useFocusTrap(drawerRef, isOpen);
+  chunk7ATXFRAR_cjs.useFocusTrap(drawerRef, isOpen);
   React__namespace.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -6194,9 +6005,10 @@ var ConfirmationDialog = ({
 };
 ConfirmationDialog.displayName = "ConfirmationDialog";
 var CommandPalette = ({
-  isOpen,
-  onClose,
-  items,
+  isOpen = false,
+  onClose = () => {
+  },
+  items = [],
   placeholder = "Type a command or search...",
   emptyText = "No matching commands found.",
   className = ""
@@ -6440,7 +6252,7 @@ var CommandPalette = ({
   );
 };
 CommandPalette.displayName = "CommandPalette";
-var Box = React__namespace.forwardRef(
+var Box = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     as = "div",
     children,
@@ -6518,7 +6330,7 @@ var Box = React__namespace.forwardRef(
   }
 );
 Box.displayName = "Box";
-var Flex = React__namespace.forwardRef(
+var Flex = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
     direction = "row",
@@ -6582,7 +6394,7 @@ var VStack = (props) => /* @__PURE__ */ jsxRuntime.jsx(Stack, { direction: "colu
 Stack.displayName = "Stack";
 HStack.displayName = "HStack";
 VStack.displayName = "VStack";
-var Grid = React__namespace.forwardRef(
+var Grid = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
     cols = 1,
@@ -6668,7 +6480,7 @@ var Grid = React__namespace.forwardRef(
   }
 );
 Grid.displayName = "Grid";
-var GridItem = React__namespace.forwardRef(
+var GridItem = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
     colSpan,
@@ -6698,7 +6510,7 @@ var GridItem = React__namespace.forwardRef(
   }
 );
 GridItem.displayName = "GridItem";
-var Section = React__namespace.forwardRef(
+var Section = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
     maxWidth = "1200px",
@@ -6741,7 +6553,7 @@ var Section = React__namespace.forwardRef(
   }
 );
 Section.displayName = "Section";
-var AspectRatio = React__namespace.forwardRef(
+var AspectRatio = /* @__PURE__ */ React__namespace.forwardRef(
   ({ ratio = 16 / 9, children, className = "", style, ...props }, ref) => {
     let numericRatio;
     if (typeof ratio === "number") {
@@ -6786,7 +6598,7 @@ var AspectRatio = React__namespace.forwardRef(
   }
 );
 AspectRatio.displayName = "AspectRatio";
-var ScrollArea = React__namespace.forwardRef(
+var ScrollArea = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
     maxHeight = "400px",
@@ -8117,7 +7929,7 @@ var Navbar = ({
 };
 Navbar.displayName = "Navbar";
 var Sidebar = ({
-  groups,
+  groups = [],
   activeId,
   onSelect,
   collapsed = false,
@@ -8240,7 +8052,7 @@ var Footer = ({
   logo,
   brandName = "BoostStore",
   brandBadge,
-  description = "India\u2019s modern direct-to-consumer store delivering premium quality essentials straight to your doorstep.",
+  description = "Modern direct-to-consumer store delivering premium quality essentials straight to your doorstep.",
   columns = [
     {
       title: "Shop",
@@ -8280,6 +8092,7 @@ var Footer = ({
   newsletter = true,
   onNewsletterSubmit,
   showPaymentBadges = true,
+  paymentMethods = ["VISA", "Mastercard", "AMEX", "Apple Pay", "Google Pay", "PayPal"],
   copyrightYear = (/* @__PURE__ */ new Date()).getFullYear(),
   copyrightText,
   variant = "dark",
@@ -8647,7 +8460,7 @@ var Footer = ({
                   },
                   idx
                 )) }),
-                showPaymentBadges && /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }, children: ["UPI", "RuPay", "VISA", "Mastercard", "NetBanking", "COD Available"].map((method) => /* @__PURE__ */ jsxRuntime.jsx(
+                showPaymentBadges && /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }, children: paymentMethods.map((method) => /* @__PURE__ */ jsxRuntime.jsx(
                   "span",
                   {
                     style: {
@@ -9051,7 +8864,7 @@ var MobileBottomNav = ({
 };
 MobileBottomNav.displayName = "MobileBottomNav";
 var Breadcrumb = ({
-  items,
+  items = [],
   separator,
   onItemClick,
   className = "",
@@ -9316,12 +9129,18 @@ var NavLink = ({
 NavLink.displayName = "NavLink";
 var DropdownMenu = ({
   trigger,
-  items,
+  items = [],
   align = "left",
   className = ""
 }) => {
   const [isOpen, setIsOpen] = React__namespace.useState(false);
+  const [focusedIndex, setFocusedIndex] = React__namespace.useState(-1);
   const containerRef = React__namespace.useRef(null);
+  const triggerRef = React__namespace.useRef(null);
+  const itemRefs = React__namespace.useRef([]);
+  React__namespace.useMemo(() => {
+    return items.map((item, idx) => ({ ...item, originalIndex: idx })).filter((item) => !item.disabled);
+  }, [items]);
   React__namespace.useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -9331,6 +9150,60 @@ var DropdownMenu = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  React__namespace.useEffect(() => {
+    if (!isOpen) {
+      setFocusedIndex(-1);
+    }
+  }, [isOpen]);
+  React__namespace.useEffect(() => {
+    if (!isOpen) return;
+    const handleGlobalKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [isOpen]);
+  const handleTriggerKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+      e.preventDefault();
+      setIsOpen(true);
+      setFocusedIndex(0);
+      setTimeout(() => {
+        const first = itemRefs.current[0];
+        first?.focus();
+      }, 20);
+    }
+  };
+  const handleMenuKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedIndex((prev) => {
+        const next = (prev + 1) % (items.length || 1);
+        itemRefs.current[next]?.focus();
+        return next;
+      });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusedIndex((prev) => {
+        const next = (prev - 1 + items.length) % (items.length || 1);
+        itemRefs.current[next]?.focus();
+        return next;
+      });
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setFocusedIndex(0);
+      itemRefs.current[0]?.focus();
+    } else if (e.key === "End") {
+      e.preventDefault();
+      const last = items.length - 1;
+      setFocusedIndex(last);
+      itemRefs.current[last]?.focus();
+    }
+  };
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
@@ -9338,10 +9211,26 @@ var DropdownMenu = ({
       className: `boost-dropdown ${className}`,
       style: { position: "relative", display: "inline-flex" },
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("div", { onClick: () => setIsOpen((prev) => !prev), children: trigger }),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "div",
+          {
+            ref: triggerRef,
+            role: "button",
+            tabIndex: 0,
+            "aria-haspopup": "menu",
+            "aria-expanded": isOpen,
+            onClick: () => setIsOpen((prev) => !prev),
+            onKeyDown: handleTriggerKeyDown,
+            style: { cursor: "pointer", outline: "none" },
+            children: trigger || /* @__PURE__ */ jsxRuntime.jsx("button", { type: "button", style: { padding: "6px 12px", borderRadius: "6px", border: "1px solid var(--boost-border, #cbd5e1)", background: "transparent" }, children: "Options" })
+          }
+        ),
         isOpen && /* @__PURE__ */ jsxRuntime.jsxs(
           "div",
           {
+            role: "menu",
+            "aria-orientation": "vertical",
+            onKeyDown: handleMenuKeyDown,
             className: "boost-dropdown-menu",
             style: {
               position: "absolute",
@@ -9354,7 +9243,8 @@ var DropdownMenu = ({
               boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)",
               minWidth: "190px",
               padding: "6px",
-              fontFamily: "inherit"
+              fontFamily: "inherit",
+              outline: "none"
             },
             children: [
               /* @__PURE__ */ jsxRuntime.jsx("style", { children: `
@@ -9369,21 +9259,43 @@ var DropdownMenu = ({
                 color: #f8fafc !important;
               }
               :root[data-theme="dark"] .boost-dropdown-item:hover:not(.disabled),
-              .dark .boost-dropdown-item:hover:not(.disabled) {
-                background-color: rgba(255, 255, 255, 0.06) !important;
+              :root[data-theme="dark"] .boost-dropdown-item:focus:not(.disabled),
+              .dark .boost-dropdown-item:hover:not(.disabled),
+              .dark .boost-dropdown-item:focus:not(.disabled) {
+                background-color: rgba(255, 255, 255, 0.08) !important;
               }
               :root[data-theme="dark"] .boost-dropdown-item.destructive,
               .dark .boost-dropdown-item.destructive {
                 color: #f87171 !important;
               }
+              .boost-dropdown-item:focus {
+                outline: none;
+                background-color: var(--boost-surface-secondary, #f1f5f9);
+              }
             ` }),
-              items.map((item) => /* @__PURE__ */ jsxRuntime.jsxs(
+              items.map((item, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
                 "div",
                 {
+                  ref: (el) => {
+                    itemRefs.current[idx] = el;
+                  },
+                  role: "menuitem",
+                  tabIndex: item.disabled ? -1 : 0,
+                  "aria-disabled": item.disabled,
                   onClick: () => {
                     if (item.disabled) return;
                     setIsOpen(false);
                     if (item.onClick) item.onClick();
+                    triggerRef.current?.focus();
+                  },
+                  onKeyDown: (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      if (item.disabled) return;
+                      setIsOpen(false);
+                      if (item.onClick) item.onClick();
+                      triggerRef.current?.focus();
+                    }
                   },
                   className: `boost-dropdown-item ${item.disabled ? "disabled" : ""} ${item.destructive ? "destructive" : ""}`,
                   style: {
@@ -9403,7 +9315,7 @@ var DropdownMenu = ({
                     /* @__PURE__ */ jsxRuntime.jsx("span", { children: item.label })
                   ]
                 },
-                item.id
+                item.id || idx
               ))
             ]
           }
@@ -10245,7 +10157,7 @@ Tabs.Trigger = TabsTrigger;
 Tabs.Content = TabsContent;
 Tabs.displayName = "Tabs";
 var Stepper = ({
-  steps,
+  steps = [],
   activeStep,
   currentStep,
   onStepClick,
@@ -10435,8 +10347,8 @@ var BackButton = ({
 };
 BackButton.displayName = "BackButton";
 function Table({
-  columns,
-  data,
+  columns = [],
+  data = [],
   striped = false,
   bordered = true,
   hoverable = true,
@@ -10566,35 +10478,154 @@ function Table({
 }
 Table.displayName = "Table";
 function DataTable({
-  columns,
-  data,
-  pageSize = 5,
+  columns = [],
+  data = [],
+  pageSize = 10,
   searchable = false,
   searchPlaceholder = "Search records...",
   searchFilter,
-  className = ""
+  selectable = false,
+  selectedRows: controlledSelectedRows,
+  onSelectionChange,
+  stickyHeader = false,
+  maxHeight,
+  exportable = false,
+  exportFilename = "export.csv",
+  manualPagination = false,
+  totalCount,
+  page: controlledPage,
+  onPageChange,
+  className = "",
+  style
 }) {
   const [searchQuery, setSearchQuery] = React__namespace.useState("");
-  const [currentPage, setCurrentPage] = React__namespace.useState(1);
-  const filteredData = React__namespace.useMemo(() => {
-    if (!searchable || !searchQuery) return data;
-    if (searchFilter) {
-      return data.filter((item) => searchFilter(item, searchQuery));
+  const [internalPage, setInternalPage] = React__namespace.useState(1);
+  const [internalSelectedRows, setInternalSelectedRows] = React__namespace.useState([]);
+  const [sortColumn, setSortColumn] = React__namespace.useState(null);
+  const [sortDirection, setSortDirection] = React__namespace.useState("asc");
+  const currentPage = controlledPage !== void 0 ? controlledPage : internalPage;
+  const selectedRows = controlledSelectedRows !== void 0 ? controlledSelectedRows : internalSelectedRows;
+  const handlePageChange = (newPage) => {
+    if (onPageChange) {
+      onPageChange(newPage);
     }
-    const q = searchQuery.toLowerCase();
-    return data.filter(
-      (item) => Object.values(item).some(
-        (val) => val && String(val).toLowerCase().includes(q)
-      )
+    if (controlledPage === void 0) {
+      setInternalPage(newPage);
+    }
+  };
+  const handleSort = (colKey) => {
+    if (sortColumn === colKey) {
+      setSortDirection((prev) => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(colKey);
+      setSortDirection("asc");
+    }
+  };
+  const processedData = React__namespace.useMemo(() => {
+    let list = [...data || []];
+    if (searchable && searchQuery) {
+      if (searchFilter) {
+        list = list.filter((item) => searchFilter(item, searchQuery));
+      } else {
+        const q = searchQuery.toLowerCase();
+        list = list.filter(
+          (item) => Object.values(item).some(
+            (val) => val && String(val).toLowerCase().includes(q)
+          )
+        );
+      }
+    }
+    if (sortColumn) {
+      list.sort((a, b) => {
+        const aVal = a[sortColumn];
+        const bVal = b[sortColumn];
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (typeof aVal === "number" && typeof bVal === "number") {
+          return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+        }
+        const aStr = String(aVal).toLowerCase();
+        const bStr = String(bVal).toLowerCase();
+        return sortDirection === "asc" ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
+      });
+    }
+    return list;
+  }, [data, searchQuery, searchFilter, searchable, sortColumn, sortDirection]);
+  const totalRecords = manualPagination && totalCount !== void 0 ? totalCount : processedData.length;
+  const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+  const paginatedData = manualPagination ? processedData : processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const isRowSelected = (row) => selectedRows.includes(row);
+  const toggleRow = (row) => {
+    let next;
+    if (isRowSelected(row)) {
+      next = selectedRows.filter((r) => r !== row);
+    } else {
+      next = [...selectedRows, row];
+    }
+    setInternalSelectedRows(next);
+    onSelectionChange?.(next);
+  };
+  const toggleAll = () => {
+    let next;
+    if (selectedRows.length === paginatedData.length && paginatedData.length > 0) {
+      next = [];
+    } else {
+      next = [...paginatedData];
+    }
+    setInternalSelectedRows(next);
+    onSelectionChange?.(next);
+  };
+  const handleExportCSV = () => {
+    if (!processedData.length) return;
+    const headerRow = columns.map((c) => {
+      const colTitle = c.title || c.header || (typeof c.key === "string" ? c.key : "");
+      return `"${String(colTitle).replace(/"/g, '""')}"`;
+    }).join(",");
+    const rows = processedData.map(
+      (row) => columns.map((col) => {
+        const colKey = col.key;
+        const accessor = col.accessor !== void 0 ? col.accessor : colKey;
+        let val = "";
+        if (typeof accessor === "function") {
+          val = accessor(row);
+        } else if (accessor !== void 0 && row[accessor] !== void 0) {
+          val = row[accessor];
+        } else if (colKey && row[colKey] !== void 0) {
+          val = row[colKey];
+        }
+        if (typeof val === "object" && val !== null && !React__namespace.isValidElement(val)) {
+          val = JSON.stringify(val);
+        } else if (React__namespace.isValidElement(val)) {
+          val = colKey ? String(row[colKey] ?? "") : "";
+        }
+        return `"${String(val ?? "").replace(/"/g, '""')}"`;
+      }).join(",")
     );
-  }, [data, searchQuery, searchFilter, searchable]);
-  const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `boost-data-table ${className}`, style: { fontFamily: "inherit", display: "flex", flexDirection: "column", gap: "16px", width: "100%" }, children: [
-    /* @__PURE__ */ jsxRuntime.jsx("style", { children: `
+    const csvContent = "data:text/csv;charset=utf-8," + [headerRow, ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", exportFilename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const isAllSelected = paginatedData.length > 0 && selectedRows.length === paginatedData.length;
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      className: `boost-data-table ${className}`,
+      style: {
+        fontFamily: "inherit",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+        width: "100%",
+        boxSizing: "border-box",
+        ...style
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx("style", { children: `
           :root[data-theme="dark"] .boost-data-table .boost-data-table-card,
           .dark .boost-data-table .boost-data-table-card {
             background-color: var(--boost-surface, #1e293b) !important;
@@ -10618,60 +10649,203 @@ function DataTable({
           .dark .boost-data-table tbody tr:hover {
             background-color: rgba(255, 255, 255, 0.03) !important;
           }
+          .boost-table-sort-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: inherit;
+            font: inherit;
+            font-weight: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
         ` }),
-    searchable && /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }, children: [
-      /* @__PURE__ */ jsxRuntime.jsx("div", { style: { maxWidth: "300px", width: "100%" }, children: /* @__PURE__ */ jsxRuntime.jsx(
-        SearchInput,
-        {
-          value: searchQuery,
-          onChange: (e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          },
-          onClear: () => setSearchQuery(""),
-          placeholder: searchPlaceholder
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "13px", color: "var(--boost-muted, #64748b)" }, children: [
-        "Showing ",
-        paginatedData.length,
-        " of ",
-        filteredData.length,
-        " records"
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      "div",
-      {
-        className: "boost-data-table-card",
-        style: {
-          width: "100%",
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-          border: "1px solid var(--boost-border, #e2e8f0)",
-          borderRadius: "var(--boost-radius, 12px)",
-          backgroundColor: "var(--boost-surface, #ffffff)",
-          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))"
-        },
-        children: /* @__PURE__ */ jsxRuntime.jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "13px", textAlign: "left", color: "var(--boost-text, #334155)", minWidth: "480px" }, children: [
-          /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { style: { backgroundColor: "var(--boost-bg, #f8fafc)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" }, children: columns.map((col, idx) => /* @__PURE__ */ jsxRuntime.jsx("th", { style: { padding: "13px 16px", fontWeight: 700, color: "var(--boost-text, #0f172a)", textAlign: col.align || "left", width: col.width, whiteSpace: "nowrap" }, children: col.header }, idx)) }) }),
-          /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: columns.length, style: { padding: "36px", textAlign: "center", color: "var(--boost-text-muted, #94a3b8)" }, children: "No records matching your search" }) }) : paginatedData.map((row, rIdx) => /* @__PURE__ */ jsxRuntime.jsx("tr", { style: { borderBottom: rIdx === paginatedData.length - 1 ? "none" : "1px solid var(--boost-border, #f1f5f9)", transition: "background-color 0.1s ease" }, children: columns.map((col, cIdx) => {
-            const accessor = col.accessor !== void 0 ? col.accessor : col.key;
-            const content = typeof accessor === "function" ? accessor(row) : accessor !== void 0 && row[accessor] !== void 0 ? row[accessor] : "";
-            return /* @__PURE__ */ jsxRuntime.jsx("td", { style: { padding: "13px 16px", textAlign: col.align || "left" }, children: content }, cIdx);
-          }) }, rIdx)) })
-        ] })
-      }
-    ),
-    totalPages > 1 && /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", justifyContent: "center", flexWrap: "wrap", marginTop: "4px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
-      Pagination,
-      {
-        currentPage,
-        totalPages,
-        onPageChange: setCurrentPage
-      }
-    ) })
-  ] });
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }, children: [
+          searchable ? /* @__PURE__ */ jsxRuntime.jsx("div", { style: { maxWidth: "300px", width: "100%" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+            SearchInput,
+            {
+              value: searchQuery,
+              onChange: (e) => {
+                setSearchQuery(e.target.value);
+                if (controlledPage === void 0) setInternalPage(1);
+              },
+              onClear: () => setSearchQuery(""),
+              placeholder: searchPlaceholder
+            }
+          ) }) : /* @__PURE__ */ jsxRuntime.jsx("div", {}),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", fontSize: "13px", color: "var(--boost-muted, #64748b)" }, children: [
+            selectable && selectedRows.length > 0 && /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontWeight: 600, color: "var(--boost-primary, #2563eb)" }, children: [
+              selectedRows.length,
+              " selected"
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+              "Showing ",
+              paginatedData.length,
+              " of ",
+              totalRecords,
+              " records"
+            ] }),
+            exportable && /* @__PURE__ */ jsxRuntime.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: handleExportCSV,
+                style: {
+                  backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
+                  color: "var(--boost-text, #0f172a)",
+                  border: "1px solid var(--boost-border, #cbd5e1)",
+                  padding: "6px 12px",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
+                    /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+                    /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "7 10 12 15 17 10" }),
+                    /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
+                  ] }),
+                  "Export CSV"
+                ]
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "div",
+          {
+            className: "boost-data-table-card",
+            style: {
+              width: "100%",
+              overflowX: "auto",
+              maxHeight: maxHeight || void 0,
+              overflowY: maxHeight ? "auto" : void 0,
+              WebkitOverflowScrolling: "touch",
+              border: "1px solid var(--boost-border, #e2e8f0)",
+              borderRadius: "var(--boost-radius, 12px)",
+              backgroundColor: "var(--boost-surface, #ffffff)",
+              boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))",
+              position: "relative"
+            },
+            children: /* @__PURE__ */ jsxRuntime.jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "13px", textAlign: "left", color: "var(--boost-text, #334155)", minWidth: "480px" }, children: [
+              /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs(
+                "tr",
+                {
+                  style: {
+                    backgroundColor: "var(--boost-bg, #f8fafc)",
+                    borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+                    position: stickyHeader ? "sticky" : void 0,
+                    top: stickyHeader ? 0 : void 0,
+                    zIndex: stickyHeader ? 2 : void 0
+                  },
+                  children: [
+                    selectable && /* @__PURE__ */ jsxRuntime.jsx("th", { style: { width: "40px", padding: "13px 16px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: isAllSelected,
+                        onChange: toggleAll,
+                        "aria-label": "Select all rows",
+                        style: { cursor: "pointer", width: "16px", height: "16px", accentColor: "var(--boost-primary, #2563eb)" }
+                      }
+                    ) }),
+                    columns.map((col, idx) => {
+                      const colKey = String(col.key || col.accessor || idx);
+                      const isSorted = sortColumn === colKey;
+                      const colTitle = col.title || col.header || (typeof col.key === "string" ? col.key : "");
+                      return /* @__PURE__ */ jsxRuntime.jsx(
+                        "th",
+                        {
+                          style: {
+                            padding: "13px 16px",
+                            fontWeight: 700,
+                            color: "var(--boost-text, #0f172a)",
+                            textAlign: col.align || "left",
+                            width: col.width,
+                            whiteSpace: "nowrap"
+                          },
+                          children: col.sortable ? /* @__PURE__ */ jsxRuntime.jsxs(
+                            "button",
+                            {
+                              type: "button",
+                              onClick: () => handleSort(colKey),
+                              className: "boost-table-sort-btn",
+                              children: [
+                                /* @__PURE__ */ jsxRuntime.jsx("span", { children: colTitle }),
+                                /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "11px", opacity: isSorted ? 1 : 0.4 }, children: isSorted ? sortDirection === "asc" ? "\u25B2" : "\u25BC" : "\u2195" })
+                              ]
+                            }
+                          ) : colTitle
+                        },
+                        idx
+                      );
+                    })
+                  ]
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: columns.length + (selectable ? 1 : 0), style: { padding: "36px", textAlign: "center", color: "var(--boost-text-muted, #94a3b8)" }, children: "No records matching your search" }) }) : paginatedData.map((row, rIdx) => {
+                const selected = isRowSelected(row);
+                return /* @__PURE__ */ jsxRuntime.jsxs(
+                  "tr",
+                  {
+                    style: {
+                      borderBottom: rIdx === paginatedData.length - 1 ? "none" : "1px solid var(--boost-border, #f1f5f9)",
+                      backgroundColor: selected ? "rgba(37, 99, 235, 0.05)" : void 0,
+                      transition: "background-color 0.1s ease"
+                    },
+                    children: [
+                      selectable && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px", padding: "13px 16px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: selected,
+                          onChange: () => toggleRow(row),
+                          "aria-label": `Select row ${rIdx + 1}`,
+                          style: { cursor: "pointer", width: "16px", height: "16px", accentColor: "var(--boost-primary, #2563eb)" }
+                        }
+                      ) }),
+                      columns.map((col, cIdx) => {
+                        const colKey = col.key;
+                        const accessor = col.accessor !== void 0 ? col.accessor : colKey;
+                        const rawValue = colKey !== void 0 && row ? row[colKey] : void 0;
+                        let content = "";
+                        if (typeof col.render === "function") {
+                          content = col.render(rawValue, row);
+                        } else if (typeof accessor === "function") {
+                          content = accessor(row);
+                        } else if (accessor !== void 0 && row && row[accessor] !== void 0) {
+                          content = row[accessor];
+                        } else if (rawValue !== void 0) {
+                          content = rawValue;
+                        }
+                        return /* @__PURE__ */ jsxRuntime.jsx("td", { style: { padding: "13px 16px", textAlign: col.align || "left" }, children: content }, cIdx);
+                      })
+                    ]
+                  },
+                  rIdx
+                );
+              }) })
+            ] })
+          }
+        ),
+        totalPages > 1 && /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", justifyContent: "center", flexWrap: "wrap", marginTop: "4px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+          Pagination,
+          {
+            currentPage,
+            totalPages,
+            onPageChange: handlePageChange
+          }
+        ) })
+      ]
+    }
+  );
 }
 DataTable.displayName = "DataTable";
 var StatsCard = ({
@@ -11760,7 +11934,7 @@ var Sparkline = ({
 };
 Sparkline.displayName = "Sparkline";
 var ActivityFeed = ({
-  items,
+  items = [],
   title,
   emptyText = "No recent activities found.",
   className = "",
@@ -11928,7 +12102,7 @@ var ActivityFeed = ({
 };
 ActivityFeed.displayName = "ActivityFeed";
 var NotificationCenter = ({
-  notifications,
+  notifications = [],
   onMarkAllAsRead,
   onItemClick,
   onClearAll,
@@ -12521,7 +12695,7 @@ var ExportButton = ({
 ExportButton.displayName = "ExportButton";
 var Filter = ({
   label = "Filter",
-  options,
+  options = [],
   selectedValues = [],
   onChange,
   multiple = true,
@@ -12719,7 +12893,7 @@ var Filter = ({
 };
 Filter.displayName = "Filter";
 var Sort = ({
-  options,
+  options = [],
   currentValue = options[0]?.value || "",
   currentDirection = "asc",
   onChange,
@@ -12738,7 +12912,7 @@ var Sort = ({
     const nextDir = currentDirection === "asc" ? "desc" : "asc";
     onChange?.(currentValue, nextDir);
   };
-  const currentOption = options.find((o) => o.value === currentValue);
+  const currentOption = (options || []).find((o) => o.value === currentValue);
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `boost-sort-wrapper ${className || ""}`, style: { position: "relative", display: "inline-flex", alignItems: "center", fontFamily: "inherit", ...style }, children: [
     /* @__PURE__ */ jsxRuntime.jsx("style", { children: `
           :root[data-theme="dark"] .boost-sort-box,
@@ -14069,14 +14243,19 @@ var ResetPassword = ({
 };
 ResetPassword.displayName = "ResetPassword";
 var CartDrawer = ({
-  isOpen,
-  onClose,
-  items,
-  subtotal,
-  freeShippingThreshold = 999,
-  onUpdateQuantity,
-  onRemoveItem,
-  onCheckout,
+  isOpen = false,
+  onClose = () => {
+  },
+  items = [],
+  subtotal = 0,
+  currencySymbol = "$",
+  freeShippingThreshold = 50,
+  onUpdateQuantity = () => {
+  },
+  onRemoveItem = () => {
+  },
+  onCheckout = () => {
+  },
   className = "",
   onTabSync
 }) => {
@@ -14280,7 +14459,7 @@ var CartDrawer = ({
                         ] }) : /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
                           "Add ",
                           /* @__PURE__ */ jsxRuntime.jsxs("strong", { children: [
-                            "\u20B9",
+                            currencySymbol,
                             amountRemaining.toFixed(0)
                           ] }),
                           " more for FREE Delivery!"
@@ -14401,7 +14580,7 @@ var CartDrawer = ({
                       ),
                       item.variantTitle && /* @__PURE__ */ jsxRuntime.jsx("div", { style: { fontSize: "12px", color: "var(--boost-text-muted, #64748b)", marginTop: "4px" }, children: item.variantTitle }),
                       /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { fontSize: "14px", fontWeight: 800, color: "var(--boost-text, #0f172a)", marginTop: "6px" }, children: [
-                        "\u20B9",
+                        currencySymbol,
                         item.price
                       ] })
                     ] }),
@@ -14511,7 +14690,7 @@ var CartDrawer = ({
                     /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "14px" }, children: [
                       /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "14px", color: "var(--boost-text-muted, #64748b)" }, children: "Subtotal:" }),
                       /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "20px", fontWeight: 800, color: "var(--boost-text, #0f172a)" }, children: [
-                        "\u20B9",
+                        currencySymbol,
                         subtotal.toFixed(2)
                       ] })
                     ] }),
@@ -14550,12 +14729,14 @@ var CartDrawer = ({
 };
 CartDrawer.displayName = "CartDrawer";
 var StickyAddToCart = ({
-  title,
-  price,
+  title = "Product",
+  price = 0,
+  currencySymbol = "$",
   compareAtPrice,
   originalPrice,
   image,
-  onAddToCart,
+  onAddToCart = () => {
+  },
   onBuyNow,
   inStock = true,
   className = "",
@@ -14733,11 +14914,11 @@ var StickyAddToCart = ({
               /* @__PURE__ */ jsxRuntime.jsx("div", { className: "boost-sticky-product-title", style: { fontSize: "14px", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: title }),
               /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }, children: [
                 /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "16px", fontWeight: 700 }, children: [
-                  "\u20B9",
+                  currencySymbol,
                   price
                 ] }),
                 finalComparePrice && finalComparePrice > price && /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "13px", color: "var(--boost-text-muted, #94a3b8)", textDecoration: "line-through" }, children: [
-                  "\u20B9",
+                  currencySymbol,
                   finalComparePrice
                 ] })
               ] })
@@ -14804,6 +14985,10 @@ StickyAddToCart.displayName = "StickyAddToCart";
 var PincodeChecker = ({
   onCheck,
   defaultPincode = "",
+  label = "Check Delivery & Serviceability",
+  placeholder = "Enter Postal / PIN Code",
+  buttonText = "Check",
+  locale = "en-US",
   className = ""
 }) => {
   const [pincode, setPincode] = React__namespace.useState(defaultPincode);
@@ -14820,8 +15005,8 @@ var PincodeChecker = ({
   }, []);
   const handleCheck = async () => {
     const clean = pincode.trim();
-    if (!/^\d{6}$/.test(clean)) {
-      setError("Please enter a valid 6-digit Indian pincode");
+    if (!clean || clean.length < 3) {
+      setError("Please enter a valid postal code");
       setResult(null);
       return;
     }
@@ -14831,7 +15016,7 @@ var PincodeChecker = ({
     try {
       if (onCheck) {
         const timeoutPromise = new Promise(
-          (_, reject) => setTimeout(() => reject(new Error("Pincode check timed out. Please try again.")), 1e4)
+          (_, reject) => setTimeout(() => reject(new Error("Postal code check timed out. Please try again.")), 1e4)
         );
         const res = await Promise.race([Promise.resolve(onCheck(clean)), timeoutPromise]);
         if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
@@ -14844,7 +15029,7 @@ var PincodeChecker = ({
         if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
           setResult({
             isServiceable: true,
-            estimatedDeliveryDate: deliveryDate.toLocaleDateString("en-IN", options),
+            estimatedDeliveryDate: deliveryDate.toLocaleDateString(locale, options),
             isCodAvailable: true,
             courier: "Express Courier"
           });
@@ -14852,7 +15037,7 @@ var PincodeChecker = ({
       }
     } catch (err) {
       if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
-        setError(err.message || "Failed to verify pincode");
+        setError(err.message || "Failed to verify postal code");
       }
     } finally {
       if (isMountedRef.current && currentReqId === activeRequestIdRef.current) {
@@ -14868,17 +15053,17 @@ var PincodeChecker = ({
         /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "5.5", cy: "18.5", r: "2.5" }),
         /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "18.5", cy: "18.5", r: "2.5" })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("span", { children: "Check Delivery & COD Availability" })
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: label })
     ] }),
     /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", gap: "8px", maxWidth: "340px" }, children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         "input",
         {
           type: "text",
-          maxLength: 6,
-          placeholder: "Enter 6-digit Pincode",
+          maxLength: 10,
+          placeholder,
           value: pincode,
-          onChange: (e) => setPincode(e.target.value.replace(/\D/g, "")),
+          onChange: (e) => setPincode(e.target.value),
           onKeyDown: (e) => e.key === "Enter" && handleCheck(),
           style: {
             flex: 1,
@@ -14897,7 +15082,7 @@ var PincodeChecker = ({
         "button",
         {
           onClick: handleCheck,
-          disabled: loading || pincode.length !== 6,
+          disabled: loading || !pincode.trim(),
           style: {
             backgroundColor: "var(--boost-primary, #3b82f6)",
             color: "#ffffff",
@@ -14906,11 +15091,11 @@ var PincodeChecker = ({
             padding: "10px 20px",
             fontSize: "14px",
             fontWeight: 600,
-            cursor: loading || pincode.length !== 6 ? "not-allowed" : "pointer",
-            opacity: loading || pincode.length !== 6 ? 0.6 : 1,
+            cursor: loading || !pincode.trim() ? "not-allowed" : "pointer",
+            opacity: loading || !pincode.trim() ? 0.6 : 1,
             transition: "opacity 0.2s, background-color 0.2s"
           },
-          children: loading ? "Checking..." : "Check"
+          children: loading ? "Checking..." : buttonText
         }
       )
     ] }),
@@ -14942,7 +15127,7 @@ var PincodeChecker = ({
         /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
         /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("span", { children: "Pincode currently not serviceable for delivery" })
+      /* @__PURE__ */ jsxRuntime.jsx("span", { children: "Postal code currently not serviceable for delivery" })
     ] }) })
   ] });
 };
@@ -15552,8 +15737,9 @@ var ProductGallery = ({
 };
 ProductGallery.displayName = "ProductGallery";
 var VariantSelector = ({
-  groups,
+  groups = [],
   selectedValues,
+  currencySymbol = "$",
   onChange,
   className = "",
   ...props
@@ -15707,7 +15893,8 @@ var VariantSelector = ({
               children: [
                 /* @__PURE__ */ jsxRuntime.jsx("span", { children: optDisplay }),
                 opt.priceDelta && opt.priceDelta > 0 && /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "11px", marginLeft: "5px", opacity: 0.85 }, children: [
-                  "(+\u20B9",
+                  "(+",
+                  currencySymbol,
                   opt.priceDelta,
                   ")"
                 ] })
@@ -15722,9 +15909,10 @@ var VariantSelector = ({
 };
 VariantSelector.displayName = "VariantSelector";
 var ProductCard = ({
-  id,
-  title,
-  price,
+  id = "",
+  title = "Product",
+  price = 0,
+  currencySymbol = "$",
   compareAtPrice,
   originalPrice,
   images = [],
@@ -15944,11 +16132,11 @@ var ProductCard = ({
               /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "baseline", gap: "6px", marginTop: "4px", marginBottom: "8px" }, children: [
                   /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "clamp(15px, 1.4vw, 17px)", fontWeight: 800, color: "var(--boost-text, #0f172a)" }, children: [
-                    "\u20B9",
+                    currencySymbol,
                     price
                   ] }),
                   effectiveOriginalPrice && effectiveOriginalPrice > price && /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "12px", color: "var(--boost-text-muted, #94a3b8)", textDecoration: "line-through" }, children: [
-                    "\u20B9",
+                    currencySymbol,
                     effectiveOriginalPrice
                   ] })
                 ] }),
@@ -16729,18 +16917,27 @@ var LightningDealsBar = ({
 LightningDealsBar.displayName = "LightningDealsBar";
 var FrequentlyBoughtTogether = ({
   mainProduct,
-  suggestedItems,
+  suggestedItems = [],
   bundleDiscountPercentage = 10,
-  currencySymbol = "\u20B9",
+  currencySymbol = "$",
+  locale = "en-US",
   onAddBundleToCart,
   onAddBundle,
   className = "",
   style
 }) => {
-  const allItems = [mainProduct, ...suggestedItems];
+  const allItems = React__namespace.useMemo(() => {
+    const list = [];
+    if (mainProduct && typeof mainProduct === "object" && mainProduct.id) list.push(mainProduct);
+    if (Array.isArray(suggestedItems)) list.push(...suggestedItems);
+    return list;
+  }, [mainProduct, suggestedItems]);
   const [selectedIds, setSelectedIds] = React__namespace.useState(
-    allItems.map((i) => i.id)
+    () => allItems.map((i) => i.id)
   );
+  React__namespace.useEffect(() => {
+    setSelectedIds(allItems.map((i) => i.id));
+  }, [allItems]);
   const [imageErrors, setImageErrors] = React__namespace.useState({});
   const toggleItem = (id) => {
     if (selectedIds.includes(id)) {
@@ -17110,7 +17307,7 @@ var FrequentlyBoughtTogether = ({
                           },
                           children: [
                             currencySymbol,
-                            item.price.toLocaleString("en-IN")
+                            item.price.toLocaleString(locale)
                           ]
                         }
                       ),
@@ -17125,7 +17322,7 @@ var FrequentlyBoughtTogether = ({
                           },
                           children: [
                             currencySymbol,
-                            item.originalPrice.toLocaleString("en-IN")
+                            item.originalPrice.toLocaleString(locale)
                           ]
                         }
                       )
@@ -17165,7 +17362,7 @@ var FrequentlyBoughtTogether = ({
                       },
                       children: [
                         currencySymbol,
-                        finalPrice.toLocaleString("en-IN")
+                        finalPrice.toLocaleString(locale)
                       ]
                     }
                   ),
@@ -17179,7 +17376,7 @@ var FrequentlyBoughtTogether = ({
                       },
                       children: [
                         currencySymbol,
-                        subtotal.toLocaleString("en-IN")
+                        subtotal.toLocaleString(locale)
                       ]
                     }
                   )
@@ -17196,7 +17393,7 @@ var FrequentlyBoughtTogether = ({
                     children: [
                       "\u{1F389} You save ",
                       currencySymbol,
-                      totalSavings > 0 ? totalSavings.toLocaleString("en-IN") : discountAmount.toLocaleString("en-IN"),
+                      totalSavings > 0 ? totalSavings.toLocaleString(locale) : discountAmount.toLocaleString(locale),
                       " (",
                       bundleDiscountPercentage,
                       "% combo discount)"
@@ -17234,31 +17431,31 @@ var FrequentlyBoughtTogether = ({
 FrequentlyBoughtTogether.displayName = "FrequentlyBoughtTogether";
 var DEFAULT_OFFERS = [
   {
-    id: "hdfc-instant",
+    id: "card-instant",
     type: "instant",
-    title: "10% Instant Discount on HDFC Bank Cards",
-    description: "Up to \u20B91,500 on HDFC Credit & Debit Card EMI transactions on min purchase \u20B95,000.",
-    code: "HDFC10"
+    title: "10% Instant Discount on Premium Credit Cards",
+    description: "Up to $50 on select credit cards on minimum purchase of $150.",
+    code: "CARD10"
   },
   {
-    id: "icici-instant",
+    id: "special-reward",
     type: "instant",
-    title: "Flat \u20B91,250 Off on ICICI Bank Cards",
-    description: "Applicable on Credit Card transactions for orders above \u20B910,000.",
-    code: "ICICISPECIAL"
+    title: "Flat $25 Off on Partner Cards",
+    description: "Applicable on online checkout for orders above $200.",
+    code: "PARTNER25"
   },
   {
-    id: "no-cost-emi",
+    id: "zero-interest-split",
     type: "emi",
-    title: "No Cost EMI Available up to 12 Months",
-    description: "Avail No Cost EMI on select credit cards for orders above \u20B93,000."
+    title: "Pay in 4 Interest-Free Installments",
+    description: "Split your purchase into 4 flexible payments on orders over $50."
   },
   {
-    id: "upi-cashback",
+    id: "cashback-reward",
     type: "cashback",
-    title: "Flat \u20B9100 Cashback on UPI Transactions",
-    description: "Instant cashback credited directly to bank account on PhonePe, GPay, or Paytm.",
-    code: "UPIBOOST"
+    title: "5% Instant Cashback on Digital Wallets",
+    description: "Instant cashback credited directly to your payment account.",
+    code: "WALLET5"
   }
 ];
 var BankOffersAccordion = ({
@@ -17268,7 +17465,8 @@ var BankOffersAccordion = ({
 }) => {
   const [expanded, setExpanded] = React__namespace.useState(false);
   const [copiedCode, setCopiedCode] = React__namespace.useState(null);
-  const displayedOffers = expanded ? offers : offers.slice(0, 2);
+  const safeOffers = Array.isArray(offers) ? offers : DEFAULT_OFFERS;
+  const displayedOffers = expanded ? safeOffers : safeOffers.slice(0, 2);
   const handleCopy = (code, e) => {
     e.stopPropagation();
     navigator.clipboard.writeText(code);
@@ -17671,11 +17869,13 @@ var DualMobileActionBar = ({
   price,
   compareAtPrice,
   originalPrice,
-  currencySymbol = "\u20B9",
+  currencySymbol = "$",
   isWishlisted = false,
   isInCart = false,
-  onAddToCart,
-  onBuyNow,
+  onAddToCart = () => {
+  },
+  onBuyNow = () => {
+  },
   onToggleWishlist,
   position,
   addToCartText = "Add to Cart",
@@ -17895,9 +18095,10 @@ var DualMobileActionBar = ({
 };
 DualMobileActionBar.displayName = "DualMobileActionBar";
 var Price = ({
-  amount,
+  amount = 0,
   originalAmount,
-  currencySymbol = "\u20B9",
+  currencySymbol = "$",
+  locale = "en-US",
   size = "md",
   showDiscount = true,
   showSavings = false,
@@ -17915,7 +18116,7 @@ var Price = ({
   };
   const currentSize = sizeStyles[size] || sizeStyles.md;
   const formatNumber2 = (num) => {
-    return new Intl.NumberFormat("en-IN").format(num);
+    return new Intl.NumberFormat(locale).format(num);
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
@@ -18392,14 +18593,14 @@ var AddressForm = ({
     const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, "");
     if (!cleanPhone) {
       errs.phone = "Phone number is required";
-    } else if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
-      errs.phone = "Please enter a valid 10-digit mobile number";
+    } else if (!/^\+?[0-9]{7,15}$/.test(cleanPhone)) {
+      errs.phone = "Please enter a valid phone number";
     }
     const cleanPin = formData.pincode.trim();
     if (!cleanPin) {
-      errs.pincode = "Pincode is required";
-    } else if (!/^[0-9]{6}$/.test(cleanPin)) {
-      errs.pincode = "Please enter a valid 6-digit pincode";
+      errs.pincode = "Postal / ZIP code is required";
+    } else if (!/^[\w\d\s-]{3,10}$/i.test(cleanPin)) {
+      errs.pincode = "Please enter a valid postal / ZIP code";
     }
     if (!formData.houseNumber.trim()) {
       errs.houseNumber = "House / Flat number is required";
@@ -18493,7 +18694,7 @@ var AddressForm = ({
                   type: "tel",
                   value: formData.phone,
                   onChange: (e) => handleChange("phone", e.target.value),
-                  placeholder: "10-digit mobile number",
+                  placeholder: "Phone number (e.g. +1 555-0199)",
                   style: getInputStyle(!!errors.phone)
                 }
               ),
@@ -18502,29 +18703,29 @@ var AddressForm = ({
           ] }),
           /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: "12px" }, children: [
             /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "Pincode *" }),
+              /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "Postal / ZIP Code *" }),
               /* @__PURE__ */ jsxRuntime.jsx(
                 "input",
                 {
                   type: "text",
-                  maxLength: 6,
+                  maxLength: 10,
                   value: formData.pincode,
                   onChange: (e) => handleChange("pincode", e.target.value),
-                  placeholder: "e.g. 110001",
+                  placeholder: "e.g. 90210 or 110001",
                   style: getInputStyle(!!errors.pincode)
                 }
               ),
               renderError(errors.pincode)
             ] }),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { gridColumn: "span 1" }, children: [
-              /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "Flat / House No. / Building *" }),
+              /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "Apt / Suite / House No. *" }),
               /* @__PURE__ */ jsxRuntime.jsx(
                 "input",
                 {
                   type: "text",
                   value: formData.houseNumber,
                   onChange: (e) => handleChange("houseNumber", e.target.value),
-                  placeholder: "e.g. Flat 402, Lotus Tower",
+                  placeholder: "e.g. Apt 4B or Suite 200",
                   style: getInputStyle(!!errors.houseNumber)
                 }
               ),
@@ -18532,14 +18733,14 @@ var AddressForm = ({
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "Area / Street / Sector *" }),
+            /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "Street Address *" }),
             /* @__PURE__ */ jsxRuntime.jsx(
               "input",
               {
                 type: "text",
                 value: formData.street,
                 onChange: (e) => handleChange("street", e.target.value),
-                placeholder: "e.g. MG Road, Near Central Park",
+                placeholder: "e.g. 123 Main Street or Broadway",
                 style: getInputStyle(!!errors.street)
               }
             ),
@@ -18554,21 +18755,21 @@ var AddressForm = ({
                   type: "text",
                   value: formData.city,
                   onChange: (e) => handleChange("city", e.target.value),
-                  placeholder: "e.g. New Delhi",
+                  placeholder: "e.g. New York or London",
                   style: getInputStyle(!!errors.city)
                 }
               ),
               renderError(errors.city)
             ] }),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "State *" }),
+              /* @__PURE__ */ jsxRuntime.jsx("label", { style: labelStyle, children: "State / Province / Region *" }),
               /* @__PURE__ */ jsxRuntime.jsx(
                 "input",
                 {
                   type: "text",
                   value: formData.state,
                   onChange: (e) => handleChange("state", e.target.value),
-                  placeholder: "e.g. Delhi",
+                  placeholder: "e.g. California or Ontario",
                   style: getInputStyle(!!errors.state)
                 }
               ),
@@ -18682,11 +18883,12 @@ var AddressForm = ({
 };
 AddressForm.displayName = "AddressForm";
 var OrderSummary = ({
-  subtotal,
+  subtotal = 0,
   discount = 0,
   shippingFee = 0,
   tax = 0,
-  currencySymbol = "\u20B9",
+  currencySymbol = "$",
+  locale = "en-US",
   freeShippingThreshold,
   onCheckout,
   loading = false,
@@ -18697,7 +18899,7 @@ var OrderSummary = ({
   const isFreeShipping = shippingFee === 0;
   const total = Math.max(0, subtotal - discount + (isFreeShipping ? 0 : shippingFee) + tax);
   const formatNumber2 = (num) => {
-    return new Intl.NumberFormat("en-IN").format(num);
+    return new Intl.NumberFormat(locale).format(num);
   };
   const remainingForFreeShipping = freeShippingThreshold && subtotal < freeShippingThreshold ? freeShippingThreshold - subtotal : 0;
   return /* @__PURE__ */ jsxRuntime.jsxs(
@@ -19126,7 +19328,7 @@ var HeroSection = ({
 };
 HeroSection.displayName = "HeroSection";
 var FeatureGrid = ({
-  features,
+  features = [],
   columns = 3,
   align = "left",
   className = "",
@@ -19257,7 +19459,7 @@ var FeatureGrid = ({
 };
 FeatureGrid.displayName = "FeatureGrid";
 var PricingTable = ({
-  tiers,
+  tiers = [],
   billingCycle = "monthly",
   onBillingCycleChange,
   annualDiscountLabel = "Save 20%",
@@ -19641,7 +19843,7 @@ var PricingTable = ({
 };
 PricingTable.displayName = "PricingTable";
 var TestimonialCard = ({
-  quote,
+  quote = "",
   authorName,
   author,
   authorRole,
@@ -19802,7 +20004,7 @@ var TestimonialCard = ({
   );
 };
 var TestimonialGrid = ({
-  testimonials,
+  testimonials = [],
   columns = 3,
   className = "",
   style,
@@ -19828,7 +20030,7 @@ var TestimonialGrid = ({
 TestimonialCard.displayName = "TestimonialCard";
 TestimonialGrid.displayName = "TestimonialGrid";
 var FAQSection = ({
-  items,
+  items = [],
   title = "Frequently Asked Questions",
   subtitle = "Everything you need to know about our product and billing.",
   searchable = true,
@@ -20072,7 +20274,7 @@ var FAQSection = ({
 };
 FAQSection.displayName = "FAQSection";
 var LogoCloud = ({
-  logos,
+  logos = [],
   title = "TRUSTED BY 10,000+ MODERN BUSINESSES & D2C BRANDS",
   grayscale = true,
   className = "",
@@ -20442,6 +20644,134 @@ var CTASection = ({
 };
 CTASection.displayName = "CTASection";
 
+Object.defineProperty(exports, "useAnnounce", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useAnnounce; }
+});
+Object.defineProperty(exports, "useClickOutside", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useClickOutside; }
+});
+Object.defineProperty(exports, "useCopyToClipboard", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useCopyToClipboard; }
+});
+Object.defineProperty(exports, "useDebounce", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useDebounce; }
+});
+Object.defineProperty(exports, "useFocusTrap", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useFocusTrap; }
+});
+Object.defineProperty(exports, "useForm", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useForm; }
+});
+Object.defineProperty(exports, "useIntersectionObserver", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useIntersectionObserver; }
+});
+Object.defineProperty(exports, "useIsomorphicLayoutEffect", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useIsomorphicLayoutEffect; }
+});
+Object.defineProperty(exports, "useLocalStorage", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useLocalStorage; }
+});
+Object.defineProperty(exports, "useMediaQuery", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useMediaQuery; }
+});
+Object.defineProperty(exports, "usePrevious", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.usePrevious; }
+});
+Object.defineProperty(exports, "useScrollPosition", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useScrollPosition; }
+});
+Object.defineProperty(exports, "useToggle", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useToggle; }
+});
+Object.defineProperty(exports, "useWindowSize", {
+  enumerable: true,
+  get: function () { return chunk7ATXFRAR_cjs.useWindowSize; }
+});
+Object.defineProperty(exports, "clamp", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.clamp; }
+});
+Object.defineProperty(exports, "cn", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.cn; }
+});
+Object.defineProperty(exports, "debounce", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.debounce; }
+});
+Object.defineProperty(exports, "deepMerge", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.deepMerge; }
+});
+Object.defineProperty(exports, "formatCurrency", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.formatCurrency; }
+});
+Object.defineProperty(exports, "formatDate", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.formatDate; }
+});
+Object.defineProperty(exports, "formatNumber", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.formatNumber; }
+});
+Object.defineProperty(exports, "formatRelativeTime", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.formatRelativeTime; }
+});
+Object.defineProperty(exports, "generateId", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.generateId; }
+});
+Object.defineProperty(exports, "getInitials", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.getInitials; }
+});
+Object.defineProperty(exports, "groupBy", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.groupBy; }
+});
+Object.defineProperty(exports, "isValidEmail", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.isValidEmail; }
+});
+Object.defineProperty(exports, "isValidIndianMobile", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.isValidIndianMobile; }
+});
+Object.defineProperty(exports, "isValidIndianPincode", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.isValidIndianPincode; }
+});
+Object.defineProperty(exports, "omit", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.omit; }
+});
+Object.defineProperty(exports, "pick", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.pick; }
+});
+Object.defineProperty(exports, "slugify", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.slugify; }
+});
+Object.defineProperty(exports, "truncate", {
+  enumerable: true,
+  get: function () { return chunkJ3GEA4YJ_cjs.truncate; }
+});
 exports.Accordion = Accordion;
 exports.ActivityFeed = ActivityFeed;
 exports.AddToCart = AddToCart;
@@ -20578,39 +20908,9 @@ exports.Tooltip = Tooltip;
 exports.TrustBadges = TrustBadges;
 exports.VStack = VStack;
 exports.VariantSelector = VariantSelector;
-exports.clamp = clamp;
-exports.cn = cn;
-exports.debounce = debounce;
-exports.deepMerge = deepMerge;
-exports.formatCurrency = formatCurrency;
-exports.formatDate = formatDate;
-exports.formatNumber = formatNumber;
-exports.formatRelativeTime = formatRelativeTime;
-exports.generateId = generateId;
-exports.getInitials = getInitials;
-exports.groupBy = groupBy;
-exports.isValidEmail = isValidEmail;
-exports.isValidIndianMobile = isValidIndianMobile;
-exports.isValidIndianPincode = isValidIndianPincode;
-exports.omit = omit;
-exports.pick = pick;
-exports.slugify = slugify;
-exports.truncate = truncate;
-exports.useAnnounce = useAnnounce;
-exports.useClickOutside = useClickOutside;
-exports.useCopyToClipboard = useCopyToClipboard;
-exports.useDebounce = useDebounce;
-exports.useFocusTrap = useFocusTrap;
-exports.useForm = useForm;
-exports.useIntersectionObserver = useIntersectionObserver;
-exports.useIsomorphicLayoutEffect = useIsomorphicLayoutEffect;
-exports.useLocalStorage = useLocalStorage;
-exports.useMediaQuery = useMediaQuery;
-exports.usePrevious = usePrevious;
-exports.useScrollPosition = useScrollPosition;
+exports.boostTokens = boostTokens;
+exports.createTailwindPreset = createTailwindPreset;
+exports.injectBoostGlobalStyles = injectBoostGlobalStyles;
+exports.useCurrency = useCurrency;
 exports.useTheme = useTheme;
 exports.useToast = useToast;
-exports.useToggle = useToggle;
-exports.useWindowSize = useWindowSize;
-//# sourceMappingURL=index.cjs.map
-//# sourceMappingURL=index.cjs.map

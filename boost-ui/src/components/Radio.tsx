@@ -5,7 +5,7 @@ export interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> 
   description?: React.ReactNode;
 }
 
-export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
+export const Radio = /* @__PURE__ */ React.forwardRef<HTMLInputElement, RadioProps>(
   ({ label, description, className = '', style, disabled, ...props }, ref) => {
     return (
       <label
@@ -26,18 +26,16 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
           type="radio"
           disabled={disabled}
           style={{
-            width: '16px',
-            height: '16px',
+            marginTop: '3px',
             accentColor: 'var(--boost-primary, #2563eb)',
             cursor: disabled ? 'not-allowed' : 'pointer',
-            marginTop: '2px',
           }}
           {...props}
         />
         {(label || description) && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {label && (
-              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--boost-text, #1e293b)' }}>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--boost-text, #0f172a)' }}>
                 {label}
               </span>
             )}
@@ -56,17 +54,17 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
 Radio.displayName = 'Radio';
 
 export interface RadioOption {
-  label: string;
+  label: React.ReactNode;
   value: string | number;
   description?: string;
   disabled?: boolean;
 }
 
 export interface RadioGroupProps {
-  name: string;
-  options: RadioOption[];
-  value: string | number;
-  onChange: (value: string | number) => void;
+  name?: string;
+  options?: RadioOption[];
+  value?: string | number;
+  onChange?: (value: string | number) => void;
   orientation?: 'vertical' | 'horizontal';
   className?: string;
   style?: React.CSSProperties;
@@ -74,10 +72,10 @@ export interface RadioGroupProps {
 }
 
 export const RadioGroup: React.FC<RadioGroupProps> = ({
-  name,
-  options,
+  name = 'radio-group',
+  options = [],
   value,
-  onChange,
+  onChange = () => {},
   orientation = 'vertical',
   className = '',
   style,

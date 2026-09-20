@@ -2,12 +2,12 @@ import * as React from 'react';
 
 export interface AspectRatioProps extends React.HTMLAttributes<HTMLDivElement> {
   ratio?: number | string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
 }
 
-export const AspectRatio = React.forwardRef<HTMLDivElement, AspectRatioProps>(
+export const AspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, AspectRatioProps>(
   ({ ratio = 16 / 9, children, className = '', style, ...props }, ref) => {
     let numericRatio: number;
     if (typeof ratio === 'number') {

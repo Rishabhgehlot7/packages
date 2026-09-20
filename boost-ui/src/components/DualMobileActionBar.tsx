@@ -7,8 +7,8 @@ export interface DualMobileActionBarProps {
   currencySymbol?: string;
   isWishlisted?: boolean;
   isInCart?: boolean;
-  onAddToCart: () => void;
-  onBuyNow: () => void;
+  onAddToCart?: () => void;
+  onBuyNow?: () => void;
   onToggleWishlist?: () => void;
   position?: 'fixed' | 'relative';
   addToCartText?: string;
@@ -21,11 +21,11 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
   price,
   compareAtPrice,
   originalPrice,
-  currencySymbol = '₹',
+  currencySymbol = '$',
   isWishlisted = false,
   isInCart = false,
-  onAddToCart,
-  onBuyNow,
+  onAddToCart = () => {},
+  onBuyNow = () => {},
   onToggleWishlist,
   position,
   addToCartText = 'Add to Cart',

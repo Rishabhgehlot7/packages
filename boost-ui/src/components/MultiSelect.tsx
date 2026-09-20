@@ -7,9 +7,9 @@ export interface MultiSelectOption {
 
 export interface MultiSelectProps {
   label?: string;
-  options: MultiSelectOption[];
-  value: string[];
-  onChange: (selected: string[]) => void;
+  options?: MultiSelectOption[];
+  value?: string[];
+  onChange?: (selected: string[]) => void;
   placeholder?: string;
   error?: string;
   className?: string;
@@ -19,9 +19,9 @@ export interface MultiSelectProps {
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
   label,
-  options,
-  value,
-  onChange,
+  options = [],
+  value = [],
+  onChange = () => {},
   placeholder = 'Select options...',
   error,
   className = '',
@@ -30,6 +30,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const safeValue = Array.isArray(value) ? value : [];
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -42,16 +43,16 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   }, []);
 
   const toggleOption = (val: string) => {
-    if (value.includes(val)) {
-      onChange(value.filter((v) => v !== val));
+    if (safeValue.includes(val)) {
+      onChange(safeValue.filter((v) => v !== val));
     } else {
-      onChange([...value, val]);
+      onChange([...safeValue, val]);
     }
   };
 
   const removeChip = (e: React.MouseEvent, val: string) => {
     e.stopPropagation();
-    onChange(value.filter((v) => v !== val));
+    onChange(safeValue.filter((v) => v !== val));
   };
 
   return (
@@ -128,10 +129,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           borderColor: error ? '#ef4444' : isOpen ? 'var(--boost-primary, #2563eb)' : undefined,
         }}
       >
-        {value.length === 0 ? (
+        {safeValue.length === 0 ? (
           <span style={{ fontSize: '14px', color: 'var(--boost-text-muted, #94a3b8)' }}>{placeholder}</span>
         ) : (
-          value.map((val) => {
+          safeValue.map((val) => {
             const opt = options.find((o) => o.value === val);
             return (
               <span

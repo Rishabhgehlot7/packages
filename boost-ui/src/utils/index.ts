@@ -16,17 +16,17 @@ export function cn(...classes: (string | undefined | null | false | 0)[]): strin
 
 /**
  * formatCurrency — Formats a number as a locale-aware currency string.
- * Defaults to Indian Rupees (INR).
+ * Defaults to USD / en-US for universal international compatibility.
  *
  * @example
- * formatCurrency(1499)           // => '₹1,499'
- * formatCurrency(49.99, 'USD')   // => '$49.99'
+ * formatCurrency(49.99)          // => '$49.99'
+ * formatCurrency(1499, 'INR', 'en-IN') // => '₹1,499'
  * formatCurrency(1200, 'EUR', 'de-DE') // => '1.200 €'
  */
 export function formatCurrency(
   amount: number,
-  currency: string = 'INR',
-  locale: string = 'en-IN'
+  currency: string = 'USD',
+  locale: string = 'en-US'
 ): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -40,12 +40,12 @@ export function formatCurrency(
  * formatNumber — Formats a number with locale-aware separators.
  *
  * @example
- * formatNumber(1482900)  // => '14,82,900' (Indian system)
- * formatNumber(1482900, 'en-US') // => '1,482,900'
+ * formatNumber(1482900)          // => '1,482,900'
+ * formatNumber(1482900, 'en-IN') // => '14,82,900' (Indian system)
  */
 export function formatNumber(
   value: number,
-  locale: string = 'en-IN',
+  locale: string = 'en-US',
   options?: Intl.NumberFormatOptions
 ): string {
   return new Intl.NumberFormat(locale, options).format(value);
@@ -55,18 +55,19 @@ export function formatNumber(
  * formatDate — Formats a Date object or ISO string in a human-readable form.
  *
  * @example
- * formatDate(new Date())  // => '18 Sep 2026'
- * formatDate('2026-09-18', 'en-US', { year: 'numeric', month: 'long' }) // => 'September 2026'
+ * formatDate(new Date())        // => 'Sep 18, 2026'
+ * formatDate('2026-09-18', 'en-GB') // => '18 Sept 2026'
  */
 export function formatDate(
   date: Date | string | number,
-  locale: string = 'en-IN',
+  locale: string = 'en-US',
   options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' }
 ): string {
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   if (isNaN(d.getTime())) return 'Invalid Date';
   return new Intl.DateTimeFormat(locale, options).format(d);
 }
+
 
 /**
  * formatRelativeTime — Returns a human-friendly relative time string.

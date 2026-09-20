@@ -1,6 +1,23 @@
 import * as React from 'react';
 
-export type BoxAsTag = 'div' | 'span' | 'section' | 'article' | 'main' | 'aside' | 'header' | 'footer' | 'nav';
+export type BoxAsTag =
+  | 'div'
+  | 'span'
+  | 'section'
+  | 'article'
+  | 'main'
+  | 'aside'
+  | 'header'
+  | 'footer'
+  | 'nav'
+  | 'p'
+  | 'a'
+  | 'button'
+  | 'ul'
+  | 'ol'
+  | 'li'
+  | 'form'
+  | React.ElementType;
 
 export interface BoxProps extends React.HTMLAttributes<HTMLElement> {
   as?: BoxAsTag;
@@ -33,7 +50,7 @@ export interface BoxProps extends React.HTMLAttributes<HTMLElement> {
   style?: React.CSSProperties;
 }
 
-export const Box = React.forwardRef<HTMLElement, BoxProps>(
+export const Box = /* @__PURE__ */ React.forwardRef<HTMLElement, BoxProps>(
   (
     {
       as = 'div',

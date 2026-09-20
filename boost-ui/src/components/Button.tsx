@@ -13,7 +13,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,

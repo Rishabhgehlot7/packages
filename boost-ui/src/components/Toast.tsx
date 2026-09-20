@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export type ToastVariant = 'info' | 'success' | 'warning' | 'error';
+export type ToastVariant = 'info' | 'success' | 'warning' | 'error' | 'loading';
 export type ToastPosition = 'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center';
 
 export interface ToastProps {
@@ -30,6 +30,7 @@ export const Toast: React.FC<ToastProps> = ({
       case 'success': return { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', icon: '#16a34a' };
       case 'warning': return { bg: '#fffbeb', border: '#fde68a', text: '#854d0e', icon: '#d97706' };
       case 'error': return { bg: '#fef2f2', border: '#fecaca', text: '#991b1b', icon: '#dc2626' };
+      case 'loading': return { bg: '#f8fafc', border: '#e2e8f0', text: '#334155', icon: '#2563eb' };
       case 'info':
       default: return { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', icon: '#2563eb' };
     }
@@ -61,6 +62,10 @@ export const Toast: React.FC<ToastProps> = ({
       }}
     >
       <style>{`
+        @keyframes boost-toast-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         :root[data-theme="dark"] .boost-toast {
           background-color: #1e293b !important;
           border-color: rgba(255, 255, 255, 0.12) !important;
@@ -74,6 +79,20 @@ export const Toast: React.FC<ToastProps> = ({
         }
       `}</style>
       <div style={{ marginTop: '2px', display: 'flex', color: theme.icon, flexShrink: 0 }}>
+        {activeVariant === 'loading' && (
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            style={{ animation: 'boost-toast-spin 0.8s linear infinite' }}
+          >
+            <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+            <path d="M12 2a10 10 0 0 1 10 10" />
+          </svg>
+        )}
         {activeVariant === 'success' && (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <polyline points="20 6 9 17 4 12" />
@@ -139,6 +158,12 @@ export const Toast: React.FC<ToastProps> = ({
   );
 };
 
+export interface ToastPromiseOptions<T = any> {
+  loading: string;
+  success: string | ((data: T) => string);
+  error: string | ((err: any) => string);
+}
+
 export interface ToastOptions {
   id?: string;
   title?: string;
@@ -154,6 +179,8 @@ export interface ToastContextType {
     error: (message: string, title?: string) => string;
     warning: (message: string, title?: string) => string;
     info: (message: string, title?: string) => string;
+    loading: (message: string, title?: string) => string;
+    promise: <T>(promise: Promise<T>, options: ToastPromiseOptions<T>) => Promise<T>;
     dismiss: (id: string) => void;
   };
 }
@@ -214,6 +241,23 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
       addToast({ message, title, variant: 'warning' });
     fn.info = (message: string, title?: string) =>
       addToast({ message, title, variant: 'info' });
+    fn.loading = (message: string, title?: string) =>
+      addToast({ message, title, variant: 'loading', duration: 0 });
+    fn.promise = async <T,>(promise: Promise<T>, options: ToastPromiseOptions<T>): Promise<T> => {
+      const id = addToast({ message: options.loading, variant: 'loading', duration: 0 });
+      try {
+        const data = await promise;
+        dismiss(id);
+        const successMsg = typeof options.success === 'function' ? options.success(data) : options.success;
+        addToast({ message: successMsg, variant: 'success' });
+        return data;
+      } catch (err: any) {
+        dismiss(id);
+        const errorMsg = typeof options.error === 'function' ? options.error(err) : options.error;
+        addToast({ message: errorMsg, variant: 'error' });
+        throw err;
+      }
+    };
     fn.dismiss = dismiss;
     return fn;
   }, [addToast, dismiss]);
@@ -298,6 +342,11 @@ export const useToast = (): ToastContextType => {
             if (typeof window !== 'undefined') console.info(`[Toast Info] ${msg}`);
             return '';
           },
+          loading: (msg: string) => {
+            if (typeof window !== 'undefined') console.info(`[Toast Loading] ${msg}`);
+            return '';
+          },
+          promise: async <T,>(p: Promise<T>) => await p,
           dismiss: () => {},
         }
       ),

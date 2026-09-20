@@ -19,16 +19,18 @@ export interface VariantGroup {
 export type SelectedVariants = Record<string, string>;
 
 export interface VariantSelectorProps {
-  groups: VariantGroup[];
+  groups?: VariantGroup[];
   selectedValues?: SelectedVariants; // { "Select Size": "M", "Select Color": "Black" }
   selectedVariants?: SelectedVariants;
+  currencySymbol?: string;
   onChange?: (groupName: string, optionValue: string, option?: VariantOption) => void;
   className?: string;
 }
 
 export const VariantSelector: React.FC<VariantSelectorProps> = ({
-  groups,
+  groups = [],
   selectedValues,
+  currencySymbol = '$',
   onChange,
   className = '',
   ...props
@@ -194,7 +196,7 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                     <span>{optDisplay}</span>
                     {opt.priceDelta && opt.priceDelta > 0 && (
                       <span style={{ fontSize: '11px', marginLeft: '5px', opacity: 0.85 }}>
-                        (+₹{opt.priceDelta})
+                        (+{currencySymbol}{opt.priceDelta})
                       </span>
                     )}
                   </button>

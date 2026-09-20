@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export interface TestimonialProps extends React.HTMLAttributes<HTMLDivElement> {
-  quote: string;
+  quote?: string;
   authorName?: string;
   author?: string;
   authorRole?: string;
@@ -18,7 +18,7 @@ export interface TestimonialProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const TestimonialCard: React.FC<TestimonialProps> = ({
-  quote,
+  quote = '',
   authorName,
   author,
   authorRole,
@@ -177,14 +177,14 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({
 };
 
 export interface TestimonialGridProps extends React.HTMLAttributes<HTMLDivElement> {
-  testimonials: TestimonialProps[];
+  testimonials?: TestimonialProps[];
   columns?: 2 | 3;
   className?: string;
   style?: React.CSSProperties;
 }
 
 export const TestimonialGrid: React.FC<TestimonialGridProps> = ({
-  testimonials,
+  testimonials = [],
   columns = 3,
   className = '',
   style,

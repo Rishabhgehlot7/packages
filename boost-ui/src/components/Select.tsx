@@ -10,18 +10,18 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   label?: string;
   error?: string;
   helperText?: string;
-  options: SelectOption[];
+  options?: SelectOption[];
   placeholder?: string;
   fullWidth?: boolean;
 }
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, SelectProps>(
   (
     {
       label,
       error,
       helperText,
-      options,
+      options = [],
       placeholder,
       fullWidth = true,
       disabled,

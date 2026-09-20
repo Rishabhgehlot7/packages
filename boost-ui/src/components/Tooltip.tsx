@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 export interface TooltipProps {
-  content: React.ReactNode;
-  children: React.ReactNode;
+  content?: React.ReactNode;
+  children?: React.ReactNode;
   position?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
   style?: React.CSSProperties;
@@ -17,6 +17,19 @@ export const Tooltip: React.FC<TooltipProps> = ({
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const tooltipId = React.useId ? React.useId().replace(/:/g, '') : `tooltip-${Math.random().toString(36).substring(2, 7)}`;
+
+  // Close on Escape key
+  React.useEffect(() => {
+    if (!isVisible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsVisible(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isVisible]);
 
   // Close on outside touch for mobile
   React.useEffect(() => {
@@ -64,6 +77,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <div
       ref={containerRef}
+      aria-describedby={content && isVisible ? tooltipId : undefined}
       className={`boost-tooltip-wrapper ${className}`}
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
@@ -95,8 +109,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
         }
       `}</style>
       {children}
-      {isVisible && (
+      {isVisible && content && (
         <div
+          id={tooltipId}
           role="tooltip"
           className="boost-tooltip-bubble"
           style={{

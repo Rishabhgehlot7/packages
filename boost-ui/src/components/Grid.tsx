@@ -21,7 +21,7 @@ export interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
   style?: React.CSSProperties;
 }
 
-export const Grid = React.forwardRef<HTMLDivElement, GridProps>(
+export const Grid = /* @__PURE__ */ React.forwardRef<HTMLDivElement, GridProps>(
   (
     {
       children,
@@ -131,7 +131,7 @@ export interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   style?: React.CSSProperties;
 }
 
-export const GridItem = React.forwardRef<HTMLDivElement, GridItemProps>(
+export const GridItem = /* @__PURE__ */ React.forwardRef<HTMLDivElement, GridItemProps>(
   (
     {
       children,

@@ -8,7 +8,7 @@ export interface AccordionItem {
 }
 
 export interface AccordionProps {
-  items: AccordionItem[];
+  items?: AccordionItem[];
   allowMultiple?: boolean;
   defaultExpanded?: string[];
   variant?: 'default' | 'bordered' | 'separated';
@@ -17,7 +17,7 @@ export interface AccordionProps {
 }
 
 export const Accordion: React.FC<AccordionProps> = ({
-  items,
+  items = [],
   allowMultiple = false,
   defaultExpanded = [],
   variant = 'default',

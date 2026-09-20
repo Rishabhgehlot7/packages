@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ui = require('./dist/index.cjs');
 
-console.log('🧪 Running @boostengine/ui Test Suite v1.7.0...\n');
+console.log('🧪 Running @boostengine/ui Test Suite v1.8.2...\n');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 let passed = 0;
@@ -68,12 +68,15 @@ test('llms.txt and llms-full.txt exist and are populated', () => {
 });
 
 // ─── TEST 5: Theming & Provider ───────────────────────────────────────────
-test('Theming exports: BoostProvider, useTheme, ThemeToggle', () => {
+test('Theming exports: BoostProvider, useTheme, ThemeToggle, useCurrency, injectBoostGlobalStyles', () => {
   assertExport('BoostProvider');
   assertExport('useTheme');
   assertExport('ThemeToggle');
+  assertExport('useCurrency');
+  assertExport('injectBoostGlobalStyles');
   assert.strictEqual(typeof ui.BoostProvider, 'function', 'BoostProvider must be a function/component');
   assert.strictEqual(typeof ui.useTheme, 'function', 'useTheme must be a function/hook');
+  assert.strictEqual(typeof ui.useCurrency, 'function', 'useCurrency must be a function/hook');
   assert.strictEqual(typeof ui.ThemeToggle, 'function', 'ThemeToggle must be a function/component');
 });
 
@@ -200,6 +203,25 @@ test('Submodules @boostengine/ui/hooks and @boostengine/ui/utils load independen
   assert.ok(typeof utils.formatCurrency === 'function', 'utils.formatCurrency must be exported');
   assert.ok(typeof utils.cn === 'function', 'utils.cn must be exported');
   console.log(`     🎯 Sub-bundles tree-shaking verified!`);
+});
+
+// ─── TEST 22: Design Tokens & Tailwind Preset (v1.8.2) ───────────────────
+test('Design tokens (tokens.json, boostTokens, createTailwindPreset) & docs', () => {
+  assert.ok(fs.existsSync(path.join(__dirname, 'src/tokens.json')), 'src/tokens.json must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'docs/THEMING_AND_TOKENS.md')), 'docs/THEMING_AND_TOKENS.md must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'docs/COMPONENTS_REFERENCE.md')), 'docs/COMPONENTS_REFERENCE.md must exist');
+  assert.ok(fs.existsSync(path.join(__dirname, 'docs/A11Y_AUDIT.md')), 'docs/A11Y_AUDIT.md must exist');
+  
+  const tokensJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'src/tokens.json'), 'utf-8'));
+  assert.ok((tokensJson.colors || tokensJson.color) && tokensJson.spacing && (tokensJson.radii || tokensJson.borderRadius), 'tokens.json must have valid structure');
+  
+  assertExport('boostTokens');
+  assertExport('createTailwindPreset');
+  assert.strictEqual(typeof ui.createTailwindPreset, 'function', 'createTailwindPreset must be a function');
+  
+  const preset = ui.createTailwindPreset();
+  assert.ok(preset.theme && preset.theme.extend, 'Preset must return valid Tailwind config');
+  assert.ok(preset.theme.extend.colors && preset.theme.extend.colors.boost, 'Preset must expose boost colors');
 });
 
 // ─── RESULTS ────────────────────────────────────────────────────────────

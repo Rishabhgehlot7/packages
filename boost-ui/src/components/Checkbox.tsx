@@ -6,7 +6,7 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   indeterminate?: boolean;
 }
 
-export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
+export const Checkbox = /* @__PURE__ */ React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ label, description, indeterminate, checked, disabled, className = '', style, ...props }, ref) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
 

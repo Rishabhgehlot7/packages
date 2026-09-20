@@ -8,7 +8,7 @@ export interface LogoItem {
 }
 
 export interface LogoCloudProps extends React.HTMLAttributes<HTMLDivElement> {
-  logos: LogoItem[];
+  logos?: LogoItem[];
   title?: string;
   grayscale?: boolean;
   className?: string;
@@ -16,7 +16,7 @@ export interface LogoCloudProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const LogoCloud: React.FC<LogoCloudProps> = ({
-  logos,
+  logos = [],
   title = 'TRUSTED BY 10,000+ MODERN BUSINESSES & D2C BRANDS',
   grayscale = true,
   className = '',

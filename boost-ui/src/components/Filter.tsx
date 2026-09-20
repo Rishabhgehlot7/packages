@@ -8,7 +8,7 @@ export interface FilterOption {
 
 export interface FilterProps {
   label?: string;
-  options: FilterOption[];
+  options?: FilterOption[];
   selectedValues?: string[];
   onChange?: (values: string[]) => void;
   multiple?: boolean;
@@ -19,7 +19,7 @@ export interface FilterProps {
 
 export const Filter: React.FC<FilterProps> = ({
   label = 'Filter',
-  options,
+  options = [],
   selectedValues = [],
   onChange,
   multiple = true,

@@ -6,7 +6,7 @@ export interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInp
   fullWidth?: boolean;
 }
 
-export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
+export const SearchInput = /* @__PURE__ */ React.forwardRef<HTMLInputElement, SearchInputProps>(
   (
     {
       value,

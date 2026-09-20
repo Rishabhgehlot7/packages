@@ -10,7 +10,7 @@ export interface FeatureItem {
 }
 
 export interface FeatureGridProps extends React.HTMLAttributes<HTMLDivElement> {
-  features: FeatureItem[];
+  features?: FeatureItem[];
   columns?: 2 | 3 | 4;
   align?: 'left' | 'center';
   className?: string;
@@ -18,7 +18,7 @@ export interface FeatureGridProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const FeatureGrid: React.FC<FeatureGridProps> = ({
-  features,
+  features = [],
   columns = 3,
   align = 'left',
   className = '',

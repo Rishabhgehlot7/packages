@@ -23,6 +23,7 @@ export interface FooterProps {
   newsletter?: boolean;
   onNewsletterSubmit?: (email: string) => void;
   showPaymentBadges?: boolean;
+  paymentMethods?: string[];
   copyrightYear?: number;
   copyrightText?: string;
   variant?: 'dark' | 'light' | 'surface';
@@ -77,7 +78,7 @@ export const Footer: React.FC<FooterProps> = ({
   logo,
   brandName = 'BoostStore',
   brandBadge,
-  description = 'India’s modern direct-to-consumer store delivering premium quality essentials straight to your doorstep.',
+  description = 'Modern direct-to-consumer store delivering premium quality essentials straight to your doorstep.',
   columns = [
     {
       title: 'Shop',
@@ -117,6 +118,7 @@ export const Footer: React.FC<FooterProps> = ({
   newsletter = true,
   onNewsletterSubmit,
   showPaymentBadges = true,
+  paymentMethods = ['VISA', 'Mastercard', 'AMEX', 'Apple Pay', 'Google Pay', 'PayPal'],
   copyrightYear = new Date().getFullYear(),
   copyrightText,
   variant = 'dark',
@@ -504,7 +506,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           {showPaymentBadges && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              {['UPI', 'RuPay', 'VISA', 'Mastercard', 'NetBanking', 'COD Available'].map((method) => (
+              {paymentMethods.map((method) => (
                 <span
                   key={method}
                   style={{

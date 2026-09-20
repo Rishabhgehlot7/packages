@@ -4,6 +4,60 @@ All notable changes to `@boostengine/ui` are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
+## [1.8.2] — 2026-09-20
+
+### Added
+- **Design System Tokens & Tailwind Integration**:
+  - Exported standard Design Tokens JSON (`tokens.json` / `@boostengine/ui/tokens.json`) compatible with Figma Tokens Studio & Style Dictionary.
+  - Exported `boostTokens` typed object in TypeScript/JavaScript.
+  - Exported `createTailwindPreset()` helper for zero-config Tailwind CSS mapping.
+  - Added `docs/THEMING_AND_TOKENS.md` detailing token structure, provider theming, and CSS variable specifications.
+- **Enterprise DataTable**:
+  - Multi-row selection with checkboxes (`selectable`, `selectedRows`, `onSelectionChange`, select all header checkbox).
+  - Column sorting with visual indicators (`sortable`).
+  - Sticky header support (`stickyHeader`) and customizable scrollable container height (`maxHeight`).
+  - Built-in one-click CSV export (`exportable`, `exportFilename`).
+  - Server-side / manual pagination integration (`manualPagination`, `totalCount`, `page`, `onPageChange`).
+- **Asynchronous Toast Lifecycle (`toast.promise`)**:
+  - Implemented `toast.promise<T>(promise, { loading, success, error }, options)` in `ToastProvider` and safe fallback in `useToast`.
+  - Seamlessly transitions notification state from loading spinner to success/error message with auto-dismiss.
+- **Strict Polymorphism**:
+  - Created strict polymorphic typing system (`src/types/polymorphic.ts`) enabling typesafe `as` prop forwarding with full ref support.
+  - Expanded `Box` component to support any HTML element (`p`, `a`, `button`, `ul`, `form`, etc.) and custom elements.
+- **Form State Enhancements (`useForm`)**:
+  - Added `validationSummary` string array for centralized form error banners.
+  - Added `getFieldError`, `setFieldValue`, `setFieldError`, `hasErrors`, and `isValid` utilities.
+- **Comprehensive Documentation & Accessibility Audit**:
+  - Added `docs/COMPONENTS_REFERENCE.md` with complete API matrix, props, variants, edge cases, and TypeScript examples.
+  - Added `docs/A11Y_AUDIT.md` with WAI-ARIA 1.2 compliance matrix, keyboard navigation specs, focus trapping rules, and WCAG 2.1 AA/AAA contrast ratios.
+
+## [1.8.1] — 2026-09-20
+
+### Fixed
+- **Tree-Shaking & Bundle Size Optimization**:
+  - Moved DOM stylesheet injection from module load time into `BoostProvider`'s `useEffect` / `injectBoostGlobalStyles()`, restoring full `sideEffects: false` compliance for bundlers (esbuild, webpack, Rollup).
+  - Shipped dedicated `@boostengine/ui/styles.css` standalone stylesheet for zero-JS CSS importing.
+  - Enabled ESM code splitting (`splitting: true`) in `tsup.config.ts`.
+  - Added `/* @__PURE__ */` annotations across all `React.forwardRef` component calls, ensuring dead-code elimination.
+  - Disabled sourcemap generation in distribution (`sourcemap: false`) and trimmed package `files` field to eliminate 2.7 MB bloat and prevent shipping full test fixtures.
+- **SSR Crash & Zero-Prop Resilience**:
+  - Provided safe default values (`= []`, `= false`, `= 0`, `= () => {}`) across 21 components (`Select`, `Accordion`, `Table`, `Stepper`, `PricingTable`, `VariantSelector`, `DataTable`, `MultiSelect`, `Sort`, `Sidebar`, `RadioGroup`, `ProductCard`, `StickyAddToCart`, `OrderSummary`, `FrequentlyBoughtTogether`, `DualMobileActionBar`, `CartDrawer`, `ActivityFeed`, `CommandPalette`, `NotificationCenter`, `Breadcrumb`, `Filter`, `FeatureGrid`, `LogoCloud`, `FAQSection`, `TestimonialGrid`).
+  - Rendering any component without props or during SSR now renders safely without throwing `TypeError: Cannot read properties of undefined`.
+- **WAI-ARIA & Accessibility Upgrades**:
+  - `DropdownMenu`: Added `role="menu"`, `role="menuitem"`, arrow key navigation (`ArrowDown`, `ArrowUp`, `Home`, `End`), and Escape key dismissal with focus restoration.
+  - `DatePicker`: Added `htmlFor` label linkage, explicit `aria-label`, `aria-invalid`, `aria-describedby`, and keyboard Enter/Space triggers.
+  - `Tooltip`: Added Escape key dismissal, `role="tooltip"`, and `aria-describedby` trigger association.
+- **Universal Locale & Currency Support**:
+  - Migrated hardcoded `INR`/`₹` and `en-IN` defaults to universal configurable `$` / `USD` and `en-US`.
+  - Added `useCurrency()` hook and `currency` / `locale` context to `BoostProvider`.
+  - Added `currencySymbol` and `locale` props across e-commerce components (`ProductCard`, `StickyAddToCart`, `Price`, `OrderSummary`, `FrequentlyBoughtTogether`, `DualMobileActionBar`, `CartDrawer`, `VariantSelector`).
+  - Added international postal code validation (`/^[\w\d\s-]{3,10}$/i`) to `PincodeChecker` and `AddressForm`, supporting both worldwide ZIP/postal codes and PIN codes.
+  - Internationalized `Footer` payment badges and default descriptions.
+- **Developer Experience (DX)**:
+  - Made `ProductCardProps.id` optional (`id?: string`), resolving strict TypeScript errors when passing mock data.
+- **Repository Links**:
+  - Corrected `homepage` and `repository.directory` to point to `boost-ui` in `package.json`, resolving 404 links on npmjs.com.
+
 ## [1.8.0] — 2026-09-20
 
 ### Added

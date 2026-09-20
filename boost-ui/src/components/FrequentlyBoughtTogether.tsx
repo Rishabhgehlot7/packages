@@ -9,10 +9,11 @@ export interface BundleItem {
 }
 
 export interface FrequentlyBoughtTogetherProps {
-  mainProduct: BundleItem;
-  suggestedItems: BundleItem[];
+  mainProduct?: BundleItem;
+  suggestedItems?: BundleItem[];
   bundleDiscountPercentage?: number;
   currencySymbol?: string;
+  locale?: string;
   onAddBundleToCart?: (selectedItems: BundleItem[]) => void;
   onAddBundle?: (selectedItems: BundleItem[] | string[]) => void;
   className?: string;
@@ -21,18 +22,29 @@ export interface FrequentlyBoughtTogetherProps {
 
 export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> = ({
   mainProduct,
-  suggestedItems,
+  suggestedItems = [],
   bundleDiscountPercentage = 10,
-  currencySymbol = '₹',
+  currencySymbol = '$',
+  locale = 'en-US',
   onAddBundleToCart,
   onAddBundle,
   className = '',
   style,
 }) => {
-  const allItems = [mainProduct, ...suggestedItems];
-  const [selectedIds, setSelectedIds] = React.useState<string[]>(
+  const allItems = React.useMemo(() => {
+    const list: BundleItem[] = [];
+    if (mainProduct && typeof mainProduct === 'object' && mainProduct.id) list.push(mainProduct);
+    if (Array.isArray(suggestedItems)) list.push(...suggestedItems);
+    return list;
+  }, [mainProduct, suggestedItems]);
+
+  const [selectedIds, setSelectedIds] = React.useState<string[]>(() =>
     allItems.map((i) => i.id)
   );
+
+  React.useEffect(() => {
+    setSelectedIds(allItems.map((i) => i.id));
+  }, [allItems]);
   const [imageErrors, setImageErrors] = React.useState<Record<string, boolean>>({});
 
   const toggleItem = (id: string) => {
@@ -421,7 +433,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
                   }}
                 >
                   {currencySymbol}
-                  {item.price.toLocaleString('en-IN')}
+                  {item.price.toLocaleString(locale)}
                 </span>
                 {item.originalPrice && item.originalPrice > item.price && (
                   <span
@@ -433,7 +445,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
                     }}
                   >
                     {currencySymbol}
-                    {item.originalPrice.toLocaleString('en-IN')}
+                    {item.originalPrice.toLocaleString(locale)}
                   </span>
                 )}
               </span>
@@ -469,7 +481,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
               }}
             >
               {currencySymbol}
-              {finalPrice.toLocaleString('en-IN')}
+              {finalPrice.toLocaleString(locale)}
             </span>
             {discountAmount > 0 && (
               <span
@@ -480,7 +492,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
                 }}
               >
                 {currencySymbol}
-                {subtotal.toLocaleString('en-IN')}
+                {subtotal.toLocaleString(locale)}
               </span>
             )}
           </div>
@@ -494,7 +506,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
               }}
             >
               🎉 You save {currencySymbol}
-              {totalSavings > 0 ? totalSavings.toLocaleString('en-IN') : discountAmount.toLocaleString('en-IN')} ({bundleDiscountPercentage}% combo discount)
+              {totalSavings > 0 ? totalSavings.toLocaleString(locale) : discountAmount.toLocaleString(locale)} ({bundleDiscountPercentage}% combo discount)
             </div>
           )}
         </div>

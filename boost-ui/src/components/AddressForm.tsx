@@ -61,15 +61,15 @@ export const AddressForm: React.FC<AddressFormProps> = ({
     const cleanPhone = formData.phone.replace(/[\s\-\(\)]/g, '');
     if (!cleanPhone) {
       errs.phone = 'Phone number is required';
-    } else if (!/^\+?[0-9]{10,15}$/.test(cleanPhone)) {
-      errs.phone = 'Please enter a valid 10-digit mobile number';
+    } else if (!/^\+?[0-9]{7,15}$/.test(cleanPhone)) {
+      errs.phone = 'Please enter a valid phone number';
     }
 
     const cleanPin = formData.pincode.trim();
     if (!cleanPin) {
-      errs.pincode = 'Pincode is required';
-    } else if (!/^[0-9]{6}$/.test(cleanPin)) {
-      errs.pincode = 'Please enter a valid 6-digit pincode';
+      errs.pincode = 'Postal / ZIP code is required';
+    } else if (!/^[\w\d\s-]{3,10}$/i.test(cleanPin)) {
+      errs.pincode = 'Please enter a valid postal / ZIP code';
     }
 
     if (!formData.houseNumber.trim()) {
@@ -167,7 +167,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
               type="tel"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              placeholder="10-digit mobile number"
+              placeholder="Phone number (e.g. +1 555-0199)"
               style={getInputStyle(!!errors.phone)}
             />
             {renderError(errors.phone)}
@@ -176,25 +176,25 @@ export const AddressForm: React.FC<AddressFormProps> = ({
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '12px' }}>
           <div>
-            <label style={labelStyle}>Pincode *</label>
+            <label style={labelStyle}>Postal / ZIP Code *</label>
             <input
               type="text"
-              maxLength={6}
+              maxLength={10}
               value={formData.pincode}
               onChange={(e) => handleChange('pincode', e.target.value)}
-              placeholder="e.g. 110001"
+              placeholder="e.g. 90210 or 110001"
               style={getInputStyle(!!errors.pincode)}
             />
             {renderError(errors.pincode)}
           </div>
 
           <div style={{ gridColumn: 'span 1' }}>
-            <label style={labelStyle}>Flat / House No. / Building *</label>
+            <label style={labelStyle}>Apt / Suite / House No. *</label>
             <input
               type="text"
               value={formData.houseNumber}
               onChange={(e) => handleChange('houseNumber', e.target.value)}
-              placeholder="e.g. Flat 402, Lotus Tower"
+              placeholder="e.g. Apt 4B or Suite 200"
               style={getInputStyle(!!errors.houseNumber)}
             />
             {renderError(errors.houseNumber)}
@@ -202,12 +202,12 @@ export const AddressForm: React.FC<AddressFormProps> = ({
         </div>
 
         <div>
-          <label style={labelStyle}>Area / Street / Sector *</label>
+          <label style={labelStyle}>Street Address *</label>
           <input
             type="text"
             value={formData.street}
             onChange={(e) => handleChange('street', e.target.value)}
-            placeholder="e.g. MG Road, Near Central Park"
+            placeholder="e.g. 123 Main Street or Broadway"
             style={getInputStyle(!!errors.street)}
           />
           {renderError(errors.street)}
@@ -220,19 +220,19 @@ export const AddressForm: React.FC<AddressFormProps> = ({
               type="text"
               value={formData.city}
               onChange={(e) => handleChange('city', e.target.value)}
-              placeholder="e.g. New Delhi"
+              placeholder="e.g. New York or London"
               style={getInputStyle(!!errors.city)}
             />
             {renderError(errors.city)}
           </div>
 
           <div>
-            <label style={labelStyle}>State *</label>
+            <label style={labelStyle}>State / Province / Region *</label>
             <input
               type="text"
               value={formData.state}
               onChange={(e) => handleChange('state', e.target.value)}
-              placeholder="e.g. Delhi"
+              placeholder="e.g. California or Ontario"
               style={getInputStyle(!!errors.state)}
             />
             {renderError(errors.state)}

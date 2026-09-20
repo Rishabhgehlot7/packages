@@ -3,7 +3,7 @@ import * as React from 'react';
 export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning' | 'info';
 
 export interface BadgeProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   variant?: BadgeVariant;
   className?: string;
   style?: React.CSSProperties;

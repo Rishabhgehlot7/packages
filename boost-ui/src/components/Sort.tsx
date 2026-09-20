@@ -8,7 +8,7 @@ export interface SortOption {
 export type SortDirection = 'asc' | 'desc';
 
 export interface SortProps {
-  options: SortOption[];
+  options?: SortOption[];
   currentValue?: string;
   currentDirection?: SortDirection;
   onChange?: (value: string, direction: SortDirection) => void;
@@ -18,7 +18,7 @@ export interface SortProps {
 }
 
 export const Sort: React.FC<SortProps> = ({
-  options,
+  options = [],
   currentValue = options[0]?.value || '',
   currentDirection = 'asc',
   onChange,
@@ -40,7 +40,7 @@ export const Sort: React.FC<SortProps> = ({
     onChange?.(currentValue, nextDir);
   };
 
-  const currentOption = options.find((o) => o.value === currentValue);
+  const currentOption = (options || []).find((o) => o.value === currentValue);
 
   return (
     <div className={`boost-sort-wrapper ${className || ''}`} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', fontFamily: 'inherit', ...style }}>

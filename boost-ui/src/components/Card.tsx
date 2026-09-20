@@ -11,7 +11,7 @@ export type CardDescriptionProps = React.HTMLAttributes<HTMLParagraphElement>;
 export type CardContentProps = React.HTMLAttributes<HTMLDivElement>;
 export type CardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
-export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+export const Card = /* @__PURE__ */ React.forwardRef<HTMLDivElement, CardProps>(
   ({ hoverable = false, variant = 'elevated', className = '', style, children, ...props }, ref) => {
     const isGlass = variant === 'glass';
     const isOutlined = variant === 'outlined';

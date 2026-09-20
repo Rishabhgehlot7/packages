@@ -1,9 +1,10 @@
 import React from 'react';
 
 export interface PriceProps {
-  amount: number;
+  amount?: number;
   originalAmount?: number;
   currencySymbol?: string;
+  locale?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showDiscount?: boolean;
   showSavings?: boolean;
@@ -12,9 +13,10 @@ export interface PriceProps {
 }
 
 export const Price: React.FC<PriceProps> = ({
-  amount,
+  amount = 0,
   originalAmount,
-  currencySymbol = '₹',
+  currencySymbol = '$',
+  locale = 'en-US',
   size = 'md',
   showDiscount = true,
   showSavings = false,
@@ -37,7 +39,7 @@ export const Price: React.FC<PriceProps> = ({
   const currentSize = sizeStyles[size] || sizeStyles.md;
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-IN').format(num);
+    return new Intl.NumberFormat(locale).format(num);
   };
 
   return (

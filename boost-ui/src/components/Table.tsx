@@ -10,8 +10,8 @@ export interface TableColumn<T = any> {
 }
 
 export interface TableProps<T = any> {
-  columns: TableColumn<T>[];
-  data: T[];
+  columns?: TableColumn<T>[];
+  data?: T[];
   striped?: boolean;
   bordered?: boolean;
   hoverable?: boolean;
@@ -20,8 +20,8 @@ export interface TableProps<T = any> {
 }
 
 export function Table<T extends Record<string, any>>({
-  columns,
-  data,
+  columns = [],
+  data = [],
   striped = false,
   bordered = true,
   hoverable = true,

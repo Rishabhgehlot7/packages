@@ -10,27 +10,29 @@ export interface CartDrawerItem {
 }
 
 export interface CartDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  items: CartDrawerItem[];
-  subtotal: number;
+  isOpen?: boolean;
+  onClose?: () => void;
+  items?: CartDrawerItem[];
+  subtotal?: number;
+  currencySymbol?: string;
   freeShippingThreshold?: number;
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemoveItem: (id: string) => void;
-  onCheckout: () => Promise<void> | void;
+  onUpdateQuantity?: (id: string, quantity: number) => void;
+  onRemoveItem?: (id: string) => void;
+  onCheckout?: () => Promise<void> | void;
   className?: string;
   onTabSync?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
-  isOpen,
-  onClose,
-  items,
-  subtotal,
-  freeShippingThreshold = 999,
-  onUpdateQuantity,
-  onRemoveItem,
-  onCheckout,
+  isOpen = false,
+  onClose = () => {},
+  items = [],
+  subtotal = 0,
+  currencySymbol = '$',
+  freeShippingThreshold = 50,
+  onUpdateQuantity = () => {},
+  onRemoveItem = () => {},
+  onCheckout = () => {},
   className = '',
   onTabSync,
 }) => {
@@ -234,7 +236,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             {isFreeShippingUnlocked ? (
               <span>🎉 You unlocked <strong>FREE Delivery</strong>!</span>
             ) : (
-              <span>Add <strong>₹{amountRemaining.toFixed(0)}</strong> more for FREE Delivery!</span>
+              <span>Add <strong>{currencySymbol}{amountRemaining.toFixed(0)}</strong> more for FREE Delivery!</span>
             )}
           </div>
           <div
@@ -356,7 +358,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
                     )}
                     <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--boost-text, #0f172a)', marginTop: '6px' }}>
-                      ₹{item.price}
+                      {currencySymbol}{item.price}
                     </div>
                   </div>
 
@@ -458,7 +460,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '14px' }}>
               <span style={{ fontSize: '14px', color: 'var(--boost-text-muted, #64748b)' }}>Subtotal:</span>
               <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--boost-text, #0f172a)' }}>
-                ₹{subtotal.toFixed(2)}
+                {currencySymbol}{subtotal.toFixed(2)}
               </span>
             </div>
 

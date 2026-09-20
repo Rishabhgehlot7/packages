@@ -2,8 +2,8 @@ import * as React from 'react';
 
 export interface OTPInputProps {
   length?: number;
-  value: string;
-  onChange: (otp: string) => void;
+  value?: string;
+  onChange?: (otp: string) => void;
   onComplete?: (otp: string) => void;
   disabled?: boolean;
   error?: string;
@@ -11,12 +11,12 @@ export interface OTPInputProps {
   style?: React.CSSProperties;
 }
 
-export const OTPInput = React.forwardRef<HTMLInputElement, OTPInputProps>(
+export const OTPInput = /* @__PURE__ */ React.forwardRef<HTMLInputElement, OTPInputProps>(
   (
     {
       length = 6,
-      value,
-      onChange,
+      value = '',
+      onChange = () => {},
       onComplete,
       disabled = false,
       error,

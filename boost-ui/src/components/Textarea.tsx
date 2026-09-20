@@ -9,7 +9,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   fullWidth?: boolean;
 }
 
-export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+export const Textarea = /* @__PURE__ */ React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       label,

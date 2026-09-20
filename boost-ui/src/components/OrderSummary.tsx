@@ -8,11 +8,12 @@ export interface OrderSummaryItem {
 }
 
 export interface OrderSummaryProps {
-  subtotal: number;
+  subtotal?: number;
   discount?: number;
   shippingFee?: number;
   tax?: number;
   currencySymbol?: string;
+  locale?: string;
   freeShippingThreshold?: number;
   onCheckout?: () => void;
   loading?: boolean;
@@ -22,11 +23,12 @@ export interface OrderSummaryProps {
 }
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
-  subtotal,
+  subtotal = 0,
   discount = 0,
   shippingFee = 0,
   tax = 0,
-  currencySymbol = '₹',
+  currencySymbol = '$',
+  locale = 'en-US',
   freeShippingThreshold,
   onCheckout,
   loading = false,
@@ -38,7 +40,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   const total = Math.max(0, subtotal - discount + (isFreeShipping ? 0 : shippingFee) + tax);
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-IN').format(num);
+    return new Intl.NumberFormat(locale).format(num);
   };
 
   const remainingForFreeShipping =

@@ -8,7 +8,7 @@ export interface StepItem {
 }
 
 export interface StepperProps {
-  steps: StepItem[];
+  steps?: StepItem[];
   activeStep?: number; // 0-indexed
   currentStep?: number; // 1-indexed
   onStepClick?: (stepIndex: number) => void;
@@ -16,7 +16,7 @@ export interface StepperProps {
 }
 
 export const Stepper: React.FC<StepperProps> = ({
-  steps,
+  steps = [],
   activeStep,
   currentStep,
   onStepClick,

@@ -1,12 +1,13 @@
 import * as React from 'react';
 
 export interface StickyAddToCartProps {
-  title: string;
-  price: number;
+  title?: string;
+  price?: number;
+  currencySymbol?: string;
   compareAtPrice?: number;
   originalPrice?: number;
   image?: string;
-  onAddToCart: (quantity: number) => Promise<void> | void;
+  onAddToCart?: (quantity: number) => Promise<void> | void;
   onBuyNow?: (quantity: number) => Promise<void> | void;
   inStock?: boolean;
   className?: string;
@@ -14,12 +15,13 @@ export interface StickyAddToCartProps {
 }
 
 export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
-  title,
-  price,
+  title = 'Product',
+  price = 0,
+  currencySymbol = '$',
   compareAtPrice,
   originalPrice,
   image,
-  onAddToCart,
+  onAddToCart = () => {},
   onBuyNow,
   inStock = true,
   className = '',
@@ -202,9 +204,9 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
               {title}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
-              <span style={{ fontSize: '16px', fontWeight: 700 }}>₹{price}</span>
+              <span style={{ fontSize: '16px', fontWeight: 700 }}>{currencySymbol}{price}</span>
               {finalComparePrice && finalComparePrice > price && (
-                <span style={{ fontSize: '13px', color: 'var(--boost-text-muted, #94a3b8)', textDecoration: 'line-through' }}>₹{finalComparePrice}</span>
+                <span style={{ fontSize: '13px', color: 'var(--boost-text-muted, #94a3b8)', textDecoration: 'line-through' }}>{currencySymbol}{finalComparePrice}</span>
               )}
             </div>
           </div>

@@ -13,7 +13,7 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   isLoading?: boolean;
 }
 
-export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
+export const IconButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, IconButtonProps>(
   (
     {
       icon,

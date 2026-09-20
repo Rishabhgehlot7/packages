@@ -20,7 +20,7 @@ export interface ActivityItem {
 }
 
 export interface ActivityFeedProps extends React.HTMLAttributes<HTMLDivElement> {
-  items: ActivityItem[];
+  items?: ActivityItem[];
   title?: string;
   emptyText?: string;
   className?: string;
@@ -28,7 +28,7 @@ export interface ActivityFeedProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({
-  items,
+  items = [],
   title,
   emptyText = 'No recent activities found.',
   className = '',

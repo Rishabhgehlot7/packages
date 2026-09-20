@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   maxHeight?: string | number;
   maxWidth?: string | number;
   direction?: 'vertical' | 'horizontal' | 'both';
@@ -9,7 +9,7 @@ export interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
   style?: React.CSSProperties;
 }
 
-export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
+export const ScrollArea = /* @__PURE__ */ React.forwardRef<HTMLDivElement, ScrollAreaProps>(
   (
     {
       children,

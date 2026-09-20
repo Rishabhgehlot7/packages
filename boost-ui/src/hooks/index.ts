@@ -388,11 +388,34 @@ export function useForm<T extends Record<string, any>>({
     [values, runValidation, onSubmit]
   );
 
+  const getFieldError = React.useCallback(
+    (field: keyof T): string | undefined => (touched[field] ? errors[field] : undefined),
+    [errors, touched]
+  );
+
+  const setFieldValue = React.useCallback((field: keyof T, val: any) => {
+    handleChange(field, val);
+  }, [handleChange]);
+
+  const setFieldError = React.useCallback((field: keyof T, err: string | undefined) => {
+    setErrors((prev) => ({ ...prev, [field]: err }));
+  }, []);
+
+  const hasErrors = Object.keys(errors).length > 0;
+  const isValid = !hasErrors;
+  const validationSummary = Object.values(errors).filter(Boolean) as string[];
+
   return {
     values,
     errors,
     touched,
     isSubmitting,
+    hasErrors,
+    isValid,
+    validationSummary,
+    getFieldError,
+    setFieldValue,
+    setFieldError,
     handleChange,
     handleBlur,
     setValues,

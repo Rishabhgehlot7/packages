@@ -11,8 +11,8 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   dts: true,
   clean: true,
-  sourcemap: true,
-  splitting: false,
+  sourcemap: false,
+  splitting: true,
   treeshake: true,
   target: 'es2020',
   external: ['react', 'react-dom'],
@@ -23,6 +23,18 @@ export default defineConfig({
     };
   },
   async onSuccess() {
+    // Copy static styles.css and tokens.json to dist
+    const srcCss = path.resolve(__dirname, 'src/styles.css');
+    const distCss = path.resolve(__dirname, 'dist/styles.css');
+    if (fs.existsSync(srcCss)) {
+      fs.copyFileSync(srcCss, distCss);
+    }
+    const srcTokens = path.resolve(__dirname, 'src/tokens.json');
+    const distTokens = path.resolve(__dirname, 'dist/tokens.json');
+    if (fs.existsSync(srcTokens)) {
+      fs.copyFileSync(srcTokens, distTokens);
+    }
+
     function processDir(dir: string) {
       if (!fs.existsSync(dir)) return;
       const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -44,3 +56,4 @@ export default defineConfig({
     processDir(path.resolve(__dirname, 'dist'));
   },
 });
+

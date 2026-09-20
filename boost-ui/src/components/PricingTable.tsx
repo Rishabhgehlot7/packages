@@ -24,7 +24,7 @@ export interface PricingTier {
 }
 
 export interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> {
-  tiers: PricingTier[];
+  tiers?: PricingTier[];
   billingCycle?: 'monthly' | 'annual';
   onBillingCycleChange?: (cycle: 'monthly' | 'annual') => void;
   annualDiscountLabel?: string;
@@ -34,7 +34,7 @@ export interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 export const PricingTable: React.FC<PricingTableProps> = ({
-  tiers,
+  tiers = [],
   billingCycle = 'monthly',
   onBillingCycleChange,
   annualDiscountLabel = 'Save 20%',

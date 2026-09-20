@@ -9,7 +9,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   fullWidth?: boolean;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export const Input = /* @__PURE__ */ React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,

@@ -26,6 +26,8 @@ interface BoostThemeContextType {
   setMode: (mode: ThemeMode) => void;
   toggleMode: () => void;
   tokens: ThemeTokens;
+  currency: string;
+  locale: string;
 }
 
 const defaultLightTokens: ThemeTokens = {
@@ -54,9 +56,9 @@ const defaultDarkTokens: ThemeTokens = {
 
 const BoostThemeContext = React.createContext<BoostThemeContextType | undefined>(undefined);
 
-// Inject fallback CSS vars + keyframes once at module load (no-BoostProvider safety)
-// This ensures Skeleton shimmer, Spinner spin, Dark Mode, etc. work even without BoostProvider
-if (typeof document !== 'undefined') {
+// Injects fallback CSS vars + keyframes safely on demand (no module-load side-effects)
+export function injectBoostGlobalStyles() {
+  if (typeof document === 'undefined') return;
   const STYLE_ID = '__boost_ui_defaults__';
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement('style');
@@ -193,6 +195,8 @@ export interface BoostProviderProps {
   syncDocumentClass?: boolean;
   tokens?: ThemeTokens;
   darkTokens?: ThemeTokens;
+  currency?: string;
+  locale?: string;
   className?: string;
 }
 
@@ -204,8 +208,14 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
   syncDocumentClass = true,
   tokens = {},
   darkTokens = {},
+  currency = '$',
+  locale = 'en-US',
   className = '',
 }) => {
+  // Inject default animations and CSS variables on mount without top-level evaluation side effects
+  React.useEffect(() => {
+    injectBoostGlobalStyles();
+  }, []);
   const [internalMode, setInternalMode] = React.useState<ThemeMode>(() => {
     if (typeof window !== 'undefined' && storageKey) {
       try {
@@ -315,6 +325,8 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
         setMode,
         toggleMode,
         tokens: currentTokens,
+        currency,
+        locale,
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
@@ -345,9 +357,20 @@ export const useTheme = (): BoostThemeContextType => {
       setMode: () => {},
       toggleMode: () => {},
       tokens: defaultLightTokens,
+      currency: '$',
+      locale: 'en-US',
     };
   }
   return context;
 };
 
+export const useCurrency = () => {
+  const theme = useTheme();
+  return {
+    currency: theme.currency || '$',
+    locale: theme.locale || 'en-US',
+  };
+};
+
 BoostProvider.displayName = 'BoostProvider';
+

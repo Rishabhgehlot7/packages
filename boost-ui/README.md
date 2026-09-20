@@ -54,11 +54,13 @@ npx @boostengine/ui list
 Wrap your application root (e.g. `layout.tsx` or `_app.tsx`) with `BoostProvider` and optional `ToastProvider`:
 
 ```tsx
+// Optional: import static CSS if preferred over automatic provider style injection
+import '@boostengine/ui/styles.css';
 import { BoostProvider, ToastProvider, useTheme, useToast } from '@boostengine/ui';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <BoostProvider defaultMode="system">
+    <BoostProvider defaultMode="system" currency="$" locale="en-US">
       <ToastProvider position="bottom-right">
         {children}
       </ToastProvider>
@@ -405,6 +407,32 @@ export default function AdminDashboard() {
     </BoostProvider>
   );
 }
+```
+
+---
+
+## 📚 Deep Dive Documentation
+
+- 🎨 **[Theming & Design Tokens Guide](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-ui/docs/THEMING_AND_TOKENS.md)** — Tokens Studio / Figma Tokens JSON, CSS variable tokens, and Tailwind CSS preset setup.
+- 📖 **[Components & Hooks Reference](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-ui/docs/COMPONENTS_REFERENCE.md)** — Complete API specifications, TypeScript interfaces, and usage examples for all 125+ components.
+- ♿ **[Accessibility (a11y) Conformance](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-ui/docs/A11Y_AUDIT.md)** — WAI-ARIA 1.2 compliance matrix, keyboard specs, focus trapping, and WCAG AA/AAA contrast ratios.
+
+---
+
+## 🎨 Tailwind CSS Integration
+
+Zero PostCSS plugins required. Just add `createTailwindPreset()` to your `tailwind.config.js`:
+
+```javascript
+const { createTailwindPreset } = require('@boostengine/ui');
+
+module.exports = {
+  presets: [createTailwindPreset()],
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@boostengine/ui/dist/**/*.{js,mjs}',
+  ],
+};
 ```
 
 ---

@@ -7,7 +7,7 @@ export interface FAQItem {
 }
 
 export interface FAQSectionProps {
-  items: FAQItem[];
+  items?: FAQItem[];
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   searchable?: boolean;
@@ -17,7 +17,7 @@ export interface FAQSectionProps {
 }
 
 export const FAQSection: React.FC<FAQSectionProps> = ({
-  items,
+  items = [],
   title = 'Frequently Asked Questions',
   subtitle = 'Everything you need to know about our product and billing.',
   searchable = true,

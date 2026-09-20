@@ -26,7 +26,10 @@ interface BoostThemeContextType {
     setMode: (mode: ThemeMode) => void;
     toggleMode: () => void;
     tokens: ThemeTokens;
+    currency: string;
+    locale: string;
 }
+declare function injectBoostGlobalStyles(): void;
 interface BoostProviderProps {
     children: React.ReactNode;
     mode?: ThemeMode;
@@ -35,10 +38,16 @@ interface BoostProviderProps {
     syncDocumentClass?: boolean;
     tokens?: ThemeTokens;
     darkTokens?: ThemeTokens;
+    currency?: string;
+    locale?: string;
     className?: string;
 }
 declare const BoostProvider: React.FC<BoostProviderProps>;
 declare const useTheme: () => BoostThemeContextType;
+declare const useCurrency: () => {
+    currency: string;
+    locale: string;
+};
 
 interface ThemeToggleProps {
     /**
@@ -57,6 +66,378 @@ interface ThemeToggleProps {
     style?: React.CSSProperties;
 }
 declare const ThemeToggle: React.FC<ThemeToggleProps>;
+
+/**
+ * @boostengine/ui - Design Tokens & Tailwind Preset
+ * Universal design tokens exportable to Tailwind CSS, Figma Tokens, or CSS-in-JS.
+ */
+declare const boostTokens: {
+    $schema: string;
+    name: string;
+    version: string;
+    colors: {
+        brand: {
+            primary: {
+                value: string;
+                type: string;
+                description: string;
+            };
+            primaryHover: {
+                value: string;
+                type: string;
+            };
+            primaryDark: {
+                value: string;
+                type: string;
+            };
+            primaryDarkHover: {
+                value: string;
+                type: string;
+            };
+        };
+        neutral: {
+            bgLight: {
+                value: string;
+                type: string;
+            };
+            bgDark: {
+                value: string;
+                type: string;
+            };
+            surfaceLight: {
+                value: string;
+                type: string;
+            };
+            surfaceDark: {
+                value: string;
+                type: string;
+            };
+            surfaceSecondaryLight: {
+                value: string;
+                type: string;
+            };
+            surfaceSecondaryDark: {
+                value: string;
+                type: string;
+            };
+            borderLight: {
+                value: string;
+                type: string;
+            };
+            borderDark: {
+                value: string;
+                type: string;
+            };
+        };
+        text: {
+            light: {
+                value: string;
+                type: string;
+            };
+            lightMuted: {
+                value: string;
+                type: string;
+            };
+            dark: {
+                value: string;
+                type: string;
+            };
+            darkMuted: {
+                value: string;
+                type: string;
+            };
+        };
+        feedback: {
+            success: {
+                value: string;
+                type: string;
+            };
+            successLight: {
+                value: string;
+                type: string;
+            };
+            warning: {
+                value: string;
+                type: string;
+            };
+            warningLight: {
+                value: string;
+                type: string;
+            };
+            destructive: {
+                value: string;
+                type: string;
+            };
+            destructiveLight: {
+                value: string;
+                type: string;
+            };
+            info: {
+                value: string;
+                type: string;
+            };
+            infoLight: {
+                value: string;
+                type: string;
+            };
+        };
+    };
+    spacing: {
+        "0": {
+            value: string;
+            type: string;
+        };
+        "1": {
+            value: string;
+            type: string;
+        };
+        "2": {
+            value: string;
+            type: string;
+        };
+        "3": {
+            value: string;
+            type: string;
+        };
+        "4": {
+            value: string;
+            type: string;
+        };
+        "5": {
+            value: string;
+            type: string;
+        };
+        "6": {
+            value: string;
+            type: string;
+        };
+        "8": {
+            value: string;
+            type: string;
+        };
+        "10": {
+            value: string;
+            type: string;
+        };
+        "12": {
+            value: string;
+            type: string;
+        };
+        "16": {
+            value: string;
+            type: string;
+        };
+        "20": {
+            value: string;
+            type: string;
+        };
+        "24": {
+            value: string;
+            type: string;
+        };
+    };
+    radii: {
+        none: {
+            value: string;
+            type: string;
+        };
+        sm: {
+            value: string;
+            type: string;
+        };
+        md: {
+            value: string;
+            type: string;
+        };
+        lg: {
+            value: string;
+            type: string;
+        };
+        xl: {
+            value: string;
+            type: string;
+        };
+        "2xl": {
+            value: string;
+            type: string;
+        };
+        "3xl": {
+            value: string;
+            type: string;
+        };
+        full: {
+            value: string;
+            type: string;
+        };
+    };
+    typography: {
+        fontFamilies: {
+            sans: {
+                value: string;
+                type: string;
+            };
+            mono: {
+                value: string;
+                type: string;
+            };
+        };
+        fontSizes: {
+            xs: {
+                value: string;
+                type: string;
+            };
+            sm: {
+                value: string;
+                type: string;
+            };
+            base: {
+                value: string;
+                type: string;
+            };
+            lg: {
+                value: string;
+                type: string;
+            };
+            xl: {
+                value: string;
+                type: string;
+            };
+            "2xl": {
+                value: string;
+                type: string;
+            };
+            "3xl": {
+                value: string;
+                type: string;
+            };
+            "4xl": {
+                value: string;
+                type: string;
+            };
+            "5xl": {
+                value: string;
+                type: string;
+            };
+        };
+        fontWeights: {
+            normal: {
+                value: number;
+                type: string;
+            };
+            medium: {
+                value: number;
+                type: string;
+            };
+            semibold: {
+                value: number;
+                type: string;
+            };
+            bold: {
+                value: number;
+                type: string;
+            };
+            extrabold: {
+                value: number;
+                type: string;
+            };
+        };
+    };
+    shadows: {
+        sm: {
+            value: string;
+            type: string;
+        };
+        md: {
+            value: string;
+            type: string;
+        };
+        lg: {
+            value: string;
+            type: string;
+        };
+        glow: {
+            value: string;
+            type: string;
+        };
+    };
+    transitions: {
+        fast: {
+            value: string;
+            type: string;
+        };
+        normal: {
+            value: string;
+            type: string;
+        };
+        slow: {
+            value: string;
+            type: string;
+        };
+    };
+};
+/**
+ * Generates a Tailwind CSS configuration preset object.
+ * Usage in tailwind.config.js:
+ * ```js
+ * const { createTailwindPreset } = require('@boostengine/ui');
+ * module.exports = {
+ *   presets: [createTailwindPreset()],
+ *   // ...
+ * };
+ * ```
+ */
+declare function createTailwindPreset(): {
+    theme: {
+        extend: {
+            colors: {
+                boost: {
+                    primary: string;
+                    'primary-hover': string;
+                    bg: string;
+                    surface: string;
+                    'surface-secondary': string;
+                    text: string;
+                    'text-muted': string;
+                    border: string;
+                };
+            };
+            borderRadius: {
+                boost: string;
+            };
+            boxShadow: {
+                'boost-sm': string;
+                'boost-md': string;
+                'boost-lg': string;
+                'boost-glow': string;
+            };
+        };
+    };
+};
+
+/**
+ * Prop for polymorphic element rendering ('as' prop).
+ */
+type AsProp<C extends React.ElementType> = {
+    as?: C;
+};
+/**
+ * Strips props from Source that are present in Target.
+ */
+type PropsToOmit<C extends React.ElementType, P> = keyof (AsProp<C> & P);
+/**
+ * Complete polymorphic component props without ref.
+ */
+type PolymorphicComponentProp<C extends React.ElementType, Props = {}> = React.PropsWithChildren<Props & AsProp<C>> & Omit<React.ComponentPropsWithoutRef<C>, PropsToOmit<C, Props>>;
+/**
+ * Element ref type for a polymorphic component.
+ */
+type PolymorphicRef<C extends React.ElementType> = React.ComponentPropsWithRef<C>['ref'];
+/**
+ * Complete polymorphic component props with ref support.
+ */
+type PolymorphicComponentPropWithRef<C extends React.ElementType, Props = {}> = PolymorphicComponentProp<C, Props> & {
+    ref?: PolymorphicRef<C>;
+};
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -150,7 +531,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
     label?: string;
     error?: string;
     helperText?: string;
-    options: SelectOption[];
+    options?: SelectOption[];
     placeholder?: string;
     fullWidth?: boolean;
 }
@@ -162,9 +543,9 @@ interface MultiSelectOption {
 }
 interface MultiSelectProps {
     label?: string;
-    options: MultiSelectOption[];
-    value: string[];
-    onChange: (selected: string[]) => void;
+    options?: MultiSelectOption[];
+    value?: string[];
+    onChange?: (selected: string[]) => void;
     placeholder?: string;
     error?: string;
     className?: string;
@@ -186,16 +567,16 @@ interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 declare const Radio: React.ForwardRefExoticComponent<RadioProps & React.RefAttributes<HTMLInputElement>>;
 interface RadioOption {
-    label: string;
+    label: React.ReactNode;
     value: string | number;
     description?: string;
     disabled?: boolean;
 }
 interface RadioGroupProps {
-    name: string;
-    options: RadioOption[];
-    value: string | number;
-    onChange: (value: string | number) => void;
+    name?: string;
+    options?: RadioOption[];
+    value?: string | number;
+    onChange?: (value: string | number) => void;
     orientation?: 'vertical' | 'horizontal';
     className?: string;
     style?: React.CSSProperties;
@@ -204,8 +585,8 @@ interface RadioGroupProps {
 declare const RadioGroup: React.FC<RadioGroupProps>;
 
 interface SwitchProps {
-    checked: boolean;
-    onChange: (checked: boolean) => void;
+    checked?: boolean;
+    onChange?: (checked: boolean) => void;
     label?: string;
     description?: string;
     disabled?: boolean;
@@ -218,7 +599,7 @@ declare const Switch: React.ForwardRefExoticComponent<SwitchProps & React.RefAtt
 interface DatePickerProps {
     label?: string;
     value?: string;
-    onChange: (date: string) => void;
+    onChange?: (date: string) => void;
     minDate?: string;
     maxDate?: string;
     min?: string;
@@ -226,6 +607,7 @@ interface DatePickerProps {
     error?: string;
     helperText?: string;
     disabled?: boolean;
+    id?: string;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -277,8 +659,8 @@ declare const FormField: React.FC<FormFieldProps>;
 
 interface OTPInputProps {
     length?: number;
-    value: string;
-    onChange: (otp: string) => void;
+    value?: string;
+    onChange?: (otp: string) => void;
     onComplete?: (otp: string) => void;
     disabled?: boolean;
     error?: string;
@@ -338,7 +720,7 @@ interface SkeletonProps {
 }
 declare const Skeleton: React.FC<SkeletonProps>;
 
-type ToastVariant = 'info' | 'success' | 'warning' | 'error';
+type ToastVariant = 'info' | 'success' | 'warning' | 'error' | 'loading';
 type ToastPosition = 'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center';
 interface ToastProps {
     id?: string;
@@ -351,6 +733,11 @@ interface ToastProps {
     style?: React.CSSProperties;
 }
 declare const Toast: React.FC<ToastProps>;
+interface ToastPromiseOptions<T = any> {
+    loading: string;
+    success: string | ((data: T) => string);
+    error: string | ((err: any) => string);
+}
 interface ToastOptions {
     id?: string;
     title?: string;
@@ -365,6 +752,8 @@ interface ToastContextType {
         error: (message: string, title?: string) => string;
         warning: (message: string, title?: string) => string;
         info: (message: string, title?: string) => string;
+        loading: (message: string, title?: string) => string;
+        promise: <T>(promise: Promise<T>, options: ToastPromiseOptions<T>) => Promise<T>;
         dismiss: (id: string) => void;
     };
 }
@@ -480,7 +869,7 @@ declare const AvatarGroup: React.FC<AvatarGroupProps>;
 
 type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning' | 'info';
 interface BadgeProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     variant?: BadgeVariant;
     className?: string;
     style?: React.CSSProperties;
@@ -500,8 +889,8 @@ interface TagProps {
 declare const Tag: React.FC<TagProps>;
 
 interface TooltipProps {
-    content: React.ReactNode;
-    children: React.ReactNode;
+    content?: React.ReactNode;
+    children?: React.ReactNode;
     position?: 'top' | 'bottom' | 'left' | 'right';
     className?: string;
     style?: React.CSSProperties;
@@ -536,7 +925,7 @@ interface AccordionItem {
     disabled?: boolean;
 }
 interface AccordionProps {
-    items: AccordionItem[];
+    items?: AccordionItem[];
     allowMultiple?: boolean;
     defaultExpanded?: string[];
     variant?: 'default' | 'bordered' | 'separated';
@@ -643,9 +1032,9 @@ interface CommandItem {
     onSelect: () => void;
 }
 interface CommandPaletteProps {
-    isOpen: boolean;
-    onClose: () => void;
-    items: CommandItem[];
+    isOpen?: boolean;
+    onClose?: () => void;
+    items?: CommandItem[];
     placeholder?: string;
     emptyText?: string;
     className?: string;
@@ -667,7 +1056,7 @@ interface PortalProps {
  */
 declare const Portal: React.FC<PortalProps>;
 
-type BoxAsTag = 'div' | 'span' | 'section' | 'article' | 'main' | 'aside' | 'header' | 'footer' | 'nav';
+type BoxAsTag = 'div' | 'span' | 'section' | 'article' | 'main' | 'aside' | 'header' | 'footer' | 'nav' | 'p' | 'a' | 'button' | 'ul' | 'ol' | 'li' | 'form' | React.ElementType;
 interface BoxProps extends React.HTMLAttributes<HTMLElement> {
     as?: BoxAsTag;
     children?: React.ReactNode;
@@ -771,14 +1160,14 @@ declare const Section: React.ForwardRefExoticComponent<SectionProps & React.RefA
 
 interface AspectRatioProps extends React.HTMLAttributes<HTMLDivElement> {
     ratio?: number | string;
-    children: React.ReactNode;
+    children?: React.ReactNode;
     className?: string;
     style?: React.CSSProperties;
 }
 declare const AspectRatio: React.ForwardRefExoticComponent<AspectRatioProps & React.RefAttributes<HTMLDivElement>>;
 
 interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     maxHeight?: string | number;
     maxWidth?: string | number;
     direction?: 'vertical' | 'horizontal' | 'both';
@@ -880,7 +1269,7 @@ interface SidebarGroup {
     items: SidebarItem[];
 }
 interface SidebarProps {
-    groups: SidebarGroup[];
+    groups?: SidebarGroup[];
     activeId?: string;
     onSelect?: (id: string) => void;
     collapsed?: boolean;
@@ -917,6 +1306,7 @@ interface FooterProps {
     newsletter?: boolean;
     onNewsletterSubmit?: (email: string) => void;
     showPaymentBadges?: boolean;
+    paymentMethods?: string[];
     copyrightYear?: number;
     copyrightText?: string;
     variant?: 'dark' | 'light' | 'surface';
@@ -973,7 +1363,7 @@ interface BreadcrumbItem {
     icon?: React.ReactNode;
 }
 interface BreadcrumbProps {
-    items: BreadcrumbItem[];
+    items?: BreadcrumbItem[];
     separator?: React.ReactNode;
     onItemClick?: (href: string, item: BreadcrumbItem) => void;
     className?: string;
@@ -1015,8 +1405,8 @@ interface DropdownMenuItem {
     onClick?: () => void;
 }
 interface DropdownMenuProps {
-    trigger: React.ReactNode;
-    items: DropdownMenuItem[];
+    trigger?: React.ReactNode;
+    items?: DropdownMenuItem[];
     align?: 'left' | 'right';
     className?: string;
 }
@@ -1119,7 +1509,7 @@ interface StepItem {
     description?: string;
 }
 interface StepperProps {
-    steps: StepItem[];
+    steps?: StepItem[];
     activeStep?: number;
     currentStep?: number;
     onStepClick?: (stepIndex: number) => void;
@@ -1142,8 +1532,8 @@ interface TableColumn<T = any> {
     sortable?: boolean;
 }
 interface TableProps<T = any> {
-    columns: TableColumn<T>[];
-    data: T[];
+    columns?: TableColumn<T>[];
+    data?: T[];
     striped?: boolean;
     bordered?: boolean;
     hoverable?: boolean;
@@ -1155,17 +1545,34 @@ declare namespace Table {
     var displayName: string;
 }
 
-type DataTableColumn<T = any> = TableColumn<T>;
+type DataTableColumn<T = any> = Omit<TableColumn<T>, 'header'> & {
+    header?: string;
+    title?: string;
+    render?: (value: any, row: T) => React.ReactNode;
+    sortable?: boolean;
+};
 interface DataTableProps<T = any> {
-    columns: DataTableColumn<T>[];
-    data: T[];
+    columns?: DataTableColumn<T>[];
+    data?: T[];
     pageSize?: number;
     searchable?: boolean;
     searchPlaceholder?: string;
     searchFilter?: (item: T, query: string) => boolean;
+    selectable?: boolean;
+    selectedRows?: T[];
+    onSelectionChange?: (selected: T[]) => void;
+    stickyHeader?: boolean;
+    maxHeight?: string | number;
+    exportable?: boolean;
+    exportFilename?: string;
+    manualPagination?: boolean;
+    totalCount?: number;
+    page?: number;
+    onPageChange?: (page: number) => void;
     className?: string;
+    style?: React.CSSProperties;
 }
-declare function DataTable<T extends Record<string, any>>({ columns, data, pageSize, searchable, searchPlaceholder, searchFilter, className, }: DataTableProps<T>): React.JSX.Element;
+declare function DataTable<T extends Record<string, any>>({ columns, data, pageSize, searchable, searchPlaceholder, searchFilter, selectable, selectedRows: controlledSelectedRows, onSelectionChange, stickyHeader, maxHeight, exportable, exportFilename, manualPagination, totalCount, page: controlledPage, onPageChange, className, style, }: DataTableProps<T>): React.JSX.Element;
 declare namespace DataTable {
     var displayName: string;
 }
@@ -1296,7 +1703,7 @@ interface ActivityItem {
     icon?: React.ReactNode;
 }
 interface ActivityFeedProps extends React.HTMLAttributes<HTMLDivElement> {
-    items: ActivityItem[];
+    items?: ActivityItem[];
     title?: string;
     emptyText?: string;
     className?: string;
@@ -1315,7 +1722,7 @@ interface NotificationItem {
     icon?: React.ReactNode;
 }
 interface NotificationCenterProps {
-    notifications: NotificationItem[];
+    notifications?: NotificationItem[];
     onMarkAllAsRead?: () => void;
     onItemClick?: (item: NotificationItem) => void;
     onClearAll?: () => void;
@@ -1355,7 +1762,7 @@ interface FilterOption {
 }
 interface FilterProps {
     label?: string;
-    options: FilterOption[];
+    options?: FilterOption[];
     selectedValues?: string[];
     onChange?: (values: string[]) => void;
     multiple?: boolean;
@@ -1371,7 +1778,7 @@ interface SortOption {
 }
 type SortDirection = 'asc' | 'desc';
 interface SortProps {
-    options: SortOption[];
+    options?: SortOption[];
     currentValue?: string;
     currentDirection?: SortDirection;
     onChange?: (value: string, direction: SortDirection) => void;
@@ -1441,26 +1848,28 @@ interface CartDrawerItem {
     image?: string;
 }
 interface CartDrawerProps {
-    isOpen: boolean;
-    onClose: () => void;
-    items: CartDrawerItem[];
-    subtotal: number;
+    isOpen?: boolean;
+    onClose?: () => void;
+    items?: CartDrawerItem[];
+    subtotal?: number;
+    currencySymbol?: string;
     freeShippingThreshold?: number;
-    onUpdateQuantity: (id: string, quantity: number) => void;
-    onRemoveItem: (id: string) => void;
-    onCheckout: () => Promise<void> | void;
+    onUpdateQuantity?: (id: string, quantity: number) => void;
+    onRemoveItem?: (id: string) => void;
+    onCheckout?: () => Promise<void> | void;
     className?: string;
     onTabSync?: () => void;
 }
 declare const CartDrawer: React.FC<CartDrawerProps>;
 
 interface StickyAddToCartProps {
-    title: string;
-    price: number;
+    title?: string;
+    price?: number;
+    currencySymbol?: string;
     compareAtPrice?: number;
     originalPrice?: number;
     image?: string;
-    onAddToCart: (quantity: number) => Promise<void> | void;
+    onAddToCart?: (quantity: number) => Promise<void> | void;
     onBuyNow?: (quantity: number) => Promise<void> | void;
     inStock?: boolean;
     className?: string;
@@ -1477,6 +1886,10 @@ interface PincodeCheckResult {
 interface PincodeCheckerProps {
     onCheck?: (pincode: string) => Promise<PincodeCheckResult> | PincodeCheckResult;
     defaultPincode?: string;
+    label?: string;
+    placeholder?: string;
+    buttonText?: string;
+    locale?: string;
     className?: string;
 }
 declare const PincodeChecker: React.FC<PincodeCheckerProps>;
@@ -1548,18 +1961,20 @@ interface VariantGroup {
 }
 type SelectedVariants = Record<string, string>;
 interface VariantSelectorProps {
-    groups: VariantGroup[];
+    groups?: VariantGroup[];
     selectedValues?: SelectedVariants;
     selectedVariants?: SelectedVariants;
+    currencySymbol?: string;
     onChange?: (groupName: string, optionValue: string, option?: VariantOption) => void;
     className?: string;
 }
 declare const VariantSelector: React.FC<VariantSelectorProps>;
 
 interface ProductCardProps {
-    id: string;
-    title: string;
-    price: number;
+    id?: string;
+    title?: string;
+    price?: number;
+    currencySymbol?: string;
     compareAtPrice?: number;
     originalPrice?: number;
     images?: string[];
@@ -1644,10 +2059,11 @@ interface BundleItem {
     originalPrice?: number;
 }
 interface FrequentlyBoughtTogetherProps {
-    mainProduct: BundleItem;
-    suggestedItems: BundleItem[];
+    mainProduct?: BundleItem;
+    suggestedItems?: BundleItem[];
     bundleDiscountPercentage?: number;
     currencySymbol?: string;
+    locale?: string;
     onAddBundleToCart?: (selectedItems: BundleItem[]) => void;
     onAddBundle?: (selectedItems: BundleItem[] | string[]) => void;
     className?: string;
@@ -1684,8 +2100,8 @@ interface DualMobileActionBarProps {
     currencySymbol?: string;
     isWishlisted?: boolean;
     isInCart?: boolean;
-    onAddToCart: () => void;
-    onBuyNow: () => void;
+    onAddToCart?: () => void;
+    onBuyNow?: () => void;
     onToggleWishlist?: () => void;
     position?: 'fixed' | 'relative';
     addToCartText?: string;
@@ -1696,9 +2112,10 @@ interface DualMobileActionBarProps {
 declare const DualMobileActionBar: React.FC<DualMobileActionBarProps>;
 
 interface PriceProps {
-    amount: number;
+    amount?: number;
     originalAmount?: number;
     currencySymbol?: string;
+    locale?: string;
     size?: 'sm' | 'md' | 'lg' | 'xl';
     showDiscount?: boolean;
     showSavings?: boolean;
@@ -1760,11 +2177,12 @@ interface OrderSummaryItem {
     helpText?: string;
 }
 interface OrderSummaryProps {
-    subtotal: number;
+    subtotal?: number;
     discount?: number;
     shippingFee?: number;
     tax?: number;
     currencySymbol?: string;
+    locale?: string;
     freeShippingThreshold?: number;
     onCheckout?: () => void;
     loading?: boolean;
@@ -1806,7 +2224,7 @@ interface FeatureItem {
     onAction?: () => void;
 }
 interface FeatureGridProps extends React.HTMLAttributes<HTMLDivElement> {
-    features: FeatureItem[];
+    features?: FeatureItem[];
     columns?: 2 | 3 | 4;
     align?: 'left' | 'center';
     className?: string;
@@ -1836,7 +2254,7 @@ interface PricingTier {
     disabled?: boolean;
 }
 interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> {
-    tiers: PricingTier[];
+    tiers?: PricingTier[];
     billingCycle?: 'monthly' | 'annual';
     onBillingCycleChange?: (cycle: 'monthly' | 'annual') => void;
     annualDiscountLabel?: string;
@@ -1847,7 +2265,7 @@ interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> {
 declare const PricingTable: React.FC<PricingTableProps>;
 
 interface TestimonialProps extends React.HTMLAttributes<HTMLDivElement> {
-    quote: string;
+    quote?: string;
     authorName?: string;
     author?: string;
     authorRole?: string;
@@ -1864,7 +2282,7 @@ interface TestimonialProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 declare const TestimonialCard: React.FC<TestimonialProps>;
 interface TestimonialGridProps extends React.HTMLAttributes<HTMLDivElement> {
-    testimonials: TestimonialProps[];
+    testimonials?: TestimonialProps[];
     columns?: 2 | 3;
     className?: string;
     style?: React.CSSProperties;
@@ -1877,7 +2295,7 @@ interface FAQItem {
     answer: React.ReactNode;
 }
 interface FAQSectionProps {
-    items: FAQItem[];
+    items?: FAQItem[];
     title?: React.ReactNode;
     subtitle?: React.ReactNode;
     searchable?: boolean;
@@ -1894,7 +2312,7 @@ interface LogoItem {
     href?: string;
 }
 interface LogoCloudProps extends React.HTMLAttributes<HTMLDivElement> {
-    logos: LogoItem[];
+    logos?: LogoItem[];
     title?: string;
     grayscale?: boolean;
     className?: string;
@@ -1928,4 +2346,4 @@ interface CTASectionProps {
 }
 declare const CTASection: React.FC<CTASectionProps>;
 
-export { Accordion, type AccordionItem, type AccordionProps, ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityUser, AddToCart, type AddToCartProps, type AddressData, AddressForm, type AddressFormProps, Alert, type AlertProps, AnnouncementBar, type AnnouncementBarProps, AreaChart, type AreaChartProps, AspectRatio, type AspectRatioProps, AssuredBadge, type AssuredBadgeProps, Avatar, AvatarGroup, type AvatarGroupProps, type AvatarProps, BackButton, type BackButtonProps, Badge, type BadgeProps, type BankOffer, BankOffersAccordion, type BankOffersAccordionProps, BarChart, type BarChartDataPoint, type BarChartProps, BoostProvider, type BoostProviderProps, type BoostThemeConfig, BottomSheet, type BottomSheetProps, Box, type BoxAsTag, type BoxProps, Breadcrumb, type BreadcrumbItem, type BreadcrumbProps, type BundleItem, Button, ButtonGroup, type ButtonGroupProps, type ButtonProps, CTASection, type CTASectionProps, Card, CardContent, type CardContentProps, CardDescription, type CardDescriptionProps, CardFooter, type CardFooterProps, CardHeader, type CardHeaderProps, type CardProps, CardTitle, type CardTitleProps, Carousel, type CarouselProps, type CarouselSlide, CartDrawer, type CartDrawerItem, type CartDrawerProps, type ChartDataPoint, Checkbox, type CheckboxProps, Chip, type ChipProps, type CommandItem, CommandPalette, type CommandPaletteProps, ConfirmationDialog, type ConfirmationDialogProps, Container, type ContainerProps, CopyButton, type CopyButtonProps, CouponInput, type CouponInputProps, DataTable, type DataTableColumn, type DataTableProps, DatePicker, type DatePickerProps, type DateRange, DateRangePicker, type DateRangePickerProps, Dialog, type DialogProps, Divider, type DividerProps, DonutChart, type DonutChartProps, type DonutDataPoint, Drawer, type DrawerProps, DropdownMenu, type DropdownMenuItem, type DropdownMenuProps, DualMobileActionBar, type DualMobileActionBarProps, EmptyState, type EmptyStateProps, ErrorState, type ErrorStateProps, ExportButton, type ExportButtonProps, type FAQItem, FAQSection, type FAQSectionProps, FeatureGrid, type FeatureGridProps, type FeatureItem, FileDropzone, type FileDropzoneProps, FileUpload, type FileUploadProps, Filter, type FilterOption, type FilterProps, Flex, type FlexProps, FloatingActionButton, type FloatingActionButtonProps, Footer, type FooterColumn, type FooterProps, ForgotPassword, type ForgotPasswordProps, FormField, type FormFieldProps, FrequentlyBoughtTogether, type FrequentlyBoughtTogetherProps, Grid, GridItem, type GridItemProps, type GridProps, HStack, type HStackProps, Header, type HeaderProps, type HeroAction, HeroSection, type HeroSectionProps, IconButton, type IconButtonProps, Image, type ImageProps, Input, type InputProps, KPIWidget, type KPIWidgetProps, LightningDealsBar, type LightningDealsBarProps, LinkButton, type LinkButtonProps, Loader, type LoaderProps, LoginForm, type LoginFormProps, LogoCloud, type LogoCloudProps, type LogoItem, MegaMenu, type MegaMenuCategory, type MegaMenuColumn, type MegaMenuProps, MobileBottomBar, type MobileBottomBarItem, type MobileBottomBarProps, MobileBottomNav, type MobileBottomNavItem, type MobileBottomNavProps, Modal, type ModalProps, Motion, type MotionProps, MultiSelect, type MultiSelectOption, type MultiSelectProps, NavLink, type NavLinkItem, type NavLinkProps, Navbar, type NavbarProps, NotificationCenter, type NotificationCenterProps, type NotificationItem, OTPInput, type OTPInputProps, type OrderStage, OrderSummary, type OrderSummaryItem, type OrderSummaryProps, OrderTimeline, type OrderTimelineProps, PageWrapper, type PageWrapperProps, Pagination, type PaginationProps, type PincodeCheckResult, PincodeChecker, type PincodeCheckerProps, Popover, type PopoverProps, Portal, type PortalProps, Price, type PriceProps, type PricingFeature, PricingTable, type PricingTableProps, type PricingTier, ProductCard, type ProductCardProps, ProductGallery, type ProductGalleryImageItem, type ProductGalleryProps, ProgressBar, type ProgressBarProps, QuantitySelector, type QuantitySelectorProps, Radio, RadioGroup, type RadioGroupProps, type RadioOption, type RadioProps, RegisterForm, type RegisterFormData, type RegisterFormProps, ResetPassword, type ResetPasswordProps, type ResponsiveBreakpoints, ReviewBreakdownBars, type ReviewBreakdownBarsProps, type ReviewBreakdownItem, ScrollArea, type ScrollAreaProps, SearchInput, type SearchInputProps, Section, type SectionProps, Select, type SelectOption, type SelectProps, type SelectedVariants, Sidebar, type SidebarGroup, type SidebarItem, type SidebarProps, Skeleton, type SkeletonProps, Snackbar, type SnackbarProps, Sort, type SortDirection, type SortOption, type SortProps, Sparkline, type SparklineProps, Spinner, type SpinnerProps, Stack, type StackProps, StarRating, type StarRatingProps, StatsCard, type StatsCardProps, type StepItem, Stepper, type StepperProps, StickyAddToCart, type StickyAddToCartProps, SuccessMessage, type SuccessMessageProps, Switch, type SwitchProps, type TabItem, Table, type TableColumn, type TableProps, Tabs, TabsContent, type TabsContentProps, TabsList, type TabsListProps, type TabsProps, TabsTrigger, type TabsTriggerProps, Tag, type TagProps, TestimonialCard, TestimonialGrid, type TestimonialGridProps, type TestimonialProps, Textarea, type TextareaProps, type ThemeMode, ThemeToggle, type ThemeToggleProps, type ThemeTokens, TimePicker, type TimePickerProps, Toast, type ToastContextType, type ToastOptions, type ToastPosition, type ToastProps, ToastProvider, type ToastProviderProps, type ToastVariant, Tooltip, type TooltipProps, TrustBadges, type TrustBadgesProps, VStack, type VStackProps, type VariantGroup, type VariantOption, VariantSelector, type VariantSelectorProps, useTheme, useToast };
+export { Accordion, type AccordionItem, type AccordionProps, ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityUser, AddToCart, type AddToCartProps, type AddressData, AddressForm, type AddressFormProps, Alert, type AlertProps, AnnouncementBar, type AnnouncementBarProps, AreaChart, type AreaChartProps, type AsProp, AspectRatio, type AspectRatioProps, AssuredBadge, type AssuredBadgeProps, Avatar, AvatarGroup, type AvatarGroupProps, type AvatarProps, BackButton, type BackButtonProps, Badge, type BadgeProps, type BankOffer, BankOffersAccordion, type BankOffersAccordionProps, BarChart, type BarChartDataPoint, type BarChartProps, BoostProvider, type BoostProviderProps, type BoostThemeConfig, BottomSheet, type BottomSheetProps, Box, type BoxAsTag, type BoxProps, Breadcrumb, type BreadcrumbItem, type BreadcrumbProps, type BundleItem, Button, ButtonGroup, type ButtonGroupProps, type ButtonProps, CTASection, type CTASectionProps, Card, CardContent, type CardContentProps, CardDescription, type CardDescriptionProps, CardFooter, type CardFooterProps, CardHeader, type CardHeaderProps, type CardProps, CardTitle, type CardTitleProps, Carousel, type CarouselProps, type CarouselSlide, CartDrawer, type CartDrawerItem, type CartDrawerProps, type ChartDataPoint, Checkbox, type CheckboxProps, Chip, type ChipProps, type CommandItem, CommandPalette, type CommandPaletteProps, ConfirmationDialog, type ConfirmationDialogProps, Container, type ContainerProps, CopyButton, type CopyButtonProps, CouponInput, type CouponInputProps, DataTable, type DataTableColumn, type DataTableProps, DatePicker, type DatePickerProps, type DateRange, DateRangePicker, type DateRangePickerProps, Dialog, type DialogProps, Divider, type DividerProps, DonutChart, type DonutChartProps, type DonutDataPoint, Drawer, type DrawerProps, DropdownMenu, type DropdownMenuItem, type DropdownMenuProps, DualMobileActionBar, type DualMobileActionBarProps, EmptyState, type EmptyStateProps, ErrorState, type ErrorStateProps, ExportButton, type ExportButtonProps, type FAQItem, FAQSection, type FAQSectionProps, FeatureGrid, type FeatureGridProps, type FeatureItem, FileDropzone, type FileDropzoneProps, FileUpload, type FileUploadProps, Filter, type FilterOption, type FilterProps, Flex, type FlexProps, FloatingActionButton, type FloatingActionButtonProps, Footer, type FooterColumn, type FooterProps, ForgotPassword, type ForgotPasswordProps, FormField, type FormFieldProps, FrequentlyBoughtTogether, type FrequentlyBoughtTogetherProps, Grid, GridItem, type GridItemProps, type GridProps, HStack, type HStackProps, Header, type HeaderProps, type HeroAction, HeroSection, type HeroSectionProps, IconButton, type IconButtonProps, Image, type ImageProps, Input, type InputProps, KPIWidget, type KPIWidgetProps, LightningDealsBar, type LightningDealsBarProps, LinkButton, type LinkButtonProps, Loader, type LoaderProps, LoginForm, type LoginFormProps, LogoCloud, type LogoCloudProps, type LogoItem, MegaMenu, type MegaMenuCategory, type MegaMenuColumn, type MegaMenuProps, MobileBottomBar, type MobileBottomBarItem, type MobileBottomBarProps, MobileBottomNav, type MobileBottomNavItem, type MobileBottomNavProps, Modal, type ModalProps, Motion, type MotionProps, MultiSelect, type MultiSelectOption, type MultiSelectProps, NavLink, type NavLinkItem, type NavLinkProps, Navbar, type NavbarProps, NotificationCenter, type NotificationCenterProps, type NotificationItem, OTPInput, type OTPInputProps, type OrderStage, OrderSummary, type OrderSummaryItem, type OrderSummaryProps, OrderTimeline, type OrderTimelineProps, PageWrapper, type PageWrapperProps, Pagination, type PaginationProps, type PincodeCheckResult, PincodeChecker, type PincodeCheckerProps, type PolymorphicComponentProp, type PolymorphicComponentPropWithRef, type PolymorphicRef, Popover, type PopoverProps, Portal, type PortalProps, Price, type PriceProps, type PricingFeature, PricingTable, type PricingTableProps, type PricingTier, ProductCard, type ProductCardProps, ProductGallery, type ProductGalleryImageItem, type ProductGalleryProps, ProgressBar, type ProgressBarProps, QuantitySelector, type QuantitySelectorProps, Radio, RadioGroup, type RadioGroupProps, type RadioOption, type RadioProps, RegisterForm, type RegisterFormData, type RegisterFormProps, ResetPassword, type ResetPasswordProps, type ResponsiveBreakpoints, ReviewBreakdownBars, type ReviewBreakdownBarsProps, type ReviewBreakdownItem, ScrollArea, type ScrollAreaProps, SearchInput, type SearchInputProps, Section, type SectionProps, Select, type SelectOption, type SelectProps, type SelectedVariants, Sidebar, type SidebarGroup, type SidebarItem, type SidebarProps, Skeleton, type SkeletonProps, Snackbar, type SnackbarProps, Sort, type SortDirection, type SortOption, type SortProps, Sparkline, type SparklineProps, Spinner, type SpinnerProps, Stack, type StackProps, StarRating, type StarRatingProps, StatsCard, type StatsCardProps, type StepItem, Stepper, type StepperProps, StickyAddToCart, type StickyAddToCartProps, SuccessMessage, type SuccessMessageProps, Switch, type SwitchProps, type TabItem, Table, type TableColumn, type TableProps, Tabs, TabsContent, type TabsContentProps, TabsList, type TabsListProps, type TabsProps, TabsTrigger, type TabsTriggerProps, Tag, type TagProps, TestimonialCard, TestimonialGrid, type TestimonialGridProps, type TestimonialProps, Textarea, type TextareaProps, type ThemeMode, ThemeToggle, type ThemeToggleProps, type ThemeTokens, TimePicker, type TimePickerProps, Toast, type ToastContextType, type ToastOptions, type ToastPosition, type ToastPromiseOptions, type ToastProps, ToastProvider, type ToastProviderProps, type ToastVariant, Tooltip, type TooltipProps, TrustBadges, type TrustBadgesProps, VStack, type VStackProps, type VariantGroup, type VariantOption, VariantSelector, type VariantSelectorProps, boostTokens, createTailwindPreset, injectBoostGlobalStyles, useCurrency, useTheme, useToast };

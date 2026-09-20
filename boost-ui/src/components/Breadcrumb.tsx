@@ -7,7 +7,7 @@ export interface BreadcrumbItem {
 }
 
 export interface BreadcrumbProps {
-  items: BreadcrumbItem[];
+  items?: BreadcrumbItem[];
   separator?: React.ReactNode;
   onItemClick?: (href: string, item: BreadcrumbItem) => void;
   className?: string;
@@ -15,7 +15,7 @@ export interface BreadcrumbProps {
 }
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({
-  items,
+  items = [],
   separator,
   onItemClick,
   className = '',

@@ -2,9 +2,10 @@ import * as React from 'react';
 import { StarRating } from './StarRating';
 
 export interface ProductCardProps {
-  id: string;
-  title: string;
-  price: number;
+  id?: string;
+  title?: string;
+  price?: number;
+  currencySymbol?: string;
   compareAtPrice?: number;
   originalPrice?: number;
   images?: string[];
@@ -23,9 +24,10 @@ export interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
-  id,
-  title,
-  price,
+  id = '',
+  title = 'Product',
+  price = 0,
+  currencySymbol = '$',
   compareAtPrice,
   originalPrice,
   images = [],
@@ -260,11 +262,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '4px', marginBottom: '8px' }}>
             <span style={{ fontSize: 'clamp(15px, 1.4vw, 17px)', fontWeight: 800, color: 'var(--boost-text, #0f172a)' }}>
-              ₹{price}
+              {currencySymbol}{price}
             </span>
             {effectiveOriginalPrice && effectiveOriginalPrice > price && (
               <span style={{ fontSize: '12px', color: 'var(--boost-text-muted, #94a3b8)', textDecoration: 'line-through' }}>
-                ₹{effectiveOriginalPrice}
+                {currencySymbol}{effectiveOriginalPrice}
               </span>
             )}
           </div>

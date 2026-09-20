@@ -12,7 +12,7 @@ export interface NotificationItem {
 }
 
 export interface NotificationCenterProps {
-  notifications: NotificationItem[];
+  notifications?: NotificationItem[];
   onMarkAllAsRead?: () => void;
   onItemClick?: (item: NotificationItem) => void;
   onClearAll?: () => void;
@@ -22,7 +22,7 @@ export interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({
-  notifications,
+  notifications = [],
   onMarkAllAsRead,
   onItemClick,
   onClearAll,

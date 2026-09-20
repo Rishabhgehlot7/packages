@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/ui",
-  "version": "1.8.0",
+  "version": "1.8.2",
   "description": "Universal, Zero-Config UI Component Suite for Next.js & React. Build High-Converting eCommerce, Modern SaaS, Enterprise Dashboards, and Landing Pages with AI Agent Native Support.",
   "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "license": "MIT",
@@ -48,11 +48,11 @@
     "svg-charts",
     "accessible-ui"
   ],
-  "homepage": "https://github.com/Rishabhgehlot7/packages/tree/main/packages/boost-ui#readme",
+  "homepage": "https://github.com/Rishabhgehlot7/packages/tree/main/boost-ui#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/Rishabhgehlot7/packages.git",
-    "directory": "packages/boost-ui"
+    "directory": "boost-ui"
   },
   "bugs": {
     "url": "https://github.com/Rishabhgehlot7/packages/issues"
@@ -70,6 +70,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
+    "./styles.css": "./dist/styles.css",
+    "./tokens.json": "./dist/tokens.json",
     "./hooks": {
       "types": "./dist/hooks/index.d.ts",
       "import": "./dist/hooks/index.mjs",
@@ -98,7 +100,9 @@
   "files": [
     "bin",
     "dist",
-    "src",
+    "docs",
+    "src/components",
+    "src/tokens.json",
     "README.md",
     "CHANGELOG.md",
     "CONTRIBUTING.md",

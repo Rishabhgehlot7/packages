@@ -15,7 +15,7 @@ export interface SidebarGroup {
 }
 
 export interface SidebarProps {
-  groups: SidebarGroup[];
+  groups?: SidebarGroup[];
   activeId?: string;
   onSelect?: (id: string) => void;
   collapsed?: boolean;
@@ -25,7 +25,7 @@ export interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  groups,
+  groups = [],
   activeId,
   onSelect,
   collapsed = false,

@@ -11,18 +11,18 @@ export interface CommandItem {
 }
 
 export interface CommandPaletteProps {
-  isOpen: boolean;
-  onClose: () => void;
-  items: CommandItem[];
+  isOpen?: boolean;
+  onClose?: () => void;
+  items?: CommandItem[];
   placeholder?: string;
   emptyText?: string;
   className?: string;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
-  isOpen,
-  onClose,
-  items,
+  isOpen = false,
+  onClose = () => {},
+  items = [],
   placeholder = 'Type a command or search...',
   emptyText = 'No matching commands found.',
   className = '',

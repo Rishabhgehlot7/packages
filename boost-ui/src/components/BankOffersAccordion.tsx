@@ -18,31 +18,31 @@ export interface BankOffersAccordionProps {
 
 const DEFAULT_OFFERS: BankOffer[] = [
   {
-    id: 'hdfc-instant',
+    id: 'card-instant',
     type: 'instant',
-    title: '10% Instant Discount on HDFC Bank Cards',
-    description: 'Up to ₹1,500 on HDFC Credit & Debit Card EMI transactions on min purchase ₹5,000.',
-    code: 'HDFC10',
+    title: '10% Instant Discount on Premium Credit Cards',
+    description: 'Up to $50 on select credit cards on minimum purchase of $150.',
+    code: 'CARD10',
   },
   {
-    id: 'icici-instant',
+    id: 'special-reward',
     type: 'instant',
-    title: 'Flat ₹1,250 Off on ICICI Bank Cards',
-    description: 'Applicable on Credit Card transactions for orders above ₹10,000.',
-    code: 'ICICISPECIAL',
+    title: 'Flat $25 Off on Partner Cards',
+    description: 'Applicable on online checkout for orders above $200.',
+    code: 'PARTNER25',
   },
   {
-    id: 'no-cost-emi',
+    id: 'zero-interest-split',
     type: 'emi',
-    title: 'No Cost EMI Available up to 12 Months',
-    description: 'Avail No Cost EMI on select credit cards for orders above ₹3,000.',
+    title: 'Pay in 4 Interest-Free Installments',
+    description: 'Split your purchase into 4 flexible payments on orders over $50.',
   },
   {
-    id: 'upi-cashback',
+    id: 'cashback-reward',
     type: 'cashback',
-    title: 'Flat ₹100 Cashback on UPI Transactions',
-    description: 'Instant cashback credited directly to bank account on PhonePe, GPay, or Paytm.',
-    code: 'UPIBOOST',
+    title: '5% Instant Cashback on Digital Wallets',
+    description: 'Instant cashback credited directly to your payment account.',
+    code: 'WALLET5',
   },
 ];
 
@@ -54,7 +54,8 @@ export const BankOffersAccordion: React.FC<BankOffersAccordionProps> = ({
   const [expanded, setExpanded] = React.useState(false);
   const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
 
-  const displayedOffers = expanded ? offers : offers.slice(0, 2);
+  const safeOffers = Array.isArray(offers) ? offers : DEFAULT_OFFERS;
+  const displayedOffers = expanded ? safeOffers : safeOffers.slice(0, 2);
 
   const handleCopy = (code: string, e: React.MouseEvent) => {
     e.stopPropagation();

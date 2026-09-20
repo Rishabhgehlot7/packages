@@ -44,8 +44,9 @@ export {
 } from './utils';
 
 // 0. Theming & Design System
-export { BoostProvider, useTheme } from './components/BoostProvider';
+export { BoostProvider, useTheme, useCurrency, injectBoostGlobalStyles } from './components/BoostProvider';
 export { ThemeToggle } from './components/ThemeToggle';
+export { boostTokens, createTailwindPreset } from './tokens';
 export type {
   BoostProviderProps,
   BoostThemeConfig,
@@ -53,6 +54,12 @@ export type {
   ThemeTokens,
 } from './components/BoostProvider';
 export type { ThemeToggleProps } from './components/ThemeToggle';
+export type {
+  AsProp,
+  PolymorphicComponentProp,
+  PolymorphicComponentPropWithRef,
+  PolymorphicRef,
+} from './types/polymorphic';
 
 // 1. Buttons & Actions
 export { Button } from './components/Button';
@@ -120,6 +127,7 @@ export type {
   ToastProps,
   ToastProviderProps,
   ToastOptions,
+  ToastPromiseOptions,
   ToastVariant,
   ToastPosition,
   ToastContextType,
