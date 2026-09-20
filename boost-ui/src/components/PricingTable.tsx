@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface PricingFeature {
   text: string;
@@ -31,6 +33,7 @@ export interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> 
   showToggle?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const PricingTable: React.FC<PricingTableProps> = ({
@@ -41,8 +44,11 @@ export const PricingTable: React.FC<PricingTableProps> = ({
   showToggle = true,
   className = '',
   style,
+  stylePreset: stylePresetProp,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalCycle, setInternalCycle] = React.useState<'monthly' | 'annual'>(billingCycle);
 
   const activeCycle = onBillingCycleChange ? billingCycle : internalCycle;
@@ -55,9 +61,404 @@ export const PricingTable: React.FC<PricingTableProps> = ({
     }
   };
 
+  const getToggleContainerStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: '#ffffff',
+          padding: '4px',
+          borderRadius: '4px',
+          border: '2px solid #000000',
+          boxShadow: '3px 3px 0px #000000',
+          marginBottom: '40px',
+          gap: '4px',
+        };
+      case 'glassmorphism':
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: 'rgba(255, 255, 255, 0.45)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          padding: '4px',
+          borderRadius: '9999px',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+          marginBottom: '40px',
+          gap: '4px',
+        };
+      case 'neumorphism':
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: '#e0e5ec',
+          padding: '6px',
+          borderRadius: '9999px',
+          border: 'none',
+          boxShadow: 'inset 3px 3px 6px #bec3c9, inset -3px -3px 6px #ffffff',
+          marginBottom: '40px',
+          gap: '6px',
+        };
+      case 'gradient-glow':
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: 'var(--boost-surface, #f8fafc)',
+          padding: '4px',
+          borderRadius: '9999px',
+          border: '1px solid rgba(99, 102, 241, 0.3)',
+          boxShadow: '0 0 16px rgba(99, 102, 241, 0.2)',
+          marginBottom: '40px',
+          gap: '4px',
+        };
+      case 'material-you':
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: 'var(--boost-surface, #ece6f0)',
+          padding: '6px',
+          borderRadius: '24px',
+          border: 'none',
+          marginBottom: '40px',
+          gap: '4px',
+        };
+      case 'dark-first':
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: '#1e293b',
+          padding: '4px',
+          borderRadius: '9999px',
+          border: '1px solid #334155',
+          marginBottom: '40px',
+          gap: '4px',
+        };
+      case 'minimal':
+      default:
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          backgroundColor: 'var(--boost-surface, #f1f5f9)',
+          padding: '4px',
+          borderRadius: '9999px',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          marginBottom: '40px',
+          gap: '4px',
+        };
+    }
+  };
+
+  const getToggleButtonStyles = (isActive: boolean): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          padding: '8px 20px',
+          borderRadius: '2px',
+          border: isActive ? '2px solid #000000' : '2px solid transparent',
+          backgroundColor: isActive ? 'var(--boost-primary, #fbbf24)' : 'transparent',
+          color: '#000000',
+          fontWeight: 800,
+          fontSize: '14px',
+          cursor: 'pointer',
+          boxShadow: isActive ? '2px 2px 0px #000000' : 'none',
+          transition: 'all 0.15s ease',
+        };
+      case 'glassmorphism':
+        return {
+          padding: '8px 20px',
+          borderRadius: '9999px',
+          border: 'none',
+          backgroundColor: isActive ? 'rgba(255, 255, 255, 0.85)' : 'transparent',
+          color: isActive ? 'var(--boost-text, #0f172a)' : 'var(--boost-text-muted, #64748b)',
+          fontWeight: 600,
+          fontSize: '14px',
+          cursor: 'pointer',
+          boxShadow: isActive ? '0 4px 12px rgba(0, 0, 0, 0.08)' : 'none',
+          transition: 'all 0.15s ease',
+        };
+      case 'neumorphism':
+        return {
+          padding: '8px 20px',
+          borderRadius: '9999px',
+          border: 'none',
+          backgroundColor: '#e0e5ec',
+          color: isActive ? 'var(--boost-primary, #2563eb)' : '#64748b',
+          fontWeight: 700,
+          fontSize: '14px',
+          cursor: 'pointer',
+          boxShadow: isActive ? '3px 3px 6px #bec3c9, -3px -3px 6px #ffffff' : 'none',
+          transition: 'all 0.15s ease',
+        };
+      case 'material-you':
+        return {
+          padding: '8px 20px',
+          borderRadius: '20px',
+          border: 'none',
+          backgroundColor: isActive ? 'var(--boost-primary, #6750a4)' : 'transparent',
+          color: isActive ? '#ffffff' : 'var(--boost-text, #49454f)',
+          fontWeight: 600,
+          fontSize: '14px',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease',
+        };
+      default:
+        return {
+          padding: '8px 20px',
+          borderRadius: '9999px',
+          border: 'none',
+          backgroundColor: isActive ? 'var(--boost-bg, #ffffff)' : 'transparent',
+          color: isActive ? 'var(--boost-text, #0f172a)' : 'var(--boost-text-muted, #64748b)',
+          fontWeight: 600,
+          fontSize: '14px',
+          cursor: 'pointer',
+          boxShadow: isActive ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
+          transition: 'all 0.15s ease',
+        };
+    }
+  };
+
+  const getTierCardStyles = (isPop?: boolean): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: 'relative',
+      boxSizing: 'border-box',
+      padding: 'clamp(24px, 4vw, 36px) clamp(20px, 3vw, 30px)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+    };
+
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          borderRadius: '4px',
+          backgroundColor: '#ffffff',
+          border: '3px solid #000000',
+          boxShadow: isPop ? '6px 6px 0px #000000' : '4px 4px 0px #000000',
+          transform: isPop ? 'translate(-2px, -2px)' : 'none',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          borderRadius: '16px',
+          backgroundColor: isPop ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: isPop
+            ? '1.5px solid rgba(99, 102, 241, 0.6)'
+            : '1px solid rgba(255, 255, 255, 0.45)',
+          boxShadow: isPop
+            ? '0 16px 40px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+            : '0 8px 32px rgba(0, 0, 0, 0.06)',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          borderRadius: '16px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: isPop
+            ? '2px solid var(--boost-primary, #6366f1)'
+            : '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: isPop
+            ? '0 0 35px rgba(99, 102, 241, 0.35), 0 12px 30px rgba(99, 102, 241, 0.2)'
+            : '0 4px 20px rgba(0, 0, 0, 0.05)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          borderRadius: '24px',
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          boxShadow: isPop
+            ? 'inset 2px 2px 5px #bec3c9, inset -2px -2px 5px #ffffff, 8px 8px 20px #bec3c9'
+            : '8px 8px 18px #bec3c9, -8px -8px 18px #ffffff',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          borderRadius: '28px',
+          backgroundColor: isPop ? 'var(--boost-surface, #e8def8)' : 'var(--boost-surface, #f3edf7)',
+          border: 'none',
+          boxShadow: isPop ? '0 4px 16px rgba(0, 0, 0, 0.08)' : 'none',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          borderRadius: '16px',
+          backgroundColor: '#111827',
+          border: isPop ? '1.5px solid var(--boost-primary, #3b82f6)' : '1px solid #1f2937',
+          boxShadow: isPop ? '0 0 25px rgba(59, 130, 246, 0.25)' : 'none',
+        };
+      case 'minimal':
+      default:
+        return {
+          ...base,
+          borderRadius: '8px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: isPop ? '2px solid #0f172a' : '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: isPop ? '0 8px 24px rgba(0, 0, 0, 0.06)' : 'none',
+        };
+    }
+  };
+
+  const getPopularBadgeStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: 'absolute',
+      top: '-13px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      fontSize: '11px',
+      fontWeight: 800,
+      padding: '4px 14px',
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
+      zIndex: 2,
+    };
+
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#fbbf24',
+          color: '#000000',
+          border: '2px solid #000000',
+          boxShadow: '2px 2px 0px #000000',
+          borderRadius: '2px',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(99, 102, 241, 0.85)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          color: '#ffffff',
+          borderRadius: '9999px',
+          boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+          color: '#ffffff',
+          borderRadius: '9999px',
+          boxShadow: '0 0 16px rgba(99, 102, 241, 0.6)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          color: 'var(--boost-primary, #2563eb)',
+          borderRadius: '9999px',
+          boxShadow: '3px 3px 6px #bec3c9, -3px -3px 6px #ffffff',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-primary, #6750a4)',
+          color: '#ffffff',
+          borderRadius: '16px',
+          boxShadow: 'none',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-primary, #2563eb)',
+          color: '#ffffff',
+          borderRadius: '9999px',
+          boxShadow: '0 2px 10px rgba(37, 99, 235, 0.4)',
+        };
+    }
+  };
+
+  const getButtonStyles = (isPop?: boolean, disabled?: boolean): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      width: '100%',
+      padding: '13px',
+      fontWeight: 700,
+      fontSize: '14px',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      opacity: disabled ? 0.5 : 1,
+      transition: 'all 0.15s ease',
+    };
+
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          borderRadius: '2px',
+          backgroundColor: isPop ? '#fbbf24' : '#ffffff',
+          color: '#000000',
+          border: '2px solid #000000',
+          boxShadow: '3px 3px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          borderRadius: '12px',
+          backgroundColor: isPop ? 'var(--boost-primary, #6366f1)' : 'rgba(255, 255, 255, 0.5)',
+          color: isPop ? '#ffffff' : 'var(--boost-text, #0f172a)',
+          border: isPop ? 'none' : '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: isPop ? '0 4px 16px rgba(99, 102, 241, 0.4)' : 'none',
+          backdropFilter: 'blur(8px)',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          borderRadius: '10px',
+          background: isPop
+            ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+            : 'var(--boost-bg, #f8fafc)',
+          color: isPop ? '#ffffff' : 'var(--boost-text, #0f172a)',
+          border: isPop ? 'none' : '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: isPop ? '0 0 20px rgba(99, 102, 241, 0.5)' : 'none',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          borderRadius: '16px',
+          backgroundColor: '#e0e5ec',
+          color: isPop ? 'var(--boost-primary, #2563eb)' : 'var(--boost-text, #0f172a)',
+          border: 'none',
+          boxShadow: isPop
+            ? 'inset 2px 2px 5px #bec3c9, inset -2px -2px 5px #ffffff'
+            : '4px 4px 10px #bec3c9, -4px -4px 10px #ffffff',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          borderRadius: '24px',
+          backgroundColor: isPop ? 'var(--boost-primary, #6750a4)' : 'transparent',
+          color: isPop ? '#ffffff' : 'var(--boost-primary, #6750a4)',
+          border: isPop ? 'none' : '1px solid var(--boost-primary, #6750a4)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          borderRadius: '10px',
+          backgroundColor: isPop ? 'var(--boost-primary, #3b82f6)' : '#1f2937',
+          color: '#ffffff',
+          border: 'none',
+          boxShadow: isPop ? '0 0 16px rgba(59, 130, 246, 0.4)' : 'none',
+        };
+      case 'minimal':
+      default:
+        return {
+          ...base,
+          borderRadius: '6px',
+          backgroundColor: isPop ? '#0f172a' : 'transparent',
+          color: isPop ? '#ffffff' : 'var(--boost-text, #0f172a)',
+          border: isPop ? 'none' : '1px solid var(--boost-border, #e2e8f0)',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-pricing-table ${className}`}
+      className={`boost-pricing-table boost-pricing-table-${preset} ${className}`}
+      data-boost-preset={preset}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -70,47 +471,46 @@ export const PricingTable: React.FC<PricingTableProps> = ({
     >
       <style>
         {`
-          :root[data-theme="dark"] .boost-pricing-card,
-          .dark .boost-pricing-card {
+          :root[data-theme="dark"] .boost-pricing-card.preset-glassmorphism,
+          .dark .boost-pricing-card.preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.75) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.preset-neo-brutalism,
+          .dark .boost-pricing-card.preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #ffffff !important;
+            box-shadow: 4px 4px 0px #ffffff !important;
+            color: #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.preset-neo-brutalism.is-popular,
+          .dark .boost-pricing-card.preset-neo-brutalism.is-popular {
+            box-shadow: 6px 6px 0px #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.preset-neumorphism,
+          .dark .boost-pricing-card.preset-neumorphism {
+            background-color: #1e2530 !important;
+            box-shadow: 6px 6px 14px #13171e, -6px -6px 14px #293342 !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism),
+          .dark .boost-pricing-card:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism) {
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
           }
-          :root[data-theme="dark"] .boost-pricing-card.is-popular,
-          .dark .boost-pricing-card.is-popular {
+          :root[data-theme="dark"] .boost-pricing-card.is-popular:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism),
+          .dark .boost-pricing-card.is-popular:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism) {
             border-color: var(--boost-primary, #6366f1) !important;
             box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25) !important;
           }
         `}
       </style>
       {showToggle && (
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            backgroundColor: 'var(--boost-surface, #f1f5f9)',
-            padding: '4px',
-            borderRadius: '9999px',
-            border: '1px solid var(--boost-border, #e2e8f0)',
-            marginBottom: '40px',
-            gap: '4px',
-          }}
-        >
+        <div style={getToggleContainerStyles()}>
           <button
             type="button"
             onClick={() => handleCycleChange('monthly')}
-            style={{
-              padding: '8px 20px',
-              borderRadius: '9999px',
-              border: 'none',
-              backgroundColor: activeCycle === 'monthly' ? 'var(--boost-bg, #ffffff)' : 'transparent',
-              color: activeCycle === 'monthly' ? 'var(--boost-text, #0f172a)' : 'var(--boost-text-muted, #64748b)',
-              fontWeight: 600,
-              fontSize: '14px',
-              cursor: 'pointer',
-              boxShadow: activeCycle === 'monthly' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
-              transition: 'all 0.15s ease',
-            }}
+            style={getToggleButtonStyles(activeCycle === 'monthly')}
           >
             Monthly
           </button>
@@ -118,16 +518,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
             type="button"
             onClick={() => handleCycleChange('annual')}
             style={{
-              padding: '8px 20px',
-              borderRadius: '9999px',
-              border: 'none',
-              backgroundColor: activeCycle === 'annual' ? 'var(--boost-bg, #ffffff)' : 'transparent',
-              color: activeCycle === 'annual' ? 'var(--boost-text, #0f172a)' : 'var(--boost-text-muted, #64748b)',
-              fontWeight: 600,
-              fontSize: '14px',
-              cursor: 'pointer',
-              boxShadow: activeCycle === 'annual' ? '0 2px 6px rgba(0, 0, 0, 0.08)' : 'none',
-              transition: 'all 0.15s ease',
+              ...getToggleButtonStyles(activeCycle === 'annual'),
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
@@ -179,43 +570,11 @@ export const PricingTable: React.FC<PricingTableProps> = ({
           return (
             <div
               key={tier.id}
-              className={`boost-pricing-card ${isPop ? 'is-popular' : ''}`}
-              style={{
-                position: 'relative',
-                boxSizing: 'border-box',
-                padding: 'clamp(24px, 4vw, 36px) clamp(20px, 3vw, 30px)',
-                borderRadius: 'var(--boost-radius, 16px)',
-                backgroundColor: 'var(--boost-surface, #ffffff)',
-                border: isPop
-                  ? '2px solid var(--boost-primary, #2563eb)'
-                  : '1px solid var(--boost-border, #e2e8f0)',
-                boxShadow: isPop
-                  ? 'var(--boost-shadow-glow, 0 16px 36px rgba(37, 99, 235, 0.18))'
-                  : 'var(--boost-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04))',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-              }}
+              className={`boost-pricing-card preset-${preset} ${isPop ? 'is-popular' : ''}`}
+              style={getTierCardStyles(isPop)}
             >
               {isPop && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '-13px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'var(--boost-primary, #2563eb)',
-                    color: '#ffffff',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '4px 14px',
-                    borderRadius: '9999px',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase',
-                    boxShadow: '0 2px 10px rgba(37, 99, 235, 0.4)',
-                  }}
-                >
+                <div style={getPopularBadgeStyles()}>
                   {tier.popularLabel || 'Most Popular'}
                 </div>
               )}
@@ -240,8 +599,8 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                         backgroundColor: 'rgba(34, 197, 94, 0.1)',
                         color: '#16a34a',
                         padding: '2px 8px',
-                        borderRadius: '9999px',
-                        border: '1px solid rgba(34, 197, 94, 0.2)',
+                        borderRadius: preset === 'neo-brutalism' ? '2px' : '9999px',
+                        border: preset === 'neo-brutalism' ? '1.5px solid #000' : '1px solid rgba(34, 197, 94, 0.2)',
                       }}
                     >
                       {tier.badge}
@@ -308,7 +667,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
 
                 <div
                   style={{
-                    borderTop: '1px solid var(--boost-border, #e2e8f0)',
+                    borderTop: preset === 'neo-brutalism' ? '2px solid #000' : '1px solid var(--boost-border, #e2e8f0)',
                     paddingTop: '24px',
                     marginBottom: '32px',
                   }}
@@ -348,8 +707,11 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                               justifyContent: 'center',
                               width: '20px',
                               height: '20px',
-                              borderRadius: '9999px',
-                              backgroundColor: included ? 'rgba(37, 99, 235, 0.1)' : 'rgba(148, 163, 184, 0.1)',
+                              borderRadius: preset === 'neo-brutalism' ? '2px' : '9999px',
+                              backgroundColor: preset === 'neo-brutalism'
+                                ? (included ? '#fbbf24' : '#f1f5f9')
+                                : (included ? 'rgba(37, 99, 235, 0.1)' : 'rgba(148, 163, 184, 0.1)'),
+                              border: preset === 'neo-brutalism' ? '1.5px solid #000' : 'none',
                               flexShrink: 0,
                             }}
                           >
@@ -358,8 +720,8 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                               height="12"
                               viewBox="0 0 24 24"
                               fill="none"
-                              stroke={included ? 'var(--boost-primary, #2563eb)' : '#94a3b8'}
-                              strokeWidth="2.5"
+                              stroke={included ? (preset === 'neo-brutalism' ? '#000000' : 'var(--boost-primary, #2563eb)') : '#94a3b8'}
+                              strokeWidth={preset === 'neo-brutalism' ? '3' : '2.5'}
                               strokeLinecap="round"
                               strokeLinejoin="round"
                             >
@@ -385,26 +747,7 @@ export const PricingTable: React.FC<PricingTableProps> = ({
                 type="button"
                 onClick={tier.onSelect}
                 disabled={tier.disabled}
-                style={{
-                  width: '100%',
-                  padding: '13px',
-                  borderRadius: 'var(--boost-radius, 10px)',
-                  backgroundColor: isPop
-                    ? 'var(--boost-primary, #2563eb)'
-                    : 'var(--boost-bg, #f8fafc)',
-                  color: isPop ? '#ffffff' : 'var(--boost-text, #0f172a)',
-                  border: isPop
-                    ? 'none'
-                    : '1px solid var(--boost-border, #e2e8f0)',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  cursor: tier.disabled ? 'not-allowed' : 'pointer',
-                  opacity: tier.disabled ? 0.5 : 1,
-                  boxShadow: isPop
-                    ? 'var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.3))'
-                    : 'none',
-                  transition: 'all 0.15s ease',
-                }}
+                style={getButtonStyles(isPop, tier.disabled)}
               >
                 {tier.ctaText || (isPop ? 'Get Started Now' : 'Choose Plan')}
               </button>
@@ -415,6 +758,5 @@ export const PricingTable: React.FC<PricingTableProps> = ({
     </div>
   );
 };
-
 
 PricingTable.displayName = 'PricingTable';

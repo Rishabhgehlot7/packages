@@ -127,7 +127,7 @@
   --boost-shadow-glow: 0 0 20px rgba(99, 102, 241, 0.35);
 }
 [data-boost-preset="material-you"] {
-  --boost-preset-radius: 16px;
+  --boost-preset-radius: 24px;
   --boost-preset-border-width: 1px;
   --boost-preset-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --boost-preset-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);

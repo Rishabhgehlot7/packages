@@ -46,6 +46,7 @@ export {
 // 0. Theming & Design System
 export { BoostProvider, useTheme, useCurrency, useBoostPreset, injectBoostGlobalStyles } from './components/BoostProvider';
 export { ThemeToggle } from './components/ThemeToggle';
+export { PresetSwitcher } from './components/PresetSwitcher';
 export { boostTokens, createTailwindPreset } from './tokens';
 export { presetTokenCssVars, presetHelperClasses } from './tokens/presets';
 export { presetTokens } from './types/presets';
@@ -56,6 +57,7 @@ export type {
   ThemeTokens,
 } from './components/BoostProvider';
 export type { ThemeToggleProps } from './components/ThemeToggle';
+export type { PresetSwitcherProps } from './components/PresetSwitcher';
 export type {
   AsProp,
   PolymorphicComponentProp,

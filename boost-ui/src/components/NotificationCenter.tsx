@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface NotificationItem {
   id: string;
@@ -18,6 +20,7 @@ export interface NotificationCenterProps {
   onClearAll?: () => void;
   title?: string;
   emptyText?: string;
+  stylePreset?: UIStylePreset;
   className?: string;
 }
 
@@ -28,8 +31,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   onClearAll,
   title = 'Notifications',
   emptyText = 'You have no new notifications.',
+  stylePreset: stylePresetProp,
   className = '',
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [isOpen, setIsOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<'all' | 'unread'>('all');
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -55,10 +61,82 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  const getPopoverStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: 'absolute',
+      top: 'calc(100% + 8px)',
+      right: 0,
+      width: '360px',
+      maxWidth: '90vw',
+      zIndex: 99999,
+      overflow: 'hidden',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          border: '3px solid #000',
+          borderRadius: '2px',
+          boxShadow: '6px 6px 0px #000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '18px',
+          boxShadow: '0 20px 40px -10px rgba(31, 38, 135, 0.15)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          borderRadius: '16px',
+          boxShadow: '8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          borderRadius: '14px',
+          boxShadow: '0 0 30px rgba(99, 102, 241, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '28px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '14px',
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.7)',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-bg, #ffffff)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: 'var(--boost-radius, 12px)',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+        };
+    }
+  };
+
   return (
     <div
       ref={containerRef}
-      className={`boost-notification-center ${className}`}
+      className={`boost-notification-center boost-notification-center-preset-${preset} ${className}`}
       style={{ position: 'relative', display: 'inline-block' }}
     >
       <style>
@@ -168,19 +246,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           </style>
           <div
             className="boost-notification-popover"
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 8px)',
-              right: 0,
-              width: '360px',
-              maxWidth: '90vw',
-              backgroundColor: 'var(--boost-bg, #ffffff)',
-              border: '1px solid var(--boost-border, #e2e8f0)',
-              borderRadius: 'var(--boost-radius, 12px)',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-              zIndex: 99999,
-              overflow: 'hidden',
-            }}
+            style={getPopoverStyles()}
           >
           <div
             style={{

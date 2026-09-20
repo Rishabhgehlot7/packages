@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface ForgotPasswordProps {
   onSubmit?: (email: string) => void;
@@ -6,6 +8,9 @@ export interface ForgotPasswordProps {
   loading?: boolean;
   successMessage?: string;
   errorMessage?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
@@ -14,7 +19,12 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
   loading = false,
   successMessage,
   errorMessage,
+  className = '',
+  style,
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [email, setEmail] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,21 +33,201 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
     onSubmit?.(email);
   };
 
+  const getCardPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          backgroundColor: '#ffffff',
+          border: '3px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '6px 6px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+        };
+      case 'neumorphism':
+        return {
+          border: 'none',
+          backgroundColor: 'var(--boost-surface, #e6ecf5)',
+          borderRadius: '20px',
+          boxShadow: '8px 8px 18px #d1d9e6, -8px -8px 18px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          border: '1px solid rgba(99, 102, 241, 0.4)',
+          boxShadow: '0 0 30px rgba(99, 102, 241, 0.25)',
+          borderRadius: '16px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '28px',
+          backgroundColor: 'var(--boost-surface-variant, #f3edf7)',
+          border: 'none',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        };
+      case 'dark-first':
+        return {
+          border: '1px solid #334155',
+          backgroundColor: '#0f172a',
+          borderRadius: '16px',
+          boxShadow: '0 12px 35px -5px rgba(0, 0, 0, 0.5)',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '16px',
+          boxShadow: 'var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))',
+        };
+    }
+  };
+
+  const getInputPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: errorMessage ? '3px solid #ef4444' : '2px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '2px 2px 0px #000000',
+          backgroundColor: '#ffffff',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: errorMessage ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '10px',
+        };
+      case 'neumorphism':
+        return {
+          border: 'none',
+          backgroundColor: 'var(--boost-surface, #e6ecf5)',
+          borderRadius: '10px',
+          boxShadow: errorMessage ? 'inset 2px 2px 4px rgba(239, 68, 68, 0.4)' : 'inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '16px',
+          backgroundColor: '#ffffff',
+          border: errorMessage ? '2px solid #ef4444' : '1px solid rgba(0,0,0,0.08)',
+        };
+      default:
+        return {};
+    }
+  };
+
+  const getButtonPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          backgroundColor: '#000000',
+          color: '#ffffff',
+          border: '3px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '3px 3px 0px #000000',
+          fontWeight: 800,
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-primary, #6366f1)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderRadius: '10px',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          boxShadow: '0 4px 15px rgba(99, 102, 241, 0.35)',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e6ecf5)',
+          color: 'var(--boost-text-primary, #0f172a)',
+          border: 'none',
+          borderRadius: '10px',
+          boxShadow: '4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff',
+          fontWeight: 700,
+        };
+      case 'gradient-glow':
+        return {
+          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+          border: 'none',
+          borderRadius: '10px',
+          boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)',
+          color: '#ffffff',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '24px',
+          backgroundColor: 'var(--boost-primary, #6750a4)',
+          color: '#ffffff',
+          border: 'none',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#38bdf8',
+          color: '#0f172a',
+          fontWeight: 700,
+          borderRadius: '10px',
+        };
+      case 'minimal':
+      default:
+        return {};
+    }
+  };
+
+  const getIconPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '2px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '2px 2px 0px #000000',
+          backgroundColor: '#ffffff',
+          color: '#000000',
+        };
+      case 'neumorphism':
+        return {
+          border: 'none',
+          borderRadius: '24px',
+          backgroundColor: 'var(--boost-surface, #e6ecf5)',
+          boxShadow: 'inset 2px 2px 5px #d1d9e6, inset -2px -2px 5px #ffffff',
+          color: 'var(--boost-primary, #6366f1)',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '16px',
+          backgroundColor: '#eaddff',
+          color: '#21005d',
+        };
+      default:
+        return {
+          borderRadius: '24px',
+          backgroundColor: 'rgba(99, 102, 241, 0.12)',
+          color: 'var(--boost-primary, #6366f1)',
+        };
+    }
+  };
+
   return (
     <div
-      className="boost-auth-card"
+      className={`boost-auth-card boost-auth-preset-${preset} ${className}`}
       style={{
         maxWidth: '420px',
         width: '100%',
         margin: '0 auto',
         padding: 'clamp(24px, 5vw, 36px) clamp(18px, 4vw, 28px)',
-        backgroundColor: 'var(--boost-surface, #ffffff)',
-        border: '1px solid var(--boost-border, #e2e8f0)',
-        borderRadius: 'var(--boost-radius, 16px)',
-        boxShadow: 'var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))',
         fontFamily: 'inherit',
         boxSizing: 'border-box',
         transition: 'all 0.2s ease',
+        ...getCardPresetStyles(),
+        ...style,
       }}
     >
       <style>
@@ -66,13 +256,11 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
           style={{
             width: '48px',
             height: '48px',
-            borderRadius: '24px',
-            backgroundColor: 'rgba(99, 102, 241, 0.12)',
-            color: 'var(--boost-primary, #6366f1)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '12px',
+            ...getIconPresetStyles(),
           }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -92,7 +280,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
             padding: '16px',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
             border: '1px solid rgba(16, 185, 129, 0.2)',
-            borderRadius: '8px',
+            borderRadius: preset === 'neo-brutalism' ? '0px' : '8px',
             color: '#10b981',
             fontSize: '13px',
             textAlign: 'center',
@@ -112,7 +300,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
                 padding: '10px 14px',
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
                 border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '8px',
+                borderRadius: preset === 'neo-brutalism' ? '0px' : '8px',
                 color: '#ef4444',
                 fontSize: '13px',
               }}
@@ -148,6 +336,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
                 borderRadius: '8px',
                 outline: 'none',
                 transition: 'border-color 0.2s, box-shadow 0.2s',
+                ...getInputPresetStyles(),
               }}
             />
           </div>
@@ -172,6 +361,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
               gap: '8px',
               boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
               transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+              ...getButtonPresetStyles(),
             }}
           >
             {loading && (

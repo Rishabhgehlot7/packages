@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
+import type { UIStylePreset } from '../types/presets';
 
 export interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export interface ConfirmationDialogProps {
   isLoading?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
@@ -30,6 +32,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   isLoading = false,
   className = '',
   style,
+  stylePreset,
 }) => {
   // Respect confirmVariant if passed, fallback to variant
   const activeVariant = confirmVariant || variant;
@@ -49,6 +52,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       size="sm"
       className={className}
       style={style}
+      stylePreset={stylePreset}
       footer={
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', width: '100%' }}>
           <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>

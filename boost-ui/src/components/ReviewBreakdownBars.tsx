@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 import { StarRating } from './StarRating';
 
 export interface ReviewBreakdownItem {
@@ -12,6 +14,7 @@ export interface ReviewBreakdownBarsProps {
   breakdown: Record<number, number> | ReviewBreakdownItem[] | any[];
   onFilterByStar?: (star: number) => void;
   selectedStar?: number | null;
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -22,9 +25,13 @@ export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
   breakdown,
   onFilterByStar,
   selectedStar = null,
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
+
   // Normalize breakdown to array [5, 4, 3, 2, 1]
   const rows: ReviewBreakdownItem[] = [5, 4, 3, 2, 1].map((star) => {
     let count = 0;
@@ -41,21 +48,84 @@ export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
   const safeTotal = typeof totalReviews === 'number' ? totalReviews : (computedTotal || 100);
   const safeRating = typeof averageRating === 'number' ? averageRating : 4.7;
 
+  const getContainerStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: '40px',
+      padding: '32px',
+      fontFamily: 'inherit',
+      width: '100%',
+      boxSizing: 'border-box',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          border: '3px solid #000000',
+          borderRadius: '2px',
+          boxShadow: '6px 6px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '24px',
+          boxShadow: '0 20px 40px -20px rgba(0, 0, 0, 0.1)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          borderRadius: '24px',
+          boxShadow: '8px 8px 20px #c8cdd5, -8px -8px 20px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          borderRadius: '24px',
+          boxShadow: '0 0 35px rgba(99, 102, 241, 0.15)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '28px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '24px',
+          boxShadow: '0 20px 40px -20px rgba(0, 0, 0, 0.8)',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderRadius: '24px',
+          border: '1px solid var(--boost-border, rgba(0,0,0,0.05))',
+          boxShadow: '0 20px 40px -20px var(--boost-shadow, rgba(0,0,0,0.05))',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-review-breakdown ${className}`}
+      className={`boost-review-breakdown boost-review-breakdown-preset-${preset} ${className}`}
       style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '40px',
-        padding: '32px',
-        backgroundColor: 'var(--boost-surface, #ffffff)',
-        borderRadius: '24px',
-        border: '1px solid var(--boost-border, rgba(0,0,0,0.05))',
-        boxShadow: '0 20px 40px -20px var(--boost-shadow, rgba(0,0,0,0.05))',
-        fontFamily: 'inherit',
-        width: '100%',
+        ...getContainerStyles(),
         ...style,
       }}
     >

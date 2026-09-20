@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface LightningDealsBarProps {
   dealTitle?: string;
@@ -11,6 +13,7 @@ export interface LightningDealsBarProps {
   badgeColor?: string;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
   onExpire?: () => void;
   hideOnExpire?: boolean;
 }
@@ -26,10 +29,13 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
   badgeColor = '#ef4444',
   className = '',
   style,
+  stylePreset: stylePresetProp,
   onExpire,
   hideOnExpire = true,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [timeLeft, setTimeLeft] = React.useState({
     hours: 2,
     minutes: 0,
@@ -93,34 +99,183 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
     return null;
   }
 
+  const getContainerStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          background: '#ffffff',
+          border: '3px solid #000000',
+          boxShadow: '5px 5px 0px #000000',
+          borderRadius: '2px',
+        };
+      case 'glassmorphism':
+        return {
+          background: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.12)',
+          borderRadius: '16px',
+        };
+      case 'neumorphism':
+        return {
+          background: 'var(--boost-surface, #e6ecf5)',
+          border: 'none',
+          boxShadow: '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff',
+          borderRadius: '16px',
+        };
+      case 'gradient-glow':
+        return {
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%), var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(245, 158, 11, 0.4)',
+          boxShadow: '0 0 25px rgba(245, 158, 11, 0.25)',
+          borderRadius: '16px',
+        };
+      case 'material-you':
+        return {
+          background: 'var(--boost-surface-variant, #fff7ed)',
+          border: 'none',
+          borderRadius: '24px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        };
+      case 'dark-first':
+        return {
+          background: '#0f172a',
+          border: '1px solid #334155',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+          borderRadius: '16px',
+        };
+      case 'minimal':
+      default:
+        return {
+          background: 'linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(254, 226, 226, 0.25) 100%), var(--boost-surface, #ffffff)',
+          border: '1px solid var(--boost-border, rgba(245, 158, 11, 0.25))',
+          boxShadow: '0 10px 25px -5px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(0, 0, 0, 0.03)',
+          borderRadius: '16px',
+        };
+    }
+  };
+
+  const getTimerBoxStyles = (isSec?: boolean): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          borderRadius: '0px',
+          border: '2px solid #000000',
+          boxShadow: '2px 2px 0px #000000',
+          background: isSec ? '#ef4444' : '#000000',
+          color: '#ffffff',
+          fontWeight: 800,
+        };
+      case 'glassmorphism':
+        return {
+          borderRadius: '6px',
+          background: isSec ? 'rgba(239, 68, 68, 0.85)' : 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
+        };
+      case 'neumorphism':
+        return {
+          borderRadius: '6px',
+          background: 'var(--boost-surface, #e6ecf5)',
+          boxShadow: 'inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff',
+          color: isSec ? '#ef4444' : 'var(--boost-text-primary, #0f172a)',
+          border: 'none',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '8px',
+          background: isSec ? '#fee2e2' : 'var(--boost-surface-container-high, #ffedd5)',
+          color: isSec ? '#991b1b' : 'var(--boost-text-primary, #431407)',
+          border: 'none',
+          fontWeight: 800,
+        };
+      default:
+        return {};
+    }
+  };
+
+  const getBadgeStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '2px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '2px 2px 0px #000000',
+          background: '#ef4444',
+          color: '#ffffff',
+          fontWeight: 900,
+        };
+      case 'neumorphism':
+        return {
+          border: 'none',
+          boxShadow: '3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '12px',
+        };
+      default:
+        return {};
+    }
+  };
+
+  const getTrackStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '2px solid #000000',
+          borderRadius: '0px',
+          background: '#ffffff',
+        };
+      case 'neumorphism':
+        return {
+          boxShadow: 'inset 2px 2px 5px #c8d0dc, inset -2px -2px 5px #ffffff',
+          backgroundColor: 'transparent',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '8px',
+          backgroundColor: '#ffedd5',
+        };
+      default:
+        return {};
+    }
+  };
+
+  const containerPresetStyle = getContainerStyles();
+
   return (
     <div
-      className={`boost-lightning-deals-bar ${className}`}
+      className={`boost-lightning-deals-bar boost-deals-preset-${preset} ${className}`}
       style={{
-        borderRadius: '16px',
         padding: '16px 20px',
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
         width: '100%',
         boxSizing: 'border-box',
+        ...containerPresetStyle,
         ...style,
       }}
     >
       <style>
         {`
           .boost-lightning-deals-bar {
-            background: linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(254, 226, 226, 0.25) 100%), var(--boost-surface, #ffffff);
-            border: 1px solid var(--boost-border, rgba(245, 158, 11, 0.25));
-            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(0, 0, 0, 0.03);
             transition: all 0.3s ease;
           }
 
-          :root[data-theme="dark"] .boost-lightning-deals-bar,
-          .dark .boost-lightning-deals-bar {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(239, 68, 68, 0.06) 100%), var(--boost-surface, #0f172a);
-            border-color: rgba(245, 158, 11, 0.3);
-            box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.4);
+          :root[data-theme="dark"] .boost-deals-preset-glassmorphism,
+          .dark .boost-deals-preset-glassmorphism {
+            background: rgba(15, 23, 42, 0.75) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+
+          :root[data-theme="dark"] .boost-deals-preset-neumorphism,
+          .dark .boost-deals-preset-neumorphism {
+            background: #1e293b !important;
+            box-shadow: 6px 6px 14px #0d1522, -6px -6px 14px #2f3d54 !important;
           }
 
           .boost-deal-badge {
@@ -210,7 +365,13 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span className="boost-deal-badge" style={{ backgroundColor: badgeColor !== '#ef4444' ? badgeColor : undefined }}>
+          <span
+            className="boost-deal-badge"
+            style={{
+              backgroundColor: badgeColor !== '#ef4444' ? badgeColor : undefined,
+              ...getBadgeStyles(),
+            }}
+          >
             <svg className="boost-deal-badge-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
@@ -233,15 +394,15 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
             Ends in:
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span className="boost-timer-box">
+            <span className="boost-timer-box" style={getTimerBoxStyles()}>
               {pad(timeLeft.hours)}h
             </span>
             <span style={{ fontWeight: 800, color: 'var(--boost-text-muted, #94a3b8)', lineHeight: 1 }}>:</span>
-            <span className="boost-timer-box">
+            <span className="boost-timer-box" style={getTimerBoxStyles()}>
               {pad(timeLeft.minutes)}m
             </span>
             <span style={{ fontWeight: 800, color: 'var(--boost-text-muted, #94a3b8)', lineHeight: 1 }}>:</span>
-            <span className="boost-timer-box seconds">
+            <span className="boost-timer-box seconds" style={getTimerBoxStyles(true)}>
               {pad(timeLeft.seconds)}s
             </span>
           </div>
@@ -250,10 +411,13 @@ export const LightningDealsBar: React.FC<LightningDealsBarProps> = ({
 
       {/* Bottom Claim Progress Bar */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <div className="boost-deal-track">
+        <div className="boost-deal-track" style={getTrackStyles()}>
           <div
             className="boost-deal-fill"
-            style={{ width: `${percent}%` }}
+            style={{
+              width: `${percent}%`,
+              borderRadius: preset === 'neo-brutalism' ? '0px' : undefined,
+            }}
           />
         </div>
         <div

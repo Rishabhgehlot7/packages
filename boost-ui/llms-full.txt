@@ -23,7 +23,7 @@ function ThemeToggle() {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <BoostProvider defaultMode="system">
+    <BoostProvider defaultPreset="neo-brutalism" defaultMode="system">
       <ThemeToggle />
       {children}
     </BoostProvider>
@@ -34,10 +34,34 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 **BoostProvider Props:**
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `defaultPreset` | `UIStylePreset` | `'minimal'` | Active design preset (`minimal`, `glassmorphism`, `neumorphism`, `neo-brutalism`, `dark-first`, `gradient-glow`, `material-you`) |
 | `defaultMode` | `'light' \| 'dark' \| 'system'` | `'system'` | Initial theme mode |
 | `tokens` | `ThemeTokens` | `{}` | Override light mode tokens |
 | `darkTokens` | `ThemeTokens` | `{}` | Override dark mode tokens |
+| `currency` | `string` | `'$'` | Default store currency |
+| `locale` | `string` | `'en-US'` | Default formatting locale |
 | `children` | `ReactNode` | required | App content |
+
+### Multi-Style Preset System & PresetSwitcher
+`@boostengine/ui` supports 7 built-in design presets:
+- `minimal`: Clean, modern SaaS aesthetic with subtle borders and shadows.
+- `glassmorphism`: Multi-layer frosted glass with `backdropFilter: blur(16px)` and translucent surfaces.
+- `neumorphism`: Soft extruded dual shadows (`6px 6px 14px / -6px -6px 14px`).
+- `neo-brutalism`: 3px solid black borders, hard 5px 5px 0px #000 drop shadows, 0px radius.
+- `dark-first`: Midnight #0f172a / #090d16 surfaces with high-contrast borders and neon accents.
+- `gradient-glow`: Neon auras, violet-indigo glows, and luminous accents (`rgba(99, 102, 241, 0.35)`).
+- `material-you`: Pebble curves (fixed 24px corner radius) and tonal pastel containers.
+
+**Using PresetSwitcher:**
+```tsx
+import { PresetSwitcher } from '@boostengine/ui';
+
+// Dropdown variant:
+<PresetSwitcher variant="dropdown" />
+
+// Floating pill variant:
+<PresetSwitcher variant="floating" position="bottom-right" />
+```
 
 **Available CSS Variables (injected by BoostProvider):**
 ```css
@@ -50,6 +74,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 --boost-border        /* Border color */
 --boost-radius        /* Border radius */
 --boost-font          /* Font family stack */
+--boost-preset-radius /* Active preset border radius */
+--boost-preset-shadow /* Active preset box shadow */
 ```
 
 ---

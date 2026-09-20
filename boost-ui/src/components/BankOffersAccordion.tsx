@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface BankOffer {
   id: string;
@@ -12,6 +14,7 @@ export interface BankOffer {
 
 export interface BankOffersAccordionProps {
   offers?: BankOffer[];
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -48,9 +51,12 @@ const DEFAULT_OFFERS: BankOffer[] = [
 
 export const BankOffersAccordion: React.FC<BankOffersAccordionProps> = ({
   offers = DEFAULT_OFFERS,
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [expanded, setExpanded] = React.useState(false);
   const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
 
@@ -59,22 +65,87 @@ export const BankOffersAccordion: React.FC<BankOffersAccordionProps> = ({
 
   const handleCopy = (code: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(code);
+    navigator.clipboard?.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const getOffersContainerStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      width: '100%',
+      boxSizing: 'border-box',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          border: '3px solid #000000',
+          borderRadius: '2px',
+          boxShadow: '5px 5px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '20px',
+          boxShadow: '0 15px 35px -5px rgba(0, 0, 0, 0.08)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          borderRadius: '20px',
+          boxShadow: '8px 8px 18px #c8cdd5, -8px -8px 18px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          borderRadius: '18px',
+          boxShadow: '0 0 30px rgba(99, 102, 241, 0.12)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '28px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '18px',
+          boxShadow: '0 15px 35px -5px rgba(0, 0, 0, 0.6)',
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: '18px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid var(--boost-border, rgba(0, 0, 0, 0.08))',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02)',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-bank-offers ${className}`}
+      className={`boost-bank-offers boost-bank-offers-preset-${preset} ${className}`}
       style={{
-        borderRadius: '18px',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        width: '100%',
-        boxSizing: 'border-box',
+        ...getOffersContainerStyles(),
         ...style,
       }}
     >

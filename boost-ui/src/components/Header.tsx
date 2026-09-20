@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface HeaderNavLink {
   label: string;
@@ -20,6 +22,7 @@ export interface HeaderProps {
   sticky?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
   renderMobileMenu?: (props: {
     isOpen: boolean;
     onClose: () => void;
@@ -40,8 +43,11 @@ export const Header: React.FC<HeaderProps> = ({
   sticky = true,
   className = '',
   style,
+  stylePreset: stylePresetProp,
   renderMobileMenu,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const effectiveLinks = navLinks || links || [];
 
@@ -51,6 +57,56 @@ export const Header: React.FC<HeaderProps> = ({
       onLinkClick(href);
     }
     setMobileMenuOpen(false);
+  };
+
+  const getPresetHeaderStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          backgroundColor: '#ffffff',
+          borderBottom: '3px solid #000000',
+          boxShadow: '0 4px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.88))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          borderBottom: 'none',
+          boxShadow: '0 6px 14px #d1d9e6',
+        };
+      case 'gradient-glow':
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderBottom: '1px solid rgba(99, 102, 241, 0.25)',
+          boxShadow: '0 4px 20px rgba(99, 102, 241, 0.15)',
+        };
+      case 'material-you':
+        return {
+          backgroundColor: 'var(--boost-surface, #f8fafc)',
+          borderBottom: 'none',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#090d16',
+          borderBottom: '1px solid #1e293b',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderBottom: '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))',
+        };
+    }
   };
 
   return (
@@ -106,6 +162,24 @@ export const Header: React.FC<HeaderProps> = ({
           }
         }
         @media (min-width: 769px) {
+          :root[data-theme="dark"] .boost-header-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-bottom-color: #f8fafc !important;
+            box-shadow: 0 4px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-header-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.85) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+          }
+          :root[data-theme="dark"] .boost-header-preset-neumorphism {
+            background-color: #0f172a !important;
+            box-shadow: 0 6px 14px #090d15 !important;
+          }
+          :root[data-theme="dark"] .boost-header-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-bottom-color: rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25) !important;
+          }
           .boost-header .boost-hamburger-btn {
             display: none;
           }
@@ -116,16 +190,12 @@ export const Header: React.FC<HeaderProps> = ({
       `}</style>
 
       <header
-        className={`boost-header ${className}`}
+        className={`boost-header boost-header-preset-${preset} ${className}`}
         style={{
           containerType: 'inline-size',
           position: sticky ? 'sticky' : 'relative',
           top: 0,
           zIndex: 40,
-          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.92))',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderBottom: '1px solid var(--boost-border, rgba(226, 232, 240, 0.8))',
           padding: '0 clamp(16px, 3.5vw, 28px)',
           height: '64px',
           display: 'flex',
@@ -133,8 +203,8 @@ export const Header: React.FC<HeaderProps> = ({
           justifyContent: 'space-between',
           fontFamily: 'inherit',
           boxSizing: 'border-box',
-          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))',
           transition: 'all 0.2s ease',
+          ...getPresetHeaderStyles(),
           ...style,
         }}
       >

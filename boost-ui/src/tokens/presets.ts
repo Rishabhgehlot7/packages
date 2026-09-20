@@ -50,7 +50,7 @@ export const presetTokenCssVars = {
     '--boost-preset-surface-opacity': '1',
   },
   'material-you': {
-    '--boost-preset-radius': 'calc(var(--boost-radius, 4px) * 1.2)',
+    '--boost-preset-radius': '24px',
     '--boost-preset-border-width': '1px',
     '--boost-preset-shadow': '0 2px 8px rgba(0, 0, 0, 0.1)',
     '--boost-preset-shadow-hover': '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -67,6 +67,6 @@ export const presetHelperClasses: Record<UIStylePreset, string> = {
   neumorphism: '.boost-preset-neumorphism { box-shadow: 6px 6px 12px #c5cad3, -6px -6px 12px #ffffff; }',
   'neo-brutalism': '.boost-preset-neo-brutalism { box-shadow: 4px 4px 0px #000; border: 2px solid #000; }',
   'gradient-glow': '.boost-preset-gradient-glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.35); }',
-  'dark-first': '',
-  'material-you': '',
+  'dark-first': '.boost-preset-dark-first { background: #0f172a; border: 1px solid #334155; color: #f8fafc; }',
+  'material-you': '.boost-preset-material-you { border-radius: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }',
 };

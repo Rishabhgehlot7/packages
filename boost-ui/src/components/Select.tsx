@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface SelectOption {
   label: string;
@@ -13,6 +15,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   options?: SelectOption[];
   placeholder?: string;
   fullWidth?: boolean;
+  stylePreset?: UIStylePreset;
 }
 
 export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, SelectProps>(
@@ -28,11 +31,61 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
       className = '',
       id,
       style,
+      stylePreset: stylePresetProp,
       ...props
     },
     ref
   ) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const selectId = id || (label ? `select-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined);
+
+    const getPresetStyles = (): React.CSSProperties => {
+      switch (preset) {
+        case 'neo-brutalism':
+          return {
+            borderRadius: '0px',
+            border: '2px solid #000',
+            backgroundColor: '#ffffff',
+            boxShadow: 'none',
+          };
+        case 'glassmorphism':
+          return {
+            borderRadius: '12px',
+            border: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+            backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.75))',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+          };
+        case 'neumorphism':
+          return {
+            borderRadius: '16px',
+            border: 'none',
+            backgroundColor: 'var(--boost-surface, #eef0f4)',
+            boxShadow: '6px 6px 12px #c5cad3, -6px -6px 12px #ffffff',
+          };
+        case 'gradient-glow':
+          return {
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+          };
+        case 'material-you':
+          return {
+            borderRadius: '16px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+          };
+        case 'dark-first':
+          return {
+            border: '1px solid var(--boost-border, #232a37)',
+            backgroundColor: 'var(--boost-surface, #0b0f17)',
+          };
+        case 'minimal':
+        default:
+          return {
+            borderRadius: 'var(--boost-radius, 8px)',
+          };
+      }
+    };
 
     return (
       <div
@@ -53,9 +106,9 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
           }
           :root[data-theme="dark"] .boost-select {
-            background-color: #1e293b !important;
-            border-color: rgba(255, 255, 255, 0.12) !important;
-            color: #f8fafc !important;
+            background-color: #1e293b;
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
           }
           :root[data-theme="dark"] .boost-select option {
             background-color: #1e293b !important;
@@ -64,6 +117,30 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
           .boost-select:focus {
             border-color: var(--boost-primary, #2563eb) !important;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+          }
+          .boost-select-preset-neo-brutalism:focus {
+            box-shadow: 3px 3px 0px #000000 !important;
+            border-color: #000000 !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-neo-brutalism:focus {
+            box-shadow: 3px 3px 0px #f8fafc !important;
+            border-color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.8) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-neumorphism {
+            background-color: #0f172a !important;
+            box-shadow: 6px 6px 12px #090d15, -6px -6px 12px #151d2c !important;
+          }
+          .boost-select-preset-gradient-glow:focus {
+            border-color: rgba(99, 102, 241, 0.8) !important;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4) !important;
           }
         `}</style>
         {label && (
@@ -84,7 +161,7 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
             ref={ref}
             id={selectId}
             disabled={disabled}
-            className="boost-select"
+            className={`boost-select boost-select-preset-${preset}`}
             style={{
               width: '100%',
               paddingTop: '9px',
@@ -99,6 +176,7 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
               cursor: disabled ? 'not-allowed' : 'pointer',
               boxSizing: 'border-box',
               borderColor: error ? '#ef4444' : undefined,
+              ...getPresetStyles(),
               ...style,
             }}
             {...props}

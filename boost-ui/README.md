@@ -82,10 +82,75 @@ function HeaderThemeToggle() {
 
 ---
 
+## 🎨 7 Design Presets & Preset Switcher
+
+`@boostengine/ui` comes with 7 distinct, zero-config design style presets that can be switched globally or overridden per component:
+
+| Preset | Aesthetic Style | Key Visual Characteristics |
+|---|---|---|
+| `minimal` | Modern Clean SaaS | Subtle borders, light shadows, optimal whitespace |
+| `glassmorphism` | Frosted Glass / iOS | `backdrop-filter: blur(16px)`, translucent layers, glowing borders |
+| `neumorphism` | Soft 3D Embossed | Dual soft shadows (`6px 6px 14px / -6px -6px 14px`), extruded look |
+| `neo-brutalism` | Bold Retro Brutalism | Thick `3px solid #000` borders, hard `5px 5px 0px #000` drop shadows, `0px` radius |
+| `dark-first` | Midnight Cyberpunk | Deep `#0f172a` slate surfaces, high-contrast borders, neon highlights |
+| `gradient-glow` | Radiant Electric Aura | Glowing vibrant gradients (`rgba(99, 102, 241, 0.35)`), neon borders |
+| `material-you` | Google Material 3 | Expressive `24px` pebble corners, pastel tonal containers |
+
+### Global Setup with `BoostProvider`
+
+```tsx
+import { BoostProvider } from '@boostengine/ui';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <BoostProvider defaultPreset="neo-brutalism" defaultMode="system">
+      {children}
+    </BoostProvider>
+  );
+}
+```
+
+### Dynamic Switcher UI
+
+```tsx
+import { PresetSwitcher } from '@boostengine/ui';
+
+// In your navbar, settings modal, or floating toolbar:
+export function AppToolbar() {
+  return (
+    <div>
+      <PresetSwitcher variant="floating" position="bottom-right" />
+    </div>
+  );
+}
+```
+
+### Per-Component Style Preset Override
+
+Every surface component inherits the active preset from `BoostProvider`, but can also accept an override prop:
+
+```tsx
+import { ProductCard, Button, LoginForm } from '@boostengine/ui';
+
+// Card renders with glassmorphism even if global preset is neo-brutalism
+<ProductCard
+  stylePreset="glassmorphism"
+  title="Wireless Headphones"
+  price={299}
+/>
+
+<LoginForm stylePreset="neo-brutalism" onSubmit={handleLogin} />
+```
+
+---
+
 ## 📦 Complete Component Suite (125+ Components)
 
 ### 0. Theming & Architecture
-* `BoostProvider` - Root design system provider with CSS variable token injection
+* `BoostProvider` - Root design system provider with CSS variable token injection & preset management
+* `PresetSwitcher` - Floating/dropdown UI for switching between all 7 design presets in real time
+* `ThemeToggle` - Seamless Light / Dark mode toggle switch
+* `useBoostPreset` - Context hook for accessing current `stylePreset` and `setPreset()`
 * `useTheme` - Context hook for dynamic dark/light mode toggling and token inspection
 * `ToastProvider` & `useToast` - Lightweight imperative notification manager (`toast.success()`, `toast.error()`)
 

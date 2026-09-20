@@ -1,12 +1,18 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: React.ReactNode;
   description?: React.ReactNode;
+  stylePreset?: UIStylePreset;
 }
 
 export const Radio = /* @__PURE__ */ React.forwardRef<HTMLInputElement, RadioProps>(
-  ({ label, description, className = '', style, disabled, ...props }, ref) => {
+  ({ label, description, className = '', style, disabled, stylePreset: stylePresetProp, ...props }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
+
     return (
       <label
         style={{
@@ -19,12 +25,13 @@ export const Radio = /* @__PURE__ */ React.forwardRef<HTMLInputElement, RadioPro
           fontFamily: 'inherit',
           ...style,
         }}
-        className={`boost-radio ${className}`}
+        className={`boost-radio boost-radio-preset-${preset} ${className}`}
       >
         <input
           ref={ref}
           type="radio"
           disabled={disabled}
+          className={`boost-radio-input boost-radio-preset-${preset}`}
           style={{
             marginTop: '3px',
             accentColor: 'var(--boost-primary, #2563eb)',
@@ -69,6 +76,7 @@ export interface RadioGroupProps {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
+  stylePreset?: UIStylePreset;
 }
 
 export const RadioGroup: React.FC<RadioGroupProps> = ({
@@ -80,6 +88,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   className = '',
   style,
   disabled = false,
+  stylePreset,
 }) => {
   return (
     <div
@@ -106,6 +115,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
             onChange={() => onChange(opt.value)}
             label={opt.label}
             description={opt.description}
+            stylePreset={stylePreset}
           />
         );
       })}

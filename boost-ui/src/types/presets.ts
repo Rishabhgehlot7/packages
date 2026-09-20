@@ -66,7 +66,7 @@ export const presetTokens: Record<UIStylePreset, PresetTokens> = {
     surfaceOpacity: '1',
   },
   'material-you': {
-    radius: 'calc(var(--boost-radius, 4px) * 1.2)',
+    radius: '24px',
     borderWidth: '1px',
     shadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
     shadowHover: '0 4px 12px rgba(0, 0, 0, 0.15)',

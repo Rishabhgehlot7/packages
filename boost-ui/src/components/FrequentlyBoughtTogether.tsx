@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface BundleItem {
   id: string;
@@ -16,6 +18,7 @@ export interface FrequentlyBoughtTogetherProps {
   locale?: string;
   onAddBundleToCart?: (selectedItems: BundleItem[]) => void;
   onAddBundle?: (selectedItems: BundleItem[] | string[]) => void;
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -28,9 +31,12 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
   locale = 'en-US',
   onAddBundleToCart,
   onAddBundle,
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const allItems = React.useMemo(() => {
     const list: BundleItem[] = [];
     if (mainProduct && typeof mainProduct === 'object' && mainProduct.id) list.push(mainProduct);
@@ -83,20 +89,82 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
     }
   };
 
+  const getCardStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      padding: '24px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      width: '100%',
+      boxSizing: 'border-box',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          border: '3px solid #000000',
+          borderRadius: '2px',
+          boxShadow: '6px 6px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '24px',
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.08)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          borderRadius: '24px',
+          boxShadow: '8px 8px 20px #c8cdd5, -8px -8px 20px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          borderRadius: '20px',
+          boxShadow: '0 0 35px rgba(99, 102, 241, 0.15)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '28px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '20px',
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.7)',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid var(--boost-border, rgba(0, 0, 0, 0.08))',
+          borderRadius: '20px',
+          boxShadow: '0 12px 30px -10px var(--boost-shadow, rgba(0, 0, 0, 0.05))',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-frequently-bought ${className}`}
+      className={`boost-frequently-bought boost-frequently-bought-preset-${preset} ${className}`}
       style={{
-        backgroundColor: 'var(--boost-surface, #ffffff)',
-        border: '1px solid var(--boost-border, rgba(0, 0, 0, 0.08))',
-        borderRadius: '20px',
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        boxShadow: '0 12px 30px -10px var(--boost-shadow, rgba(0, 0, 0, 0.05))',
-        width: '100%',
-        boxSizing: 'border-box',
+        ...getCardStyles(),
         ...style,
       }}
     >

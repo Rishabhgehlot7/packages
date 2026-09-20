@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface NavLinkItem {
   label: string;
@@ -35,6 +37,7 @@ export interface NavbarProps {
   actions?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -69,7 +72,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   actions,
   className = '',
   style,
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState(searchValue || '');
   const [openDropdown, setOpenDropdown] = React.useState<string | null>(null);
@@ -105,21 +111,67 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false);
 
+  const getPresetNavbarStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          backgroundColor: '#ffffff',
+          borderBottom: '3px solid #000000',
+          boxShadow: '0 4px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.88))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          borderBottom: 'none',
+          boxShadow: '0 6px 14px #d1d9e6',
+        };
+      case 'gradient-glow':
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderBottom: '1px solid rgba(99, 102, 241, 0.25)',
+          boxShadow: '0 4px 20px rgba(99, 102, 241, 0.15)',
+        };
+      case 'material-you':
+        return {
+          backgroundColor: 'var(--boost-surface, #f8fafc)',
+          borderBottom: 'none',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#090d16',
+          borderBottom: '1px solid #1e293b',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderBottom: '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))',
+        };
+    }
+  };
+
   return (
     <header
-      className={`boost-navbar ${className}`}
+      className={`boost-navbar boost-navbar-preset-${preset} ${className}`}
       style={{
         position: sticky ? 'sticky' : 'relative',
         top: 0,
         zIndex: 40,
-        backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.88))',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid var(--boost-border, #e2e8f0)',
-        boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))',
         width: '100%',
         boxSizing: 'border-box',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
+        ...getPresetNavbarStyles(),
         ...style,
       }}
     >
@@ -182,8 +234,26 @@ export const Navbar: React.FC<NavbarProps> = ({
       )}
       <style>{`
         :root[data-theme="dark"] .boost-navbar {
-          background-color: rgba(15, 23, 42, 0.92) !important;
-          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          background-color: rgba(15, 23, 42, 0.92);
+          border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-neo-brutalism {
+          background-color: #18181b !important;
+          border-bottom-color: #f8fafc !important;
+          box-shadow: 0 4px 0px #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-glassmorphism {
+          background-color: rgba(15, 23, 42, 0.88) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-neumorphism {
+          background-color: #0f172a !important;
+          box-shadow: 0 6px 14px #090d15 !important;
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-gradient-glow {
+          background-color: #0f172a !important;
+          border-bottom-color: rgba(99, 102, 241, 0.4) !important;
+          box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25) !important;
         }
         :root[data-theme="dark"] .boost-navbar input {
           background-color: rgba(30, 41, 59, 0.8) !important;

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface MobileBottomBarItem {
   id: string;
@@ -18,6 +20,7 @@ export interface MobileBottomBarProps {
   showLabels?: boolean;
   activeColor?: string;
   variant?: 'glass' | 'solid' | 'floating';
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -32,9 +35,12 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
   showLabels = true,
   activeColor = '#4f46e5',
   variant = 'glass',
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalActiveTab, setInternalActiveTab] = React.useState(activeTab || defaultActiveTab);
 
   React.useEffect(() => {
@@ -119,56 +125,50 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
 
   const isFloating = variant === 'floating';
 
+  const getPresetActiveColor = () => {
+    switch (preset) {
+      case 'neo-brutalism': return '#000';
+      case 'glassmorphism': return '#6366f1';
+      case 'gradient-glow': return '#8b5cf6';
+      case 'material-you': return '#6750a4';
+      case 'dark-first': return '#60a5fa';
+      default: return activeColor;
+    }
+  };
+
+  const getNavStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: 'fixed', bottom: isFloating ? '12px' : 0, left: isFloating ? '16px' : 0,
+      right: isFloating ? '16px' : 0, margin: isFloating ? '0 auto' : undefined,
+      maxWidth: isFloating ? '440px' : undefined, borderRadius: isFloating ? '24px' : undefined,
+      zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+      padding: isFloating ? '8px 10px' : '6px 4px calc(6px + env(safe-area-inset-bottom, 8px))',
+      fontFamily: 'inherit', boxSizing: 'border-box',
+    };
+    switch (preset) {
+      case 'neo-brutalism': return { ...base, backgroundColor: '#ffffff', borderTop: isFloating ? '3px solid #000' : '3px solid #000', boxShadow: isFloating ? '0 -4px 0px #000' : 'none' };
+      case 'glassmorphism': return { ...base, backgroundColor: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: isFloating ? 'none' : '1px solid rgba(255,255,255,0.4)', border: isFloating ? '1px solid rgba(255,255,255,0.4)' : undefined, boxShadow: '0 -4px 24px rgba(0,0,0,0.08)' };
+      case 'neumorphism': return { ...base, backgroundColor: '#e0e5ec', border: 'none', boxShadow: isFloating ? '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff' : '0 -4px 12px #d1d9e6' };
+      case 'gradient-glow': return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', borderTop: isFloating ? 'none' : '1px solid rgba(99,102,241,0.2)', boxShadow: `0 -4px 20px rgba(99,102,241,0.12)` };
+      case 'material-you': return { ...base, backgroundColor: 'var(--boost-surface,#fffbfe)', borderTop: isFloating ? 'none' : '1px solid var(--boost-border,#e2e8f0)', borderRadius: isFloating ? '28px' : '28px 28px 0 0' };
+      case 'dark-first': return { ...base, backgroundColor: 'rgba(15,23,42,0.97)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderTop: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 -4px 20px rgba(0,0,0,0.5)' };
+      default: return { ...base, backgroundColor: variant === 'solid' ? 'var(--boost-surface,#ffffff)' : 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: isFloating ? 'none' : '1px solid rgba(226,232,240,0.8)', border: isFloating ? '1px solid rgba(226,232,240,0.8)' : undefined, boxShadow: isFloating ? '0 12px 30px rgba(0,0,0,0.15)' : '0 -4px 20px rgba(0,0,0,0.05)' };
+    }
+  };
+
+  const computedActiveColor = getPresetActiveColor();
+
   return (
     <>
       <style>{`
-        :root[data-theme="dark"] .boost-mobile-bottom-bar {
-          background-color: rgba(15, 23, 42, 0.94) !important;
-          border-top-color: rgba(255, 255, 255, 0.1) !important;
-          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn {
-          color: #94a3b8 !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn.is-active {
-          color: #818cf8 !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-badge-cart {
-          background-color: #6366f1 !important;
-          color: #ffffff !important;
-        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} { background-color: rgba(15,23,42,0.97) !important; border-top-color: rgba(255,255,255,0.08) !important; box-shadow: 0 -4px 25px rgba(0,0,0,0.5) !important; }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} .boost-bottom-btn { color: #94a3b8 !important; }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} .boost-bottom-btn.is-active { color: #818cf8 !important; }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} .boost-badge-cart { background-color: #6366f1 !important; color: #ffffff !important; }
       `}</style>
       <nav
-        className={`boost-mobile-bottom-bar ${className}`}
-        style={{
-          position: 'fixed',
-          bottom: isFloating ? '12px' : 0,
-          left: isFloating ? '16px' : 0,
-          right: isFloating ? '16px' : 0,
-          margin: isFloating ? '0 auto' : undefined,
-          maxWidth: isFloating ? '440px' : undefined,
-          borderRadius: isFloating ? '24px' : undefined,
-          zIndex: 50,
-          backgroundColor: variant === 'solid'
-            ? 'var(--boost-surface, #ffffff)'
-            : 'var(--boost-glass-bg, rgba(255, 255, 255, 0.92))',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderTop: isFloating ? 'none' : '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
-          border: isFloating ? '1px solid var(--boost-border, rgba(226, 232, 240, 0.8))' : undefined,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          padding: isFloating
-            ? '8px 10px'
-            : '6px 4px calc(6px + env(safe-area-inset-bottom, 8px))',
-          boxShadow: isFloating
-            ? '0 12px 30px rgba(0, 0, 0, 0.15)'
-            : 'var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))',
-          fontFamily: 'inherit',
-          boxSizing: 'border-box',
-          ...style,
-        }}
+        className={`boost-mobile-bottom-bar boost-mobile-bottom-bar-preset-${preset} ${className}`}
+        style={{ ...getNavStyles(), ...style }}
       >
         {barItems.map((item) => {
           const isActive = internalActiveTab === item.id;
@@ -194,7 +194,7 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                 padding: '4px 8px',
                 flex: 1,
                 maxWidth: '80px',
-                color: isActive ? activeColor : 'var(--boost-text-muted, #64748b)',
+                color: isActive ? computedActiveColor : 'var(--boost-text-muted, #64748b)',
                 transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
                 userSelect: 'none',
                 WebkitTapHighlightColor: 'transparent',

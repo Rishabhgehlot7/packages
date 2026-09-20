@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Portal } from './Portal';
 import { useFocusTrap } from '../hooks';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface DrawerProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ export interface DrawerProps {
   style?: React.CSSProperties;
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
+  stylePreset?: UIStylePreset;
 }
 
 export const Drawer: React.FC<DrawerProps> = ({
@@ -30,7 +33,10 @@ export const Drawer: React.FC<DrawerProps> = ({
   style,
   showCloseButton = true,
   closeOnOverlayClick = true,
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const effectivePlacement = position || placement || 'right';
   const drawerRef = React.useRef<HTMLDivElement>(null);
 
@@ -94,6 +100,55 @@ export const Drawer: React.FC<DrawerProps> = ({
     }
   };
 
+  const getPresetPanelStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '3px solid #000000',
+          boxShadow: '6px 6px 0px #000000',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.88))',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.18)',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          border: 'none',
+          boxShadow: '8px 8px 20px #cbd5e1, -8px -8px 20px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.4)',
+          boxShadow: '0 0 35px rgba(99, 102, 241, 0.35)',
+        };
+      case 'material-you':
+        return {
+          backgroundColor: 'var(--boost-surface, #f8fafc)',
+          border: 'none',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#0f172a',
+          border: '1px solid #1e293b',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        };
+    }
+  };
+
   return (
     <Portal>
       <div
@@ -138,9 +193,27 @@ export const Drawer: React.FC<DrawerProps> = ({
             to { transform: translateY(0); }
           }
           :root[data-theme="dark"] .boost-drawer-panel {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+            box-shadow: 6px 6px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-neumorphism {
             background-color: #0f172a !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+            box-shadow: 8px 8px 20px #090d15, -8px -8px 20px #151d2c !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.45) !important;
           }
           :root[data-theme="dark"] .boost-drawer-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
@@ -161,17 +234,16 @@ export const Drawer: React.FC<DrawerProps> = ({
           }
         `}</style>
         <div
-          className="boost-drawer-panel"
+          className={`boost-drawer-panel boost-drawer-preset-${preset}`}
           onClick={(e) => e.stopPropagation()}
           style={{
             position: 'absolute',
-            backgroundColor: 'var(--boost-surface, #ffffff)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
             boxSizing: 'border-box',
             ...getPositionStyles(),
+            ...getPresetPanelStyles(),
             ...style,
           }}
         >

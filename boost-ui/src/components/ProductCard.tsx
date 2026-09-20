@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { StarRating } from './StarRating';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface ProductCardProps {
   id?: string;
@@ -21,6 +23,7 @@ export interface ProductCardProps {
   onToggleWishlist?: (id?: string) => void;
   onClick?: (id?: string) => void;
   className?: string;
+  stylePreset?: UIStylePreset;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -43,7 +46,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onToggleWishlist,
   onClick,
   className = '',
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [isHovered, setIsHovered] = React.useState(false);
 
   const effectiveOriginalPrice = compareAtPrice ?? originalPrice;
@@ -65,29 +71,214 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       ? Math.round(((effectiveOriginalPrice - price) / effectiveOriginalPrice) * 100)
       : null;
 
+  const getPresetCardStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '3px solid #000000',
+          borderRadius: '2px',
+          backgroundColor: '#ffffff',
+          boxShadow: isHovered ? '6px 6px 0px #000000' : '4px 4px 0px #000000',
+          transform: isHovered ? 'translate(-2px, -2px)' : 'none',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))',
+          borderRadius: '16px',
+          boxShadow: isHovered ? '0 14px 32px rgba(0, 0, 0, 0.15)' : '0 4px 20px rgba(0, 0, 0, 0.08)',
+          transform: isHovered ? 'translateY(-4px)' : 'none',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          border: 'none',
+          borderRadius: '20px',
+          boxShadow: isHovered
+            ? '8px 8px 18px #c5cad3, -8px -8px 18px #ffffff'
+            : '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff',
+          transform: isHovered ? 'translateY(-2px)' : 'none',
+        };
+      case 'gradient-glow':
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.35)',
+          borderRadius: '16px',
+          boxShadow: isHovered
+            ? '0 0 30px rgba(99, 102, 241, 0.4)'
+            : '0 0 16px rgba(99, 102, 241, 0.2)',
+          transform: isHovered ? 'translateY(-4px)' : 'none',
+        };
+      case 'material-you':
+        return {
+          backgroundColor: 'var(--boost-surface, #f8fafc)',
+          borderRadius: '24px',
+          border: 'none',
+          boxShadow: isHovered ? '0 6px 20px rgba(0, 0, 0, 0.1)' : '0 2px 10px rgba(0, 0, 0, 0.06)',
+          transform: isHovered ? 'translateY(-3px)' : 'none',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#0f172a',
+          border: '1px solid #1e293b',
+          borderRadius: '12px',
+          boxShadow: isHovered ? '0 8px 25px rgba(0, 0, 0, 0.6)' : '0 4px 16px rgba(0, 0, 0, 0.4)',
+          transform: isHovered ? 'translateY(-4px)' : 'none',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderRadius: 'var(--boost-radius, 14px)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: isHovered
+            ? 'var(--boost-shadow-lg, 0 14px 28px rgba(0, 0, 0, 0.08))'
+            : 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))',
+          transform: isHovered ? 'translateY(-4px)' : 'none',
+        };
+    }
+  };
+
+  const getPresetBadgeStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          borderRadius: '0px',
+          border: '2px solid #000000',
+          boxShadow: '2px 2px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '9999px',
+        };
+      case 'material-you':
+      default:
+        return {
+          borderRadius: '9999px',
+        };
+    }
+  };
+
+  const getPresetButtonStyles = (): React.CSSProperties => {
+    if (!inStock) {
+      return {
+        backgroundColor: 'var(--boost-border, #cbd5e1)',
+        color: 'var(--boost-text-muted, #64748b)',
+        borderRadius: '10px',
+      };
+    }
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          backgroundColor: 'var(--boost-primary, #2563eb)',
+          color: '#ffffff',
+          border: '2px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '3px 3px 0px #000000',
+          fontWeight: 800,
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'rgba(37, 99, 235, 0.85)',
+          color: '#ffffff',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 15px rgba(37, 99, 235, 0.35)',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          color: 'var(--boost-primary, #2563eb)',
+          border: 'none',
+          borderRadius: '16px',
+          boxShadow: '4px 4px 8px #c5cad3, -4px -4px 8px #ffffff',
+          fontWeight: 700,
+        };
+      case 'gradient-glow':
+        return {
+          background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '12px',
+          boxShadow: '0 0 16px rgba(99, 102, 241, 0.45)',
+          fontWeight: 700,
+        };
+      case 'material-you':
+        return {
+          backgroundColor: 'var(--boost-primary, #2563eb)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '9999px',
+          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+          fontWeight: 700,
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#2563eb',
+          color: '#ffffff',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '10px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-primary, #2563eb)',
+          color: '#ffffff',
+          borderRadius: '10px',
+          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08))',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-product-card ${className}`}
+      className={`boost-product-card boost-product-card-preset-${preset} ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: 'var(--boost-surface, #ffffff)',
-        borderRadius: 'var(--boost-radius, 16px)',
-        border: '1px solid var(--boost-border, #e2e8f0)',
         overflow: 'hidden',
         transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease',
-        transform: isHovered ? 'translateY(-4px)' : 'none',
-        boxShadow: isHovered
-          ? 'var(--boost-shadow-lg, 0 14px 28px rgba(0, 0, 0, 0.08))'
-          : 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))',
         fontFamily: 'inherit',
         position: 'relative',
         width: '100%',
         boxSizing: 'border-box',
+        ...getPresetCardStyles(),
       }}
     >
+      <style>{`
+        :root[data-theme="dark"] .boost-product-card {
+          background-color: #0f172a;
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-neo-brutalism {
+          background-color: #18181b !important;
+          border-color: #f8fafc !important;
+          box-shadow: 4px 4px 0px #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-glassmorphism {
+          background-color: rgba(15, 23, 42, 0.85) !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-neumorphism {
+          background-color: #0f172a !important;
+          box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-gradient-glow {
+          background-color: #0f172a !important;
+          border-color: rgba(99, 102, 241, 0.5) !important;
+          box-shadow: 0 0 25px rgba(99, 102, 241, 0.3) !important;
+        }
+      `}</style>
       {/* Image Container */}
       <div
         style={{
@@ -124,11 +315,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               fontSize: '10px',
               fontWeight: 800,
               padding: '3px 8px',
-              borderRadius: '9999px',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
               boxShadow: '0 2px 8px rgba(239, 68, 68, 0.35)',
               zIndex: 2,
+              ...getPresetBadgeStyles(),
             }}
           >
             {discountPercent}% OFF
@@ -282,16 +473,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               }}
               style={{
                 width: '100%',
-                backgroundColor: inStock ? 'var(--boost-primary, #2563eb)' : 'var(--boost-border, #cbd5e1)',
-                color: inStock ? '#ffffff' : 'var(--boost-text-muted, #64748b)',
-                border: 'none',
-                borderRadius: '10px',
                 padding: '8px 12px',
                 fontSize: '12px',
                 fontWeight: 700,
                 cursor: inStock ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
-                boxShadow: inStock ? 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08))' : 'none',
+                ...getPresetButtonStyles(),
               }}
             >
               {inStock ? '+ Add to Bag' : 'Out of Stock'}

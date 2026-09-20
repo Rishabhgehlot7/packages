@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface StickyAddToCartProps {
   title?: string;
@@ -10,6 +12,7 @@ export interface StickyAddToCartProps {
   onAddToCart?: (quantity: number) => Promise<void> | void;
   onBuyNow?: (quantity: number) => Promise<void> | void;
   inStock?: boolean;
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -24,14 +27,88 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
   onAddToCart = () => {},
   onBuyNow,
   inStock = true,
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const finalComparePrice = compareAtPrice ?? originalPrice;
   const [quantity, setQuantity] = React.useState(1);
   const [isAdding, setIsAdding] = React.useState(false);
   const [isBuying, setIsBuying] = React.useState(false);
   const [addedFeedback, setAddedFeedback] = React.useState(false);
+
+  const getStickyBarStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: '12px 20px',
+      zIndex: 999,
+      fontFamily: 'inherit',
+      color: 'var(--boost-text-primary, #0f172a)',
+      transition: 'all 0.3s ease',
+      containerType: 'inline-size',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          borderTop: '3px solid #000000',
+          boxShadow: '0 -6px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.82)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.35)',
+          boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.15)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          boxShadow: '0 -6px 16px #cbd5e1',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderTop: '1px solid rgba(99, 102, 241, 0.3)',
+          boxShadow: '0 -4px 30px rgba(99, 102, 241, 0.2)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          borderTop: '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: 'rgba(15, 23, 42, 0.96)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.8)',
+          color: '#f8fafc',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, rgba(255, 255, 255, 0.92))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderTop: '1px solid var(--boost-border, rgba(0, 0, 0, 0.08))',
+          boxShadow: '0 -10px 40px -10px rgba(0, 0, 0, 0.1)',
+        };
+    }
+  };
 
   const handleAddToCart = async () => {
     if (!inStock || isAdding || isBuying) return;
@@ -57,20 +134,9 @@ export const StickyAddToCart: React.FC<StickyAddToCartProps> = ({
 
   return (
     <div
-      className={`boost-sticky-bar ${className}`}
+      className={`boost-sticky-bar boost-sticky-bar-preset-${preset} ${className}`}
       style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        padding: '12px 20px',
-        zIndex: 999,
-        fontFamily: 'inherit',
-        color: 'var(--boost-text-primary, #0f172a)',
-        transition: 'all 0.3s ease',
-        containerType: 'inline-size',
+        ...getStickyBarStyles(),
         ...style,
       }}
     >

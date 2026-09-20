@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface FooterColumn {
   title: string;
@@ -27,6 +29,7 @@ export interface FooterProps {
   copyrightYear?: number;
   copyrightText?: string;
   variant?: 'dark' | 'light' | 'surface';
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -122,9 +125,12 @@ export const Footer: React.FC<FooterProps> = ({
   copyrightYear = new Date().getFullYear(),
   copyrightText,
   variant = 'dark',
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [email, setEmail] = React.useState('');
   const [subscribed, setSubscribed] = React.useState(false);
   const [emailError, setEmailError] = React.useState<string | null>(null);
@@ -160,6 +166,29 @@ export const Footer: React.FC<FooterProps> = ({
   const inputBg = isLight || isSurface ? 'var(--boost-bg, #ffffff)' : 'rgba(255, 255, 255, 0.06)';
   const inputColor = isLight || isSurface ? 'var(--boost-text, #0f172a)' : '#f8fafc';
   const inputBorder = isLight || isSurface ? 'var(--boost-border, #cbd5e1)' : 'rgba(255, 255, 255, 0.14)';
+
+  const getPresetFooterBg = (): string => {
+    switch (preset) {
+      case 'neo-brutalism': return '#000000';
+      case 'glassmorphism': return 'rgba(15,23,42,0.85)';
+      case 'neumorphism': return '#e0e5ec';
+      case 'gradient-glow': return '#09090b';
+      case 'material-you': return '#1c1b1f';
+      case 'dark-first': return '#020617';
+      default: return footerBg;
+    }
+  };
+  const getPresetFooterBorder = (): string => {
+    switch (preset) {
+      case 'neo-brutalism': return '3px solid #000';
+      case 'glassmorphism': return '1px solid rgba(255,255,255,0.12)';
+      case 'neumorphism': return 'none';
+      case 'gradient-glow': return '1px solid rgba(99,102,241,0.2)';
+      default: return `1px solid ${borderColor}`;
+    }
+  };
+  const resolvedBg = getPresetFooterBg();
+  const resolvedBorder = getPresetFooterBorder();
 
   const defaultSocials: FooterSocialLink[] = [
     { name: 'Instagram', href: 'https://instagram.com' },
@@ -210,13 +239,13 @@ export const Footer: React.FC<FooterProps> = ({
       `}</style>
 
       <footer
-        className={`boost-footer ${className}`}
+        className={`boost-footer boost-footer-preset-${preset} ${className}`}
         style={{
           containerType: 'inline-size',
-          backgroundColor: footerBg,
+          backgroundColor: resolvedBg,
           color: footerText,
           padding: 'clamp(40px, 6vw, 64px) clamp(16px, 4vw, 32px) 28px',
-          borderTop: `1px solid ${borderColor}`,
+          borderTop: resolvedBorder,
           fontSize: '14px',
           boxSizing: 'border-box',
           width: '100%',

@@ -88,10 +88,23 @@ interface ThemeToggleProps {
 }
 declare const ThemeToggle: React.FC<ThemeToggleProps>;
 
+interface PresetSwitcherProps {
+    /** Display mode — 'dropdown' collapses into a button; 'pills' shows all presets inline */
+    mode?: 'dropdown' | 'pills';
+    /** Optional override to control the active preset externally */
+    value?: UIStylePreset;
+    /** Callback when the active preset changes */
+    onChange?: (preset: UIStylePreset) => void;
+    className?: string;
+    style?: React.CSSProperties;
+}
+declare const PresetSwitcher: React.FC<PresetSwitcherProps>;
+
 /**
  * @boostengine/ui - Design Tokens & Tailwind Preset
  * Universal design tokens exportable to Tailwind CSS, Figma Tokens, or CSS-in-JS.
  */
+
 declare const boostTokens: {
     $schema: string;
     name: string;
@@ -398,16 +411,17 @@ declare const boostTokens: {
 };
 /**
  * Generates a Tailwind CSS configuration preset object.
+ * Optionally accepts a UIStylePreset to inject preset-specific tokens as defaults.
+ *
  * Usage in tailwind.config.js:
  * ```js
  * const { createTailwindPreset } = require('@boostengine/ui');
  * module.exports = {
- *   presets: [createTailwindPreset()],
- *   // ...
+ *   presets: [createTailwindPreset('glassmorphism')],
  * };
  * ```
  */
-declare function createTailwindPreset(): {
+declare function createTailwindPreset(preset?: UIStylePreset): {
     theme: {
         extend: {
             colors: {
@@ -425,11 +439,19 @@ declare function createTailwindPreset(): {
             borderRadius: {
                 boost: string;
             };
+            borderWidth: {
+                boost: string;
+            };
             boxShadow: {
+                'boost-preset'?: string | undefined;
+                'boost-preset-hover'?: string | undefined;
                 'boost-sm': string;
                 'boost-md': string;
                 'boost-lg': string;
                 'boost-glow': string;
+            };
+            backdropBlur: {
+                boost: string;
             };
         };
     };
@@ -618,6 +640,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
     options?: SelectOption[];
     placeholder?: string;
     fullWidth?: boolean;
+    stylePreset?: UIStylePreset;
 }
 declare const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLSelectElement>>;
 
@@ -649,6 +672,7 @@ declare const Checkbox: React.ForwardRefExoticComponent<CheckboxProps & React.Re
 interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: React.ReactNode;
     description?: React.ReactNode;
+    stylePreset?: UIStylePreset;
 }
 declare const Radio: React.ForwardRefExoticComponent<RadioProps & React.RefAttributes<HTMLInputElement>>;
 interface RadioOption {
@@ -666,6 +690,7 @@ interface RadioGroupProps {
     className?: string;
     style?: React.CSSProperties;
     disabled?: boolean;
+    stylePreset?: UIStylePreset;
 }
 declare const RadioGroup: React.FC<RadioGroupProps>;
 
@@ -860,6 +885,7 @@ interface AlertProps {
     type?: AlertVariant;
     icon?: React.ReactNode;
     onClose?: () => void;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -873,6 +899,7 @@ interface SnackbarProps {
     isOpen?: boolean;
     onClose?: () => void;
     duration?: number;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -913,6 +940,7 @@ declare const SuccessMessage: React.FC<SuccessMessageProps>;
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     hoverable?: boolean;
     variant?: 'elevated' | 'outlined' | 'glass';
+    stylePreset?: UIStylePreset;
 }
 type CardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
 type CardTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
@@ -1017,6 +1045,7 @@ interface AccordionProps {
     allowMultiple?: boolean;
     defaultExpanded?: string[];
     variant?: 'default' | 'bordered' | 'separated';
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1045,6 +1074,7 @@ interface ModalProps {
     style?: React.CSSProperties;
     closeOnOverlayClick?: boolean;
     showCloseButton?: boolean;
+    stylePreset?: UIStylePreset;
 }
 declare const Modal: React.FC<ModalProps>;
 declare const Dialog: React.FC<ModalProps>;
@@ -1063,6 +1093,7 @@ interface DrawerProps {
     style?: React.CSSProperties;
     showCloseButton?: boolean;
     closeOnOverlayClick?: boolean;
+    stylePreset?: UIStylePreset;
 }
 declare const Drawer: React.FC<DrawerProps>;
 
@@ -1078,6 +1109,7 @@ interface BottomSheetProps {
     dragHandle?: boolean;
     showCloseButton?: boolean;
     closeOnOverlayClick?: boolean;
+    stylePreset?: UIStylePreset;
 }
 declare const BottomSheet: React.FC<BottomSheetProps>;
 
@@ -1091,6 +1123,7 @@ interface PopoverProps {
     style?: React.CSSProperties;
     contentStyle?: React.CSSProperties;
     showArrow?: boolean;
+    stylePreset?: UIStylePreset;
 }
 declare const Popover: React.FC<PopoverProps>;
 
@@ -1107,6 +1140,7 @@ interface ConfirmationDialogProps {
     isLoading?: boolean;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const ConfirmationDialog: React.FC<ConfirmationDialogProps>;
 
@@ -1125,6 +1159,7 @@ interface CommandPaletteProps {
     items?: CommandItem[];
     placeholder?: string;
     emptyText?: string;
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const CommandPalette: React.FC<CommandPaletteProps>;
@@ -1299,6 +1334,7 @@ interface HeaderProps {
     sticky?: boolean;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
     renderMobileMenu?: (props: {
         isOpen: boolean;
         onClose: () => void;
@@ -1341,6 +1377,7 @@ interface NavbarProps {
     actions?: React.ReactNode;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const Navbar: React.FC<NavbarProps>;
 
@@ -1363,6 +1400,7 @@ interface SidebarProps {
     collapsed?: boolean;
     header?: React.ReactNode;
     footer?: React.ReactNode;
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const Sidebar: React.FC<SidebarProps>;
@@ -1398,6 +1436,7 @@ interface FooterProps {
     copyrightYear?: number;
     copyrightText?: string;
     variant?: 'dark' | 'light' | 'surface';
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1420,6 +1459,7 @@ interface MobileBottomBarProps {
     showLabels?: boolean;
     activeColor?: string;
     variant?: 'glass' | 'solid' | 'floating';
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1440,6 +1480,7 @@ interface MobileBottomNavProps {
     showLabels?: boolean;
     activeColor?: string;
     variant?: 'glass' | 'floating' | 'solid';
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1497,6 +1538,7 @@ interface DropdownMenuProps {
     items?: DropdownMenuItem[];
     align?: 'left' | 'right';
     className?: string;
+    stylePreset?: UIStylePreset;
 }
 declare const DropdownMenu: React.FC<DropdownMenuProps>;
 
@@ -1532,6 +1574,7 @@ interface MegaMenuProps {
     isOpen?: boolean;
     onOpenChange?: (isOpen: boolean) => void;
     onLinkClick?: (link: MegaMenuLink) => void;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1541,7 +1584,9 @@ interface PaginationProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
+    stylePreset?: UIStylePreset;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const Pagination: React.FC<PaginationProps>;
 
@@ -1564,6 +1609,7 @@ interface TabsProps {
     onValueChange?: (val: string) => void;
     onChange?: (tabId: string) => void;
     children?: React.ReactNode;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1601,6 +1647,7 @@ interface StepperProps {
     activeStep?: number;
     currentStep?: number;
     onStepClick?: (stepIndex: number) => void;
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const Stepper: React.FC<StepperProps>;
@@ -1625,10 +1672,11 @@ interface TableProps<T = any> {
     striped?: boolean;
     bordered?: boolean;
     hoverable?: boolean;
+    stylePreset?: UIStylePreset;
     className?: string;
     keyExtractor?: (row: T, index: number) => string | number;
 }
-declare function Table<T extends Record<string, any>>({ columns, data, striped, bordered, hoverable, className, keyExtractor, }: TableProps<T>): React.JSX.Element;
+declare function Table<T extends Record<string, any>>({ columns, data, striped, bordered, hoverable, stylePreset: stylePresetProp, className, keyExtractor, }: TableProps<T>): React.JSX.Element;
 declare namespace Table {
     var displayName: string;
 }
@@ -1657,10 +1705,11 @@ interface DataTableProps<T = any> {
     totalCount?: number;
     page?: number;
     onPageChange?: (page: number) => void;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
-declare function DataTable<T extends Record<string, any>>({ columns, data, pageSize, searchable, searchPlaceholder, searchFilter, selectable, selectedRows: controlledSelectedRows, onSelectionChange, stickyHeader, maxHeight, exportable, exportFilename, manualPagination, totalCount, page: controlledPage, onPageChange, className, style, }: DataTableProps<T>): React.JSX.Element;
+declare function DataTable<T extends Record<string, any>>({ columns, data, pageSize, searchable, searchPlaceholder, searchFilter, selectable, selectedRows: controlledSelectedRows, onSelectionChange, stickyHeader, maxHeight, exportable, exportFilename, manualPagination, totalCount, page: controlledPage, onPageChange, stylePreset: stylePresetProp, className, style, }: DataTableProps<T>): React.JSX.Element;
 declare namespace DataTable {
     var displayName: string;
 }
@@ -1677,7 +1726,9 @@ interface StatsCardProps {
     period?: string;
     description?: string;
     icon?: React.ReactNode;
+    stylePreset?: UIStylePreset;
     className?: string;
+    style?: React.CSSProperties;
 }
 declare const StatsCard: React.FC<StatsCardProps>;
 
@@ -1689,6 +1740,7 @@ interface KPIWidgetProps extends React.HTMLAttributes<HTMLDivElement> {
     icon?: React.ReactNode;
     subtitle?: string;
     sparkline?: React.ReactNode;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -1816,6 +1868,7 @@ interface NotificationCenterProps {
     onClearAll?: () => void;
     title?: string;
     emptyText?: string;
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const NotificationCenter: React.FC<NotificationCenterProps>;
@@ -1890,6 +1943,7 @@ interface LoginFormProps {
     subtitle?: string;
     className?: string;
     style?: React__default.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const LoginForm: React__default.FC<LoginFormProps>;
 
@@ -1907,6 +1961,9 @@ interface RegisterFormProps {
     errorMessage?: string;
     title?: string;
     subtitle?: string;
+    className?: string;
+    style?: React__default.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const RegisterForm: React__default.FC<RegisterFormProps>;
 
@@ -1916,6 +1973,9 @@ interface ForgotPasswordProps {
     loading?: boolean;
     successMessage?: string;
     errorMessage?: string;
+    className?: string;
+    style?: React__default.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const ForgotPassword: React__default.FC<ForgotPasswordProps>;
 
@@ -1924,6 +1984,9 @@ interface ResetPasswordProps {
     onBackToLogin?: () => void;
     loading?: boolean;
     errorMessage?: string;
+    className?: string;
+    style?: React__default.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const ResetPassword: React__default.FC<ResetPasswordProps>;
 
@@ -1947,6 +2010,7 @@ interface CartDrawerProps {
     onCheckout?: () => Promise<void> | void;
     className?: string;
     onTabSync?: () => void;
+    stylePreset?: UIStylePreset;
 }
 declare const CartDrawer: React.FC<CartDrawerProps>;
 
@@ -1960,6 +2024,7 @@ interface StickyAddToCartProps {
     onAddToCart?: (quantity: number) => Promise<void> | void;
     onBuyNow?: (quantity: number) => Promise<void> | void;
     inStock?: boolean;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -2003,6 +2068,7 @@ interface OrderTimelineProps {
         out_for_delivery?: string;
         delivered?: string;
     };
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const OrderTimeline: React.FC<OrderTimelineProps>;
@@ -2030,6 +2096,7 @@ interface ProductGalleryProps {
     aspectRatio?: 'square' | 'portrait' | 'wide';
     enableZoom?: boolean;
     className?: string;
+    stylePreset?: UIStylePreset;
 }
 declare const ProductGallery: React.FC<ProductGalleryProps>;
 
@@ -2054,6 +2121,7 @@ interface VariantSelectorProps {
     selectedVariants?: SelectedVariants;
     currencySymbol?: string;
     onChange?: (groupName: string, optionValue: string, option?: VariantOption) => void;
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const VariantSelector: React.FC<VariantSelectorProps>;
@@ -2078,6 +2146,7 @@ interface ProductCardProps {
     onToggleWishlist?: (id?: string) => void;
     onClick?: (id?: string) => void;
     className?: string;
+    stylePreset?: UIStylePreset;
 }
 declare const ProductCard: React.FC<ProductCardProps>;
 
@@ -2102,6 +2171,7 @@ interface ReviewBreakdownBarsProps {
     breakdown: Record<number, number> | ReviewBreakdownItem[] | any[];
     onFilterByStar?: (star: number) => void;
     selectedStar?: number | null;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -2119,6 +2189,7 @@ interface AnnouncementBarProps {
     textColor?: string;
     accentColor?: string;
     onClose?: () => void;
+    stylePreset?: UIStylePreset;
     className?: string;
 }
 declare const AnnouncementBar: React.FC<AnnouncementBarProps>;
@@ -2134,6 +2205,7 @@ interface LightningDealsBarProps {
     badgeColor?: string;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
     onExpire?: () => void;
     hideOnExpire?: boolean;
 }
@@ -2154,6 +2226,7 @@ interface FrequentlyBoughtTogetherProps {
     locale?: string;
     onAddBundleToCart?: (selectedItems: BundleItem[]) => void;
     onAddBundle?: (selectedItems: BundleItem[] | string[]) => void;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -2170,6 +2243,7 @@ interface BankOffer {
 }
 interface BankOffersAccordionProps {
     offers?: BankOffer[];
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -2194,6 +2268,7 @@ interface DualMobileActionBarProps {
     position?: 'fixed' | 'relative';
     addToCartText?: string;
     buyNowText?: string;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -2300,6 +2375,7 @@ interface HeroSectionProps {
     glowColor?: string;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const HeroSection: React.FC<HeroSectionProps>;
 
@@ -2349,6 +2425,7 @@ interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> {
     showToggle?: boolean;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const PricingTable: React.FC<PricingTableProps>;
 
@@ -2365,6 +2442,7 @@ interface TestimonialProps extends React.HTMLAttributes<HTMLDivElement> {
     rating?: number;
     verified?: boolean;
     companyLogo?: React.ReactNode;
+    stylePreset?: UIStylePreset;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -2390,6 +2468,7 @@ interface FAQSectionProps {
     searchPlaceholder?: string;
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const FAQSection: React.FC<FAQSectionProps>;
 
@@ -2431,7 +2510,8 @@ interface CTASectionProps {
     variant?: 'card' | 'full' | 'gradient';
     className?: string;
     style?: React.CSSProperties;
+    stylePreset?: UIStylePreset;
 }
 declare const CTASection: React.FC<CTASectionProps>;
 
-export { Accordion, type AccordionItem, type AccordionProps, ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityUser, AddToCart, type AddToCartProps, type AddressData, AddressForm, type AddressFormProps, Alert, type AlertProps, AnnouncementBar, type AnnouncementBarProps, AreaChart, type AreaChartProps, type AsProp, AspectRatio, type AspectRatioProps, AssuredBadge, type AssuredBadgeProps, Avatar, AvatarGroup, type AvatarGroupProps, type AvatarProps, BackButton, type BackButtonProps, Badge, type BadgeProps, type BankOffer, BankOffersAccordion, type BankOffersAccordionProps, BarChart, type BarChartDataPoint, type BarChartProps, BoostProvider, type BoostProviderProps, type BoostThemeConfig, BottomSheet, type BottomSheetProps, Box, type BoxAsTag, type BoxProps, Breadcrumb, type BreadcrumbItem, type BreadcrumbProps, type BundleItem, Button, ButtonGroup, type ButtonGroupProps, type ButtonProps, CTASection, type CTASectionProps, Card, CardContent, type CardContentProps, CardDescription, type CardDescriptionProps, CardFooter, type CardFooterProps, CardHeader, type CardHeaderProps, type CardProps, CardTitle, type CardTitleProps, Carousel, type CarouselProps, type CarouselSlide, CartDrawer, type CartDrawerItem, type CartDrawerProps, type ChartDataPoint, Checkbox, type CheckboxProps, Chip, type ChipProps, type CommandItem, CommandPalette, type CommandPaletteProps, ConfirmationDialog, type ConfirmationDialogProps, Container, type ContainerProps, CopyButton, type CopyButtonProps, CouponInput, type CouponInputProps, DataTable, type DataTableColumn, type DataTableProps, DatePicker, type DatePickerProps, type DateRange, DateRangePicker, type DateRangePickerProps, Dialog, type DialogProps, Divider, type DividerProps, DonutChart, type DonutChartProps, type DonutDataPoint, Drawer, type DrawerProps, DropdownMenu, type DropdownMenuItem, type DropdownMenuProps, DualMobileActionBar, type DualMobileActionBarProps, EmptyState, type EmptyStateProps, ErrorState, type ErrorStateProps, ExportButton, type ExportButtonProps, type FAQItem, FAQSection, type FAQSectionProps, FeatureGrid, type FeatureGridProps, type FeatureItem, FileDropzone, type FileDropzoneProps, FileUpload, type FileUploadProps, Filter, type FilterOption, type FilterProps, Flex, type FlexProps, FloatingActionButton, type FloatingActionButtonProps, Footer, type FooterColumn, type FooterProps, ForgotPassword, type ForgotPasswordProps, FormField, type FormFieldProps, FrequentlyBoughtTogether, type FrequentlyBoughtTogetherProps, Grid, GridItem, type GridItemProps, type GridProps, HStack, type HStackProps, Header, type HeaderProps, type HeroAction, HeroSection, type HeroSectionProps, IconButton, type IconButtonProps, Image, type ImageProps, Input, type InputProps, KPIWidget, type KPIWidgetProps, LightningDealsBar, type LightningDealsBarProps, LinkButton, type LinkButtonProps, Loader, type LoaderProps, LoginForm, type LoginFormProps, LogoCloud, type LogoCloudProps, type LogoItem, MegaMenu, type MegaMenuCategory, type MegaMenuColumn, type MegaMenuProps, MobileBottomBar, type MobileBottomBarItem, type MobileBottomBarProps, MobileBottomNav, type MobileBottomNavItem, type MobileBottomNavProps, Modal, type ModalProps, Motion, type MotionProps, MultiSelect, type MultiSelectOption, type MultiSelectProps, NavLink, type NavLinkItem, type NavLinkProps, Navbar, type NavbarProps, NotificationCenter, type NotificationCenterProps, type NotificationItem, OTPInput, type OTPInputProps, type OrderStage, OrderSummary, type OrderSummaryItem, type OrderSummaryProps, OrderTimeline, type OrderTimelineProps, PageWrapper, type PageWrapperProps, Pagination, type PaginationProps, type PincodeCheckResult, PincodeChecker, type PincodeCheckerProps, type PolymorphicComponentProp, type PolymorphicComponentPropWithRef, type PolymorphicRef, Popover, type PopoverProps, Portal, type PortalProps, type PresetTokens, Price, type PriceProps, type PricingFeature, PricingTable, type PricingTableProps, type PricingTier, ProductCard, type ProductCardProps, ProductGallery, type ProductGalleryImageItem, type ProductGalleryProps, ProgressBar, type ProgressBarProps, QuantitySelector, type QuantitySelectorProps, Radio, RadioGroup, type RadioGroupProps, type RadioOption, type RadioProps, RegisterForm, type RegisterFormData, type RegisterFormProps, ResetPassword, type ResetPasswordProps, type ResponsiveBreakpoints, ReviewBreakdownBars, type ReviewBreakdownBarsProps, type ReviewBreakdownItem, ScrollArea, type ScrollAreaProps, SearchInput, type SearchInputProps, Section, type SectionProps, Select, type SelectOption, type SelectProps, type SelectedVariants, Sidebar, type SidebarGroup, type SidebarItem, type SidebarProps, Skeleton, type SkeletonProps, Snackbar, type SnackbarProps, Sort, type SortDirection, type SortOption, type SortProps, Sparkline, type SparklineProps, Spinner, type SpinnerProps, Stack, type StackProps, StarRating, type StarRatingProps, StatsCard, type StatsCardProps, type StepItem, Stepper, type StepperProps, StickyAddToCart, type StickyAddToCartProps, SuccessMessage, type SuccessMessageProps, Switch, type SwitchProps, type TabItem, Table, type TableColumn, type TableProps, Tabs, TabsContent, type TabsContentProps, TabsList, type TabsListProps, type TabsProps, TabsTrigger, type TabsTriggerProps, Tag, type TagProps, TestimonialCard, TestimonialGrid, type TestimonialGridProps, type TestimonialProps, Textarea, type TextareaProps, type ThemeMode, ThemeToggle, type ThemeToggleProps, type ThemeTokens, TimePicker, type TimePickerProps, Toast, type ToastContextType, type ToastOptions, type ToastPosition, type ToastPromiseOptions, type ToastProps, ToastProvider, type ToastProviderProps, type ToastVariant, Tooltip, type TooltipProps, TrustBadges, type TrustBadgesProps, type UIStylePreset, VStack, type VStackProps, type VariantGroup, type VariantOption, VariantSelector, type VariantSelectorProps, boostTokens, createTailwindPreset, injectBoostGlobalStyles, presetHelperClasses, presetTokenCssVars, presetTokens, useBoostPreset, useCurrency, useTheme, useToast };
+export { Accordion, type AccordionItem, type AccordionProps, ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityUser, AddToCart, type AddToCartProps, type AddressData, AddressForm, type AddressFormProps, Alert, type AlertProps, AnnouncementBar, type AnnouncementBarProps, AreaChart, type AreaChartProps, type AsProp, AspectRatio, type AspectRatioProps, AssuredBadge, type AssuredBadgeProps, Avatar, AvatarGroup, type AvatarGroupProps, type AvatarProps, BackButton, type BackButtonProps, Badge, type BadgeProps, type BankOffer, BankOffersAccordion, type BankOffersAccordionProps, BarChart, type BarChartDataPoint, type BarChartProps, BoostProvider, type BoostProviderProps, type BoostThemeConfig, BottomSheet, type BottomSheetProps, Box, type BoxAsTag, type BoxProps, Breadcrumb, type BreadcrumbItem, type BreadcrumbProps, type BundleItem, Button, ButtonGroup, type ButtonGroupProps, type ButtonProps, CTASection, type CTASectionProps, Card, CardContent, type CardContentProps, CardDescription, type CardDescriptionProps, CardFooter, type CardFooterProps, CardHeader, type CardHeaderProps, type CardProps, CardTitle, type CardTitleProps, Carousel, type CarouselProps, type CarouselSlide, CartDrawer, type CartDrawerItem, type CartDrawerProps, type ChartDataPoint, Checkbox, type CheckboxProps, Chip, type ChipProps, type CommandItem, CommandPalette, type CommandPaletteProps, ConfirmationDialog, type ConfirmationDialogProps, Container, type ContainerProps, CopyButton, type CopyButtonProps, CouponInput, type CouponInputProps, DataTable, type DataTableColumn, type DataTableProps, DatePicker, type DatePickerProps, type DateRange, DateRangePicker, type DateRangePickerProps, Dialog, type DialogProps, Divider, type DividerProps, DonutChart, type DonutChartProps, type DonutDataPoint, Drawer, type DrawerProps, DropdownMenu, type DropdownMenuItem, type DropdownMenuProps, DualMobileActionBar, type DualMobileActionBarProps, EmptyState, type EmptyStateProps, ErrorState, type ErrorStateProps, ExportButton, type ExportButtonProps, type FAQItem, FAQSection, type FAQSectionProps, FeatureGrid, type FeatureGridProps, type FeatureItem, FileDropzone, type FileDropzoneProps, FileUpload, type FileUploadProps, Filter, type FilterOption, type FilterProps, Flex, type FlexProps, FloatingActionButton, type FloatingActionButtonProps, Footer, type FooterColumn, type FooterProps, ForgotPassword, type ForgotPasswordProps, FormField, type FormFieldProps, FrequentlyBoughtTogether, type FrequentlyBoughtTogetherProps, Grid, GridItem, type GridItemProps, type GridProps, HStack, type HStackProps, Header, type HeaderProps, type HeroAction, HeroSection, type HeroSectionProps, IconButton, type IconButtonProps, Image, type ImageProps, Input, type InputProps, KPIWidget, type KPIWidgetProps, LightningDealsBar, type LightningDealsBarProps, LinkButton, type LinkButtonProps, Loader, type LoaderProps, LoginForm, type LoginFormProps, LogoCloud, type LogoCloudProps, type LogoItem, MegaMenu, type MegaMenuCategory, type MegaMenuColumn, type MegaMenuProps, MobileBottomBar, type MobileBottomBarItem, type MobileBottomBarProps, MobileBottomNav, type MobileBottomNavItem, type MobileBottomNavProps, Modal, type ModalProps, Motion, type MotionProps, MultiSelect, type MultiSelectOption, type MultiSelectProps, NavLink, type NavLinkItem, type NavLinkProps, Navbar, type NavbarProps, NotificationCenter, type NotificationCenterProps, type NotificationItem, OTPInput, type OTPInputProps, type OrderStage, OrderSummary, type OrderSummaryItem, type OrderSummaryProps, OrderTimeline, type OrderTimelineProps, PageWrapper, type PageWrapperProps, Pagination, type PaginationProps, type PincodeCheckResult, PincodeChecker, type PincodeCheckerProps, type PolymorphicComponentProp, type PolymorphicComponentPropWithRef, type PolymorphicRef, Popover, type PopoverProps, Portal, type PortalProps, PresetSwitcher, type PresetSwitcherProps, type PresetTokens, Price, type PriceProps, type PricingFeature, PricingTable, type PricingTableProps, type PricingTier, ProductCard, type ProductCardProps, ProductGallery, type ProductGalleryImageItem, type ProductGalleryProps, ProgressBar, type ProgressBarProps, QuantitySelector, type QuantitySelectorProps, Radio, RadioGroup, type RadioGroupProps, type RadioOption, type RadioProps, RegisterForm, type RegisterFormData, type RegisterFormProps, ResetPassword, type ResetPasswordProps, type ResponsiveBreakpoints, ReviewBreakdownBars, type ReviewBreakdownBarsProps, type ReviewBreakdownItem, ScrollArea, type ScrollAreaProps, SearchInput, type SearchInputProps, Section, type SectionProps, Select, type SelectOption, type SelectProps, type SelectedVariants, Sidebar, type SidebarGroup, type SidebarItem, type SidebarProps, Skeleton, type SkeletonProps, Snackbar, type SnackbarProps, Sort, type SortDirection, type SortOption, type SortProps, Sparkline, type SparklineProps, Spinner, type SpinnerProps, Stack, type StackProps, StarRating, type StarRatingProps, StatsCard, type StatsCardProps, type StepItem, Stepper, type StepperProps, StickyAddToCart, type StickyAddToCartProps, SuccessMessage, type SuccessMessageProps, Switch, type SwitchProps, type TabItem, Table, type TableColumn, type TableProps, Tabs, TabsContent, type TabsContentProps, TabsList, type TabsListProps, type TabsProps, TabsTrigger, type TabsTriggerProps, Tag, type TagProps, TestimonialCard, TestimonialGrid, type TestimonialGridProps, type TestimonialProps, Textarea, type TextareaProps, type ThemeMode, ThemeToggle, type ThemeToggleProps, type ThemeTokens, TimePicker, type TimePickerProps, Toast, type ToastContextType, type ToastOptions, type ToastPosition, type ToastPromiseOptions, type ToastProps, ToastProvider, type ToastProviderProps, type ToastVariant, Tooltip, type TooltipProps, TrustBadges, type TrustBadgesProps, type UIStylePreset, VStack, type VStackProps, type VariantGroup, type VariantOption, VariantSelector, type VariantSelectorProps, boostTokens, createTailwindPreset, injectBoostGlobalStyles, presetHelperClasses, presetTokenCssVars, presetTokens, useBoostPreset, useCurrency, useTheme, useToast };

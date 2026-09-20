@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface CommandItem {
   id: string;
@@ -16,6 +18,7 @@ export interface CommandPaletteProps {
   items?: CommandItem[];
   placeholder?: string;
   emptyText?: string;
+  stylePreset?: UIStylePreset;
   className?: string;
 }
 
@@ -25,8 +28,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   items = [],
   placeholder = 'Type a command or search...',
   emptyText = 'No matching commands found.',
+  stylePreset: stylePresetProp,
   className = '',
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [query, setQuery] = React.useState('');
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -75,6 +81,135 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   if (!isOpen) return null;
 
+  const getModalStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      width: '100%',
+      maxWidth: '580px',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          borderRadius: '2px',
+          border: '3px solid #000',
+          boxShadow: '8px 8px 0px #000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '20px',
+          boxShadow: '0 25px 50px -12px rgba(31, 38, 135, 0.25)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          borderRadius: '20px',
+          boxShadow: '8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          borderRadius: '16px',
+          boxShadow: '0 0 35px rgba(99, 102, 241, 0.18), 0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '28px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderRadius: 'var(--boost-radius, 16px)',
+          boxShadow: 'var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+        };
+    }
+  };
+
+  const getItemStyles = (isSelected: boolean): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '10px 14px',
+      cursor: 'pointer',
+      transition: 'background-color 0.1s ease',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: isSelected ? '#fbbf24' : 'transparent',
+          border: isSelected ? '2px solid #000' : '2px solid transparent',
+          borderRadius: '2px',
+          fontWeight: isSelected ? 700 : 500,
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+          borderRadius: '12px',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: isSelected ? '#d9dfe8' : 'transparent',
+          boxShadow: isSelected ? 'inset 2px 2px 5px #c8cdd5, inset -2px -2px 5px #f8fdff' : 'none',
+          borderRadius: '10px',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'transparent',
+          borderRadius: '8px',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: isSelected ? 'var(--boost-surface-secondary, #e8def8)' : 'transparent',
+          borderRadius: '9999px',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: isSelected ? '#1e293b' : 'transparent',
+          borderRadius: '8px',
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: '8px',
+          backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.08)' : 'transparent',
+        };
+    }
+  };
+
   return (
     <div
       style={{
@@ -98,19 +233,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       onClick={onClose}
     >
       <div
-        className={`boost-command-palette ${className}`}
-        style={{
-          width: '100%',
-          maxWidth: '580px',
-          backgroundColor: 'var(--boost-surface, #ffffff)',
-          borderRadius: 'var(--boost-radius, 16px)',
-          boxShadow: 'var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))',
-          border: '1px solid var(--boost-border, #e2e8f0)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          boxSizing: 'border-box',
-        }}
+        className={`boost-command-palette boost-command-palette-preset-${preset} ${className}`}
+        style={getModalStyles()}
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -189,18 +313,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     onClose();
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    backgroundColor: isSelected
-                      ? 'rgba(37, 99, 235, 0.08)'
-                      : 'transparent',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.1s ease',
-                  }}
+                  style={getItemStyles(isSelected)}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {item.icon && (

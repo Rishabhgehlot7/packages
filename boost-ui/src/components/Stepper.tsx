@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface StepItem {
   id: string | number;
@@ -12,6 +14,7 @@ export interface StepperProps {
   activeStep?: number; // 0-indexed
   currentStep?: number; // 1-indexed
   onStepClick?: (stepIndex: number) => void;
+  stylePreset?: UIStylePreset;
   className?: string;
 }
 
@@ -20,9 +23,91 @@ export const Stepper: React.FC<StepperProps> = ({
   activeStep,
   currentStep,
   onStepClick,
+  stylePreset: stylePresetProp,
   className = '',
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const activeIdx = currentStep !== undefined ? currentStep - 1 : activeStep ?? 0;
+
+  const getCircleStyles = (isCompleted: boolean, isCurrent: boolean): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      width: '32px',
+      height: '32px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '13px',
+      fontWeight: 700,
+      transition: 'all 0.2s ease',
+      flexShrink: 0,
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          borderRadius: '2px',
+          border: '2px solid #000000',
+          backgroundColor: isCompleted ? '#10b981' : isCurrent ? '#fbbf24' : '#ffffff',
+          color: '#000000',
+          boxShadow: isCurrent ? '3px 3px 0px #000000' : '2px 2px 0px #000000',
+          fontWeight: 800,
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          borderRadius: '50%',
+          border: '1px solid rgba(255, 255, 255, 0.5)',
+          backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.85)' : isCurrent ? 'rgba(99, 102, 241, 0.85)' : 'rgba(255, 255, 255, 0.4)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          color: isCompleted || isCurrent ? '#ffffff' : '#64748b',
+          boxShadow: isCurrent ? '0 0 14px rgba(99, 102, 241, 0.5)' : 'none',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          borderRadius: '50%',
+          border: 'none',
+          backgroundColor: '#e0e5ec',
+          color: isCompleted ? '#10b981' : isCurrent ? 'var(--boost-primary, #2563eb)' : '#94a3b8',
+          boxShadow: isCurrent ? 'inset 2px 2px 5px #c8cdd5, inset -2px -2px 5px #f8fdff' : '3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          borderRadius: '50%',
+          background: isCompleted ? 'linear-gradient(135deg, #10b981, #059669)' : isCurrent ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'var(--boost-surface, #ffffff)',
+          border: isCompleted || isCurrent ? 'none' : '1px solid rgba(99, 102, 241, 0.2)',
+          color: isCompleted || isCurrent ? '#ffffff' : '#94a3b8',
+          boxShadow: isCompleted ? '0 0 12px rgba(16, 185, 129, 0.5)' : isCurrent ? '0 0 16px rgba(99, 102, 241, 0.6)' : 'none',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          borderRadius: '50%',
+          border: 'none',
+          backgroundColor: isCompleted ? '#386a20' : isCurrent ? 'var(--boost-primary, #6750a4)' : 'var(--boost-surface-secondary, #e8def8)',
+          color: isCompleted || isCurrent ? '#ffffff' : '#49454f',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          borderRadius: '50%',
+          border: `1px solid ${isCompleted ? '#10b981' : isCurrent ? '#3b82f6' : 'rgba(255, 255, 255, 0.12)'}`,
+          backgroundColor: isCompleted ? '#059669' : isCurrent ? '#2563eb' : '#1e293b',
+          color: isCompleted || isCurrent ? '#ffffff' : '#64748b',
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: '50%',
+          backgroundColor: isCompleted ? '#10b981' : isCurrent ? 'var(--boost-primary, #2563eb)' : 'var(--boost-bg-subtle, #f1f5f9)',
+          color: isCompleted || isCurrent ? '#ffffff' : 'var(--boost-muted, #64748b)',
+          border: `2px solid ${isCompleted ? '#10b981' : isCurrent ? 'var(--boost-primary, #2563eb)' : 'var(--boost-border, #cbd5e1)'}`,
+        };
+    }
+  };
 
   return (
     <div
@@ -88,22 +173,8 @@ export const Stepper: React.FC<StepperProps> = ({
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div
-                className={`boost-stepper-circle ${circleState}`}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: isCompleted ? '#10b981' : isCurrent ? 'var(--boost-primary, #2563eb)' : 'var(--boost-bg-subtle, #f1f5f9)',
-                  color: isCompleted || isCurrent ? '#ffffff' : 'var(--boost-muted, #64748b)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  border: `2px solid ${isCompleted ? '#10b981' : isCurrent ? 'var(--boost-primary, #2563eb)' : 'var(--boost-border, #cbd5e1)'}`,
-                  transition: 'all 0.2s ease',
-                  flexShrink: 0,
-                }}
+                className={`boost-stepper-circle boost-stepper-circle-preset-${preset} ${circleState}`}
+                style={getCircleStyles(isCompleted, isCurrent)}
               >
                 {isCompleted ? (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">

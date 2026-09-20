@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface MegaMenuLink {
   label: string;
@@ -34,6 +36,7 @@ export interface MegaMenuProps {
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
   onLinkClick?: (link: MegaMenuLink) => void;
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -47,9 +50,12 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({
   isOpen: controlledIsOpen,
   onOpenChange,
   onLinkClick,
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalIsOpen, setInternalIsOpen] = React.useState(false);
   const isControlled = controlledIsOpen !== undefined;
   const open = isControlled ? controlledIsOpen : internalIsOpen;
@@ -250,27 +256,23 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({
           : trigger || defaultTrigger}
       </div>
 
-      {open && (
+      {open && (() => {
+          const getPanelStyles = (): React.CSSProperties => {
+            const base: React.CSSProperties = { position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 500, padding: '24px', display: 'flex', gap: '28px', minWidth: '640px', maxWidth: 'calc(100vw - 40px)', fontFamily: 'inherit', boxSizing: 'border-box', animation: 'boost-fadeIn 0.18s ease-out' };
+            switch (preset) {
+              case 'neo-brutalism': return { ...base, backgroundColor: '#ffffff', border: '3px solid #000', borderRadius: '2px', boxShadow: '6px 6px 0px #000' };
+              case 'glassmorphism': return { ...base, backgroundColor: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '18px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.15)' };
+              case 'neumorphism': return { ...base, backgroundColor: '#e0e5ec', border: 'none', borderRadius: '20px', boxShadow: '8px 8px 20px #c8cdd5, -8px -8px 20px #f8fdff' };
+              case 'gradient-glow': return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '16px', boxShadow: '0 0 40px rgba(99,102,241,0.15), 0 20px 40px -10px rgba(0,0,0,0.12)' };
+              case 'material-you': return { ...base, backgroundColor: 'var(--boost-surface,#fffbfe)', border: '1px solid var(--boost-border,#e2e8f0)', borderRadius: '28px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' };
+              case 'dark-first': return { ...base, backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)' };
+              default: return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid var(--boost-border,#e2e8f0)', borderRadius: '16px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.18)' };
+            }
+          };
+          return (
         <div
           className="boost-megamenu-panel"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            left: 0,
-            zIndex: 500,
-            backgroundColor: 'var(--boost-surface, #ffffff)',
-            border: '1px solid var(--boost-border, #e2e8f0)',
-            borderRadius: '16px',
-            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.18)',
-            padding: '24px',
-            display: 'flex',
-            gap: '28px',
-            minWidth: '640px',
-            maxWidth: 'calc(100vw - 40px)',
-            fontFamily: 'inherit',
-            boxSizing: 'border-box',
-            animation: 'boost-fadeIn 0.18s ease-out',
-          }}
+          style={getPanelStyles()}
         >
           {/* Category Tabs (Sidebar on Desktop, Horizontal Bar on Mobile) */}
           {categories && categories.length > 1 && (
@@ -434,7 +436,9 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({
             </div>
           )}
         </div>
-      )}
+          );
+        })()}
+
     </div>
   );
 };

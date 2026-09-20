@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface DualMobileActionBarProps {
   price?: number;
@@ -13,6 +15,7 @@ export interface DualMobileActionBarProps {
   position?: 'fixed' | 'relative';
   addToCartText?: string;
   buyNowText?: string;
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -30,12 +33,93 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
   position,
   addToCartText = 'Add to Cart',
   buyNowText = 'Buy Now',
+  stylePreset: stylePresetProp,
   className = '',
   style,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const isRelative = position === 'relative' || (props as any).position === 'relative';
   const effectiveOriginalPrice = compareAtPrice ?? originalPrice ?? (props as any).originalPrice;
+
+  const getActionBarStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: isRelative ? 'relative' : 'fixed',
+      bottom: isRelative ? undefined : 0,
+      left: isRelative ? undefined : 0,
+      right: isRelative ? undefined : 0,
+      width: '100%',
+      padding: '12px 16px',
+      zIndex: isRelative ? 1 : 50,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      boxSizing: 'border-box',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          borderTop: '3px solid #000000',
+          borderLeft: isRelative ? '3px solid #000000' : 'none',
+          borderRight: isRelative ? '3px solid #000000' : 'none',
+          borderBottom: isRelative ? '3px solid #000000' : 'none',
+          borderRadius: '0px',
+          boxShadow: '0 -4px 0px #000000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: isRelative ? '18px' : '20px 20px 0 0',
+          boxShadow: '0 -8px 30px rgba(0, 0, 0, 0.12)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          border: 'none',
+          borderRadius: isRelative ? '18px' : '24px 24px 0 0',
+          boxShadow: '0 -6px 16px #cbd5e1',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderTop: '1px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: isRelative ? '18px' : '20px 20px 0 0',
+          boxShadow: '0 -4px 25px rgba(99, 102, 241, 0.2)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          borderTop: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: isRelative ? '28px' : '28px 28px 0 0',
+          boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          backgroundColor: 'rgba(15, 23, 42, 0.96)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: isRelative ? '18px' : '16px 16px 0 0',
+          boxShadow: '0 -8px 30px rgba(0, 0, 0, 0.6)',
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: isRelative ? '18px' : '16px 16px 0 0',
+        };
+    }
+  };
 
   return (
     <>
@@ -162,20 +246,9 @@ export const DualMobileActionBar: React.FC<DualMobileActionBarProps> = ({
       `}</style>
 
       <div
-        className={`boost-dual-mobile-action-bar ${isRelative ? '' : 'md:hidden'} ${className}`}
+        className={`boost-dual-mobile-action-bar boost-dual-mobile-action-bar-preset-${preset} ${isRelative ? '' : 'md:hidden'} ${className}`}
         style={{
-          position: isRelative ? 'relative' : 'fixed',
-          bottom: isRelative ? undefined : 0,
-          left: isRelative ? undefined : 0,
-          right: isRelative ? undefined : 0,
-          width: '100%',
-          borderRadius: isRelative ? '18px' : '16px 16px 0 0',
-          padding: '12px 16px',
-          zIndex: isRelative ? 1 : 50,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          boxSizing: 'border-box',
+          ...getActionBarStyles(),
           ...style,
         }}
       >

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Portal } from './Portal';
 import { useFocusTrap } from '../hooks';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -14,6 +16,7 @@ export interface ModalProps {
   style?: React.CSSProperties;
   closeOnOverlayClick?: boolean;
   showCloseButton?: boolean;
+  stylePreset?: UIStylePreset;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -28,7 +31,10 @@ export const Modal: React.FC<ModalProps> = ({
   style,
   closeOnOverlayClick = true,
   showCloseButton = true,
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const modalRef = React.useRef<HTMLDivElement>(null);
   useFocusTrap(modalRef, isOpen);
 
@@ -55,6 +61,63 @@ export const Modal: React.FC<ModalProps> = ({
       case 'xl': return '840px';
       case 'md':
       default: return '520px';
+    }
+  };
+
+  const getPresetCardStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '3px solid #000000',
+          borderRadius: '2px',
+          boxShadow: '8px 8px 0px #000000',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.88))',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))',
+          borderRadius: '20px',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)',
+        };
+      case 'neumorphism':
+        return {
+          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          border: 'none',
+          borderRadius: '24px',
+          boxShadow: '12px 12px 28px #cbd5e1, -12px -12px 28px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderRadius: '20px',
+          border: '1px solid rgba(99, 102, 241, 0.4)',
+          boxShadow: '0 0 35px rgba(99, 102, 241, 0.35)',
+        };
+      case 'material-you':
+        return {
+          backgroundColor: 'var(--boost-surface, #f8fafc)',
+          borderRadius: '28px',
+          border: 'none',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#0f172a',
+          border: '1px solid #1e293b',
+          borderRadius: '14px',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          borderRadius: 'var(--boost-radius, 14px)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          boxShadow: 'var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))',
+        };
     }
   };
 
@@ -96,9 +159,27 @@ export const Modal: React.FC<ModalProps> = ({
             to { opacity: 1; transform: scale(1) translateY(0); }
           }
           :root[data-theme="dark"] .boost-modal-card {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
+          }
+          :root[data-theme="dark"] .boost-modal-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+            box-shadow: 8px 8px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-modal-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-modal-preset-neumorphism {
             background-color: #0f172a !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8) !important;
+            box-shadow: 12px 12px 28px #090d15, -12px -12px 28px #151d2c !important;
+          }
+          :root[data-theme="dark"] .boost-modal-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.45) !important;
           }
           :root[data-theme="dark"] .boost-modal-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
@@ -122,20 +203,17 @@ export const Modal: React.FC<ModalProps> = ({
           }
         `}</style>
         <div
-          className="boost-modal-card"
+          className={`boost-modal-card boost-modal-preset-${preset}`}
           onClick={(e) => e.stopPropagation()}
           style={{
             width: '100%',
             maxWidth: `min(${getWidth()}, calc(100vw - 24px))`,
-            backgroundColor: 'var(--boost-surface, #ffffff)',
-            borderRadius: 'var(--boost-radius, 18px)',
-            border: '1px solid var(--boost-border, #e2e8f0)',
-            boxShadow: 'var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))',
             display: 'flex',
             flexDirection: 'column',
             maxHeight: 'min(90vh, 850px)',
             overflow: 'hidden',
             animation: 'boost-modal-scale 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            ...getPresetCardStyles(),
             ...style,
           }}
         >

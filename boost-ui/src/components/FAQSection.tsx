@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface FAQItem {
   id?: string;
@@ -14,6 +16,7 @@ export interface FAQSectionProps {
   searchPlaceholder?: string;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const FAQSection: React.FC<FAQSectionProps> = ({
@@ -24,8 +27,11 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
   searchPlaceholder = 'Search questions...',
   className = '',
   style,
+  stylePreset: stylePresetProp,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [openIds, setOpenIds] = React.useState<number[]>([]);
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -42,9 +48,117 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
         item.answer.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const getSearchBoxPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '3px solid #000000',
+          borderRadius: '0px',
+          boxShadow: '4px 4px 0px #000000',
+          backgroundColor: '#ffffff',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '16px',
+        };
+      case 'neumorphism':
+        return {
+          boxShadow: 'inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff',
+          border: 'none',
+          backgroundColor: 'var(--boost-surface, #e6ecf5)',
+          borderRadius: '16px',
+        };
+      case 'gradient-glow':
+        return {
+          border: '1px solid rgba(99, 102, 241, 0.4)',
+          boxShadow: '0 0 15px rgba(99, 102, 241, 0.15)',
+          borderRadius: '16px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '28px',
+          backgroundColor: 'var(--boost-surface-variant, #f3edf7)',
+          border: 'none',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: '#0f172a',
+          border: '1px solid #334155',
+          borderRadius: '14px',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '14px',
+        };
+    }
+  };
+
+  const getItemPresetStyles = (isOpen: boolean): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          border: '3px solid #000000',
+          borderRadius: '0px',
+          boxShadow: isOpen ? '5px 5px 0px #000000' : '3px 3px 0px #000000',
+          backgroundColor: '#ffffff',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: isOpen ? '1px solid rgba(255, 255, 255, 0.8)' : '1px solid rgba(255, 255, 255, 0.35)',
+          borderRadius: '16px',
+          boxShadow: isOpen ? '0 8px 32px 0 rgba(31, 38, 135, 0.12)' : 'none',
+        };
+      case 'neumorphism':
+        return {
+          border: 'none',
+          backgroundColor: 'var(--boost-surface, #e6ecf5)',
+          borderRadius: '16px',
+          boxShadow: isOpen ? 'inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff' : '5px 5px 12px #d1d9e6, -5px -5px 12px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          border: isOpen ? '1px solid #818cf8' : '1px solid rgba(99, 102, 241, 0.25)',
+          boxShadow: isOpen ? '0 0 20px rgba(99, 102, 241, 0.25)' : 'none',
+          borderRadius: '16px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+        };
+      case 'material-you':
+        return {
+          borderRadius: '24px',
+          backgroundColor: isOpen ? 'var(--boost-surface-container-high, #ede7f6)' : 'var(--boost-surface-variant, #f3edf7)',
+          border: 'none',
+        };
+      case 'dark-first':
+        return {
+          border: isOpen ? '1px solid #38bdf8' : '1px solid #334155',
+          backgroundColor: '#1e293b',
+          borderRadius: '14px',
+        };
+      case 'minimal':
+      default:
+        return {
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          border: isOpen ? '1px solid var(--boost-primary, #6366f1)' : '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '14px',
+          boxShadow: isOpen ? '0 4px 20px rgba(99, 102, 241, 0.12)' : 'none',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-faq-section ${className}`}
+      className={`boost-faq-section boost-faq-preset-${preset} ${className}`}
       style={{
         maxWidth: '850px',
         margin: '0 auto',
@@ -57,9 +171,6 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
       <style>
         {`
           .boost-faq-item {
-            background-color: var(--boost-surface, #ffffff);
-            border: 1px solid var(--boost-border, #e2e8f0);
-            border-radius: var(--boost-radius, 14px);
             overflow: hidden;
             transition: all 0.2s ease;
           }
@@ -68,16 +179,9 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
           }
-          .boost-faq-item.is-open {
-            border-color: var(--boost-primary, #6366f1) !important;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15) !important;
-          }
           .boost-faq-search-box {
             display: flex;
             align-items: center;
-            background-color: var(--boost-surface, #ffffff);
-            border: 1px solid var(--boost-border, #e2e8f0);
-            border-radius: var(--boost-radius, 10px);
             padding: 10px 16px;
             gap: 10px;
           }
@@ -114,7 +218,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
 
       {searchable && (
         <div style={{ marginBottom: '32px' }}>
-          <div className="boost-faq-search-box">
+          <div className="boost-faq-search-box" style={getSearchBoxPresetStyles()}>
             <svg
               width="18"
               height="18"
@@ -179,6 +283,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
               <div
                 key={idx}
                 className={`boost-faq-item ${isOpen ? 'is-open' : ''}`}
+                style={getItemPresetStyles(isOpen)}
               >
                 <button
                   type="button"
@@ -241,7 +346,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
                       color: 'var(--boost-text-muted, #64748b)',
                       fontSize: '14px',
                       lineHeight: 1.65,
-                      borderTop: '1px solid var(--boost-border, #e2e8f0)',
+                      borderTop: preset === 'neo-brutalism' ? '2px solid #000' : '1px solid var(--boost-border, #e2e8f0)',
                       paddingTop: '14px',
                       animation: 'boost-fadeIn 0.2s ease',
                     }}

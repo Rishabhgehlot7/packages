@@ -58,7 +58,7 @@ var presetTokens = {
     surfaceOpacity: "1"
   },
   "material-you": {
-    radius: "calc(var(--boost-radius, 4px) * 1.2)",
+    radius: "24px",
     borderWidth: "1px",
     shadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     shadowHover: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -678,6 +678,447 @@ var ThemeToggle = ({
   );
 };
 ThemeToggle.displayName = "ThemeToggle";
+var PRESETS = [
+  {
+    value: "minimal",
+    label: "Minimal",
+    icon: "\u25FB",
+    description: "Clean whitespace, subtle lines"
+  },
+  {
+    value: "glassmorphism",
+    label: "Glassmorphism",
+    icon: "\u25C8",
+    description: "Frosted glass, translucent blur"
+  },
+  {
+    value: "neumorphism",
+    label: "Neumorphism",
+    icon: "\u25C9",
+    description: "Soft dual shadows, embossed"
+  },
+  {
+    value: "neo-brutalism",
+    label: "Neo-Brutalism",
+    icon: "\u25A0",
+    description: "Thick borders, hard shadows"
+  },
+  {
+    value: "dark-first",
+    label: "Dark First",
+    icon: "\u25FC",
+    description: "OLED dark, gradient accents"
+  },
+  {
+    value: "gradient-glow",
+    label: "Gradient Glow",
+    icon: "\u2726",
+    description: "SaaS, glowing radiant borders"
+  },
+  {
+    value: "material-you",
+    label: "Material You",
+    icon: "\u25CD",
+    description: "Google M3 pebble, tonal color"
+  }
+];
+var PresetSwitcher = ({
+  mode = "dropdown",
+  value,
+  onChange,
+  className = "",
+  style
+}) => {
+  const { stylePreset: contextPreset, setStylePreset } = useBoostPreset();
+  const activePreset = value ?? contextPreset;
+  const [isOpen, setIsOpen] = React.useState(false);
+  const containerRef = React.useRef(null);
+  const handleSelect = (preset) => {
+    if (onChange) {
+      onChange(preset);
+    } else {
+      setStylePreset(preset);
+    }
+    setIsOpen(false);
+  };
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+  const activeInfo = PRESETS.find((p) => p.value === activePreset) ?? PRESETS[0];
+  const getTriggerStyles = () => {
+    const base = {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "8px",
+      padding: "8px 14px",
+      fontSize: "13px",
+      fontWeight: 600,
+      cursor: "pointer",
+      transition: "all 0.15s ease",
+      position: "relative"
+    };
+    switch (activePreset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          color: "#000000",
+          border: "2px solid #000000",
+          borderRadius: "2px",
+          boxShadow: "3px 3px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          color: "var(--boost-text, #0f172a)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "12px",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "0 0 20px rgba(99, 102, 241, 0.45)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          color: "#0f172a",
+          border: "none",
+          borderRadius: "12px",
+          boxShadow: "4px 4px 8px #bec3c9, -4px -4px 8px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "24px"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#1e293b",
+          color: "#f8fafc",
+          border: "1px solid #334155",
+          borderRadius: "10px",
+          boxShadow: "0 0 16px rgba(59, 130, 246, 0.25)"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          color: "var(--boost-text, #0f172a)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "8px"
+        };
+    }
+  };
+  const getDropdownStyles = () => ({
+    position: "absolute",
+    top: "calc(100% + 8px)",
+    right: 0,
+    zIndex: 9999,
+    minWidth: "240px",
+    backgroundColor: activePreset === "dark-first" ? "#0f172a" : activePreset === "glassmorphism" ? "rgba(255, 255, 255, 0.85)" : activePreset === "neumorphism" ? "#e0e5ec" : "var(--boost-bg, #ffffff)",
+    backdropFilter: activePreset === "glassmorphism" ? "blur(16px)" : "none",
+    WebkitBackdropFilter: activePreset === "glassmorphism" ? "blur(16px)" : "none",
+    border: activePreset === "neo-brutalism" ? "2px solid #000000" : activePreset === "dark-first" ? "1px solid #1e293b" : activePreset === "glassmorphism" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid var(--boost-border, #e2e8f0)",
+    borderRadius: activePreset === "neo-brutalism" ? "2px" : activePreset === "material-you" ? "20px" : activePreset === "neumorphism" ? "16px" : "12px",
+    boxShadow: activePreset === "neo-brutalism" ? "4px 4px 0px #000000" : activePreset === "neumorphism" ? "8px 8px 18px #bec3c9, -8px -8px 18px #ffffff" : activePreset === "dark-first" ? "0 8px 24px rgba(0, 0, 0, 0.5)" : "0 8px 24px rgba(0, 0, 0, 0.08)",
+    overflow: "hidden",
+    padding: "6px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px"
+  });
+  const getItemStyles = (isActive) => {
+    const base = {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      padding: "10px 12px",
+      cursor: "pointer",
+      transition: "all 0.12s ease",
+      border: "none",
+      textAlign: "left",
+      width: "100%",
+      fontFamily: "inherit"
+    };
+    if (isActive) {
+      switch (activePreset) {
+        case "neo-brutalism":
+          return {
+            ...base,
+            backgroundColor: "#fbbf24",
+            color: "#000000",
+            borderRadius: "2px",
+            border: "2px solid #000000",
+            fontWeight: 700
+          };
+        case "glassmorphism":
+          return {
+            ...base,
+            backgroundColor: "rgba(99, 102, 241, 0.15)",
+            color: "var(--boost-primary, #6366f1)",
+            borderRadius: "8px",
+            fontWeight: 600
+          };
+        case "gradient-glow":
+          return {
+            ...base,
+            background: "linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12))",
+            color: "var(--boost-primary, #6366f1)",
+            borderRadius: "8px",
+            fontWeight: 600
+          };
+        case "neumorphism":
+          return {
+            ...base,
+            backgroundColor: "#e0e5ec",
+            color: "var(--boost-primary, #2563eb)",
+            borderRadius: "10px",
+            boxShadow: "inset 2px 2px 4px #bec3c9, inset -2px -2px 4px #ffffff",
+            fontWeight: 600
+          };
+        case "material-you":
+          return {
+            ...base,
+            backgroundColor: "var(--boost-surface, #e8def8)",
+            color: "var(--boost-primary, #6750a4)",
+            borderRadius: "12px",
+            fontWeight: 600
+          };
+        case "dark-first":
+          return {
+            ...base,
+            backgroundColor: "#1e3a5f",
+            color: "#60a5fa",
+            borderRadius: "8px",
+            fontWeight: 600
+          };
+        default:
+          return {
+            ...base,
+            backgroundColor: "var(--boost-surface, #f1f5f9)",
+            color: "var(--boost-text, #0f172a)",
+            borderRadius: "6px",
+            fontWeight: 600
+          };
+      }
+    }
+    return {
+      ...base,
+      backgroundColor: "transparent",
+      color: activePreset === "dark-first" ? "#94a3b8" : activePreset === "neo-brutalism" ? "#3f3f46" : "var(--boost-text-muted, #64748b)",
+      borderRadius: activePreset === "neo-brutalism" ? "2px" : activePreset === "material-you" ? "12px" : "6px",
+      fontWeight: 400
+    };
+  };
+  const getPillStyles = (isActive) => {
+    const base = {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "6px 14px",
+      fontSize: "12px",
+      fontWeight: 600,
+      cursor: "pointer",
+      transition: "all 0.15s ease",
+      border: "none",
+      fontFamily: "inherit",
+      whiteSpace: "nowrap"
+    };
+    if (isActive) {
+      switch (activePreset) {
+        case "neo-brutalism":
+          return { ...base, backgroundColor: "#fbbf24", color: "#000", border: "2px solid #000", borderRadius: "2px", boxShadow: "2px 2px 0px #000" };
+        case "glassmorphism":
+          return { ...base, backgroundColor: "rgba(99,102,241,0.15)", color: "#6366f1", border: "1px solid rgba(99,102,241,0.4)", borderRadius: "9999px" };
+        case "gradient-glow":
+          return { ...base, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff", borderRadius: "9999px", boxShadow: "0 0 14px rgba(99,102,241,0.4)" };
+        case "neumorphism":
+          return { ...base, backgroundColor: "#e0e5ec", color: "#2563eb", borderRadius: "9999px", boxShadow: "3px 3px 6px #bec3c9, -3px -3px 6px #fff" };
+        case "material-you":
+          return { ...base, backgroundColor: "var(--boost-primary, #6750a4)", color: "#fff", borderRadius: "20px" };
+        case "dark-first":
+          return { ...base, backgroundColor: "#1e3a5f", color: "#60a5fa", border: "1px solid #334155", borderRadius: "9999px" };
+        default:
+          return { ...base, backgroundColor: "#0f172a", color: "#fff", borderRadius: "6px" };
+      }
+    }
+    return {
+      ...base,
+      backgroundColor: "transparent",
+      color: activePreset === "dark-first" ? "#94a3b8" : activePreset === "neumorphism" ? "#64748b" : "var(--boost-text-muted, #64748b)",
+      borderRadius: activePreset === "neo-brutalism" ? "2px" : activePreset === "material-you" ? "20px" : "6px",
+      border: activePreset === "neumorphism" ? "none" : "1px solid var(--boost-border, #e2e8f0)"
+    };
+  };
+  if (mode === "pills") {
+    return /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("style", { children: `
+          .boost-preset-switcher-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+          }
+        ` }),
+      /* @__PURE__ */ jsx(
+        "div",
+        {
+          className: `boost-preset-switcher boost-preset-switcher-pills ${className}`,
+          style,
+          children: PRESETS.map((p) => /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              title: p.description,
+              "aria-pressed": activePreset === p.value,
+              onClick: () => handleSelect(p.value),
+              style: getPillStyles(activePreset === p.value),
+              children: [
+                /* @__PURE__ */ jsx("span", { "aria-hidden": "true", children: p.icon }),
+                p.label
+              ]
+            },
+            p.value
+          ))
+        }
+      )
+    ] });
+  }
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      ref: containerRef,
+      className: `boost-preset-switcher boost-preset-switcher-dropdown ${className}`,
+      style: { position: "relative", display: "inline-block", ...style },
+      children: [
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            "aria-haspopup": "listbox",
+            "aria-expanded": isOpen,
+            onClick: () => setIsOpen((v) => !v),
+            style: getTriggerStyles(),
+            children: [
+              /* @__PURE__ */ jsx("span", { "aria-hidden": "true", style: { fontSize: "15px" }, children: activeInfo.icon }),
+              /* @__PURE__ */ jsx("span", { children: activeInfo.label }),
+              /* @__PURE__ */ jsx(
+                "svg",
+                {
+                  width: "12",
+                  height: "12",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2.5",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  style: {
+                    marginLeft: "2px",
+                    transition: "transform 0.15s ease",
+                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)"
+                  },
+                  children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
+                }
+              )
+            ]
+          }
+        ),
+        isOpen && /* @__PURE__ */ jsx("div", { role: "listbox", "aria-label": "Select style preset", style: getDropdownStyles(), children: PRESETS.map((p) => {
+          const isActive = activePreset === p.value;
+          return /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              role: "option",
+              "aria-selected": isActive,
+              onClick: () => handleSelect(p.value),
+              style: getItemStyles(isActive),
+              children: [
+                /* @__PURE__ */ jsx(
+                  "span",
+                  {
+                    style: {
+                      fontSize: "16px",
+                      lineHeight: 1,
+                      width: "20px",
+                      textAlign: "center",
+                      flexShrink: 0
+                    },
+                    children: p.icon
+                  }
+                ),
+                /* @__PURE__ */ jsxs("span", { style: { flex: 1 }, children: [
+                  /* @__PURE__ */ jsx(
+                    "span",
+                    {
+                      style: {
+                        display: "block",
+                        fontSize: "13px",
+                        fontWeight: isActive ? 700 : 500,
+                        lineHeight: 1.2
+                      },
+                      children: p.label
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "span",
+                    {
+                      style: {
+                        display: "block",
+                        fontSize: "11px",
+                        opacity: 0.65,
+                        marginTop: "2px"
+                      },
+                      children: p.description
+                    }
+                  )
+                ] }),
+                isActive && /* @__PURE__ */ jsx(
+                  "svg",
+                  {
+                    width: "14",
+                    height: "14",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2.5",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" })
+                  }
+                )
+              ]
+            },
+            p.value
+          );
+        }) })
+      ]
+    }
+  );
+};
+PresetSwitcher.displayName = "PresetSwitcher";
 
 // src/tokens.json
 var tokens_default = {
@@ -782,7 +1223,8 @@ var tokens_default = {
 
 // src/tokens.ts
 var boostTokens = tokens_default;
-function createTailwindPreset() {
+function createTailwindPreset(preset) {
+  const tokens = preset ? presetTokens[preset] : null;
   return {
     theme: {
       extend: {
@@ -799,13 +1241,23 @@ function createTailwindPreset() {
           }
         },
         borderRadius: {
-          boost: "var(--boost-radius, 12px)"
+          boost: tokens ? tokens.radius : "var(--boost-radius, 12px)"
+        },
+        borderWidth: {
+          boost: tokens ? tokens.borderWidth : "1px"
         },
         boxShadow: {
           "boost-sm": "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))",
           "boost-md": "var(--boost-shadow-md, 0 4px 16px -2px rgba(0, 0, 0, 0.08))",
           "boost-lg": "var(--boost-shadow-lg, 0 12px 32px -4px rgba(0, 0, 0, 0.12))",
-          "boost-glow": "var(--boost-shadow-glow, 0 0 24px rgba(37, 99, 235, 0.22))"
+          "boost-glow": "var(--boost-shadow-glow, 0 0 24px rgba(37, 99, 235, 0.22))",
+          ...tokens ? {
+            "boost-preset": tokens.shadow,
+            "boost-preset-hover": tokens.shadowHover
+          } : {}
+        },
+        backdropBlur: {
+          boost: tokens?.backdropBlur && tokens.backdropBlur !== "none" ? tokens.backdropBlur : "var(--boost-blur, 0px)"
         }
       }
     }
@@ -863,7 +1315,7 @@ var presetTokenCssVars = {
     "--boost-preset-surface-opacity": "1"
   },
   "material-you": {
-    "--boost-preset-radius": "calc(var(--boost-radius, 4px) * 1.2)",
+    "--boost-preset-radius": "24px",
     "--boost-preset-border-width": "1px",
     "--boost-preset-shadow": "0 2px 8px rgba(0, 0, 0, 0.1)",
     "--boost-preset-shadow-hover": "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -877,8 +1329,8 @@ var presetHelperClasses = {
   neumorphism: ".boost-preset-neumorphism { box-shadow: 6px 6px 12px #c5cad3, -6px -6px 12px #ffffff; }",
   "neo-brutalism": ".boost-preset-neo-brutalism { box-shadow: 4px 4px 0px #000; border: 2px solid #000; }",
   "gradient-glow": ".boost-preset-gradient-glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.35); }",
-  "dark-first": "",
-  "material-you": ""
+  "dark-first": ".boost-preset-dark-first { background: #0f172a; border: 1px solid #334155; color: #f8fafc; }",
+  "material-you": ".boost-preset-material-you { border-radius: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }"
 };
 var NEURO_LIGHT = "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff";
 var Button = /* @__PURE__ */ React.forwardRef(
@@ -1846,9 +2298,58 @@ var Select = /* @__PURE__ */ React.forwardRef(
     className = "",
     id,
     style,
+    stylePreset: stylePresetProp,
     ...props
   }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const selectId = id || (label ? `select-${label.toLowerCase().replace(/\s+/g, "-")}` : void 0);
+    const getPresetStyles = () => {
+      switch (preset) {
+        case "neo-brutalism":
+          return {
+            borderRadius: "0px",
+            border: "2px solid #000",
+            backgroundColor: "#ffffff",
+            boxShadow: "none"
+          };
+        case "glassmorphism":
+          return {
+            borderRadius: "12px",
+            border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+            backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.75))",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)"
+          };
+        case "neumorphism":
+          return {
+            borderRadius: "16px",
+            border: "none",
+            backgroundColor: "var(--boost-surface, #eef0f4)",
+            boxShadow: "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff"
+          };
+        case "gradient-glow":
+          return {
+            border: "1px solid rgba(99, 102, 241, 0.3)"
+          };
+        case "material-you":
+          return {
+            borderRadius: "16px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)"
+          };
+        case "dark-first":
+          return {
+            border: "1px solid var(--boost-border, #232a37)",
+            backgroundColor: "var(--boost-surface, #0b0f17)"
+          };
+        case "minimal":
+        default:
+          return {
+            borderRadius: "var(--boost-radius, 8px)"
+          };
+      }
+    };
     return /* @__PURE__ */ jsxs(
       "div",
       {
@@ -1869,9 +2370,9 @@ var Select = /* @__PURE__ */ React.forwardRef(
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
           }
           :root[data-theme="dark"] .boost-select {
-            background-color: #1e293b !important;
-            border-color: rgba(255, 255, 255, 0.12) !important;
-            color: #f8fafc !important;
+            background-color: #1e293b;
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
           }
           :root[data-theme="dark"] .boost-select option {
             background-color: #1e293b !important;
@@ -1880,6 +2381,30 @@ var Select = /* @__PURE__ */ React.forwardRef(
           .boost-select:focus {
             border-color: var(--boost-primary, #2563eb) !important;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+          }
+          .boost-select-preset-neo-brutalism:focus {
+            box-shadow: 3px 3px 0px #000000 !important;
+            border-color: #000000 !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-neo-brutalism:focus {
+            box-shadow: 3px 3px 0px #f8fafc !important;
+            border-color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.8) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-select-preset-neumorphism {
+            background-color: #0f172a !important;
+            box-shadow: 6px 6px 12px #090d15, -6px -6px 12px #151d2c !important;
+          }
+          .boost-select-preset-gradient-glow:focus {
+            border-color: rgba(99, 102, 241, 0.8) !important;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4) !important;
           }
         ` }),
           label && /* @__PURE__ */ jsx(
@@ -1901,7 +2426,7 @@ var Select = /* @__PURE__ */ React.forwardRef(
                 ref,
                 id: selectId,
                 disabled,
-                className: "boost-select",
+                className: `boost-select boost-select-preset-${preset}`,
                 style: {
                   width: "100%",
                   paddingTop: "9px",
@@ -1916,6 +2441,7 @@ var Select = /* @__PURE__ */ React.forwardRef(
                   cursor: disabled ? "not-allowed" : "pointer",
                   boxSizing: "border-box",
                   borderColor: error ? "#ef4444" : void 0,
+                  ...getPresetStyles(),
                   ...style
                 },
                 ...props,
@@ -2216,7 +2742,9 @@ var Checkbox = /* @__PURE__ */ React.forwardRef(
 );
 Checkbox.displayName = "Checkbox";
 var Radio = /* @__PURE__ */ React.forwardRef(
-  ({ label, description, className = "", style, disabled, ...props }, ref) => {
+  ({ label, description, className = "", style, disabled, stylePreset: stylePresetProp, ...props }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     return /* @__PURE__ */ jsxs(
       "label",
       {
@@ -2230,7 +2758,7 @@ var Radio = /* @__PURE__ */ React.forwardRef(
           fontFamily: "inherit",
           ...style
         },
-        className: `boost-radio ${className}`,
+        className: `boost-radio boost-radio-preset-${preset} ${className}`,
         children: [
           /* @__PURE__ */ jsx(
             "input",
@@ -2238,6 +2766,7 @@ var Radio = /* @__PURE__ */ React.forwardRef(
               ref,
               type: "radio",
               disabled,
+              className: `boost-radio-input boost-radio-preset-${preset}`,
               style: {
                 marginTop: "3px",
                 accentColor: "var(--boost-primary, #2563eb)",
@@ -2265,7 +2794,8 @@ var RadioGroup = ({
   orientation = "vertical",
   className = "",
   style,
-  disabled = false
+  disabled = false,
+  stylePreset
 }) => {
   return /* @__PURE__ */ jsx(
     "div",
@@ -2290,7 +2820,8 @@ var RadioGroup = ({
             disabled: isDisabled,
             onChange: () => onChange(opt.value),
             label: opt.label,
-            description: opt.description
+            description: opt.description,
+            stylePreset
           },
           String(opt.value)
         );
@@ -3725,88 +4256,71 @@ var Alert = ({
   type,
   icon,
   onClose,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const activeVariant = type || variant || "info";
   const content = description || children;
-  const getTheme = () => {
+  const getVariantColors = () => {
     switch (activeVariant) {
       case "success":
-        return {
-          bg: "rgba(34, 197, 94, 0.1)",
-          border: "rgba(34, 197, 94, 0.25)",
-          titleColor: "#16a34a",
-          textColor: "var(--boost-text-muted, #94a3b8)",
-          iconColor: "#16a34a"
-        };
+        return { bg: "rgba(34,197,94,0.1)", border: "rgba(34,197,94,0.25)", titleColor: "#16a34a", textColor: "var(--boost-text-muted,#94a3b8)", iconColor: "#16a34a" };
       case "warning":
-        return {
-          bg: "rgba(245, 158, 11, 0.1)",
-          border: "rgba(245, 158, 11, 0.25)",
-          titleColor: "#d97706",
-          textColor: "var(--boost-text-muted, #94a3b8)",
-          iconColor: "#d97706"
-        };
+        return { bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.25)", titleColor: "#d97706", textColor: "var(--boost-text-muted,#94a3b8)", iconColor: "#d97706" };
       case "destructive":
       case "error":
-        return {
-          bg: "rgba(239, 68, 68, 0.1)",
-          border: "rgba(239, 68, 68, 0.25)",
-          titleColor: "#ef4444",
-          textColor: "var(--boost-text-muted, #94a3b8)",
-          iconColor: "#ef4444"
-        };
-      case "info":
+        return { bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.25)", titleColor: "#ef4444", textColor: "var(--boost-text-muted,#94a3b8)", iconColor: "#ef4444" };
       default:
-        return {
-          bg: "rgba(59, 130, 246, 0.1)",
-          border: "rgba(59, 130, 246, 0.25)",
-          titleColor: "#2563eb",
-          textColor: "var(--boost-text-muted, #94a3b8)",
-          iconColor: "#2563eb"
-        };
+        return { bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.25)", titleColor: "#2563eb", textColor: "var(--boost-text-muted,#94a3b8)", iconColor: "#2563eb" };
     }
   };
-  const theme = getTheme();
+  const colors = getVariantColors();
+  const getContainerStyles = () => {
+    const base = {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: "12px",
+      padding: "14px 16px",
+      fontFamily: "inherit",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: colors.bg, border: `3px solid ${colors.iconColor}`, borderRadius: "2px", boxShadow: `4px 4px 0px ${colors.iconColor}` };
+      case "glassmorphism":
+        return { ...base, backgroundColor: `${colors.bg}`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${colors.border}`, borderRadius: "14px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", border: "none", borderRadius: "16px", boxShadow: "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff", borderLeft: `4px solid ${colors.iconColor}` };
+      case "gradient-glow":
+        return { ...base, backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: "12px", boxShadow: `0 0 16px ${colors.bg}` };
+      case "material-you":
+        return { ...base, backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: "24px" };
+      case "dark-first":
+        return { ...base, backgroundColor: "rgba(15,23,42,0.95)", border: `1px solid ${colors.border}`, borderRadius: "10px", borderLeft: `3px solid ${colors.iconColor}` };
+      default:
+        return { ...base, backgroundColor: colors.bg, border: `1px solid ${colors.border}`, borderRadius: "var(--boost-radius, 10px)" };
+    }
+  };
+  const isAssertive = activeVariant === "error";
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-alert boost-alert-${activeVariant} ${className}`,
+      className: `boost-alert boost-alert-${activeVariant} boost-alert-preset-${preset} ${className}`,
       role: "alert",
-      style: {
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "12px",
-        padding: "14px 16px",
-        backgroundColor: theme.bg,
-        border: `1px solid ${theme.border}`,
-        borderRadius: "var(--boost-radius, 10px)",
-        fontFamily: "inherit",
-        boxSizing: "border-box",
-        ...style
-      },
+      "aria-live": isAssertive ? "assertive" : "polite",
+      style: { ...getContainerStyles(), ...style },
       children: [
-        /* @__PURE__ */ jsx("div", { style: { marginTop: "2px", display: "flex", color: theme.iconColor, flexShrink: 0 }, children: icon ? icon : /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
+        /* @__PURE__ */ jsx("div", { style: { marginTop: "2px", display: "flex", color: colors.iconColor, flexShrink: 0 }, children: icon ? icon : /* @__PURE__ */ jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", children: [
           /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "10" }),
           /* @__PURE__ */ jsx("line", { x1: "12", y1: "16", x2: "12", y2: "12" }),
           /* @__PURE__ */ jsx("line", { x1: "12", y1: "8", x2: "12.01", y2: "8" })
         ] }) }),
         /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-          title && /* @__PURE__ */ jsx(
-            "h4",
-            {
-              style: {
-                margin: "0 0 3px 0",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: theme.titleColor,
-                letterSpacing: "-0.01em"
-              },
-              children: title
-            }
-          ),
-          content && /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", color: theme.textColor, lineHeight: 1.5 }, children: content })
+          title && /* @__PURE__ */ jsx("h4", { style: { margin: "0 0 3px 0", fontSize: "14px", fontWeight: 600, color: colors.titleColor, letterSpacing: "-0.01em" }, children: title }),
+          content && /* @__PURE__ */ jsx("div", { style: { fontSize: "13px", color: preset === "neo-brutalism" ? "#000" : preset === "dark-first" ? "#94a3b8" : colors.textColor, lineHeight: 1.5 }, children: content })
         ] }),
         onClose && /* @__PURE__ */ jsx(
           "button",
@@ -3814,16 +4328,7 @@ var Alert = ({
             type: "button",
             onClick: onClose,
             "aria-label": "Dismiss alert",
-            style: {
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              color: "currentColor",
-              opacity: 0.6,
-              display: "flex",
-              transition: "opacity 0.15s ease"
-            },
+            style: { background: "none", border: "none", padding: 0, cursor: "pointer", color: "currentColor", opacity: 0.6, display: "flex", transition: "opacity 0.15s ease" },
             onMouseEnter: (e) => e.currentTarget.style.opacity = "1",
             onMouseLeave: (e) => e.currentTarget.style.opacity = "0.6",
             children: /* @__PURE__ */ jsxs("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
@@ -3845,9 +4350,12 @@ var Snackbar = ({
   isOpen = true,
   onClose,
   duration = 4e3,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const btnLabel = actionLabel || actionText;
   React.useEffect(() => {
     if (!isOpen || !onClose) return;
@@ -3857,33 +4365,47 @@ var Snackbar = ({
     return () => clearTimeout(timer);
   }, [isOpen, onClose, duration]);
   if (!isOpen) return null;
+  const getContainerStyles = () => {
+    const base = {
+      position: "fixed",
+      bottom: "24px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "16px",
+      fontSize: "13.5px",
+      fontWeight: 500,
+      zIndex: 1e3,
+      fontFamily: "inherit",
+      maxWidth: "calc(100vw - 32px)",
+      boxSizing: "border-box",
+      padding: "10px 18px"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#fbbf24", color: "#000", border: "3px solid #000", borderRadius: "2px", boxShadow: "4px 4px 0px #000" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(15,23,42,0.75)", color: "#f8fafc", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "14px", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", color: "#0f172a", border: "none", borderRadius: "9999px", boxShadow: "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff" };
+      case "gradient-glow":
+        return { ...base, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", border: "none", borderRadius: "12px", boxShadow: "0 0 24px rgba(99,102,241,0.5)" };
+      case "material-you":
+        return { ...base, backgroundColor: "#1c1b1f", color: "#e6e1e5", border: "none", borderRadius: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.25)" };
+      case "dark-first":
+        return { ...base, backgroundColor: "#0f172a", color: "#f8fafc", border: "1px solid #1e293b", borderRadius: "10px", boxShadow: "0 0 20px rgba(59,130,246,0.2)" };
+      default:
+        return { ...base, backgroundColor: "#1e293b", color: "#f8fafc", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.4)" };
+    }
+  };
+  const actionColor = preset === "neo-brutalism" ? "#1d4ed8" : preset === "neumorphism" ? "#2563eb" : "#60a5fa";
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-snackbar ${className}`,
+      className: `boost-snackbar boost-snackbar-preset-${preset} ${className}`,
       role: "status",
-      style: {
-        position: "fixed",
-        bottom: "24px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        backgroundColor: "#1e293b",
-        color: "#f8fafc",
-        border: "1px solid rgba(255, 255, 255, 0.12)",
-        padding: "10px 18px",
-        borderRadius: "8px",
-        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "16px",
-        fontSize: "13.5px",
-        fontWeight: 500,
-        zIndex: 1e3,
-        fontFamily: "inherit",
-        maxWidth: "calc(100vw - 32px)",
-        boxSizing: "border-box",
-        ...style
-      },
+      style: { ...getContainerStyles(), ...style },
       children: [
         /* @__PURE__ */ jsx("span", { children: message }),
         btnLabel && onAction && /* @__PURE__ */ jsx(
@@ -3891,18 +4413,9 @@ var Snackbar = ({
           {
             type: "button",
             onClick: onAction,
-            style: {
-              background: "none",
-              border: "none",
-              color: "#60a5fa",
-              fontWeight: 700,
-              fontSize: "13px",
-              cursor: "pointer",
-              padding: 0,
-              transition: "color 0.15s ease"
-            },
-            onMouseEnter: (e) => e.currentTarget.style.color = "#93c5fd",
-            onMouseLeave: (e) => e.currentTarget.style.color = "#60a5fa",
+            style: { background: "none", border: "none", color: actionColor, fontWeight: 700, fontSize: "13px", cursor: "pointer", padding: 0, transition: "opacity 0.15s ease", fontFamily: "inherit" },
+            onMouseEnter: (e) => e.currentTarget.style.opacity = "0.7",
+            onMouseLeave: (e) => e.currentTarget.style.opacity = "1",
             children: btnLabel
           }
         )
@@ -4199,36 +4712,126 @@ var SuccessMessage = ({
   );
 };
 SuccessMessage.displayName = "SuccessMessage";
+var NEURO_LIGHT2 = "8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff";
 var Card = /* @__PURE__ */ React.forwardRef(
-  ({ hoverable = false, variant = "elevated", className = "", style, children, ...props }, ref) => {
-    const isGlass = variant === "glass";
+  ({
+    hoverable = false,
+    variant = "elevated",
+    stylePreset: stylePresetProp,
+    className = "",
+    style,
+    children,
+    ...props
+  }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
+    const isGlass = variant === "glass" || preset === "glassmorphism";
     const isOutlined = variant === "outlined";
+    const getPresetStyles = () => {
+      switch (preset) {
+        case "neo-brutalism":
+          return {
+            border: "3px solid #000000",
+            borderRadius: "2px",
+            boxShadow: "5px 5px 0px #000000",
+            backgroundColor: "var(--boost-surface, #ffffff)"
+          };
+        case "glassmorphism":
+          return {
+            backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.85))",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+            borderRadius: "16px",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)"
+          };
+        case "neumorphism":
+          return {
+            backgroundColor: "var(--boost-surface, #e8ebf0)",
+            border: "none",
+            borderRadius: "20px",
+            boxShadow: NEURO_LIGHT2
+          };
+        case "gradient-glow":
+          return {
+            backgroundColor: "var(--boost-surface, #ffffff)",
+            borderRadius: "16px",
+            border: "1px solid rgba(99, 102, 241, 0.35)",
+            boxShadow: "0 0 25px rgba(99, 102, 241, 0.25)"
+          };
+        case "material-you":
+          return {
+            backgroundColor: "var(--boost-surface, #f8fafc)",
+            borderRadius: "24px",
+            border: "none",
+            boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)"
+          };
+        case "dark-first":
+          return {
+            backgroundColor: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.5)"
+          };
+        case "minimal":
+        default:
+          return {
+            backgroundColor: isGlass ? "var(--boost-glass-bg, rgba(255, 255, 255, 0.8))" : "var(--boost-surface, #ffffff)",
+            backdropFilter: isGlass ? "blur(12px)" : void 0,
+            WebkitBackdropFilter: isGlass ? "blur(12px)" : void 0,
+            border: `1px solid ${isGlass ? "var(--boost-glass-border, rgba(226, 232, 240, 0.8))" : "var(--boost-border, #e2e8f0)"}`,
+            borderRadius: "var(--boost-radius, 16px)",
+            boxShadow: isOutlined ? "none" : "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))"
+          };
+      }
+    };
+    const presetStyles = getPresetStyles();
     return /* @__PURE__ */ jsxs(
       "div",
       {
         ref,
-        className: `boost-card ${hoverable ? "boost-card-hoverable" : ""} ${className}`,
+        className: `boost-card boost-card-preset-${preset} ${hoverable ? "boost-card-hoverable" : ""} ${className}`,
         style: {
-          backgroundColor: isGlass ? "var(--boost-glass-bg, rgba(255, 255, 255, 0.8))" : "var(--boost-surface, #ffffff)",
-          backdropFilter: isGlass ? "blur(12px)" : void 0,
-          WebkitBackdropFilter: isGlass ? "blur(12px)" : void 0,
-          border: `1px solid ${isGlass ? "var(--boost-glass-border, rgba(226, 232, 240, 0.8))" : "var(--boost-border, #e2e8f0)"}`,
-          borderRadius: "var(--boost-radius, 16px)",
-          boxShadow: isOutlined ? "none" : "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))",
           overflow: "hidden",
           transition: hoverable ? "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
           fontFamily: "inherit",
           width: "100%",
           boxSizing: "border-box",
+          ...presetStyles,
           ...style
         },
         ...props,
         children: [
           /* @__PURE__ */ jsx("style", { children: `
           :root[data-theme="dark"] .boost-card {
+            background-color: #1e293b;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+          }
+          :root[data-theme="dark"] .boost-card-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+            box-shadow: 5px 5px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-card-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.85) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-card-preset-neumorphism {
+            background-color: #0f172a !important;
+            box-shadow: 8px 8px 16px #090d15, -8px -8px 16px #151d2c !important;
+          }
+          :root[data-theme="dark"] .boost-card-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.35) !important;
+          }
+          :root[data-theme="dark"] .boost-card-preset-material-you {
             background-color: #1e293b !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            color: #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-card-preset-dark-first {
+            background-color: #090d16 !important;
+            border-color: #1e293b !important;
           }
           :root[data-theme="dark"] .boost-card-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
@@ -4246,9 +4849,19 @@ var Card = /* @__PURE__ */ React.forwardRef(
             background-color: #141e2e !important;
             border-top-color: rgba(255, 255, 255, 0.08) !important;
           }
+          .boost-card-preset-neo-brutalism.boost-card-hoverable:hover {
+            transform: translate(-3px, -3px) !important;
+            box-shadow: 8px 8px 0px #000000 !important;
+          }
+          :root[data-theme="dark"] .boost-card-preset-neo-brutalism.boost-card-hoverable:hover {
+            box-shadow: 8px 8px 0px #f8fafc !important;
+          }
+          .boost-card-preset-gradient-glow.boost-card-hoverable:hover {
+            box-shadow: 0 0 35px rgba(99, 102, 241, 0.45) !important;
+          }
           :root[data-theme="dark"] .boost-card-hoverable:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6) !important;
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6);
           }
         ` }),
           children
@@ -5216,9 +5829,12 @@ var Accordion = ({
   allowMultiple = false,
   defaultExpanded = [],
   variant = "default",
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const toggleItem = (id) => {
     if (expanded.includes(id)) {
@@ -5229,9 +5845,7 @@ var Accordion = ({
   };
   const handleKeyDown = (e) => {
     if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
-    if (!(e.target instanceof HTMLButtonElement) || !e.target.classList.contains("boost-accordion-header")) {
-      return;
-    }
+    if (!(e.target instanceof HTMLButtonElement) || !e.target.classList.contains("boost-accordion-header")) return;
     const focusableItems = items.filter((i) => !i.disabled);
     if (focusableItems.length === 0) return;
     const currentId = e.target.getAttribute("data-id");
@@ -5252,140 +5866,157 @@ var Accordion = ({
       nextIndex = focusableItems.length - 1;
     }
     if (nextIndex !== currentIndex) {
-      const nextId = focusableItems[nextIndex].id;
-      const btn = document.getElementById(`boost-accordion-header-${nextId}`);
+      const btn = document.getElementById(`boost-accordion-header-${focusableItems[nextIndex].id}`);
       if (btn) btn.focus();
     }
   };
   const isSeparated = variant === "separated";
+  const getWrapperStyles = () => {
+    const base = {
+      display: "flex",
+      flexDirection: "column",
+      gap: isSeparated ? "10px" : "0px",
+      fontFamily: "inherit",
+      overflow: "hidden"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, border: isSeparated ? "none" : "3px solid #000", borderRadius: "2px", boxShadow: isSeparated ? "none" : "4px 4px 0px #000" };
+      case "glassmorphism":
+        return { ...base, border: isSeparated ? "none" : "1px solid rgba(255,255,255,0.3)", borderRadius: "14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" };
+      case "neumorphism":
+        return { ...base, border: "none", borderRadius: "18px", boxShadow: isSeparated ? "none" : "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff", backgroundColor: "#e0e5ec" };
+      case "gradient-glow":
+        return { ...base, border: isSeparated ? "none" : "1px solid rgba(99,102,241,0.25)", borderRadius: "12px", boxShadow: "0 0 20px rgba(99,102,241,0.12)" };
+      case "material-you":
+        return { ...base, border: isSeparated ? "none" : "1px solid var(--boost-border, #e2e8f0)", borderRadius: "24px", overflow: "hidden" };
+      case "dark-first":
+        return { ...base, border: isSeparated ? "none" : "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", backgroundColor: "#0f172a" };
+      default:
+        return { ...base, border: isSeparated ? "none" : "1px solid var(--boost-border, #e2e8f0)", borderRadius: "var(--boost-radius, 12px)" };
+    }
+  };
+  const getHeaderStyles = (isOpen) => {
+    const base = {
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "14px 18px",
+      border: "none",
+      textAlign: "left",
+      cursor: "pointer",
+      fontFamily: "inherit",
+      fontWeight: 600,
+      fontSize: "14px",
+      transition: "background-color 0.18s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: isOpen ? "#fbbf24" : "#ffffff", color: "#000", borderBottom: isOpen ? "2px solid #000" : "none" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: isOpen ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.6)", color: "var(--boost-text, #0f172a)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", color: "#0f172a" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: isOpen ? "rgba(99,102,241,0.06)" : "transparent", color: "var(--boost-text, #0f172a)" };
+      case "material-you":
+        return { ...base, backgroundColor: isOpen ? "var(--boost-surface, #e8def8)" : "var(--boost-surface, #fffbfe)", color: "var(--boost-text, #1c1b1f)" };
+      case "dark-first":
+        return { ...base, backgroundColor: isOpen ? "#1e293b" : "#0f172a", color: "#f8fafc" };
+      default:
+        return { ...base, backgroundColor: isOpen ? "var(--boost-surface-secondary, #f8fafc)" : "var(--boost-surface, #ffffff)", color: "var(--boost-text, #0f172a)" };
+    }
+  };
+  const getItemBorder = (isLast) => {
+    if (isSeparated) {
+      switch (preset) {
+        case "neo-brutalism":
+          return { border: "3px solid #000", borderRadius: "2px", boxShadow: "3px 3px 0px #000", overflow: "hidden" };
+        case "glassmorphism":
+          return { border: "1px solid rgba(255,255,255,0.3)", borderRadius: "12px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", overflow: "hidden" };
+        case "neumorphism":
+          return { border: "none", borderRadius: "14px", boxShadow: "4px 4px 10px #d1d9e6, -4px -4px 10px #ffffff", overflow: "hidden" };
+        default:
+          return { border: "1px solid var(--boost-border, #e2e8f0)", borderRadius: "10px", overflow: "hidden" };
+      }
+    }
+    return { borderBottom: !isLast ? "1px solid var(--boost-border, #e2e8f0)" : "none", overflow: "hidden" };
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-accordion boost-accordion-${variant} ${className}`,
+      className: `boost-accordion boost-accordion-${variant} boost-accordion-preset-${preset} ${className}`,
       onKeyDown: handleKeyDown,
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: isSeparated ? "10px" : "0px",
-        border: isSeparated ? "none" : "1px solid var(--boost-border, #e2e8f0)",
-        borderRadius: "var(--boost-radius, 12px)",
-        overflow: "hidden",
-        fontFamily: "inherit",
-        ...style
-      },
+      style: { ...getWrapperStyles(), ...style },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-        .boost-accordion-header {
-          background-color: var(--boost-surface, #ffffff);
-          color: var(--boost-text, #0f172a);
-          transition: background-color 0.18s ease, color 0.18s ease;
+        .boost-accordion-preset-${preset} .boost-accordion-content {
+          background-color: ${preset === "neo-brutalism" ? "#fffbeb" : preset === "dark-first" ? "#0f172a" : preset === "neumorphism" ? "#e0e5ec" : "var(--boost-surface, #ffffff)"};
+          color: ${preset === "dark-first" ? "#94a3b8" : "var(--boost-text-muted, #475569)"};
+          border-top: 1px solid ${preset === "neo-brutalism" ? "#000" : preset === "dark-first" ? "rgba(255,255,255,0.06)" : "var(--boost-border, #f1f5f9)"};
         }
-        .boost-accordion-header[data-expanded="true"] {
-          background-color: var(--boost-surface-hover, #f8fafc);
-        }
-        .boost-accordion-content {
-          background-color: var(--boost-surface, #ffffff);
-          color: var(--boost-text-muted, #475569);
-          border-top: 1px solid var(--boost-border, #f1f5f9);
-        }
-        :root[data-theme="dark"] .boost-accordion-header {
+        :root[data-theme="dark"] .boost-accordion-preset-${preset} .boost-accordion-header {
           background-color: #1e293b;
           color: #f8fafc;
         }
-        :root[data-theme="dark"] .boost-accordion-header[data-expanded="true"] {
-          background-color: #243247;
-        }
-        :root[data-theme="dark"] .boost-accordion-content {
+        :root[data-theme="dark"] .boost-accordion-preset-${preset} .boost-accordion-content {
           background-color: #1e293b;
           color: #94a3b8;
-          border-top-color: rgba(255, 255, 255, 0.08);
-        }
-        :root[data-theme="dark"] .boost-accordion {
-          border-color: rgba(255, 255, 255, 0.1) !important;
+          border-top-color: rgba(255,255,255,0.08);
         }
       ` }),
         items.map((item, idx) => {
           const isOpen = expanded.includes(item.id);
           const isLast = idx === items.length - 1;
-          return /* @__PURE__ */ jsxs(
-            "div",
-            {
-              style: {
-                borderBottom: !isSeparated && !isLast ? "1px solid var(--boost-border, #e2e8f0)" : "none",
-                borderRadius: isSeparated ? "10px" : void 0,
-                border: isSeparated ? "1px solid var(--boost-border, #e2e8f0)" : void 0,
-                overflow: "hidden"
-              },
-              children: [
-                /* @__PURE__ */ jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    id: `boost-accordion-header-${item.id}`,
-                    "data-id": item.id,
-                    disabled: item.disabled,
-                    onClick: () => toggleItem(item.id),
-                    "aria-expanded": isOpen,
-                    "aria-controls": isOpen ? `boost-accordion-content-${item.id}` : void 0,
-                    "data-expanded": isOpen,
-                    className: "boost-accordion-header",
-                    style: {
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "14px 18px",
-                      border: "none",
-                      textAlign: "left",
-                      cursor: item.disabled ? "not-allowed" : "pointer",
-                      opacity: item.disabled ? 0.5 : 1,
-                      fontFamily: "inherit",
-                      fontWeight: 600,
-                      fontSize: "14px"
-                    },
-                    children: [
-                      /* @__PURE__ */ jsx("span", { children: item.title }),
-                      /* @__PURE__ */ jsx(
-                        "svg",
-                        {
-                          width: "16",
-                          height: "16",
-                          viewBox: "0 0 24 24",
-                          fill: "none",
-                          stroke: "currentColor",
-                          strokeWidth: "2",
-                          style: {
-                            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-                            color: "var(--boost-text-muted, #64748b)",
-                            flexShrink: 0,
-                            marginLeft: "8px"
-                          },
-                          children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
-                        }
-                      )
-                    ]
-                  }
-                ),
-                isOpen && /* @__PURE__ */ jsx(
-                  "div",
-                  {
-                    id: `boost-accordion-content-${item.id}`,
-                    role: "region",
-                    "aria-labelledby": `boost-accordion-header-${item.id}`,
-                    className: "boost-accordion-content",
-                    style: {
-                      padding: "14px 18px",
-                      fontSize: "13.5px",
-                      lineHeight: 1.6
-                    },
-                    children: item.content
-                  }
-                )
-              ]
-            },
-            item.id
-          );
+          return /* @__PURE__ */ jsxs("div", { style: getItemBorder(isLast), children: [
+            /* @__PURE__ */ jsxs(
+              "button",
+              {
+                type: "button",
+                id: `boost-accordion-header-${item.id}`,
+                "data-id": item.id,
+                disabled: item.disabled,
+                onClick: () => toggleItem(item.id),
+                "aria-expanded": isOpen,
+                "aria-controls": isOpen ? `boost-accordion-content-${item.id}` : void 0,
+                "data-expanded": isOpen,
+                className: "boost-accordion-header",
+                style: {
+                  ...getHeaderStyles(isOpen),
+                  cursor: item.disabled ? "not-allowed" : "pointer",
+                  opacity: item.disabled ? 0.5 : 1
+                },
+                children: [
+                  /* @__PURE__ */ jsx("span", { children: item.title }),
+                  /* @__PURE__ */ jsx(
+                    "svg",
+                    {
+                      width: "16",
+                      height: "16",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      style: { transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s cubic-bezier(0.16,1,0.3,1)", color: preset === "neo-brutalism" ? "#000" : "var(--boost-text-muted, #64748b)", flexShrink: 0, marginLeft: "8px" },
+                      children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" })
+                    }
+                  )
+                ]
+              }
+            ),
+            isOpen && /* @__PURE__ */ jsx(
+              "div",
+              {
+                id: `boost-accordion-content-${item.id}`,
+                role: "region",
+                "aria-labelledby": `boost-accordion-header-${item.id}`,
+                className: "boost-accordion-content",
+                style: { padding: "14px 18px", fontSize: "13.5px", lineHeight: 1.6 },
+                children: item.content
+              }
+            )
+          ] }, item.id);
         })
       ]
     }
@@ -5605,8 +6236,11 @@ var Modal = ({
   className = "",
   style,
   closeOnOverlayClick = true,
-  showCloseButton = true
+  showCloseButton = true,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const modalRef = React.useRef(null);
   useFocusTrap(modalRef, isOpen);
   React.useEffect(() => {
@@ -5634,6 +6268,62 @@ var Modal = ({
       case "md":
       default:
         return "520px";
+    }
+  };
+  const getPresetCardStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "3px solid #000000",
+          borderRadius: "2px",
+          boxShadow: "8px 8px 0px #000000",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderRadius: "20px",
+          boxShadow: "0 20px 50px rgba(0, 0, 0, 0.2)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          border: "none",
+          borderRadius: "24px",
+          boxShadow: "12px 12px 28px #cbd5e1, -12px -12px 28px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderRadius: "20px",
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 35px rgba(99, 102, 241, 0.35)"
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          borderRadius: "28px",
+          border: "none",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "14px",
+          boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.8)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderRadius: "var(--boost-radius, 14px)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))"
+        };
     }
   };
   return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(
@@ -5674,9 +6364,27 @@ var Modal = ({
             to { opacity: 1; transform: scale(1) translateY(0); }
           }
           :root[data-theme="dark"] .boost-modal-card {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
+          }
+          :root[data-theme="dark"] .boost-modal-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+            box-shadow: 8px 8px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-modal-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-modal-preset-neumorphism {
             background-color: #0f172a !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8) !important;
+            box-shadow: 12px 12px 28px #090d15, -12px -12px 28px #151d2c !important;
+          }
+          :root[data-theme="dark"] .boost-modal-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.45) !important;
           }
           :root[data-theme="dark"] .boost-modal-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
@@ -5702,20 +6410,17 @@ var Modal = ({
         /* @__PURE__ */ jsxs(
           "div",
           {
-            className: "boost-modal-card",
+            className: `boost-modal-card boost-modal-preset-${preset}`,
             onClick: (e) => e.stopPropagation(),
             style: {
               width: "100%",
               maxWidth: `min(${getWidth()}, calc(100vw - 24px))`,
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              borderRadius: "var(--boost-radius, 18px)",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              boxShadow: "var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))",
               display: "flex",
               flexDirection: "column",
               maxHeight: "min(90vh, 850px)",
               overflow: "hidden",
               animation: "boost-modal-scale 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+              ...getPresetCardStyles(),
               ...style
             },
             children: [
@@ -5803,8 +6508,11 @@ var Drawer = ({
   className = "",
   style,
   showCloseButton = true,
-  closeOnOverlayClick = true
+  closeOnOverlayClick = true,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const effectivePlacement = position || placement || "right";
   const drawerRef = React.useRef(null);
   useFocusTrap(drawerRef, isOpen);
@@ -5863,6 +6571,54 @@ var Drawer = ({
         };
     }
   };
+  const getPresetPanelStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "3px solid #000000",
+          boxShadow: "6px 6px 0px #000000",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          boxShadow: "0 25px 50px rgba(0, 0, 0, 0.18)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          border: "none",
+          boxShadow: "8px 8px 20px #cbd5e1, -8px -8px 20px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 35px rgba(99, 102, 241, 0.35)"
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          border: "none",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          border: "1px solid #1e293b",
+          boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.8)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(
     "div",
     {
@@ -5907,9 +6663,27 @@ var Drawer = ({
             to { transform: translateY(0); }
           }
           :root[data-theme="dark"] .boost-drawer-panel {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #f8fafc !important;
+            box-shadow: 6px 6px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-neumorphism {
             background-color: #0f172a !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+            box-shadow: 8px 8px 20px #090d15, -8px -8px 20px #151d2c !important;
+          }
+          :root[data-theme="dark"] .boost-drawer-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.45) !important;
           }
           :root[data-theme="dark"] .boost-drawer-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
@@ -5932,17 +6706,16 @@ var Drawer = ({
         /* @__PURE__ */ jsxs(
           "div",
           {
-            className: "boost-drawer-panel",
+            className: `boost-drawer-panel boost-drawer-preset-${preset}`,
             onClick: (e) => e.stopPropagation(),
             style: {
               position: "absolute",
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
               boxSizing: "border-box",
               ...getPositionStyles(),
+              ...getPresetPanelStyles(),
               ...style
             },
             children: [
@@ -6023,8 +6796,11 @@ var BottomSheet = ({
   style,
   dragHandle = true,
   showCloseButton = true,
-  closeOnOverlayClick = true
+  closeOnOverlayClick = true,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   React.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -6039,6 +6815,72 @@ var BottomSheet = ({
     };
   }, [isOpen, onClose]);
   if (!isOpen) return null;
+  const getPresetSheetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderTop: "3px solid #000000",
+          borderLeft: "3px solid #000000",
+          borderRight: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "0 -8px 0px #000000",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderLeft: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderRight: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderRadius: "24px 24px 0 0",
+          boxShadow: "0 -15px 40px rgba(0, 0, 0, 0.2)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          border: "none",
+          borderRadius: "24px 24px 0 0",
+          boxShadow: "0 -10px 25px #cbd5e1"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderTop: "1px solid rgba(99, 102, 241, 0.4)",
+          borderLeft: "1px solid rgba(99, 102, 241, 0.3)",
+          borderRight: "1px solid rgba(99, 102, 241, 0.3)",
+          borderRadius: "24px 24px 0 0",
+          boxShadow: "0 -10px 35px rgba(99, 102, 241, 0.3)"
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          borderRadius: "28px 28px 0 0",
+          border: "none",
+          boxShadow: "0 -10px 30px rgba(0, 0, 0, 0.12)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          borderTop: "1px solid #1e293b",
+          borderLeft: "1px solid #1e293b",
+          borderRight: "1px solid #1e293b",
+          borderRadius: "20px 20px 0 0",
+          boxShadow: "0 -15px 40px rgba(0, 0, 0, 0.7)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderRadius: "24px 24px 0 0",
+          borderTop: "1px solid var(--boost-border, #e2e8f0)",
+          borderLeft: "1px solid var(--boost-border, #e2e8f0)",
+          borderRight: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "0 -15px 35px rgba(0, 0, 0, 0.2)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(
     "div",
     {
@@ -6072,11 +6914,31 @@ var BottomSheet = ({
             to { transform: translateY(0); }
           }
           :root[data-theme="dark"] .boost-bottom-sheet-panel {
+            background-color: #0f172a;
+            border-top-color: rgba(255, 255, 255, 0.1);
+            border-left-color: rgba(255, 255, 255, 0.1);
+            border-right-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-top-color: #f8fafc !important;
+            border-left-color: #f8fafc !important;
+            border-right-color: #f8fafc !important;
+            box-shadow: 0 -8px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-preset-neumorphism {
             background-color: #0f172a !important;
-            border-top-color: rgba(255, 255, 255, 0.1) !important;
-            border-left-color: rgba(255, 255, 255, 0.1) !important;
-            border-right-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
+            box-shadow: 0 -10px 25px #090d15 !important;
+          }
+          :root[data-theme="dark"] .boost-bottom-sheet-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            box-shadow: 0 -10px 40px rgba(99, 102, 241, 0.45) !important;
           }
           :root[data-theme="dark"] .boost-bottom-sheet-handle {
             background-color: #475569 !important;
@@ -6102,23 +6964,18 @@ var BottomSheet = ({
         /* @__PURE__ */ jsxs(
           "div",
           {
-            className: "boost-bottom-sheet-panel",
+            className: `boost-bottom-sheet-panel boost-bottom-sheet-preset-${preset}`,
             onClick: (e) => e.stopPropagation(),
             style: {
               width: "100%",
               maxWidth: "640px",
               maxHeight,
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              borderRadius: "24px 24px 0 0",
-              borderTop: "1px solid var(--boost-border, #e2e8f0)",
-              borderLeft: "1px solid var(--boost-border, #e2e8f0)",
-              borderRight: "1px solid var(--boost-border, #e2e8f0)",
-              boxShadow: "0 -15px 35px rgba(0, 0, 0, 0.2)",
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
               boxSizing: "border-box",
               animation: "boost-sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1)",
+              ...getPresetSheetStyles(),
               ...style
             },
             children: [
@@ -6198,8 +7055,11 @@ var Popover = ({
   className = "",
   style,
   contentStyle,
-  showArrow = true
+  showArrow = true,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalOpen, setInternalOpen] = React.useState(false);
   const popoverRef = React.useRef(null);
   const isControlled = controlledOpen !== void 0;
@@ -6247,6 +7107,62 @@ var Popover = ({
         return { top: "calc(100% + 8px)", left: 0 };
     }
   };
+  const getPresetPopoverStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "2px solid #000000",
+          boxShadow: "4px 4px 0px #000000",
+          borderRadius: "0px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderRadius: "14px",
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          border: "none",
+          borderRadius: "16px",
+          boxShadow: "6px 6px 14px #cbd5e1, -6px -6px 14px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          borderRadius: "14px",
+          boxShadow: "0 0 25px rgba(99, 102, 241, 0.3)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "20px",
+          border: "none",
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.12)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "10px",
+          boxShadow: "0 15px 30px rgba(0, 0, 0, 0.6)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+          borderRadius: "12px"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -6270,6 +7186,24 @@ var Popover = ({
           border-color: rgba(255, 255, 255, 0.12);
           color: #f8fafc;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+        :root[data-theme="dark"] .boost-popover-preset-neo-brutalism {
+          background-color: #18181b !important;
+          border-color: #f8fafc !important;
+          box-shadow: 4px 4px 0px #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-popover-preset-glassmorphism {
+          background-color: rgba(15, 23, 42, 0.88) !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        :root[data-theme="dark"] .boost-popover-preset-neumorphism {
+          background-color: #0f172a !important;
+          box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
+        }
+        :root[data-theme="dark"] .boost-popover-preset-gradient-glow {
+          background-color: #0f172a !important;
+          border-color: rgba(99, 102, 241, 0.5) !important;
+          box-shadow: 0 0 30px rgba(99, 102, 241, 0.4) !important;
         }
         @keyframes boostPopoverIn {
           from {
@@ -6304,7 +7238,7 @@ var Popover = ({
           "div",
           {
             role: "dialog",
-            className: "boost-popover-panel",
+            className: `boost-popover-panel boost-popover-preset-${preset}`,
             style: {
               position: "absolute",
               zIndex: 1e3,
@@ -6312,6 +7246,7 @@ var Popover = ({
               minWidth: "220px",
               fontFamily: "inherit",
               ...getPositionStyles(),
+              ...getPresetPopoverStyles(),
               ...contentStyle
             },
             children: [
@@ -6358,7 +7293,8 @@ var ConfirmationDialog = ({
   confirmVariant,
   isLoading = false,
   className = "",
-  style
+  style,
+  stylePreset
 }) => {
   const activeVariant = confirmVariant || variant;
   const isDestructive = activeVariant === "danger" || activeVariant === "destructive";
@@ -6376,6 +7312,7 @@ var ConfirmationDialog = ({
       size: "sm",
       className,
       style,
+      stylePreset,
       footer: /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "flex-end", gap: "10px", width: "100%" }, children: [
         /* @__PURE__ */ jsx(Button, { variant: "outline", size: "sm", onClick: onClose, disabled: isLoading, children: cancelText }),
         /* @__PURE__ */ jsx(
@@ -6459,8 +7396,11 @@ var CommandPalette = ({
   items = [],
   placeholder = "Type a command or search...",
   emptyText = "No matching commands found.",
+  stylePreset: stylePresetProp,
   className = ""
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [query, setQuery] = React.useState("");
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const inputRef = React.useRef(null);
@@ -6499,6 +7439,133 @@ var CommandPalette = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, filteredItems, selectedIndex, onClose]);
   if (!isOpen) return null;
+  const getModalStyles = () => {
+    const base = {
+      width: "100%",
+      maxWidth: "580px",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          borderRadius: "2px",
+          border: "3px solid #000",
+          boxShadow: "8px 8px 0px #000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "20px",
+          boxShadow: "0 25px 50px -12px rgba(31, 38, 135, 0.25)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          borderRadius: "16px",
+          boxShadow: "0 0 35px rgba(99, 102, 241, 0.18), 0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "28px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#0f172a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "16px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderRadius: "var(--boost-radius, 16px)",
+          boxShadow: "var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))",
+          border: "1px solid var(--boost-border, #e2e8f0)"
+        };
+    }
+  };
+  const getItemStyles = (isSelected) => {
+    const base = {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "10px 14px",
+      cursor: "pointer",
+      transition: "background-color 0.1s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: isSelected ? "#fbbf24" : "transparent",
+          border: isSelected ? "2px solid #000" : "2px solid transparent",
+          borderRadius: "2px",
+          fontWeight: isSelected ? 700 : 500
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: isSelected ? "rgba(99, 102, 241, 0.15)" : "transparent",
+          borderRadius: "12px"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: isSelected ? "#d9dfe8" : "transparent",
+          boxShadow: isSelected ? "inset 2px 2px 5px #c8cdd5, inset -2px -2px 5px #f8fdff" : "none",
+          borderRadius: "10px"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: isSelected ? "rgba(99, 102, 241, 0.12)" : "transparent",
+          borderRadius: "8px"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: isSelected ? "var(--boost-surface-secondary, #e8def8)" : "transparent",
+          borderRadius: "9999px"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: isSelected ? "#1e293b" : "transparent",
+          borderRadius: "8px"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "8px",
+          backgroundColor: isSelected ? "rgba(37, 99, 235, 0.08)" : "transparent"
+        };
+    }
+  };
   return /* @__PURE__ */ jsx(
     "div",
     {
@@ -6524,19 +7591,8 @@ var CommandPalette = ({
       children: /* @__PURE__ */ jsxs(
         "div",
         {
-          className: `boost-command-palette ${className}`,
-          style: {
-            width: "100%",
-            maxWidth: "580px",
-            backgroundColor: "var(--boost-surface, #ffffff)",
-            borderRadius: "var(--boost-radius, 16px)",
-            boxShadow: "var(--boost-shadow-lg, 0 25px 50px -12px rgba(0, 0, 0, 0.25))",
-            border: "1px solid var(--boost-border, #e2e8f0)",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            boxSizing: "border-box"
-          },
+          className: `boost-command-palette boost-command-palette-preset-${preset} ${className}`,
+          style: getModalStyles(),
           onClick: (e) => e.stopPropagation(),
           children: [
             /* @__PURE__ */ jsxs(
@@ -6625,16 +7681,7 @@ var CommandPalette = ({
                     onClose();
                   },
                   onMouseEnter: () => setSelectedIndex(idx),
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "10px 14px",
-                    borderRadius: "8px",
-                    backgroundColor: isSelected ? "rgba(37, 99, 235, 0.08)" : "transparent",
-                    cursor: "pointer",
-                    transition: "background-color 0.1s ease"
-                  },
+                  style: getItemStyles(isSelected),
                   children: [
                     /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
                       item.icon && /* @__PURE__ */ jsx(
@@ -7232,8 +8279,11 @@ var Header = ({
   sticky = true,
   className = "",
   style,
+  stylePreset: stylePresetProp,
   renderMobileMenu
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const effectiveLinks = navLinks || links || [];
   const handleLinkClick = (href, e) => {
@@ -7242,6 +8292,55 @@ var Header = ({
       onLinkClick(href);
     }
     setMobileMenuOpen(false);
+  };
+  const getPresetHeaderStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#ffffff",
+          borderBottom: "3px solid #000000",
+          boxShadow: "0 4px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          borderBottom: "none",
+          boxShadow: "0 6px 14px #d1d9e6"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderBottom: "1px solid rgba(99, 102, 241, 0.25)",
+          boxShadow: "0 4px 20px rgba(99, 102, 241, 0.15)"
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          borderBottom: "none",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#090d16",
+          borderBottom: "1px solid #1e293b",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))"
+        };
+    }
   };
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("style", { children: `
@@ -7295,6 +8394,24 @@ var Header = ({
           }
         }
         @media (min-width: 769px) {
+          :root[data-theme="dark"] .boost-header-preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-bottom-color: #f8fafc !important;
+            box-shadow: 0 4px 0px #f8fafc !important;
+          }
+          :root[data-theme="dark"] .boost-header-preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.85) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+          }
+          :root[data-theme="dark"] .boost-header-preset-neumorphism {
+            background-color: #0f172a !important;
+            box-shadow: 0 6px 14px #090d15 !important;
+          }
+          :root[data-theme="dark"] .boost-header-preset-gradient-glow {
+            background-color: #0f172a !important;
+            border-bottom-color: rgba(99, 102, 241, 0.4) !important;
+            box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25) !important;
+          }
           .boost-header .boost-hamburger-btn {
             display: none;
           }
@@ -7306,16 +8423,12 @@ var Header = ({
     /* @__PURE__ */ jsxs(
       "header",
       {
-        className: `boost-header ${className}`,
+        className: `boost-header boost-header-preset-${preset} ${className}`,
         style: {
           containerType: "inline-size",
           position: sticky ? "sticky" : "relative",
           top: 0,
           zIndex: 40,
-          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.92))",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          borderBottom: "1px solid var(--boost-border, rgba(226, 232, 240, 0.8))",
           padding: "0 clamp(16px, 3.5vw, 28px)",
           height: "64px",
           display: "flex",
@@ -7323,8 +8436,8 @@ var Header = ({
           justifyContent: "space-between",
           fontFamily: "inherit",
           boxSizing: "border-box",
-          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))",
           transition: "all 0.2s ease",
+          ...getPresetHeaderStyles(),
           ...style
         },
         children: [
@@ -7575,8 +8688,11 @@ var Navbar = ({
   onAnnouncementClose,
   actions,
   className = "",
-  style
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState(searchValue || "");
   const [openDropdown, setOpenDropdown] = React.useState(null);
@@ -7606,22 +8722,67 @@ var Navbar = ({
     setMobileMenuOpen(false);
   };
   const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false);
+  const getPresetNavbarStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#ffffff",
+          borderBottom: "3px solid #000000",
+          boxShadow: "0 4px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          borderBottom: "none",
+          boxShadow: "0 6px 14px #d1d9e6"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderBottom: "1px solid rgba(99, 102, 241, 0.25)",
+          boxShadow: "0 4px 20px rgba(99, 102, 241, 0.15)"
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          borderBottom: "none",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#090d16",
+          borderBottom: "1px solid #1e293b",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "header",
     {
-      className: `boost-navbar ${className}`,
+      className: `boost-navbar boost-navbar-preset-${preset} ${className}`,
       style: {
         position: sticky ? "sticky" : "relative",
         top: 0,
         zIndex: 40,
-        backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        borderBottom: "1px solid var(--boost-border, #e2e8f0)",
-        boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))",
         width: "100%",
         boxSizing: "border-box",
         transition: "background-color 0.2s ease, border-color 0.2s ease",
+        ...getPresetNavbarStyles(),
         ...style
       },
       children: [
@@ -7688,8 +8849,26 @@ var Navbar = ({
         ),
         /* @__PURE__ */ jsx("style", { children: `
         :root[data-theme="dark"] .boost-navbar {
-          background-color: rgba(15, 23, 42, 0.92) !important;
-          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+          background-color: rgba(15, 23, 42, 0.92);
+          border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-neo-brutalism {
+          background-color: #18181b !important;
+          border-bottom-color: #f8fafc !important;
+          box-shadow: 0 4px 0px #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-glassmorphism {
+          background-color: rgba(15, 23, 42, 0.88) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-neumorphism {
+          background-color: #0f172a !important;
+          box-shadow: 0 6px 14px #090d15 !important;
+        }
+        :root[data-theme="dark"] .boost-navbar-preset-gradient-glow {
+          background-color: #0f172a !important;
+          border-bottom-color: rgba(99, 102, 241, 0.4) !important;
+          box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25) !important;
         }
         :root[data-theme="dark"] .boost-navbar input {
           background-color: rgba(30, 41, 59, 0.8) !important;
@@ -8383,45 +9562,61 @@ var Sidebar = ({
   collapsed = false,
   header,
   footer,
+  stylePreset: stylePresetProp,
   className = ""
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
+  const getSidebarStyles = () => {
+    const base = { width: collapsed ? "68px" : "260px", height: "100%", display: "flex", flexDirection: "column", fontFamily: "inherit", transition: "width 0.2s ease", boxSizing: "border-box" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#ffffff", borderRight: "3px solid #000" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRight: "1px solid rgba(255,255,255,0.3)", boxShadow: "2px 0 20px rgba(0,0,0,0.06)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", borderRight: "none", boxShadow: "4px 0 14px #d1d9e6" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", borderRight: "1px solid rgba(99,102,241,0.2)", boxShadow: "2px 0 16px rgba(99,102,241,0.08)" };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface,#fffbfe)", borderRight: "1px solid var(--boost-border,#e2e8f0)" };
+      case "dark-first":
+        return { ...base, backgroundColor: "#0f172a", borderRight: "1px solid rgba(255,255,255,0.06)" };
+      default:
+        return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", borderRight: "1px solid var(--boost-border,#e2e8f0)" };
+    }
+  };
+  const getItemStyles = (isActive) => {
+    const base = { display: "flex", alignItems: "center", gap: "12px", padding: collapsed ? "10px" : "10px 12px", justifyContent: collapsed ? "center" : "flex-start", fontWeight: isActive ? 600 : 500, fontSize: "14px", cursor: "pointer", transition: "all 0.15s ease", borderRadius: "8px" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: isActive ? "#fbbf24" : "transparent", color: "#000", border: isActive ? "2px solid #000" : "2px solid transparent", borderRadius: "2px", fontWeight: isActive ? 800 : 500 };
+      case "glassmorphism":
+        return { ...base, backgroundColor: isActive ? "rgba(99,102,241,0.14)" : "transparent", color: isActive ? "var(--boost-primary,#6366f1)" : "var(--boost-text,#475569)", borderRadius: "10px" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", color: isActive ? "var(--boost-primary,#2563eb)" : "#475569", borderRadius: "10px", boxShadow: isActive ? "inset 3px 3px 7px #c8cdd5, inset -3px -3px 7px #f8fdff" : "none" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: isActive ? "rgba(99,102,241,0.1)" : "transparent", color: isActive ? "var(--boost-primary,#6366f1)" : "var(--boost-text,#475569)", borderRadius: "8px" };
+      case "material-you":
+        return { ...base, backgroundColor: isActive ? "var(--boost-surface-secondary,#e8def8)" : "transparent", color: isActive ? "var(--boost-primary,#6750a4)" : "var(--boost-text,#49454f)", borderRadius: "9999px" };
+      case "dark-first":
+        return { ...base, backgroundColor: isActive ? "#1e293b" : "transparent", color: isActive ? "#60a5fa" : "#94a3b8", borderRadius: "8px" };
+      default:
+        return { ...base, backgroundColor: isActive ? "rgba(37,99,235,0.12)" : "transparent", color: isActive ? "var(--boost-primary,#3b82f6)" : "var(--boost-text,#475569)" };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "aside",
     {
-      className: `boost-sidebar ${className}`,
-      style: {
-        width: collapsed ? "68px" : "260px",
-        height: "100%",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        borderRight: "1px solid var(--boost-border, #e2e8f0)",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "inherit",
-        transition: "width 0.2s ease",
-        boxSizing: "border-box"
-      },
+      className: `boost-sidebar boost-sidebar-preset-${preset} ${className}`,
+      style: getSidebarStyles(),
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-sidebar,
-          .dark .boost-sidebar {
-            background-color: var(--boost-surface, #1e293b) !important;
-            border-right-color: rgba(255, 255, 255, 0.1) !important;
-          }
-          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item,
-          .dark .boost-sidebar .sidebar-nav-item {
-            color: #cbd5e1 !important;
-          }
-          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item:hover,
-          .dark .boost-sidebar .sidebar-nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-            color: #ffffff !important;
-          }
-          :root[data-theme="dark"] .boost-sidebar .sidebar-nav-item.active,
-          .dark .boost-sidebar .sidebar-nav-item.active {
-            background-color: rgba(99, 102, 241, 0.15) !important;
-            color: #818cf8 !important;
-          }
-        ` }),
+        :root[data-theme="dark"] .boost-sidebar-preset-${preset} { background-color: var(--boost-surface,#1e293b) !important; border-right-color: rgba(255,255,255,0.1) !important; }
+        :root[data-theme="dark"] .boost-sidebar-preset-${preset} .sidebar-nav-item { color: #cbd5e1 !important; }
+        :root[data-theme="dark"] .boost-sidebar-preset-${preset} .sidebar-nav-item:hover { background-color: rgba(255,255,255,0.05) !important; color: #ffffff !important; }
+        :root[data-theme="dark"] .boost-sidebar-preset-${preset} .sidebar-nav-item.active { background-color: rgba(99,102,241,0.15) !important; color: #818cf8 !important; }
+      ` }),
         header && /* @__PURE__ */ jsx("div", { style: { padding: "16px", borderBottom: "1px solid var(--boost-border, #f1f5f9)" }, children: header }),
         /* @__PURE__ */ jsx("div", { style: { flex: 1, overflowY: "auto", padding: "12px 8px", display: "flex", flexDirection: "column", gap: "16px" }, children: groups.map((grp, gIdx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
           grp.title && !collapsed && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", fontWeight: 600, color: "var(--boost-text-muted, #94a3b8)", textTransform: "uppercase", padding: "4px 12px", letterSpacing: "0.05em" }, children: grp.title }),
@@ -8436,20 +9631,7 @@ var Sidebar = ({
                   if (onSelect) onSelect(item.id);
                 },
                 title: collapsed ? item.label : void 0,
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: collapsed ? "10px" : "10px 12px",
-                  justifyContent: collapsed ? "center" : "flex-start",
-                  borderRadius: "8px",
-                  backgroundColor: isActive ? "rgba(37, 99, 235, 0.12)" : "transparent",
-                  color: isActive ? "var(--boost-primary, #3b82f6)" : "var(--boost-text, #475569)",
-                  fontWeight: isActive ? 600 : 500,
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease"
-                },
+                style: getItemStyles(isActive),
                 children: [
                   item.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex", color: isActive ? "var(--boost-primary, #3b82f6)" : "var(--boost-text-muted, #64748b)" }, children: item.icon }),
                   !collapsed && /* @__PURE__ */ jsx("span", { style: { flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: item.label }),
@@ -8544,9 +9726,12 @@ var Footer = ({
   copyrightYear = (/* @__PURE__ */ new Date()).getFullYear(),
   copyrightText,
   variant = "dark",
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [email, setEmail] = React.useState("");
   const [subscribed, setSubscribed] = React.useState(false);
   const [emailError, setEmailError] = React.useState(null);
@@ -8578,6 +9763,40 @@ var Footer = ({
   const inputBg = isLight || isSurface ? "var(--boost-bg, #ffffff)" : "rgba(255, 255, 255, 0.06)";
   const inputColor = isLight || isSurface ? "var(--boost-text, #0f172a)" : "#f8fafc";
   const inputBorder = isLight || isSurface ? "var(--boost-border, #cbd5e1)" : "rgba(255, 255, 255, 0.14)";
+  const getPresetFooterBg = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return "#000000";
+      case "glassmorphism":
+        return "rgba(15,23,42,0.85)";
+      case "neumorphism":
+        return "#e0e5ec";
+      case "gradient-glow":
+        return "#09090b";
+      case "material-you":
+        return "#1c1b1f";
+      case "dark-first":
+        return "#020617";
+      default:
+        return footerBg;
+    }
+  };
+  const getPresetFooterBorder = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return "3px solid #000";
+      case "glassmorphism":
+        return "1px solid rgba(255,255,255,0.12)";
+      case "neumorphism":
+        return "none";
+      case "gradient-glow":
+        return "1px solid rgba(99,102,241,0.2)";
+      default:
+        return `1px solid ${borderColor}`;
+    }
+  };
+  const resolvedBg = getPresetFooterBg();
+  const resolvedBorder = getPresetFooterBorder();
   const defaultSocials = [
     { name: "Instagram", href: "https://instagram.com" },
     { name: "X / Twitter", href: "https://twitter.com" },
@@ -8625,13 +9844,13 @@ var Footer = ({
     /* @__PURE__ */ jsxs(
       "footer",
       {
-        className: `boost-footer ${className}`,
+        className: `boost-footer boost-footer-preset-${preset} ${className}`,
         style: {
           containerType: "inline-size",
-          backgroundColor: footerBg,
+          backgroundColor: resolvedBg,
           color: footerText,
           padding: "clamp(40px, 6vw, 64px) clamp(16px, 4vw, 32px) 28px",
-          borderTop: `1px solid ${borderColor}`,
+          borderTop: resolvedBorder,
           fontSize: "14px",
           boxSizing: "border-box",
           width: "100%",
@@ -8944,9 +10163,12 @@ var MobileBottomBar = ({
   showLabels = true,
   activeColor = "#4f46e5",
   variant = "glass",
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalActiveTab, setInternalActiveTab] = React.useState(activeTab || defaultActiveTab);
   React.useEffect(() => {
     if (activeTab !== void 0) {
@@ -9014,51 +10236,69 @@ var MobileBottomBar = ({
     }
   };
   const isFloating = variant === "floating";
+  const getPresetActiveColor = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return "#000";
+      case "glassmorphism":
+        return "#6366f1";
+      case "gradient-glow":
+        return "#8b5cf6";
+      case "material-you":
+        return "#6750a4";
+      case "dark-first":
+        return "#60a5fa";
+      default:
+        return activeColor;
+    }
+  };
+  const getNavStyles = () => {
+    const base = {
+      position: "fixed",
+      bottom: isFloating ? "12px" : 0,
+      left: isFloating ? "16px" : 0,
+      right: isFloating ? "16px" : 0,
+      margin: isFloating ? "0 auto" : void 0,
+      maxWidth: isFloating ? "440px" : void 0,
+      borderRadius: isFloating ? "24px" : void 0,
+      zIndex: 50,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-around",
+      padding: isFloating ? "8px 10px" : "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
+      fontFamily: "inherit",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#ffffff", borderTop: isFloating ? "3px solid #000" : "3px solid #000", boxShadow: isFloating ? "0 -4px 0px #000" : "none" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255,255,255,0.82)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: isFloating ? "none" : "1px solid rgba(255,255,255,0.4)", border: isFloating ? "1px solid rgba(255,255,255,0.4)" : void 0, boxShadow: "0 -4px 24px rgba(0,0,0,0.08)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", border: "none", boxShadow: isFloating ? "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff" : "0 -4px 12px #d1d9e6" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", borderTop: isFloating ? "none" : "1px solid rgba(99,102,241,0.2)", boxShadow: `0 -4px 20px rgba(99,102,241,0.12)` };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface,#fffbfe)", borderTop: isFloating ? "none" : "1px solid var(--boost-border,#e2e8f0)", borderRadius: isFloating ? "28px" : "28px 28px 0 0" };
+      case "dark-first":
+        return { ...base, backgroundColor: "rgba(15,23,42,0.97)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 -4px 20px rgba(0,0,0,0.5)" };
+      default:
+        return { ...base, backgroundColor: variant === "solid" ? "var(--boost-surface,#ffffff)" : "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderTop: isFloating ? "none" : "1px solid rgba(226,232,240,0.8)", border: isFloating ? "1px solid rgba(226,232,240,0.8)" : void 0, boxShadow: isFloating ? "0 12px 30px rgba(0,0,0,0.15)" : "0 -4px 20px rgba(0,0,0,0.05)" };
+    }
+  };
+  const computedActiveColor = getPresetActiveColor();
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("style", { children: `
-        :root[data-theme="dark"] .boost-mobile-bottom-bar {
-          background-color: rgba(15, 23, 42, 0.94) !important;
-          border-top-color: rgba(255, 255, 255, 0.1) !important;
-          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn {
-          color: #94a3b8 !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-bottom-btn.is-active {
-          color: #818cf8 !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-bottom-bar .boost-badge-cart {
-          background-color: #6366f1 !important;
-          color: #ffffff !important;
-        }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} { background-color: rgba(15,23,42,0.97) !important; border-top-color: rgba(255,255,255,0.08) !important; box-shadow: 0 -4px 25px rgba(0,0,0,0.5) !important; }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} .boost-bottom-btn { color: #94a3b8 !important; }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} .boost-bottom-btn.is-active { color: #818cf8 !important; }
+        :root[data-theme="dark"] .boost-mobile-bottom-bar-preset-${preset} .boost-badge-cart { background-color: #6366f1 !important; color: #ffffff !important; }
       ` }),
     /* @__PURE__ */ jsx(
       "nav",
       {
-        className: `boost-mobile-bottom-bar ${className}`,
-        style: {
-          position: "fixed",
-          bottom: isFloating ? "12px" : 0,
-          left: isFloating ? "16px" : 0,
-          right: isFloating ? "16px" : 0,
-          margin: isFloating ? "0 auto" : void 0,
-          maxWidth: isFloating ? "440px" : void 0,
-          borderRadius: isFloating ? "24px" : void 0,
-          zIndex: 50,
-          backgroundColor: variant === "solid" ? "var(--boost-surface, #ffffff)" : "var(--boost-glass-bg, rgba(255, 255, 255, 0.92))",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          borderTop: isFloating ? "none" : "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
-          border: isFloating ? "1px solid var(--boost-border, rgba(226, 232, 240, 0.8))" : void 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-around",
-          padding: isFloating ? "8px 10px" : "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
-          boxShadow: isFloating ? "0 12px 30px rgba(0, 0, 0, 0.15)" : "var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))",
-          fontFamily: "inherit",
-          boxSizing: "border-box",
-          ...style
-        },
+        className: `boost-mobile-bottom-bar boost-mobile-bottom-bar-preset-${preset} ${className}`,
+        style: { ...getNavStyles(), ...style },
         children: barItems.map((item) => {
           const isActive = internalActiveTab === item.id;
           const badgeValue = item.id === "cart" ? cartCount || item.badge : item.id === "wishlist" ? wishlistCount || item.badge : item.badge;
@@ -9082,7 +10322,7 @@ var MobileBottomBar = ({
                 padding: "4px 8px",
                 flex: 1,
                 maxWidth: "80px",
-                color: isActive ? activeColor : "var(--boost-text-muted, #64748b)",
+                color: isActive ? computedActiveColor : "var(--boost-text-muted, #64748b)",
                 transition: "all 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
                 userSelect: "none",
                 WebkitTapHighlightColor: "transparent"
@@ -9161,9 +10401,12 @@ var MobileBottomNav = ({
   showLabels = true,
   activeColor = "#4f46e5",
   variant = "glass",
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalActiveId, setInternalActiveId] = React.useState(activeId || defaultActiveId || items[0]?.id);
   React.useEffect(() => {
     if (activeId !== void 0) {
@@ -9177,50 +10420,68 @@ var MobileBottomNav = ({
     }
   };
   const isFloating = variant === "floating";
+  const getPresetActiveColor = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return "#000";
+      case "glassmorphism":
+        return "#6366f1";
+      case "gradient-glow":
+        return "#8b5cf6";
+      case "material-you":
+        return "#6750a4";
+      case "dark-first":
+        return "#60a5fa";
+      default:
+        return activeColor;
+    }
+  };
+  const getNavStyles = () => {
+    const base = {
+      position: "fixed",
+      bottom: isFloating ? "12px" : 0,
+      left: isFloating ? "16px" : 0,
+      right: isFloating ? "16px" : 0,
+      margin: isFloating ? "0 auto" : void 0,
+      maxWidth: isFloating ? "440px" : void 0,
+      zIndex: 50,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-around",
+      padding: isFloating ? "8px 10px" : "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
+      fontFamily: "inherit",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#ffffff", borderRadius: isFloating ? "2px" : void 0, borderTop: "3px solid #000", boxShadow: isFloating ? "0 -4px 0px #000" : "none" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255,255,255,0.82)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRadius: isFloating ? "24px" : void 0, borderTop: isFloating ? "none" : "1px solid rgba(255,255,255,0.4)", border: isFloating ? "1px solid rgba(255,255,255,0.4)" : void 0, boxShadow: "0 -4px 24px rgba(0,0,0,0.08)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", borderRadius: isFloating ? "9999px" : void 0, border: "none", boxShadow: isFloating ? "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff" : "0 -4px 12px #d1d9e6" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", borderRadius: isFloating ? "24px" : void 0, borderTop: isFloating ? "none" : "1px solid rgba(99,102,241,0.2)", boxShadow: "0 -4px 20px rgba(99,102,241,0.12)" };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface,#fffbfe)", borderRadius: isFloating ? "28px" : "28px 28px 0 0", borderTop: isFloating ? "none" : "1px solid var(--boost-border,#e2e8f0)" };
+      case "dark-first":
+        return { ...base, backgroundColor: "rgba(15,23,42,0.97)", borderRadius: isFloating ? "24px" : void 0, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid rgba(255,255,255,0.06)", boxShadow: "0 -4px 20px rgba(0,0,0,0.5)" };
+      default:
+        return { ...base, backgroundColor: variant === "solid" ? "var(--boost-surface,#ffffff)" : "rgba(255,255,255,0.92)", borderRadius: isFloating ? "24px" : void 0, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderTop: isFloating ? "none" : "1px solid rgba(226,232,240,0.8)", border: isFloating ? "1px solid rgba(226,232,240,0.8)" : void 0, boxShadow: isFloating ? "0 12px 30px rgba(0,0,0,0.15)" : "0 -4px 20px rgba(0,0,0,0.05)" };
+    }
+  };
+  const computedActiveColor = getPresetActiveColor();
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("style", { children: `
-        :root[data-theme="dark"] .boost-mobile-bottom-nav {
-          background-color: rgba(15, 23, 42, 0.94) !important;
-          border-color: rgba(255, 255, 255, 0.1) !important;
-          box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5) !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-nav-btn {
-          color: #94a3b8 !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active {
-          color: #818cf8 !important;
-        }
-        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active .boost-icon-pill {
-          background-color: rgba(99, 102, 241, 0.18) !important;
-        }
+        :root[data-theme="dark"] .boost-mobile-bottom-nav-preset-${preset} { background-color: rgba(15,23,42,0.94) !important; border-color: rgba(255,255,255,0.1) !important; box-shadow: 0 -4px 25px rgba(0,0,0,0.5) !important; }
+        :root[data-theme="dark"] .boost-mobile-nav-btn { color: #94a3b8 !important; }
+        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active { color: #818cf8 !important; }
+        :root[data-theme="dark"] .boost-mobile-nav-btn.is-active .boost-icon-pill { background-color: rgba(99,102,241,0.18) !important; }
       ` }),
     /* @__PURE__ */ jsx(
       "nav",
       {
-        className: `boost-mobile-bottom-nav ${className}`,
-        style: {
-          position: "fixed",
-          bottom: isFloating ? "12px" : 0,
-          left: isFloating ? "16px" : 0,
-          right: isFloating ? "16px" : 0,
-          margin: isFloating ? "0 auto" : void 0,
-          maxWidth: isFloating ? "440px" : void 0,
-          borderRadius: isFloating ? "24px" : void 0,
-          zIndex: 50,
-          backgroundColor: variant === "solid" ? "var(--boost-surface, #ffffff)" : "var(--boost-glass-bg, rgba(255, 255, 255, 0.92))",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          borderTop: isFloating ? "none" : "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
-          border: isFloating ? "1px solid var(--boost-border, rgba(226, 232, 240, 0.8))" : void 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-around",
-          padding: isFloating ? "8px 10px" : "6px 4px calc(6px + env(safe-area-inset-bottom, 8px))",
-          boxShadow: isFloating ? "0 12px 30px rgba(0, 0, 0, 0.15)" : "var(--boost-shadow-md, 0 -4px 20px rgba(0, 0, 0, 0.05))",
-          fontFamily: "inherit",
-          boxSizing: "border-box",
-          ...style
-        },
+        className: `boost-mobile-bottom-nav boost-mobile-bottom-nav-preset-${preset} ${className}`,
+        style: { ...getNavStyles(), ...style },
         children: items.map((item) => {
           const isActive = item.id === internalActiveId;
           return /* @__PURE__ */ jsxs(
@@ -9240,7 +10501,7 @@ var MobileBottomNav = ({
                 cursor: "pointer",
                 position: "relative",
                 padding: "4px 6px",
-                color: isActive ? activeColor : "var(--boost-text-muted, #64748b)",
+                color: isActive ? computedActiveColor : "var(--boost-text-muted, #64748b)",
                 transition: "all 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
                 userSelect: "none",
                 WebkitTapHighlightColor: "transparent"
@@ -9579,8 +10840,11 @@ var DropdownMenu = ({
   trigger,
   items = [],
   align = "left",
-  className = ""
+  className = "",
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [isOpen, setIsOpen] = React.useState(false);
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
   const containerRef = React.useRef(null);
@@ -9652,6 +10916,62 @@ var DropdownMenu = ({
       itemRefs.current[last]?.focus();
     }
   };
+  const getPresetMenuStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "2px solid #000000",
+          boxShadow: "4px 4px 0px #000000",
+          borderRadius: "0px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.88))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderRadius: "12px",
+          boxShadow: "0 12px 30px rgba(0, 0, 0, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          border: "none",
+          borderRadius: "16px",
+          boxShadow: "6px 6px 14px #cbd5e1, -6px -6px 14px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          borderRadius: "12px",
+          boxShadow: "0 0 25px rgba(99, 102, 241, 0.3)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "20px",
+          border: "none",
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.12)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "10px",
+          boxShadow: "0 15px 30px rgba(0, 0, 0, 0.6)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "var(--boost-radius, 10px)",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -9679,28 +10999,43 @@ var DropdownMenu = ({
             role: "menu",
             "aria-orientation": "vertical",
             onKeyDown: handleMenuKeyDown,
-            className: "boost-dropdown-menu",
+            className: `boost-dropdown-menu boost-dropdown-preset-${preset}`,
             style: {
               position: "absolute",
               top: "calc(100% + 6px)",
               [align === "right" ? "right" : "left"]: 0,
               zIndex: 500,
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              borderRadius: "var(--boost-radius, 10px)",
-              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)",
               minWidth: "190px",
               padding: "6px",
               fontFamily: "inherit",
-              outline: "none"
+              outline: "none",
+              ...getPresetMenuStyles()
             },
             children: [
               /* @__PURE__ */ jsx("style", { children: `
               :root[data-theme="dark"] .boost-dropdown-menu,
               .dark .boost-dropdown-menu {
-                background-color: var(--boost-surface, #1e293b) !important;
+                background-color: var(--boost-surface, #1e293b);
+                border-color: rgba(255, 255, 255, 0.15);
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+              }
+              :root[data-theme="dark"] .boost-dropdown-preset-neo-brutalism {
+                background-color: #18181b !important;
+                border-color: #f8fafc !important;
+                box-shadow: 4px 4px 0px #f8fafc !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-preset-glassmorphism {
+                background-color: rgba(15, 23, 42, 0.88) !important;
                 border-color: rgba(255, 255, 255, 0.15) !important;
-                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-preset-neumorphism {
+                background-color: #0f172a !important;
+                box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
+              }
+              :root[data-theme="dark"] .boost-dropdown-preset-gradient-glow {
+                background-color: #0f172a !important;
+                border-color: rgba(99, 102, 241, 0.5) !important;
+                box-shadow: 0 0 30px rgba(99, 102, 241, 0.4) !important;
               }
               :root[data-theme="dark"] .boost-dropdown-item,
               .dark .boost-dropdown-item {
@@ -9782,9 +11117,12 @@ var MegaMenu = ({
   isOpen: controlledIsOpen,
   onOpenChange,
   onLinkClick,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalIsOpen, setInternalIsOpen] = React.useState(false);
   const isControlled = controlledIsOpen !== void 0;
   const open = isControlled ? controlledIsOpen : internalIsOpen;
@@ -9976,184 +11314,188 @@ var MegaMenu = ({
         }
       ` }),
         /* @__PURE__ */ jsx("div", { children: typeof trigger === "function" ? trigger({ isOpen: open }) : trigger || defaultTrigger }),
-        open && /* @__PURE__ */ jsxs(
-          "div",
-          {
-            className: "boost-megamenu-panel",
-            style: {
-              position: "absolute",
-              top: "calc(100% + 8px)",
-              left: 0,
-              zIndex: 500,
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              borderRadius: "16px",
-              boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.18)",
-              padding: "24px",
-              display: "flex",
-              gap: "28px",
-              minWidth: "640px",
-              maxWidth: "calc(100vw - 40px)",
-              fontFamily: "inherit",
-              boxSizing: "border-box",
-              animation: "boost-fadeIn 0.18s ease-out"
-            },
-            children: [
-              categories && categories.length > 1 && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  className: "megamenu-divider boost-megamenu-categories-bar",
-                  style: {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "4px",
-                    borderRight: "1px solid var(--boost-border, #f1f5f9)",
-                    paddingRight: "18px",
-                    minWidth: "130px"
-                  },
-                  children: categories.map((cat) => /* @__PURE__ */ jsxs(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: () => setActiveCategory(cat.id),
-                      className: `megamenu-category-btn ${activeCategory === cat.id ? "active" : ""}`,
-                      style: {
-                        textAlign: "left",
-                        padding: "8px 12px",
-                        borderRadius: "8px",
-                        border: "none",
-                        fontSize: "13px",
-                        fontWeight: activeCategory === cat.id ? 700 : 500,
-                        color: activeCategory === cat.id ? "var(--boost-primary, #4f46e5)" : "var(--boost-text-muted, #475569)",
-                        backgroundColor: activeCategory === cat.id ? "rgba(79, 70, 229, 0.08)" : "transparent",
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        whiteSpace: "nowrap",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px"
-                      },
-                      children: [
-                        cat.icon,
-                        /* @__PURE__ */ jsx("span", { children: cat.label })
-                      ]
+        open && (() => {
+          const getPanelStyles = () => {
+            const base = { position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 500, padding: "24px", display: "flex", gap: "28px", minWidth: "640px", maxWidth: "calc(100vw - 40px)", fontFamily: "inherit", boxSizing: "border-box", animation: "boost-fadeIn 0.18s ease-out" };
+            switch (preset) {
+              case "neo-brutalism":
+                return { ...base, backgroundColor: "#ffffff", border: "3px solid #000", borderRadius: "2px", boxShadow: "6px 6px 0px #000" };
+              case "glassmorphism":
+                return { ...base, backgroundColor: "rgba(255,255,255,0.8)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "18px", boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15)" };
+              case "neumorphism":
+                return { ...base, backgroundColor: "#e0e5ec", border: "none", borderRadius: "20px", boxShadow: "8px 8px 20px #c8cdd5, -8px -8px 20px #f8fdff" };
+              case "gradient-glow":
+                return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: "16px", boxShadow: "0 0 40px rgba(99,102,241,0.15), 0 20px 40px -10px rgba(0,0,0,0.12)" };
+              case "material-you":
+                return { ...base, backgroundColor: "var(--boost-surface,#fffbfe)", border: "1px solid var(--boost-border,#e2e8f0)", borderRadius: "28px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" };
+              case "dark-first":
+                return { ...base, backgroundColor: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.7)" };
+              default:
+                return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", border: "1px solid var(--boost-border,#e2e8f0)", borderRadius: "16px", boxShadow: "0 20px 40px -10px rgba(0,0,0,0.18)" };
+            }
+          };
+          return /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "boost-megamenu-panel",
+              style: getPanelStyles(),
+              children: [
+                categories && categories.length > 1 && /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    className: "megamenu-divider boost-megamenu-categories-bar",
+                    style: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                      borderRight: "1px solid var(--boost-border, #f1f5f9)",
+                      paddingRight: "18px",
+                      minWidth: "130px"
                     },
-                    cat.id
-                  ))
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                    gap: "24px",
-                    flex: 1
-                  },
-                  children: effectiveSections.map((section, idx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
-                    /* @__PURE__ */ jsx(
-                      "span",
+                    children: categories.map((cat) => /* @__PURE__ */ jsxs(
+                      "button",
                       {
-                        className: "megamenu-section-title",
+                        type: "button",
+                        onClick: () => setActiveCategory(cat.id),
+                        className: `megamenu-category-btn ${activeCategory === cat.id ? "active" : ""}`,
                         style: {
-                          fontSize: "11px",
-                          fontWeight: 800,
-                          color: "var(--boost-text, #0f172a)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.06em"
-                        },
-                        children: section.title
-                      }
-                    ),
-                    /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "6px" }, children: section.links.map((link, lIdx) => /* @__PURE__ */ jsxs(
-                      "a",
-                      {
-                        href: link.href,
-                        onClick: (e) => handleLinkSelect(link, e),
-                        className: "megamenu-link-row",
-                        style: {
-                          textDecoration: "none",
+                          textAlign: "left",
+                          padding: "8px 12px",
+                          borderRadius: "8px",
+                          border: "none",
+                          fontSize: "13px",
+                          fontWeight: activeCategory === cat.id ? 700 : 500,
+                          color: activeCategory === cat.id ? "var(--boost-primary, #4f46e5)" : "var(--boost-text-muted, #475569)",
+                          backgroundColor: activeCategory === cat.id ? "rgba(79, 70, 229, 0.08)" : "transparent",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                          whiteSpace: "nowrap",
                           display: "flex",
-                          flexDirection: "column",
-                          padding: "4px 6px",
-                          borderRadius: "6px",
-                          transition: "background-color 0.15s ease"
+                          alignItems: "center",
+                          gap: "8px"
                         },
                         children: [
-                          /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
-                            /* @__PURE__ */ jsx(
-                              "span",
-                              {
-                                className: "megamenu-link-label",
-                                style: {
-                                  fontSize: "13px",
-                                  fontWeight: 500,
-                                  color: "var(--boost-text, #334155)",
-                                  transition: "color 0.15s ease"
-                                },
-                                children: link.label
-                              }
-                            ),
-                            link.badge && /* @__PURE__ */ jsx(
-                              "span",
-                              {
-                                style: {
-                                  fontSize: "9px",
-                                  fontWeight: 700,
-                                  backgroundColor: "rgba(239, 68, 68, 0.12)",
-                                  color: "#ef4444",
-                                  padding: "1px 5px",
-                                  borderRadius: "4px"
-                                },
-                                children: link.badge
-                              }
-                            )
-                          ] }),
-                          link.description && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-text-muted, #94a3b8)", marginTop: "2px" }, children: link.description })
+                          cat.icon,
+                          /* @__PURE__ */ jsx("span", { children: cat.label })
                         ]
                       },
-                      lIdx
-                    )) })
-                  ] }, idx))
-                }
-              ),
-              featured !== void 0 ? /* @__PURE__ */ jsx("div", { className: "megamenu-divider", style: { borderLeft: "1px solid var(--boost-border, #f1f5f9)", paddingLeft: "20px", minWidth: "180px" }, children: featured }) : /* @__PURE__ */ jsx(
-                "div",
-                {
-                  className: "megamenu-divider",
-                  style: {
-                    borderLeft: "1px solid var(--boost-border, #f1f5f9)",
-                    paddingLeft: "20px",
-                    minWidth: "170px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between"
-                  },
-                  children: /* @__PURE__ */ jsxs(
-                    "div",
-                    {
-                      style: {
-                        background: "linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)",
-                        borderRadius: "12px",
-                        padding: "16px",
-                        border: "1px solid rgba(79, 70, 229, 0.2)",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px"
-                      },
-                      children: [
-                        /* @__PURE__ */ jsx("span", { style: { fontSize: "10px", fontWeight: 800, color: "var(--boost-primary, #4f46e5)", letterSpacing: "0.04em" }, children: "\u26A1 FESTIVE DROP" }),
-                        /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 700, color: "var(--boost-text, #0f172a)", lineHeight: 1.3 }, children: "Up to 50% Off New Essentials" }),
-                        /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-text-muted, #64748b)" }, children: "Use code FESTIVE50 at checkout" })
-                      ]
-                    }
-                  )
-                }
-              )
-            ]
-          }
-        )
+                      cat.id
+                    ))
+                  }
+                ),
+                /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    style: {
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                      gap: "24px",
+                      flex: 1
+                    },
+                    children: effectiveSections.map((section, idx) => /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+                      /* @__PURE__ */ jsx(
+                        "span",
+                        {
+                          className: "megamenu-section-title",
+                          style: {
+                            fontSize: "11px",
+                            fontWeight: 800,
+                            color: "var(--boost-text, #0f172a)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em"
+                          },
+                          children: section.title
+                        }
+                      ),
+                      /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "6px" }, children: section.links.map((link, lIdx) => /* @__PURE__ */ jsxs(
+                        "a",
+                        {
+                          href: link.href,
+                          onClick: (e) => handleLinkSelect(link, e),
+                          className: "megamenu-link-row",
+                          style: {
+                            textDecoration: "none",
+                            display: "flex",
+                            flexDirection: "column",
+                            padding: "4px 6px",
+                            borderRadius: "6px",
+                            transition: "background-color 0.15s ease"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                              /* @__PURE__ */ jsx(
+                                "span",
+                                {
+                                  className: "megamenu-link-label",
+                                  style: {
+                                    fontSize: "13px",
+                                    fontWeight: 500,
+                                    color: "var(--boost-text, #334155)",
+                                    transition: "color 0.15s ease"
+                                  },
+                                  children: link.label
+                                }
+                              ),
+                              link.badge && /* @__PURE__ */ jsx(
+                                "span",
+                                {
+                                  style: {
+                                    fontSize: "9px",
+                                    fontWeight: 700,
+                                    backgroundColor: "rgba(239, 68, 68, 0.12)",
+                                    color: "#ef4444",
+                                    padding: "1px 5px",
+                                    borderRadius: "4px"
+                                  },
+                                  children: link.badge
+                                }
+                              )
+                            ] }),
+                            link.description && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-text-muted, #94a3b8)", marginTop: "2px" }, children: link.description })
+                          ]
+                        },
+                        lIdx
+                      )) })
+                    ] }, idx))
+                  }
+                ),
+                featured !== void 0 ? /* @__PURE__ */ jsx("div", { className: "megamenu-divider", style: { borderLeft: "1px solid var(--boost-border, #f1f5f9)", paddingLeft: "20px", minWidth: "180px" }, children: featured }) : /* @__PURE__ */ jsx(
+                  "div",
+                  {
+                    className: "megamenu-divider",
+                    style: {
+                      borderLeft: "1px solid var(--boost-border, #f1f5f9)",
+                      paddingLeft: "20px",
+                      minWidth: "170px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between"
+                    },
+                    children: /* @__PURE__ */ jsxs(
+                      "div",
+                      {
+                        style: {
+                          background: "linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)",
+                          borderRadius: "12px",
+                          padding: "16px",
+                          border: "1px solid rgba(79, 70, 229, 0.2)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsx("span", { style: { fontSize: "10px", fontWeight: 800, color: "var(--boost-primary, #4f46e5)", letterSpacing: "0.04em" }, children: "\u26A1 FESTIVE DROP" }),
+                          /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", fontWeight: 700, color: "var(--boost-text, #0f172a)", lineHeight: 1.3 }, children: "Up to 50% Off New Essentials" }),
+                          /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", color: "var(--boost-text-muted, #64748b)" }, children: "Use code FESTIVE50 at checkout" })
+                        ]
+                      }
+                    )
+                  }
+                )
+              ]
+            }
+          );
+        })()
       ]
     }
   );
@@ -10163,8 +11505,12 @@ var Pagination = ({
   currentPage,
   totalPages,
   onPageChange,
-  className = ""
+  stylePreset: stylePresetProp,
+  className = "",
+  style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const getPages = () => {
     const pages = [];
     if (totalPages <= 7) {
@@ -10180,137 +11526,55 @@ var Pagination = ({
     }
     return pages;
   };
+  const getBtnBaseStyles = (isCurrent, disabled) => {
+    const base = {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "34px",
+      height: "34px",
+      fontSize: "13px",
+      fontFamily: "inherit",
+      cursor: disabled ? "not-allowed" : "pointer",
+      opacity: disabled ? 0.35 : 1,
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, border: isCurrent ? "3px solid #000" : "2px solid #000", borderRadius: "2px", backgroundColor: isCurrent ? "#fbbf24" : "#ffffff", color: "#000", fontWeight: isCurrent ? 800 : 500, boxShadow: isCurrent ? "3px 3px 0px #000" : "2px 2px 0px #000" };
+      case "glassmorphism":
+        return { ...base, border: isCurrent ? "1px solid rgba(99,102,241,0.5)" : "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", backgroundColor: isCurrent ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", color: isCurrent ? "#6366f1" : "var(--boost-text,#0f172a)", fontWeight: isCurrent ? 700 : 500 };
+      case "neumorphism":
+        return { ...base, border: "none", borderRadius: "9999px", backgroundColor: "#e0e5ec", color: isCurrent ? "var(--boost-primary,#2563eb)" : "#64748b", fontWeight: isCurrent ? 700 : 500, boxShadow: isCurrent ? "inset 3px 3px 7px #c8cdd5, inset -3px -3px 7px #f8fdff" : "3px 3px 7px #c8cdd5, -3px -3px 7px #f8fdff" };
+      case "gradient-glow":
+        return { ...base, border: isCurrent ? "none" : "1px solid var(--boost-border,#e2e8f0)", borderRadius: "8px", background: isCurrent ? "linear-gradient(135deg,#6366f1,#8b5cf6)" : "var(--boost-surface,#ffffff)", color: isCurrent ? "#ffffff" : "var(--boost-text,#334155)", fontWeight: isCurrent ? 700 : 500, boxShadow: isCurrent ? "0 0 14px rgba(99,102,241,0.4)" : "none" };
+      case "material-you":
+        return { ...base, border: "none", borderRadius: "9999px", backgroundColor: isCurrent ? "var(--boost-primary,#6750a4)" : "transparent", color: isCurrent ? "#ffffff" : "var(--boost-text,#1c1b1f)", fontWeight: isCurrent ? 700 : 500 };
+      case "dark-first":
+        return { ...base, border: isCurrent ? "1px solid #3b82f6" : "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", backgroundColor: isCurrent ? "#1e3a5f" : "#0f172a", color: isCurrent ? "#60a5fa" : "#94a3b8", fontWeight: isCurrent ? 700 : 500 };
+      default:
+        return { ...base, border: isCurrent ? "1px solid var(--boost-primary,#2563eb)" : "1px solid var(--boost-border,#cbd5e1)", borderRadius: "var(--boost-radius,8px)", backgroundColor: isCurrent ? "var(--boost-primary,#2563eb)" : "var(--boost-surface,#ffffff)", color: isCurrent ? "#ffffff" : "var(--boost-text,#334155)", fontWeight: isCurrent ? 700 : 500 };
+    }
+  };
+  const getNavBtnStyles = (disabled) => ({
+    ...getBtnBaseStyles(false, disabled)
+  });
   return /* @__PURE__ */ jsxs(
     "nav",
     {
       "aria-label": "Pagination",
-      className: `boost-pagination ${className}`,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-        fontFamily: "inherit",
-        flexWrap: "wrap"
-      },
+      className: `boost-pagination boost-pagination-preset-${preset} ${className}`,
+      style: { display: "inline-flex", alignItems: "center", gap: preset === "neumorphism" ? "8px" : "6px", fontFamily: "inherit", flexWrap: "wrap", ...style },
       children: [
-        /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-pagination-btn,
-          .dark .boost-pagination-btn {
-            background-color: var(--boost-surface, #1e293b) !important;
-            border-color: rgba(255, 255, 255, 0.15) !important;
-            color: #f8fafc !important;
-          }
-          :root[data-theme="dark"] .boost-pagination-btn:hover:not(:disabled),
-          .dark .boost-pagination-btn:hover:not(:disabled) {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-          }
-          :root[data-theme="dark"] .boost-pagination-btn.active,
-          .dark .boost-pagination-btn.active {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-            border-color: #6366f1 !important;
-            color: #ffffff !important;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4) !important;
-          }
-          :root[data-theme="dark"] .boost-pagination-ellipsis,
-          .dark .boost-pagination-ellipsis {
-            color: #64748b !important;
-          }
-        ` }),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            disabled: currentPage === 1,
-            onClick: () => onPageChange(currentPage - 1),
-            "aria-label": "Previous page",
-            className: "boost-pagination-btn",
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "34px",
-              height: "34px",
-              border: "1px solid var(--boost-border, #cbd5e1)",
-              borderRadius: "var(--boost-radius, 8px)",
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              color: "var(--boost-text, #334155)",
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              opacity: currentPage === 1 ? 0.35 : 1,
-              transition: "all 0.15s ease"
-            },
-            children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" }) })
-          }
-        ),
+        /* @__PURE__ */ jsx("button", { type: "button", disabled: currentPage === 1, onClick: () => onPageChange(currentPage - 1), "aria-label": "Previous page", style: getNavBtnStyles(currentPage === 1), children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" }) }) }),
         getPages().map((page, idx) => {
           if (typeof page === "string") {
-            return /* @__PURE__ */ jsx(
-              "span",
-              {
-                className: "boost-pagination-ellipsis",
-                style: {
-                  width: "30px",
-                  height: "34px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "var(--boost-muted, #94a3b8)",
-                  fontSize: "13px"
-                },
-                children: "..."
-              },
-              idx
-            );
+            return /* @__PURE__ */ jsx("span", { style: { width: "30px", height: "34px", display: "inline-flex", alignItems: "center", justifyContent: "center", color: preset === "dark-first" ? "#64748b" : "var(--boost-text-muted,#94a3b8)", fontSize: "13px" }, children: "..." }, idx);
           }
           const isCurrent = page === currentPage;
-          return /* @__PURE__ */ jsx(
-            "button",
-            {
-              type: "button",
-              onClick: () => onPageChange(page),
-              "aria-current": isCurrent ? "page" : void 0,
-              className: `boost-pagination-btn ${isCurrent ? "active" : ""}`,
-              style: {
-                width: "34px",
-                height: "34px",
-                border: isCurrent ? "1px solid var(--boost-primary, #2563eb)" : "1px solid var(--boost-border, #cbd5e1)",
-                borderRadius: "var(--boost-radius, 8px)",
-                backgroundColor: isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-surface, #ffffff)",
-                color: isCurrent ? "#ffffff" : "var(--boost-text, #334155)",
-                fontSize: "13px",
-                fontWeight: isCurrent ? 700 : 500,
-                cursor: "pointer",
-                transition: "all 0.15s ease"
-              },
-              children: page
-            },
-            idx
-          );
+          return /* @__PURE__ */ jsx("button", { type: "button", onClick: () => onPageChange(page), "aria-current": isCurrent ? "page" : void 0, className: `boost-pagination-btn ${isCurrent ? "active" : ""}`, style: getBtnBaseStyles(isCurrent), children: page }, idx);
         }),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            disabled: currentPage === totalPages,
-            onClick: () => onPageChange(currentPage + 1),
-            "aria-label": "Next page",
-            className: "boost-pagination-btn",
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "34px",
-              height: "34px",
-              border: "1px solid var(--boost-border, #cbd5e1)",
-              borderRadius: "var(--boost-radius, 8px)",
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              color: "var(--boost-text, #334155)",
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-              opacity: currentPage === totalPages ? 0.35 : 1,
-              transition: "all 0.15s ease"
-            },
-            children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" }) })
-          }
-        )
+        /* @__PURE__ */ jsx("button", { type: "button", disabled: currentPage === totalPages, onClick: () => onPageChange(currentPage + 1), "aria-label": "Next page", style: getNavBtnStyles(currentPage === totalPages), children: /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" }) }) })
       ]
     }
   );
@@ -10329,9 +11593,12 @@ var Tabs = (({
   onValueChange,
   onChange,
   children,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const tabList = items || tabs || [];
   const currentActive = controlledValue !== void 0 ? controlledValue : controlledId !== void 0 ? controlledId : controlledTab;
   const [internalTab, setInternalTab] = React.useState(
@@ -10339,9 +11606,7 @@ var Tabs = (({
   );
   const active = currentActive !== void 0 ? currentActive : internalTab;
   const handleTabClick = (id) => {
-    if (currentActive === void 0) {
-      setInternalTab(id);
-    }
+    if (currentActive === void 0) setInternalTab(id);
     if (onValueChange) onValueChange(id);
     if (onChange) onChange(id);
   };
@@ -10371,109 +11636,87 @@ var Tabs = (({
       if (btn) btn.focus();
     }
   };
-  return /* @__PURE__ */ jsx(TabsContext.Provider, { value: { active, setActive: handleTabClick }, children: /* @__PURE__ */ jsxs("div", { className: `boost-tabs ${className}`, style: { fontFamily: "inherit", width: "100%", ...style }, children: [
+  const getHeaderStyles = () => {
+    const base = { display: "flex", gap: "4px", overflowX: "auto", WebkitOverflowScrolling: "touch" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, borderBottom: "3px solid #000", gap: "2px" };
+      case "glassmorphism":
+        return { ...base, borderBottom: "1px solid rgba(255,255,255,0.2)", backgroundColor: "rgba(255,255,255,0.1)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", borderRadius: "12px 12px 0 0", padding: "4px 4px 0" };
+      case "neumorphism":
+        return { ...base, borderBottom: "none", backgroundColor: "#e0e5ec", padding: "8px", borderRadius: "14px", gap: "8px" };
+      case "gradient-glow":
+        return { ...base, borderBottom: "1px solid rgba(99,102,241,0.2)" };
+      case "material-you":
+        return { ...base, borderBottom: "1px solid var(--boost-border,#e2e8f0)", gap: "0" };
+      case "dark-first":
+        return { ...base, borderBottom: "1px solid rgba(255,255,255,0.08)", backgroundColor: "#0f172a" };
+      default:
+        return { ...base, borderBottom: "1px solid var(--boost-border,#e2e8f0)", gap: "8px" };
+    }
+  };
+  const getTabItemStyles = (isActive, disabled) => {
+    const base = {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "8px",
+      padding: "10px 16px",
+      fontSize: "14px",
+      fontFamily: "inherit",
+      fontWeight: isActive ? 600 : 500,
+      border: "none",
+      cursor: disabled ? "not-allowed" : "pointer",
+      opacity: disabled ? 0.5 : 1,
+      whiteSpace: "nowrap",
+      transition: "all 0.15s ease",
+      backgroundColor: "transparent"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, color: "#000", fontWeight: isActive ? 800 : 500, borderBottom: isActive ? "3px solid #000" : "3px solid transparent", backgroundColor: isActive ? "#fbbf24" : "transparent", borderRadius: "2px 2px 0 0" };
+      case "glassmorphism":
+        return { ...base, color: isActive ? "var(--boost-primary,#6366f1)" : "var(--boost-text-muted,#64748b)", backgroundColor: isActive ? "rgba(99,102,241,0.12)" : "transparent", borderRadius: "8px", borderBottom: isActive ? "2px solid rgba(99,102,241,0.7)" : "2px solid transparent" };
+      case "neumorphism":
+        return { ...base, color: isActive ? "var(--boost-primary,#2563eb)" : "#64748b", backgroundColor: isActive ? "#e0e5ec" : "transparent", borderRadius: "10px", boxShadow: isActive ? "inset 3px 3px 7px #c8cdd5, inset -3px -3px 7px #f8fdff" : "none", border: "none" };
+      case "gradient-glow":
+        return { ...base, color: isActive ? "var(--boost-primary,#6366f1)" : "var(--boost-text-muted,#64748b)", borderBottom: isActive ? "2px solid var(--boost-primary,#6366f1)" : "2px solid transparent", textShadow: isActive ? "0 0 12px rgba(99,102,241,0.5)" : "none" };
+      case "material-you":
+        return { ...base, color: isActive ? "var(--boost-primary,#6750a4)" : "var(--boost-text-muted,#49454f)", borderBottom: isActive ? "3px solid var(--boost-primary,#6750a4)" : "3px solid transparent", borderRadius: "0", padding: "12px 20px" };
+      case "dark-first":
+        return { ...base, color: isActive ? "#60a5fa" : "#64748b", borderBottom: isActive ? "2px solid #60a5fa" : "2px solid transparent", backgroundColor: "transparent" };
+      default:
+        return { ...base, color: isActive ? "var(--boost-primary,#2563eb)" : "var(--boost-text-muted,#64748b)", borderBottom: isActive ? "2px solid var(--boost-primary,#2563eb)" : "2px solid transparent" };
+    }
+  };
+  return /* @__PURE__ */ jsx(TabsContext.Provider, { value: { active, setActive: handleTabClick, preset }, children: /* @__PURE__ */ jsxs("div", { className: `boost-tabs boost-tabs-preset-${preset} ${className}`, style: { fontFamily: "inherit", width: "100%", ...style }, children: [
     /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-tabs .boost-tab-header,
-          .dark .boost-tabs .boost-tab-header {
-            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-          }
-          :root[data-theme="dark"] .boost-tabs .boost-tab-item,
-          .dark .boost-tabs .boost-tab-item {
-            color: #94a3b8 !important;
-          }
-          :root[data-theme="dark"] .boost-tabs .boost-tab-item:hover:not(:disabled),
-          .dark .boost-tabs .boost-tab-item:hover:not(:disabled) {
-            color: #ffffff !important;
-          }
-          :root[data-theme="dark"] .boost-tabs .boost-tab-item.active,
-          .dark .boost-tabs .boost-tab-item.active {
-            color: #818cf8 !important;
-            border-bottom-color: #6366f1 !important;
-          }
-          :root[data-theme="dark"] .boost-tabs .boost-tab-badge,
-          .dark .boost-tabs .boost-tab-badge {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-            color: #cbd5e1 !important;
-          }
-          :root[data-theme="dark"] .boost-tabs .boost-tab-badge.active,
-          .dark .boost-tabs .boost-tab-badge.active {
-            background-color: rgba(99, 102, 241, 0.2) !important;
-            color: #818cf8 !important;
-          }
-          :root[data-theme="dark"] .boost-tabs .boost-tab-panel,
-          .dark .boost-tabs .boost-tab-panel {
-            color: #cbd5e1 !important;
-          }
+          :root[data-theme="dark"] .boost-tabs-preset-${preset} .boost-tab-panel { color: #cbd5e1 !important; }
+          :root[data-theme="dark"] .boost-tabs-preset-${preset} .boost-tab-header { border-bottom-color: rgba(255,255,255,0.1) !important; }
         ` }),
-    /* @__PURE__ */ jsx(
-      "div",
-      {
-        role: "tablist",
-        "aria-orientation": "horizontal",
-        className: "boost-tab-header",
-        onKeyDown: handleKeyDown,
-        style: {
-          display: "flex",
-          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
-          gap: "8px",
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch"
+    /* @__PURE__ */ jsx("div", { role: "tablist", "aria-orientation": "horizontal", className: "boost-tab-header", onKeyDown: handleKeyDown, style: getHeaderStyles(), children: tabList.map((tab) => {
+      const isActive = tab.id === active;
+      return /* @__PURE__ */ jsxs(
+        "button",
+        {
+          id: `boost-tab-${tab.id}`,
+          role: "tab",
+          "aria-selected": isActive,
+          "aria-controls": `boost-tabpanel-${tab.id}`,
+          tabIndex: isActive ? 0 : -1,
+          disabled: tab.disabled,
+          onClick: () => handleTabClick(tab.id),
+          className: `boost-tab-item ${isActive ? "active" : ""}`,
+          style: getTabItemStyles(isActive, tab.disabled),
+          children: [
+            tab.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: tab.icon }),
+            /* @__PURE__ */ jsx("span", { children: tab.label }),
+            tab.badge !== void 0 && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", padding: "2px 6px", borderRadius: preset === "neo-brutalism" ? "2px" : "9999px", backgroundColor: isActive ? "rgba(37,99,235,0.1)" : "var(--boost-surface-secondary,#f1f5f9)", color: isActive ? "var(--boost-primary,#1d4ed8)" : "var(--boost-text-muted,#64748b)", fontWeight: 600, border: preset === "neo-brutalism" ? "1px solid #000" : "none" }, children: tab.badge })
+          ]
         },
-        children: tabList.map((tab) => {
-          const isActive = tab.id === active;
-          return /* @__PURE__ */ jsxs(
-            "button",
-            {
-              id: `boost-tab-${tab.id}`,
-              role: "tab",
-              "aria-selected": isActive,
-              "aria-controls": `boost-tabpanel-${tab.id}`,
-              tabIndex: isActive ? 0 : -1,
-              disabled: tab.disabled,
-              onClick: () => handleTabClick(tab.id),
-              className: `boost-tab-item ${isActive ? "active" : ""}`,
-              style: {
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "10px 16px",
-                fontSize: "14px",
-                fontWeight: isActive ? 600 : 500,
-                color: isActive ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #64748b)",
-                backgroundColor: "transparent",
-                border: "none",
-                borderBottom: isActive ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
-                cursor: tab.disabled ? "not-allowed" : "pointer",
-                opacity: tab.disabled ? 0.5 : 1,
-                whiteSpace: "nowrap",
-                transition: "all 0.15s ease"
-              },
-              children: [
-                tab.icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: tab.icon }),
-                /* @__PURE__ */ jsx("span", { children: tab.label }),
-                tab.badge !== void 0 && /* @__PURE__ */ jsx(
-                  "span",
-                  {
-                    className: `boost-tab-badge ${isActive ? "active" : ""}`,
-                    style: {
-                      fontSize: "11px",
-                      padding: "2px 6px",
-                      borderRadius: "9999px",
-                      backgroundColor: isActive ? "rgba(37, 99, 235, 0.1)" : "var(--boost-bg-subtle, #f1f5f9)",
-                      color: isActive ? "var(--boost-primary, #1d4ed8)" : "var(--boost-text-muted, #64748b)",
-                      fontWeight: 600
-                    },
-                    children: tab.badge
-                  }
-                )
-              ]
-            },
-            tab.id
-          );
-        })
-      }
-    ),
-    children ? children : /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
+        tab.id
+      );
+    }) }),
+    children ? children : /* @__PURE__ */ jsx(
       "div",
       {
         role: "tabpanel",
@@ -10481,105 +11724,63 @@ var Tabs = (({
         "aria-labelledby": currentTab ? `boost-tab-${currentTab.id}` : void 0,
         tabIndex: 0,
         className: "boost-tab-panel",
-        style: { padding: "16px 0", color: "var(--boost-text, #334155)", fontSize: "14px", lineHeight: 1.6 },
+        style: { padding: preset === "neumorphism" ? "16px 8px 0" : "16px 0", color: preset === "dark-first" ? "#cbd5e1" : "var(--boost-text,#334155)", fontSize: "14px", lineHeight: 1.6 },
         children: currentTab ? currentTab.content : null
       }
-    ) })
+    )
   ] }) });
 });
 var TabsList = ({ children, className = "", style, ...props }) => {
-  return /* @__PURE__ */ jsx(
-    "div",
-    {
-      role: "tablist",
-      "aria-orientation": "horizontal",
-      className: `boost-tab-header ${className}`,
-      style: {
-        display: "flex",
-        borderBottom: "1px solid var(--boost-border, #e2e8f0)",
-        gap: "8px",
-        overflowX: "auto",
-        WebkitOverflowScrolling: "touch",
-        ...style
-      },
-      ...props,
-      children
+  const ctx = useTabsContext();
+  const preset = ctx?.preset ?? "minimal";
+  const getHeaderStyles = () => {
+    const base = { display: "flex", gap: "4px", overflowX: "auto", WebkitOverflowScrolling: "touch" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, borderBottom: "3px solid #000" };
+      case "glassmorphism":
+        return { ...base, borderBottom: "1px solid rgba(255,255,255,0.2)", backgroundColor: "rgba(255,255,255,0.1)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", borderRadius: "12px 12px 0 0", padding: "4px 4px 0" };
+      case "neumorphism":
+        return { ...base, borderBottom: "none", backgroundColor: "#e0e5ec", padding: "8px", borderRadius: "14px", gap: "8px" };
+      case "dark-first":
+        return { ...base, borderBottom: "1px solid rgba(255,255,255,0.08)", backgroundColor: "#0f172a" };
+      default:
+        return { ...base, borderBottom: "1px solid var(--boost-border,#e2e8f0)", gap: "8px" };
     }
-  );
+  };
+  return /* @__PURE__ */ jsx("div", { role: "tablist", "aria-orientation": "horizontal", className: `boost-tab-header ${className}`, style: { ...getHeaderStyles(), ...style }, ...props, children });
 };
-var TabsTrigger = ({
-  value,
-  children,
-  icon,
-  badge,
-  disabled,
-  className = "",
-  style,
-  ...props
-}) => {
+var TabsTrigger = ({ value, children, icon, badge, disabled, className = "", style, ...props }) => {
   const ctx = useTabsContext();
   const isActive = ctx ? ctx.active === value : false;
-  return /* @__PURE__ */ jsxs(
-    "button",
-    {
-      type: "button",
-      id: `boost-tab-${value}`,
-      role: "tab",
-      "aria-selected": isActive,
-      "aria-controls": `boost-tabpanel-${value}`,
-      tabIndex: isActive ? 0 : -1,
-      disabled,
-      onClick: () => ctx?.setActive(value),
-      className: `boost-tab-item ${isActive ? "active" : ""} ${className}`,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "10px 16px",
-        fontSize: "14px",
-        fontWeight: isActive ? 600 : 500,
-        color: isActive ? "var(--boost-primary, #2563eb)" : "var(--boost-text-muted, #64748b)",
-        backgroundColor: "transparent",
-        border: "none",
-        borderBottom: isActive ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        whiteSpace: "nowrap",
-        transition: "all 0.15s ease",
-        ...style
-      },
-      ...props,
-      children: [
-        icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: icon }),
-        /* @__PURE__ */ jsx("span", { children }),
-        badge !== void 0 && /* @__PURE__ */ jsx(
-          "span",
-          {
-            className: `boost-tab-badge ${isActive ? "active" : ""}`,
-            style: {
-              fontSize: "11px",
-              padding: "2px 6px",
-              borderRadius: "9999px",
-              backgroundColor: isActive ? "rgba(37, 99, 235, 0.1)" : "var(--boost-bg-subtle, #f1f5f9)",
-              color: isActive ? "var(--boost-primary, #1d4ed8)" : "var(--boost-text-muted, #64748b)",
-              fontWeight: 600
-            },
-            children: badge
-          }
-        )
-      ]
+  const preset = ctx?.preset ?? "minimal";
+  const getStyles = () => {
+    const base = { display: "inline-flex", alignItems: "center", gap: "8px", padding: "10px 16px", fontSize: "14px", fontFamily: "inherit", fontWeight: isActive ? 600 : 500, border: "none", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1, whiteSpace: "nowrap", transition: "all 0.15s ease", backgroundColor: "transparent" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, color: "#000", fontWeight: isActive ? 800 : 500, borderBottom: isActive ? "3px solid #000" : "3px solid transparent", backgroundColor: isActive ? "#fbbf24" : "transparent", borderRadius: "2px 2px 0 0" };
+      case "glassmorphism":
+        return { ...base, color: isActive ? "var(--boost-primary,#6366f1)" : "var(--boost-text-muted,#64748b)", backgroundColor: isActive ? "rgba(99,102,241,0.12)" : "transparent", borderRadius: "8px", borderBottom: isActive ? "2px solid rgba(99,102,241,0.7)" : "2px solid transparent" };
+      case "neumorphism":
+        return { ...base, color: isActive ? "var(--boost-primary,#2563eb)" : "#64748b", backgroundColor: "#e0e5ec", borderRadius: "10px", boxShadow: isActive ? "inset 3px 3px 7px #c8cdd5, inset -3px -3px 7px #f8fdff" : "none", border: "none" };
+      case "dark-first":
+        return { ...base, color: isActive ? "#60a5fa" : "#64748b", borderBottom: isActive ? "2px solid #60a5fa" : "2px solid transparent" };
+      case "material-you":
+        return { ...base, color: isActive ? "var(--boost-primary,#6750a4)" : "var(--boost-text-muted,#49454f)", borderBottom: isActive ? "3px solid var(--boost-primary,#6750a4)" : "3px solid transparent", padding: "12px 20px" };
+      default:
+        return { ...base, color: isActive ? "var(--boost-primary,#2563eb)" : "var(--boost-text-muted,#64748b)", borderBottom: isActive ? "2px solid var(--boost-primary,#2563eb)" : "2px solid transparent" };
     }
-  );
+  };
+  return /* @__PURE__ */ jsxs("button", { type: "button", id: `boost-tab-${value}`, role: "tab", "aria-selected": isActive, "aria-controls": `boost-tabpanel-${value}`, tabIndex: isActive ? 0 : -1, disabled, onClick: () => ctx?.setActive(value), className: `boost-tab-item ${isActive ? "active" : ""} ${className}`, style: { ...getStyles(), ...style }, ...props, children: [
+    icon && /* @__PURE__ */ jsx("span", { style: { display: "inline-flex" }, children: icon }),
+    /* @__PURE__ */ jsx("span", { children }),
+    badge !== void 0 && /* @__PURE__ */ jsx("span", { style: { fontSize: "11px", padding: "2px 6px", borderRadius: preset === "neo-brutalism" ? "2px" : "9999px", backgroundColor: isActive ? "rgba(37,99,235,0.1)" : "var(--boost-surface-secondary,#f1f5f9)", color: isActive ? "var(--boost-primary,#1d4ed8)" : "var(--boost-text-muted,#64748b)", fontWeight: 600, border: preset === "neo-brutalism" ? "1px solid #000" : "none" }, children: badge })
+  ] });
 };
-var TabsContent = ({
-  value,
-  children,
-  className = "",
-  style,
-  ...props
-}) => {
+var TabsContent = ({ value, children, className = "", style, ...props }) => {
   const ctx = useTabsContext();
   if (ctx && ctx.active !== value) return null;
+  const preset = ctx?.preset ?? "minimal";
   return /* @__PURE__ */ jsx(
     "div",
     {
@@ -10588,13 +11789,7 @@ var TabsContent = ({
       "aria-labelledby": `boost-tab-${value}`,
       tabIndex: 0,
       className: `boost-tab-panel ${className}`,
-      style: {
-        padding: "16px 0",
-        color: "var(--boost-text, #334155)",
-        fontSize: "14px",
-        lineHeight: 1.6,
-        ...style
-      },
+      style: { padding: preset === "neumorphism" ? "16px 8px 0" : "16px 0", color: preset === "dark-first" ? "#cbd5e1" : "var(--boost-text,#334155)", fontSize: "14px", lineHeight: 1.6, ...style },
       ...props,
       children
     }
@@ -10604,14 +11799,98 @@ Tabs.List = TabsList;
 Tabs.Trigger = TabsTrigger;
 Tabs.Content = TabsContent;
 Tabs.displayName = "Tabs";
+TabsList.displayName = "TabsList";
+TabsTrigger.displayName = "TabsTrigger";
+TabsContent.displayName = "TabsContent";
 var Stepper = ({
   steps = [],
   activeStep,
   currentStep,
   onStepClick,
+  stylePreset: stylePresetProp,
   className = ""
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const activeIdx = currentStep !== void 0 ? currentStep - 1 : activeStep ?? 0;
+  const getCircleStyles = (isCompleted, isCurrent) => {
+    const base = {
+      width: "32px",
+      height: "32px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "13px",
+      fontWeight: 700,
+      transition: "all 0.2s ease",
+      flexShrink: 0
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          border: "2px solid #000000",
+          backgroundColor: isCompleted ? "#10b981" : isCurrent ? "#fbbf24" : "#ffffff",
+          color: "#000000",
+          boxShadow: isCurrent ? "3px 3px 0px #000000" : "2px 2px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "50%",
+          border: "1px solid rgba(255, 255, 255, 0.5)",
+          backgroundColor: isCompleted ? "rgba(16, 185, 129, 0.85)" : isCurrent ? "rgba(99, 102, 241, 0.85)" : "rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          color: isCompleted || isCurrent ? "#ffffff" : "#64748b",
+          boxShadow: isCurrent ? "0 0 14px rgba(99, 102, 241, 0.5)" : "none"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "50%",
+          border: "none",
+          backgroundColor: "#e0e5ec",
+          color: isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "#94a3b8",
+          boxShadow: isCurrent ? "inset 2px 2px 5px #c8cdd5, inset -2px -2px 5px #f8fdff" : "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "50%",
+          background: isCompleted ? "linear-gradient(135deg, #10b981, #059669)" : isCurrent ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "var(--boost-surface, #ffffff)",
+          border: isCompleted || isCurrent ? "none" : "1px solid rgba(99, 102, 241, 0.2)",
+          color: isCompleted || isCurrent ? "#ffffff" : "#94a3b8",
+          boxShadow: isCompleted ? "0 0 12px rgba(16, 185, 129, 0.5)" : isCurrent ? "0 0 16px rgba(99, 102, 241, 0.6)" : "none"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "50%",
+          border: "none",
+          backgroundColor: isCompleted ? "#386a20" : isCurrent ? "var(--boost-primary, #6750a4)" : "var(--boost-surface-secondary, #e8def8)",
+          color: isCompleted || isCurrent ? "#ffffff" : "#49454f"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "50%",
+          border: `1px solid ${isCompleted ? "#10b981" : isCurrent ? "#3b82f6" : "rgba(255, 255, 255, 0.12)"}`,
+          backgroundColor: isCompleted ? "#059669" : isCurrent ? "#2563eb" : "#1e293b",
+          color: isCompleted || isCurrent ? "#ffffff" : "#64748b"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "50%",
+          backgroundColor: isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-bg-subtle, #f1f5f9)",
+          color: isCompleted || isCurrent ? "#ffffff" : "var(--boost-muted, #64748b)",
+          border: `2px solid ${isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-border, #cbd5e1)"}`
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -10676,22 +11955,8 @@ var Stepper = ({
                   /* @__PURE__ */ jsx(
                     "div",
                     {
-                      className: `boost-stepper-circle ${circleState}`,
-                      style: {
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        backgroundColor: isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-bg-subtle, #f1f5f9)",
-                        color: isCompleted || isCurrent ? "#ffffff" : "var(--boost-muted, #64748b)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        border: `2px solid ${isCompleted ? "#10b981" : isCurrent ? "var(--boost-primary, #2563eb)" : "var(--boost-border, #cbd5e1)"}`,
-                        transition: "all 0.2s ease",
-                        flexShrink: 0
-                      },
+                      className: `boost-stepper-circle boost-stepper-circle-preset-${preset} ${circleState}`,
+                      style: getCircleStyles(isCompleted, isCurrent),
                       children: isCompleted ? /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) : idx + 1
                     }
                   ),
@@ -10800,50 +12065,130 @@ function Table({
   striped = false,
   bordered = true,
   hoverable = true,
+  stylePreset: stylePresetProp,
   className = "",
   keyExtractor = (_, idx) => idx
 }) {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
+  const getTableWrapperStyles = () => {
+    const base = {
+      width: "100%",
+      overflowX: "auto",
+      WebkitOverflowScrolling: "touch",
+      fontFamily: "inherit"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          border: bordered ? "3px solid #000" : "none",
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+          boxShadow: "5px 5px 0px #000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          border: bordered ? "1px solid rgba(255, 255, 255, 0.4)" : "none",
+          borderRadius: "16px",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.07)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          border: "none",
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          boxShadow: "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          border: bordered ? "1px solid rgba(99, 102, 241, 0.2)" : "none",
+          borderRadius: "12px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          boxShadow: "0 0 20px rgba(99, 102, 241, 0.08)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          border: bordered ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          border: bordered ? "1px solid rgba(255, 255, 255, 0.08)" : "none",
+          borderRadius: "12px",
+          backgroundColor: "#0f172a",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.4)"
+        };
+      default:
+        return {
+          ...base,
+          border: bordered ? "1px solid var(--boost-border, #e2e8f0)" : "none",
+          borderRadius: "var(--boost-radius, 12px)",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.03))"
+        };
+    }
+  };
+  const getHeaderRowStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return { backgroundColor: "#fef08a", borderBottom: "3px solid #000" };
+      case "glassmorphism":
+        return { backgroundColor: "rgba(255, 255, 255, 0.3)", borderBottom: "1px solid rgba(255, 255, 255, 0.3)" };
+      case "neumorphism":
+        return { backgroundColor: "#e0e5ec", borderBottom: "1px solid #d1d9e6" };
+      case "gradient-glow":
+        return { backgroundColor: "rgba(99, 102, 241, 0.05)", borderBottom: "1px solid rgba(99, 102, 241, 0.15)" };
+      case "material-you":
+        return { backgroundColor: "var(--boost-surface-secondary, #f3edf7)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" };
+      case "dark-first":
+        return { backgroundColor: "#1e293b", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" };
+      default:
+        return { backgroundColor: "var(--boost-bg-subtle, #f8fafc)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-table-wrapper ${className}`,
-      style: {
-        width: "100%",
-        overflowX: "auto",
-        WebkitOverflowScrolling: "touch",
-        border: bordered ? "1px solid var(--boost-border, #e2e8f0)" : "none",
-        borderRadius: "var(--boost-radius, 12px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0,0,0,0.03))",
-        fontFamily: "inherit"
-      },
+      className: `boost-table-wrapper boost-table-wrapper-preset-${preset} ${className}`,
+      style: getTableWrapperStyles(),
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-table-wrapper,
-          .dark .boost-table-wrapper {
+          :root[data-theme="dark"] .boost-table-wrapper-preset-${preset},
+          .dark .boost-table-wrapper-preset-${preset} {
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
           }
-          :root[data-theme="dark"] .boost-table-wrapper thead tr,
-          .dark .boost-table-wrapper thead tr {
+          :root[data-theme="dark"] .boost-table-wrapper-preset-${preset} thead tr,
+          .dark .boost-table-wrapper-preset-${preset} thead tr {
             background-color: rgba(255, 255, 255, 0.04) !important;
             border-bottom-color: rgba(255, 255, 255, 0.1) !important;
           }
-          :root[data-theme="dark"] .boost-table-wrapper th,
-          .dark .boost-table-wrapper th {
+          :root[data-theme="dark"] .boost-table-wrapper-preset-${preset} th,
+          .dark .boost-table-wrapper-preset-${preset} th {
             color: #f8fafc !important;
           }
-          :root[data-theme="dark"] .boost-table-wrapper td,
-          .dark .boost-table-wrapper td {
+          :root[data-theme="dark"] .boost-table-wrapper-preset-${preset} td,
+          .dark .boost-table-wrapper-preset-${preset} td {
             color: #cbd5e1 !important;
             border-bottom-color: rgba(255, 255, 255, 0.06) !important;
           }
-          :root[data-theme="dark"] .boost-table-wrapper tr.boost-table-row:hover,
-          .dark .boost-table-wrapper tr.boost-table-row:hover {
+          :root[data-theme="dark"] .boost-table-wrapper-preset-${preset} tr.boost-table-row:hover,
+          .dark .boost-table-wrapper-preset-${preset} tr.boost-table-row:hover {
             background-color: rgba(255, 255, 255, 0.03) !important;
           }
-          :root[data-theme="dark"] .boost-table-wrapper tr.boost-table-striped,
-          .dark .boost-table-wrapper tr.boost-table-striped {
+          :root[data-theme="dark"] .boost-table-wrapper-preset-${preset} tr.boost-table-striped,
+          .dark .boost-table-wrapper-preset-${preset} tr.boost-table-striped {
             background-color: rgba(255, 255, 255, 0.02) !important;
           }
         ` }),
@@ -10859,7 +12204,7 @@ function Table({
               color: "var(--boost-text, #334155)"
             },
             children: [
-              /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsx("tr", { style: { backgroundColor: "var(--boost-bg-subtle, #f8fafc)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" }, children: columns.map((col, idx) => /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsx("tr", { style: getHeaderRowStyles(), children: columns.map((col, idx) => /* @__PURE__ */ jsx(
                 "th",
                 {
                   style: {
@@ -10943,9 +12288,12 @@ function DataTable({
   totalCount,
   page: controlledPage,
   onPageChange,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [searchQuery, setSearchQuery] = React.useState("");
   const [internalPage, setInternalPage] = React.useState(1);
   const [internalSelectedRows, setInternalSelectedRows] = React.useState([]);
@@ -11059,10 +12407,154 @@ function DataTable({
     document.body.removeChild(link);
   };
   const isAllSelected = paginatedData.length > 0 && selectedRows.length === paginatedData.length;
+  const getTableCardStyles = () => {
+    const base = {
+      width: "100%",
+      overflowX: "auto",
+      maxHeight: maxHeight || void 0,
+      overflowY: maxHeight ? "auto" : void 0,
+      WebkitOverflowScrolling: "touch",
+      position: "relative"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          border: "3px solid #000",
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+          boxShadow: "5px 5px 0px #000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "16px",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.07)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          border: "none",
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          boxShadow: "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          border: "1px solid rgba(99, 102, 241, 0.2)",
+          borderRadius: "12px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          boxShadow: "0 0 20px rgba(99, 102, 241, 0.08)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "12px",
+          backgroundColor: "#0f172a",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.4)"
+        };
+      default:
+        return {
+          ...base,
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "var(--boost-radius, 12px)",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))"
+        };
+    }
+  };
+  const getHeaderRowStyles = () => {
+    const base = {
+      position: stickyHeader ? "sticky" : void 0,
+      top: stickyHeader ? 0 : void 0,
+      zIndex: stickyHeader ? 2 : void 0
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#fef08a", borderBottom: "3px solid #000" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255, 255, 255, 0.3)", borderBottom: "1px solid rgba(255, 255, 255, 0.3)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", borderBottom: "1px solid #d1d9e6" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "rgba(99, 102, 241, 0.05)", borderBottom: "1px solid rgba(99, 102, 241, 0.15)" };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface-secondary, #f3edf7)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" };
+      case "dark-first":
+        return { ...base, backgroundColor: "#1e293b", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" };
+      default:
+        return { ...base, backgroundColor: "var(--boost-bg, #f8fafc)", borderBottom: "1px solid var(--boost-border, #e2e8f0)" };
+    }
+  };
+  const getExportBtnStyles = () => {
+    const base = {
+      padding: "6px 12px",
+      fontSize: "12px",
+      fontWeight: 600,
+      cursor: "pointer",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          color: "#000000",
+          border: "2px solid #000000",
+          borderRadius: "2px",
+          boxShadow: "2px 2px 0px #000000",
+          fontWeight: 700
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.6)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          color: "var(--boost-text, #0f172a)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "8px"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-text, #0f172a)",
+          border: "none",
+          borderRadius: "8px",
+          boxShadow: "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
+          color: "var(--boost-text, #0f172a)",
+          border: "1px solid var(--boost-border, #cbd5e1)",
+          borderRadius: "8px"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-data-table ${className}`,
+      className: `boost-data-table boost-data-table-preset-${preset} ${className}`,
       style: {
         fontFamily: "inherit",
         display: "flex",
@@ -11074,27 +12566,27 @@ function DataTable({
       },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-data-table .boost-data-table-card,
-          .dark .boost-data-table .boost-data-table-card {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} .boost-data-table-card,
+          .dark .boost-data-table-preset-${preset} .boost-data-table-card {
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
           }
-          :root[data-theme="dark"] .boost-data-table thead tr,
-          .dark .boost-data-table thead tr {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} thead tr,
+          .dark .boost-data-table-preset-${preset} thead tr {
             background-color: rgba(255, 255, 255, 0.04) !important;
             border-bottom-color: rgba(255, 255, 255, 0.1) !important;
           }
-          :root[data-theme="dark"] .boost-data-table th,
-          .dark .boost-data-table th {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} th,
+          .dark .boost-data-table-preset-${preset} th {
             color: #f8fafc !important;
           }
-          :root[data-theme="dark"] .boost-data-table td,
-          .dark .boost-data-table td {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} td,
+          .dark .boost-data-table-preset-${preset} td {
             color: #cbd5e1 !important;
             border-bottom-color: rgba(255, 255, 255, 0.06) !important;
           }
-          :root[data-theme="dark"] .boost-data-table tbody tr:hover,
-          .dark .boost-data-table tbody tr:hover {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} tbody tr:hover,
+          .dark .boost-data-table-preset-${preset} tbody tr:hover {
             background-color: rgba(255, 255, 255, 0.03) !important;
           }
           .boost-table-sort-btn {
@@ -11141,19 +12633,7 @@ function DataTable({
               {
                 type: "button",
                 onClick: handleExportCSV,
-                style: {
-                  backgroundColor: "var(--boost-surface-secondary, #f1f5f9)",
-                  color: "var(--boost-text, #0f172a)",
-                  border: "1px solid var(--boost-border, #cbd5e1)",
-                  padding: "6px 12px",
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px"
-                },
+                style: getExportBtnStyles(),
                 children: [
                   /* @__PURE__ */ jsxs("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [
                     /* @__PURE__ */ jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
@@ -11170,29 +12650,12 @@ function DataTable({
           "div",
           {
             className: "boost-data-table-card",
-            style: {
-              width: "100%",
-              overflowX: "auto",
-              maxHeight: maxHeight || void 0,
-              overflowY: maxHeight ? "auto" : void 0,
-              WebkitOverflowScrolling: "touch",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              borderRadius: "var(--boost-radius, 12px)",
-              backgroundColor: "var(--boost-surface, #ffffff)",
-              boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))",
-              position: "relative"
-            },
+            style: getTableCardStyles(),
             children: /* @__PURE__ */ jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "13px", textAlign: "left", color: "var(--boost-text, #334155)", minWidth: "480px" }, children: [
               /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs(
                 "tr",
                 {
-                  style: {
-                    backgroundColor: "var(--boost-bg, #f8fafc)",
-                    borderBottom: "1px solid var(--boost-border, #e2e8f0)",
-                    position: stickyHeader ? "sticky" : void 0,
-                    top: stickyHeader ? 0 : void 0,
-                    zIndex: stickyHeader ? 2 : void 0
-                  },
+                  style: getHeaderRowStyles(),
                   children: [
                     selectable && /* @__PURE__ */ jsx("th", { style: { width: "40px", padding: "13px 16px" }, children: /* @__PURE__ */ jsx(
                       "input",
@@ -11288,7 +12751,8 @@ function DataTable({
           {
             currentPage,
             totalPages,
-            onPageChange: handlePageChange
+            onPageChange: handlePageChange,
+            stylePreset: preset
           }
         ) })
       ]
@@ -11305,76 +12769,68 @@ var StatsCard = ({
   period = "vs last month",
   description,
   icon,
-  className = ""
+  stylePreset: stylePresetProp,
+  className = "",
+  style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const computedChange = change !== void 0 ? change : typeof trend === "object" && trend !== null ? `${trend.value > 0 && !String(trend.value).includes("+") ? "+" : ""}${trend.value}%` : trend !== void 0 ? trend : void 0;
   const computedIsPositive = typeof trend === "object" && trend !== null && trend.isPositive !== void 0 ? trend.isPositive : isPositive;
   const computedPeriod = description || period;
+  const getCardStyles = () => {
+    const base = {
+      fontFamily: "inherit",
+      width: "100%",
+      boxSizing: "border-box",
+      padding: "clamp(16px, 2.5vw, 22px)",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#ffffff", border: "3px solid #000", borderRadius: "2px", boxShadow: "5px 5px 0px #000" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "16px", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", border: "none", borderRadius: "20px", boxShadow: "8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "var(--boost-surface, #ffffff)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: "14px", boxShadow: "0 0 24px rgba(99,102,241,0.14)" };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface, #fffbfe)", border: "1px solid var(--boost-border, #e2e8f0)", borderRadius: "24px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" };
+      case "dark-first":
+        return { ...base, backgroundColor: "#0f172a", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" };
+      default:
+        return { ...base, backgroundColor: "var(--boost-surface, #ffffff)", border: "1px solid var(--boost-border, #e2e8f0)", borderRadius: "var(--boost-radius, 16px)", boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0,0,0,0.05))" };
+    }
+  };
+  const textColor = preset === "dark-first" ? "#f8fafc" : preset === "neo-brutalism" ? "#000" : "var(--boost-text, #0f172a)";
+  const mutedColor = preset === "dark-first" ? "#64748b" : preset === "neo-brutalism" ? "#374151" : "var(--boost-text-muted, #64748b)";
+  const iconBg = preset === "neo-brutalism" ? "#fbbf24" : preset === "dark-first" ? "#1e293b" : preset === "neumorphism" ? "#e0e5ec" : "var(--boost-surface-secondary, #f1f5f9)";
+  const iconShadow = preset === "neumorphism" ? "3px 3px 7px #c8cdd5, -3px -3px 7px #f8fdff" : "none";
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-stats-card ${className}`,
-      style: {
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        borderRadius: "var(--boost-radius, 16px)",
-        padding: "clamp(16px, 2.5vw, 22px)",
-        fontFamily: "inherit",
-        boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05))",
-        width: "100%",
-        boxSizing: "border-box",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease"
-      },
+      className: `boost-stats-card boost-stats-card-preset-${preset} ${className}`,
+      style: { ...getCardStyles(), ...style },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-stats-card,
-          .dark .boost-stats-card {
-            background-color: var(--boost-surface, #1e293b) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
-          }
-        ` }),
+        :root[data-theme="dark"] .boost-stats-card-preset-${preset} {
+          background-color: var(--boost-surface, #1e293b) !important;
+          border-color: rgba(255,255,255,0.1) !important;
+          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5) !important;
+        }
+      ` }),
         /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
-          /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 600, color: "var(--boost-text-muted, #64748b)" }, children: title }),
-          icon && /* @__PURE__ */ jsx(
-            "div",
-            {
-              style: {
-                width: "38px",
-                height: "38px",
-                borderRadius: "10px",
-                backgroundColor: "var(--boost-bg, #f1f5f9)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--boost-primary, #2563eb)"
-              },
-              children: icon
-            }
-          )
+          /* @__PURE__ */ jsx("span", { style: { fontSize: "13px", fontWeight: 600, color: mutedColor }, children: title }),
+          icon && /* @__PURE__ */ jsx("div", { style: { width: "38px", height: "38px", borderRadius: preset === "material-you" ? "16px" : preset === "neo-brutalism" ? "2px" : "10px", backgroundColor: iconBg, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--boost-primary, #2563eb)", boxShadow: iconShadow, border: preset === "neo-brutalism" ? "2px solid #000" : "none" }, children: icon })
         ] }),
-        /* @__PURE__ */ jsx("div", { style: { fontSize: "clamp(22px, 2.5vw, 28px)", fontWeight: 800, color: "var(--boost-text, #0f172a)", marginBottom: "8px", letterSpacing: "-0.02em" }, children: value }),
+        /* @__PURE__ */ jsx("div", { style: { fontSize: "clamp(22px,2.5vw,28px)", fontWeight: 800, color: textColor, marginBottom: "8px", letterSpacing: "-0.02em" }, children: value }),
         computedChange !== void 0 && /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px", fontSize: "12px" }, children: [
-          /* @__PURE__ */ jsxs(
-            "span",
-            {
-              style: {
-                fontWeight: 700,
-                color: computedIsPositive ? "#16a34a" : "#dc2626",
-                backgroundColor: computedIsPositive ? "rgba(34, 197, 94, 0.1)" : "rgba(220, 38, 38, 0.1)",
-                padding: "2px 8px",
-                borderRadius: "9999px",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "3px"
-              },
-              children: [
-                computedIsPositive ? /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "18 15 12 9 6 15" }) }) : /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) }),
-                computedChange
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsx("span", { style: { color: "var(--boost-text-muted, #94a3b8)" }, children: computedPeriod })
+          /* @__PURE__ */ jsxs("span", { style: { fontWeight: 700, color: computedIsPositive ? "#16a34a" : "#dc2626", backgroundColor: computedIsPositive ? "rgba(34,197,94,0.1)" : "rgba(220,38,38,0.1)", padding: "2px 8px", borderRadius: preset === "neo-brutalism" ? "2px" : "9999px", display: "inline-flex", alignItems: "center", gap: "3px", border: preset === "neo-brutalism" ? `1px solid ${computedIsPositive ? "#16a34a" : "#dc2626"}` : "none" }, children: [
+            computedIsPositive ? /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "18 15 12 9 6 15" }) }) : /* @__PURE__ */ jsx("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "6 9 12 15 18 9" }) }),
+            computedChange
+          ] }),
+          /* @__PURE__ */ jsx("span", { style: { color: mutedColor }, children: computedPeriod })
         ] })
       ]
     }
@@ -11389,39 +12845,48 @@ var KPIWidget = ({
   icon,
   subtitle,
   sparkline,
+  stylePreset: stylePresetProp,
   className = "",
   style,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const numericChange = typeof change === "string" ? parseFloat(change.replace("%", "").replace("+", "")) : change;
   const isPositive = numericChange !== void 0 && !isNaN(numericChange) ? numericChange >= 0 : void 0;
+  const getCardStyles = () => {
+    const base = { padding: "clamp(16px,3.5vw,24px)", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", transition: "transform 0.2s ease, box-shadow 0.2s ease" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#ffffff", border: "3px solid #000", borderRadius: "2px", boxShadow: "5px 5px 0px #000" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "16px", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", border: "none", borderRadius: "20px", boxShadow: "8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: "14px", boxShadow: "0 0 24px rgba(99,102,241,0.14)" };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface,#fffbfe)", border: "1px solid var(--boost-border,#e2e8f0)", borderRadius: "24px" };
+      case "dark-first":
+        return { ...base, backgroundColor: "#0f172a", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" };
+      default:
+        return { ...base, borderRadius: "var(--boost-radius,16px)", backgroundColor: "var(--boost-surface,#ffffff)", border: "1px solid var(--boost-border,#e2e8f0)", boxShadow: "var(--boost-shadow-sm,0 4px 12px rgba(0,0,0,0.04))" };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-kpi-widget ${className}`,
-      style: {
-        padding: "clamp(16px, 3.5vw, 24px)",
-        borderRadius: "var(--boost-radius, 16px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        boxShadow: "var(--boost-shadow-sm, 0 4px 12px rgba(0, 0, 0, 0.04))",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        boxSizing: "border-box",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        ...style
-      },
+      className: `boost-kpi-widget boost-kpi-widget-preset-${preset} ${className}`,
+      style: { ...getCardStyles(), ...style },
       ...props,
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-kpi-widget,
-          .dark .boost-kpi-widget {
-            background-color: var(--boost-surface, #1e293b) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
-          }
-        ` }),
+        :root[data-theme="dark"] .boost-kpi-widget-preset-${preset} {
+          background-color: var(--boost-surface, #1e293b) !important;
+          border-color: rgba(255,255,255,0.1) !important;
+          box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5) !important;
+        }
+      ` }),
         /* @__PURE__ */ jsxs(
           "div",
           {
@@ -12556,8 +14021,11 @@ var NotificationCenter = ({
   onClearAll,
   title = "Notifications",
   emptyText = "You have no new notifications.",
+  stylePreset: stylePresetProp,
   className = ""
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [isOpen, setIsOpen] = React.useState(false);
   const [filter, setFilter] = React.useState("all");
   const containerRef = React.useRef(null);
@@ -12579,11 +14047,82 @@ var NotificationCenter = ({
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
+  const getPopoverStyles = () => {
+    const base = {
+      position: "absolute",
+      top: "calc(100% + 8px)",
+      right: 0,
+      width: "360px",
+      maxWidth: "90vw",
+      zIndex: 99999,
+      overflow: "hidden"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          border: "3px solid #000",
+          borderRadius: "2px",
+          boxShadow: "6px 6px 0px #000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "18px",
+          boxShadow: "0 20px 40px -10px rgba(31, 38, 135, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          borderRadius: "16px",
+          boxShadow: "8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          borderRadius: "14px",
+          boxShadow: "0 0 30px rgba(99, 102, 241, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.1)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "28px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#0f172a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "14px",
+          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.7)"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-bg, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "var(--boost-radius, 12px)",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: containerRef,
-      className: `boost-notification-center ${className}`,
+      className: `boost-notification-center boost-notification-center-preset-${preset} ${className}`,
       style: { position: "relative", display: "inline-block" },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
@@ -12703,19 +14242,7 @@ var NotificationCenter = ({
             "div",
             {
               className: "boost-notification-popover",
-              style: {
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                width: "360px",
-                maxWidth: "90vw",
-                backgroundColor: "var(--boost-bg, #ffffff)",
-                border: "1px solid var(--boost-border, #e2e8f0)",
-                borderRadius: "var(--boost-radius, 12px)",
-                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-                zIndex: 99999,
-                overflow: "hidden"
-              },
+              style: getPopoverStyles(),
               children: [
                 /* @__PURE__ */ jsxs(
                   "div",
@@ -13537,8 +15064,11 @@ var LoginForm = ({
   title = "Sign In",
   subtitle = "Welcome back! Please enter your details.",
   className = "",
-  style
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -13573,22 +15103,165 @@ var LoginForm = ({
     if (Object.keys(errs).length > 0) return;
     onSubmit?.({ identifier: identifier.trim(), password, rememberMe });
   };
+  const getCardPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 18px #d1d9e6, -8px -8px 18px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 30px rgba(99, 102, 241, 0.25)",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-surface-variant, #f3edf7)",
+          border: "none",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+        };
+      case "dark-first":
+        return {
+          border: "1px solid #334155",
+          backgroundColor: "#0f172a",
+          borderRadius: "16px",
+          boxShadow: "0 12px 35px -5px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "16px",
+          boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))"
+        };
+    }
+  };
+  const getInputPresetStyles = (hasError) => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: hasError ? "3px solid #ef4444" : "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: hasError ? "1px solid #ef4444" : "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "10px"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "10px",
+          boxShadow: hasError ? "inset 2px 2px 4px rgba(239, 68, 68, 0.4)" : "inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          backgroundColor: "#ffffff",
+          border: hasError ? "2px solid #ef4444" : "1px solid rgba(0,0,0,0.08)"
+        };
+      default:
+        return {};
+    }
+  };
+  const getButtonPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#000000",
+          color: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-primary, #6366f1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "10px",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.35)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          color: "var(--boost-text-primary, #0f172a)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff",
+          fontWeight: 700
+        };
+      case "gradient-glow":
+        return {
+          background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)",
+          color: "#ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#38bdf8",
+          color: "#0f172a",
+          fontWeight: 700,
+          borderRadius: "10px"
+        };
+      case "minimal":
+      default:
+        return {};
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-auth-card ${className || ""}`,
+      className: `boost-auth-card boost-auth-preset-${preset} ${className || ""}`,
       style: {
         maxWidth: "420px",
         width: "100%",
         margin: "0 auto",
         padding: "clamp(24px, 5vw, 40px) clamp(18px, 4vw, 32px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        borderRadius: "var(--boost-radius, 16px)",
-        boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
         fontFamily: "inherit",
         boxSizing: "border-box",
         transition: "all 0.2s ease",
+        ...getCardPresetStyles(),
         ...style
       },
       children: [
@@ -13626,7 +15299,7 @@ var LoginForm = ({
               marginBottom: "20px",
               backgroundColor: "rgba(239, 68, 68, 0.08)",
               border: "1px solid rgba(239, 68, 68, 0.2)",
-              borderRadius: "var(--boost-radius, 10px)",
+              borderRadius: preset === "neo-brutalism" ? "0px" : "var(--boost-radius, 10px)",
               color: "#ef4444",
               fontSize: "13px",
               fontWeight: 500
@@ -13665,7 +15338,8 @@ var LoginForm = ({
                   border: `1px solid ${errors.identifier ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                   borderRadius: "var(--boost-radius, 10px)",
                   outline: "none",
-                  transition: "all 0.2s ease"
+                  transition: "all 0.2s ease",
+                  ...getInputPresetStyles(!!errors.identifier)
                 }
               }
             ),
@@ -13722,7 +15396,8 @@ var LoginForm = ({
                     border: `1px solid ${errors.password ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                     borderRadius: "var(--boost-radius, 10px)",
                     outline: "none",
-                    transition: "all 0.2s ease"
+                    transition: "all 0.2s ease",
+                    ...getInputPresetStyles(!!errors.password)
                   }
                 }
               ),
@@ -13804,7 +15479,8 @@ var LoginForm = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px"
+                gap: "8px",
+                ...getButtonPresetStyles()
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
@@ -13858,8 +15534,13 @@ var RegisterForm = ({
   loading = false,
   errorMessage,
   title = "Create an account",
-  subtitle = "Start your experience in just a few clicks."
+  subtitle = "Start your experience in just a few clicks.",
+  className = "",
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -13902,22 +15583,166 @@ var RegisterForm = ({
     if (Object.keys(errs).length > 0) return;
     onSubmit?.({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() || void 0, password, acceptTerms });
   };
+  const getCardPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 18px #d1d9e6, -8px -8px 18px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 30px rgba(99, 102, 241, 0.25)",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-surface-variant, #f3edf7)",
+          border: "none",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+        };
+      case "dark-first":
+        return {
+          border: "1px solid #334155",
+          backgroundColor: "#0f172a",
+          borderRadius: "16px",
+          boxShadow: "0 12px 35px -5px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "16px",
+          boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))"
+        };
+    }
+  };
+  const getInputPresetStyles = (hasError) => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: hasError ? "3px solid #ef4444" : "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: hasError ? "1px solid #ef4444" : "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "10px"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "10px",
+          boxShadow: hasError ? "inset 2px 2px 4px rgba(239, 68, 68, 0.4)" : "inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          backgroundColor: "#ffffff",
+          border: hasError ? "2px solid #ef4444" : "1px solid rgba(0,0,0,0.08)"
+        };
+      default:
+        return {};
+    }
+  };
+  const getButtonPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#000000",
+          color: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-primary, #6366f1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "10px",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.35)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          color: "var(--boost-text-primary, #0f172a)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff",
+          fontWeight: 700
+        };
+      case "gradient-glow":
+        return {
+          background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)",
+          color: "#ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#38bdf8",
+          color: "#0f172a",
+          fontWeight: 700,
+          borderRadius: "10px"
+        };
+      case "minimal":
+      default:
+        return {};
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: "boost-auth-card",
+      className: `boost-auth-card boost-auth-preset-${preset} ${className || ""}`,
       style: {
         maxWidth: "440px",
         width: "100%",
         margin: "0 auto",
         padding: "clamp(24px, 5vw, 40px) clamp(18px, 4vw, 32px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        borderRadius: "var(--boost-radius, 16px)",
-        boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
         fontFamily: "inherit",
         boxSizing: "border-box",
-        transition: "all 0.2s ease"
+        transition: "all 0.2s ease",
+        ...getCardPresetStyles(),
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
@@ -13954,7 +15779,7 @@ var RegisterForm = ({
               marginBottom: "20px",
               backgroundColor: "rgba(239, 68, 68, 0.08)",
               border: "1px solid rgba(239, 68, 68, 0.2)",
-              borderRadius: "var(--boost-radius, 10px)",
+              borderRadius: preset === "neo-brutalism" ? "0px" : "var(--boost-radius, 10px)",
               color: "#ef4444",
               fontSize: "13px",
               fontWeight: 500
@@ -13982,6 +15807,7 @@ var RegisterForm = ({
                   if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: void 0 }));
                 },
                 placeholder: "John Doe",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
@@ -13992,7 +15818,8 @@ var RegisterForm = ({
                   border: `1px solid ${errors.fullName ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                   borderRadius: "var(--boost-radius, 10px)",
                   outline: "none",
-                  transition: "all 0.2s ease"
+                  transition: "all 0.2s ease",
+                  ...getInputPresetStyles(!!errors.fullName)
                 }
               }
             ),
@@ -14017,6 +15844,7 @@ var RegisterForm = ({
                   if (errors.email) setErrors((prev) => ({ ...prev, email: void 0 }));
                 },
                 placeholder: "you@example.com",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
@@ -14027,7 +15855,8 @@ var RegisterForm = ({
                   border: `1px solid ${errors.email ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                   borderRadius: "var(--boost-radius, 10px)",
                   outline: "none",
-                  transition: "all 0.2s ease"
+                  transition: "all 0.2s ease",
+                  ...getInputPresetStyles(!!errors.email)
                 }
               }
             ),
@@ -14052,6 +15881,7 @@ var RegisterForm = ({
                   if (errors.phone) setErrors((prev) => ({ ...prev, phone: void 0 }));
                 },
                 placeholder: "+91 98765 43210",
+                className: "boost-auth-input",
                 style: {
                   width: "100%",
                   boxSizing: "border-box",
@@ -14062,7 +15892,8 @@ var RegisterForm = ({
                   border: `1px solid ${errors.phone ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                   borderRadius: "var(--boost-radius, 10px)",
                   outline: "none",
-                  transition: "all 0.2s ease"
+                  transition: "all 0.2s ease",
+                  ...getInputPresetStyles(!!errors.phone)
                 }
               }
             ),
@@ -14088,6 +15919,7 @@ var RegisterForm = ({
                     if (errors.password) setErrors((prev) => ({ ...prev, password: void 0 }));
                   },
                   placeholder: "Create a strong password",
+                  className: "boost-auth-input",
                   style: {
                     width: "100%",
                     boxSizing: "border-box",
@@ -14098,7 +15930,8 @@ var RegisterForm = ({
                     border: `1px solid ${errors.password ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
                     borderRadius: "var(--boost-radius, 10px)",
                     outline: "none",
-                    transition: "all 0.2s ease"
+                    transition: "all 0.2s ease",
+                    ...getInputPresetStyles(!!errors.password)
                   }
                 }
               ),
@@ -14196,7 +16029,8 @@ var RegisterForm = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px"
+                gap: "8px",
+                ...getButtonPresetStyles()
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
@@ -14249,30 +16083,211 @@ var ForgotPassword = ({
   onBackToLogin,
   loading = false,
   successMessage,
-  errorMessage
+  errorMessage,
+  className = "",
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [email, setEmail] = useState("");
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email) return;
     onSubmit?.(email);
   };
+  const getCardPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 18px #d1d9e6, -8px -8px 18px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 30px rgba(99, 102, 241, 0.25)",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-surface-variant, #f3edf7)",
+          border: "none",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+        };
+      case "dark-first":
+        return {
+          border: "1px solid #334155",
+          backgroundColor: "#0f172a",
+          borderRadius: "16px",
+          boxShadow: "0 12px 35px -5px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "16px",
+          boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))"
+        };
+    }
+  };
+  const getInputPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: errorMessage ? "3px solid #ef4444" : "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: errorMessage ? "1px solid #ef4444" : "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "10px"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "10px",
+          boxShadow: errorMessage ? "inset 2px 2px 4px rgba(239, 68, 68, 0.4)" : "inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          backgroundColor: "#ffffff",
+          border: errorMessage ? "2px solid #ef4444" : "1px solid rgba(0,0,0,0.08)"
+        };
+      default:
+        return {};
+    }
+  };
+  const getButtonPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#000000",
+          color: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-primary, #6366f1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "10px",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.35)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          color: "var(--boost-text-primary, #0f172a)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff",
+          fontWeight: 700
+        };
+      case "gradient-glow":
+        return {
+          background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)",
+          color: "#ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#38bdf8",
+          color: "#0f172a",
+          fontWeight: 700,
+          borderRadius: "10px"
+        };
+      case "minimal":
+      default:
+        return {};
+    }
+  };
+  const getIconPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff",
+          color: "#000000"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          boxShadow: "inset 2px 2px 5px #d1d9e6, inset -2px -2px 5px #ffffff",
+          color: "var(--boost-primary, #6366f1)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          backgroundColor: "#eaddff",
+          color: "#21005d"
+        };
+      default:
+        return {
+          borderRadius: "24px",
+          backgroundColor: "rgba(99, 102, 241, 0.12)",
+          color: "var(--boost-primary, #6366f1)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: "boost-auth-card",
+      className: `boost-auth-card boost-auth-preset-${preset} ${className}`,
       style: {
         maxWidth: "420px",
         width: "100%",
         margin: "0 auto",
         padding: "clamp(24px, 5vw, 36px) clamp(18px, 4vw, 28px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        borderRadius: "var(--boost-radius, 16px)",
-        boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
         fontFamily: "inherit",
         boxSizing: "border-box",
-        transition: "all 0.2s ease"
+        transition: "all 0.2s ease",
+        ...getCardPresetStyles(),
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
@@ -14301,13 +16316,11 @@ var ForgotPassword = ({
               style: {
                 width: "48px",
                 height: "48px",
-                borderRadius: "24px",
-                backgroundColor: "rgba(99, 102, 241, 0.12)",
-                color: "var(--boost-primary, #6366f1)",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "12px"
+                marginBottom: "12px",
+                ...getIconPresetStyles()
               },
               children: /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
                 /* @__PURE__ */ jsx("rect", { x: "3", y: "11", width: "18", height: "11", rx: "2", ry: "2" }),
@@ -14325,7 +16338,7 @@ var ForgotPassword = ({
               padding: "16px",
               backgroundColor: "rgba(16, 185, 129, 0.1)",
               border: "1px solid rgba(16, 185, 129, 0.2)",
-              borderRadius: "8px",
+              borderRadius: preset === "neo-brutalism" ? "0px" : "8px",
               color: "#10b981",
               fontSize: "13px",
               textAlign: "center",
@@ -14344,7 +16357,7 @@ var ForgotPassword = ({
                 padding: "10px 14px",
                 backgroundColor: "rgba(239, 68, 68, 0.1)",
                 border: "1px solid rgba(239, 68, 68, 0.2)",
-                borderRadius: "8px",
+                borderRadius: preset === "neo-brutalism" ? "0px" : "8px",
                 color: "#ef4444",
                 fontSize: "13px"
               },
@@ -14379,7 +16392,8 @@ var ForgotPassword = ({
                   border: "1px solid var(--boost-border, #cbd5e1)",
                   borderRadius: "8px",
                   outline: "none",
-                  transition: "border-color 0.2s, box-shadow 0.2s"
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  ...getInputPresetStyles()
                 }
               }
             )
@@ -14405,7 +16419,8 @@ var ForgotPassword = ({
                 justifyContent: "center",
                 gap: "8px",
                 boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease"
+                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                ...getButtonPresetStyles()
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
@@ -14462,8 +16477,13 @@ var ResetPassword = ({
   onSubmit,
   onBackToLogin,
   loading = false,
-  errorMessage
+  errorMessage,
+  className = "",
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validationError, setValidationError] = useState("");
@@ -14485,22 +16505,198 @@ var ResetPassword = ({
     onSubmit?.(password);
   };
   const activeError = validationError || errorMessage;
+  const getCardPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 18px #d1d9e6, -8px -8px 18px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 30px rgba(99, 102, 241, 0.25)",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-surface-variant, #f3edf7)",
+          border: "none",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+        };
+      case "dark-first":
+        return {
+          border: "1px solid #334155",
+          backgroundColor: "#0f172a",
+          borderRadius: "16px",
+          boxShadow: "0 12px 35px -5px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "16px",
+          boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))"
+        };
+    }
+  };
+  const getInputPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: activeError ? "3px solid #ef4444" : "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: activeError ? "1px solid #ef4444" : "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "10px"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "10px",
+          boxShadow: activeError ? "inset 2px 2px 4px rgba(239, 68, 68, 0.4)" : "inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          backgroundColor: "#ffffff",
+          border: activeError ? "2px solid #ef4444" : "1px solid rgba(0,0,0,0.08)"
+        };
+      default:
+        return {};
+    }
+  };
+  const getButtonPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "#000000",
+          color: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-primary, #6366f1)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "10px",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.35)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          color: "var(--boost-text-primary, #0f172a)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff",
+          fontWeight: 700
+        };
+      case "gradient-glow":
+        return {
+          background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+          border: "none",
+          borderRadius: "10px",
+          boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)",
+          color: "#ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#38bdf8",
+          color: "#0f172a",
+          fontWeight: 700,
+          borderRadius: "10px"
+        };
+      case "minimal":
+      default:
+        return {};
+    }
+  };
+  const getIconPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff",
+          color: "#000000"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          borderRadius: "24px",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          boxShadow: "inset 2px 2px 5px #d1d9e6, inset -2px -2px 5px #ffffff",
+          color: "var(--boost-primary, #6366f1)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          backgroundColor: "#eaddff",
+          color: "#21005d"
+        };
+      default:
+        return {
+          borderRadius: "24px",
+          backgroundColor: "rgba(99, 102, 241, 0.12)",
+          color: "var(--boost-primary, #6366f1)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: "boost-auth-card",
+      className: `boost-auth-card boost-auth-preset-${preset} ${className}`,
       style: {
         maxWidth: "420px",
         width: "100%",
         margin: "0 auto",
         padding: "clamp(24px, 5vw, 36px) clamp(18px, 4vw, 28px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        borderRadius: "var(--boost-radius, 16px)",
-        boxShadow: "var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05))",
         fontFamily: "inherit",
         boxSizing: "border-box",
-        transition: "all 0.2s ease"
+        transition: "all 0.2s ease",
+        ...getCardPresetStyles(),
+        ...style
       },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
@@ -14529,13 +16725,11 @@ var ResetPassword = ({
               style: {
                 width: "48px",
                 height: "48px",
-                borderRadius: "24px",
-                backgroundColor: "rgba(99, 102, 241, 0.12)",
-                color: "var(--boost-primary, #6366f1)",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "12px"
+                marginBottom: "12px",
+                ...getIconPresetStyles()
               },
               children: /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
                 /* @__PURE__ */ jsx("path", { d: "M21 2l-2 2m-1-1l2 2" }),
@@ -14558,7 +16752,7 @@ var ResetPassword = ({
               marginBottom: "16px",
               backgroundColor: "rgba(239, 68, 68, 0.1)",
               border: "1px solid rgba(239, 68, 68, 0.2)",
-              borderRadius: "8px",
+              borderRadius: preset === "neo-brutalism" ? "0px" : "8px",
               color: "#ef4444",
               fontSize: "13px"
             },
@@ -14594,7 +16788,8 @@ var ResetPassword = ({
                   border: "1px solid var(--boost-border, #cbd5e1)",
                   borderRadius: "8px",
                   outline: "none",
-                  transition: "border-color 0.2s, box-shadow 0.2s"
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  ...getInputPresetStyles()
                 }
               }
             )
@@ -14620,7 +16815,8 @@ var ResetPassword = ({
                   border: "1px solid var(--boost-border, #cbd5e1)",
                   borderRadius: "8px",
                   outline: "none",
-                  transition: "border-color 0.2s, box-shadow 0.2s"
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  ...getInputPresetStyles()
                 }
               }
             )
@@ -14646,7 +16842,8 @@ var ResetPassword = ({
                 justifyContent: "center",
                 gap: "8px",
                 boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease"
+                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                ...getButtonPresetStyles()
               },
               children: [
                 loading && /* @__PURE__ */ jsxs(
@@ -14705,8 +16902,11 @@ var CartDrawer = ({
   onCheckout = () => {
   },
   className = "",
-  onTabSync
+  onTabSync,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [isCheckingOut, setIsCheckingOut] = React.useState(false);
   React.useEffect(() => {
     if (!isOpen) return;
@@ -14746,19 +16946,374 @@ var CartDrawer = ({
       setIsCheckingOut(false);
     }
   };
+  const getPanelStyles = () => {
+    const base = {
+      width: "100%",
+      maxWidth: "440px",
+      display: "flex",
+      flexDirection: "column",
+      boxSizing: "border-box",
+      overflow: "hidden"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          borderLeft: "3px solid #000000",
+          boxShadow: "-6px 0px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderLeft: "1px solid rgba(255, 255, 255, 0.4)",
+          boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.12)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-bg, #ffffff)",
+          borderLeft: "1.5px solid rgba(99, 102, 241, 0.35)",
+          boxShadow: "-10px 0 40px rgba(99, 102, 241, 0.2)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          borderLeft: "none",
+          boxShadow: "-12px 0 30px #bec3c9"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #f7f2fa)",
+          borderTopLeftRadius: "28px",
+          borderBottomLeftRadius: "28px",
+          borderLeft: "none",
+          boxShadow: "-4px 0 24px rgba(0, 0, 0, 0.08)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#0f172a",
+          borderLeft: "1px solid #1e293b",
+          boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.4)"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-bg, #ffffff)",
+          boxShadow: "var(--boost-shadow-lg, -4px 0 32px rgba(0, 0, 0, 0.2))"
+        };
+    }
+  };
+  const getHeaderStyles = () => {
+    const base = {
+      padding: "16px 20px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          borderBottom: "3px solid #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.4)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.3)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          borderBottom: "1px solid #d1d5db"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface-variant, #ece6f0)",
+          borderBottom: "none"
+        };
+      default:
+        return {
+          ...base,
+          borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+          backgroundColor: "var(--boost-surface, #f8fafc)"
+        };
+    }
+  };
+  const getCountBadgeStyles = () => {
+    const base = {
+      padding: "2px 8px",
+      fontSize: "12px",
+      fontWeight: 700
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#fbbf24",
+          color: "#000000",
+          border: "1.5px solid #000000",
+          borderRadius: "2px"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(99, 102, 241, 0.2)",
+          color: "var(--boost-primary, #6366f1)",
+          borderRadius: "9999px"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          borderRadius: "12px"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "rgba(37, 99, 235, 0.1)",
+          color: "var(--boost-primary, #2563eb)",
+          borderRadius: "9999px"
+        };
+    }
+  };
+  const getItemThumbStyles = () => {
+    const base = {
+      width: "64px",
+      height: "64px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      overflow: "hidden"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          border: "2px solid #000000",
+          backgroundColor: "#ffffff",
+          boxShadow: "2px 2px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "10px",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          backgroundColor: "rgba(255, 255, 255, 0.4)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "14px",
+          border: "none",
+          backgroundColor: "#e0e5ec",
+          boxShadow: "inset 2px 2px 4px #bec3c9, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "16px",
+          border: "none",
+          backgroundColor: "var(--boost-surface-variant, #ece6f0)"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "10px",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          backgroundColor: "var(--boost-surface, #f8fafc)"
+        };
+    }
+  };
+  const getQtyStepperStyles = () => {
+    const base = {
+      display: "flex",
+      alignItems: "center",
+      overflow: "hidden"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000",
+          borderRadius: "2px",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "8px",
+          backgroundColor: "rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(8px)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          border: "none",
+          borderRadius: "12px",
+          backgroundColor: "#e0e5ec",
+          boxShadow: "2px 2px 5px #bec3c9, -2px -2px 5px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          border: "none",
+          borderRadius: "20px",
+          backgroundColor: "var(--boost-surface-variant, #e8def8)"
+        };
+      default:
+        return {
+          ...base,
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "8px",
+          backgroundColor: "var(--boost-surface, #f8fafc)"
+        };
+    }
+  };
+  const getFooterStyles = () => {
+    const base = {
+      padding: "16px 20px"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderTop: "3px solid #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderTop: "1px solid rgba(255, 255, 255, 0.3)",
+          backgroundColor: "rgba(255, 255, 255, 0.45)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderTop: "1px solid #d1d5db",
+          backgroundColor: "#e0e5ec"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderTop: "none",
+          backgroundColor: "var(--boost-surface-variant, #ece6f0)"
+        };
+      default:
+        return {
+          ...base,
+          borderTop: "1px solid var(--boost-border, #e2e8f0)",
+          backgroundColor: "var(--boost-surface, #f8fafc)"
+        };
+    }
+  };
+  const getCheckoutButtonStyles = () => {
+    const base = {
+      width: "100%",
+      padding: "14px",
+      fontSize: "15px",
+      fontWeight: 700,
+      cursor: isCheckingOut ? "not-allowed" : "pointer",
+      opacity: isCheckingOut ? 0.7 : 1,
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#fbbf24",
+          color: "#000000",
+          border: "3px solid #000000",
+          boxShadow: "4px 4px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "var(--boost-primary, #6366f1)",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          boxShadow: "0 8px 24px rgba(99, 102, 241, 0.4)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "12px",
+          background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "0 0 20px rgba(99, 102, 241, 0.5)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-primary, #2563eb)",
+          border: "none",
+          boxShadow: "4px 4px 10px #bec3c9, -4px -4px 10px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: "var(--boost-primary, #3b82f6)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "0 0 16px rgba(59, 130, 246, 0.4)"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "var(--boost-primary, #2563eb)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.35))"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
       role: "dialog",
       "aria-modal": "true",
       "aria-label": "Shopping Cart Drawer",
-      className: `boost-cart-drawer-backdrop ${className}`,
+      className: `boost-cart-drawer-backdrop boost-cart-drawer-${preset} ${className}`,
+      "data-boost-preset": preset,
       style: {
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.6)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
+        backgroundColor: preset === "neo-brutalism" ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.6)",
+        backdropFilter: preset === "neo-brutalism" ? "none" : "blur(6px)",
+        WebkitBackdropFilter: preset === "neo-brutalism" ? "none" : "blur(6px)",
         zIndex: 1e3,
         display: "flex",
         justifyContent: "flex-end",
@@ -14787,8 +17342,27 @@ var CartDrawer = ({
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
         }
-        :root[data-theme="dark"] .boost-cart-drawer-panel,
-        .dark .boost-cart-drawer-panel {
+        :root[data-theme="dark"] .boost-cart-drawer-panel.preset-glassmorphism,
+        .dark .boost-cart-drawer-panel.preset-glassmorphism {
+          background-color: rgba(15, 23, 42, 0.8) !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-cart-drawer-panel.preset-neo-brutalism,
+        .dark .boost-cart-drawer-panel.preset-neo-brutalism {
+          background-color: #18181b !important;
+          border-color: #ffffff !important;
+          box-shadow: -6px 0px 0px #ffffff !important;
+          color: #ffffff !important;
+        }
+        :root[data-theme="dark"] .boost-cart-drawer-panel.preset-neumorphism,
+        .dark .boost-cart-drawer-panel.preset-neumorphism {
+          background-color: #1e2530 !important;
+          box-shadow: -12px 0 30px #13171e !important;
+          color: #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-cart-drawer-panel:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism),
+        .dark .boost-cart-drawer-panel:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism) {
           background-color: var(--boost-bg, #0f172a) !important;
           color: #f8fafc !important;
         }
@@ -14810,48 +17384,19 @@ var CartDrawer = ({
         /* @__PURE__ */ jsxs(
           "div",
           {
-            className: "boost-cart-drawer-panel",
-            style: {
-              width: "100%",
-              maxWidth: "440px",
-              backgroundColor: "var(--boost-bg, #ffffff)",
-              display: "flex",
-              flexDirection: "column",
-              boxShadow: "var(--boost-shadow-lg, -4px 0 32px rgba(0, 0, 0, 0.2))",
-              boxSizing: "border-box",
-              overflow: "hidden"
-            },
+            className: `boost-cart-drawer-panel preset-${preset}`,
+            style: getPanelStyles(),
             onClick: (e) => e.stopPropagation(),
             children: [
               /* @__PURE__ */ jsxs(
                 "div",
                 {
                   className: "boost-cart-header",
-                  style: {
-                    padding: "16px 20px",
-                    borderBottom: "1px solid var(--boost-border, #e2e8f0)",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    backgroundColor: "var(--boost-surface, #f8fafc)"
-                  },
+                  style: getHeaderStyles(),
                   children: [
                     /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
                       /* @__PURE__ */ jsx("h2", { style: { margin: 0, fontSize: "17px", fontWeight: 700, color: "var(--boost-text, #0f172a)" }, children: "Your Cart" }),
-                      /* @__PURE__ */ jsx(
-                        "span",
-                        {
-                          style: {
-                            backgroundColor: "rgba(37, 99, 235, 0.1)",
-                            color: "var(--boost-primary, #2563eb)",
-                            padding: "2px 8px",
-                            borderRadius: "9999px",
-                            fontSize: "12px",
-                            fontWeight: 700
-                          },
-                          children: items.reduce((s, i) => s + i.quantity, 0)
-                        }
-                      )
+                      /* @__PURE__ */ jsx("span", { style: getCountBadgeStyles(), children: items.reduce((s, i) => s + i.quantity, 0) })
                     ] }),
                     /* @__PURE__ */ jsx(
                       "button",
@@ -14859,17 +17404,19 @@ var CartDrawer = ({
                         onClick: onClose,
                         "aria-label": "Close Cart Drawer",
                         style: {
-                          background: "none",
-                          border: "none",
+                          background: preset === "neo-brutalism" ? "#ffffff" : "none",
+                          border: preset === "neo-brutalism" ? "2px solid #000000" : "none",
                           width: "32px",
                           height: "32px",
-                          borderRadius: "8px",
+                          borderRadius: preset === "neo-brutalism" ? "2px" : "8px",
+                          boxShadow: preset === "neo-brutalism" ? "2px 2px 0px #000000" : "none",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           cursor: "pointer",
-                          color: "var(--boost-text-muted, #64748b)",
+                          color: preset === "neo-brutalism" ? "#000000" : "var(--boost-text-muted, #64748b)",
                           fontSize: "18px",
+                          fontWeight: preset === "neo-brutalism" ? 800 : 400,
                           transition: "background-color 0.15s ease"
                         },
                         children: "\u2715"
@@ -14884,8 +17431,8 @@ var CartDrawer = ({
                   className: "boost-shipping-banner",
                   style: {
                     padding: "12px 20px",
-                    backgroundColor: "var(--boost-surface, #f8fafc)",
-                    borderBottom: "1px solid var(--boost-border, #e2e8f0)"
+                    backgroundColor: preset === "neumorphism" ? "#e0e5ec" : preset === "material-you" ? "var(--boost-surface, #f7f2fa)" : "var(--boost-surface, #f8fafc)",
+                    borderBottom: preset === "neo-brutalism" ? "2px solid #000000" : "1px solid var(--boost-border, #e2e8f0)"
                   },
                   children: [
                     /* @__PURE__ */ jsx(
@@ -14920,8 +17467,9 @@ var CartDrawer = ({
                         style: {
                           width: "100%",
                           height: "6px",
-                          backgroundColor: "var(--boost-border, #e2e8f0)",
-                          borderRadius: "999px",
+                          backgroundColor: preset === "neo-brutalism" ? "#e2e8f0" : "var(--boost-border, #e2e8f0)",
+                          borderRadius: preset === "neo-brutalism" ? "0px" : "999px",
+                          border: preset === "neo-brutalism" ? "1px solid #000" : "none",
                           overflow: "hidden"
                         },
                         children: /* @__PURE__ */ jsx(
@@ -14930,8 +17478,8 @@ var CartDrawer = ({
                             style: {
                               width: `${progressPercent}%`,
                               height: "100%",
-                              background: isFreeShippingUnlocked ? "linear-gradient(90deg, #16a34a, #22c55e)" : "linear-gradient(90deg, #2563eb, #3b82f6)",
-                              borderRadius: "999px",
+                              background: isFreeShippingUnlocked ? preset === "neo-brutalism" ? "#22c55e" : "linear-gradient(90deg, #16a34a, #22c55e)" : preset === "neo-brutalism" ? "#fbbf24" : "linear-gradient(90deg, #2563eb, #3b82f6)",
+                              borderRadius: preset === "neo-brutalism" ? "0px" : "999px",
                               transition: "width 0.4s ease"
                             }
                           }
@@ -14954,15 +17502,15 @@ var CartDrawer = ({
                   {
                     onClick: onClose,
                     style: {
-                      backgroundColor: "var(--boost-primary, #2563eb)",
-                      color: "#fff",
-                      border: "none",
+                      backgroundColor: preset === "neo-brutalism" ? "#fbbf24" : "var(--boost-primary, #2563eb)",
+                      color: preset === "neo-brutalism" ? "#000000" : "#fff",
+                      border: preset === "neo-brutalism" ? "2px solid #000" : "none",
+                      boxShadow: preset === "neo-brutalism" ? "3px 3px 0px #000" : "var(--boost-shadow-glow, 0 4px 12px rgba(37, 99, 235, 0.25))",
                       padding: "10px 22px",
-                      borderRadius: "10px",
+                      borderRadius: preset === "neo-brutalism" ? "2px" : "10px",
                       cursor: "pointer",
                       fontSize: "13px",
-                      fontWeight: 600,
-                      boxShadow: "var(--boost-shadow-glow, 0 4px 12px rgba(37, 99, 235, 0.25))"
+                      fontWeight: 700
                     },
                     children: "Start Shopping"
                   }
@@ -14974,43 +17522,26 @@ var CartDrawer = ({
                     display: "flex",
                     gap: "12px",
                     alignItems: "center",
-                    borderBottom: "1px solid var(--boost-border, #e2e8f0)",
+                    borderBottom: preset === "neo-brutalism" ? "2px solid #000000" : "1px solid var(--boost-border, #e2e8f0)",
                     paddingBottom: "14px"
                   },
                   children: [
-                    /* @__PURE__ */ jsx(
-                      "div",
+                    /* @__PURE__ */ jsx("div", { style: getItemThumbStyles(), children: item.image ? /* @__PURE__ */ jsx(
+                      "img",
                       {
+                        src: item.image,
+                        alt: item.title,
                         style: {
-                          width: "64px",
-                          height: "64px",
-                          borderRadius: "10px",
-                          border: "1px solid var(--boost-border, #e2e8f0)",
-                          backgroundColor: "var(--boost-surface, #f8fafc)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          overflow: "hidden"
-                        },
-                        children: item.image ? /* @__PURE__ */ jsx(
-                          "img",
-                          {
-                            src: item.image,
-                            alt: item.title,
-                            style: {
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover"
-                            }
-                          }
-                        ) : /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", style: { color: "var(--boost-text-muted, #94a3b8)" }, children: [
-                          /* @__PURE__ */ jsx("rect", { x: "3", y: "3", width: "18", height: "18", rx: "2", ry: "2" }),
-                          /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "8.5", r: "1.5" }),
-                          /* @__PURE__ */ jsx("polyline", { points: "21 15 16 10 5 21" })
-                        ] })
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover"
+                        }
                       }
-                    ),
+                    ) : /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", style: { color: "var(--boost-text-muted, #94a3b8)" }, children: [
+                      /* @__PURE__ */ jsx("rect", { x: "3", y: "3", width: "18", height: "18", rx: "2", ry: "2" }),
+                      /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "8.5", r: "1.5" }),
+                      /* @__PURE__ */ jsx("polyline", { points: "21 15 16 10 5 21" })
+                    ] }) }),
                     /* @__PURE__ */ jsxs("div", { style: { flex: 1, minWidth: 0, textAlign: "left" }, children: [
                       /* @__PURE__ */ jsx(
                         "div",
@@ -15036,14 +17567,7 @@ var CartDrawer = ({
                       "div",
                       {
                         className: "boost-cart-qty",
-                        style: {
-                          display: "flex",
-                          alignItems: "center",
-                          border: "1px solid var(--boost-border, #e2e8f0)",
-                          borderRadius: "8px",
-                          overflow: "hidden",
-                          backgroundColor: "var(--boost-surface, #f8fafc)"
-                        },
+                        style: getQtyStepperStyles(),
                         children: [
                           /* @__PURE__ */ jsx(
                             "button",
@@ -15129,11 +17653,7 @@ var CartDrawer = ({
                 "div",
                 {
                   className: "boost-cart-footer",
-                  style: {
-                    padding: "16px 20px",
-                    borderTop: "1px solid var(--boost-border, #e2e8f0)",
-                    backgroundColor: "var(--boost-surface, #f8fafc)"
-                  },
+                  style: getFooterStyles(),
                   children: [
                     /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "14px" }, children: [
                       /* @__PURE__ */ jsx("span", { style: { fontSize: "14px", color: "var(--boost-text-muted, #64748b)" }, children: "Subtotal:" }),
@@ -15148,20 +17668,7 @@ var CartDrawer = ({
                         type: "button",
                         onClick: handleCheckoutClick,
                         disabled: isCheckingOut,
-                        style: {
-                          width: "100%",
-                          backgroundColor: "var(--boost-primary, #2563eb)",
-                          color: "#ffffff",
-                          border: "none",
-                          borderRadius: "12px",
-                          padding: "14px",
-                          fontSize: "15px",
-                          fontWeight: 700,
-                          cursor: isCheckingOut ? "not-allowed" : "pointer",
-                          opacity: isCheckingOut ? 0.7 : 1,
-                          boxShadow: "var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.35))",
-                          transition: "all 0.15s ease"
-                        },
+                        style: getCheckoutButtonStyles(),
                         children: isCheckingOut ? "Securing Order..." : "Proceed to Checkout \u2192"
                       }
                     )
@@ -15187,14 +17694,87 @@ var StickyAddToCart = ({
   },
   onBuyNow,
   inStock = true,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const finalComparePrice = compareAtPrice ?? originalPrice;
   const [quantity, setQuantity] = React.useState(1);
   const [isAdding, setIsAdding] = React.useState(false);
   const [isBuying, setIsBuying] = React.useState(false);
   const [addedFeedback, setAddedFeedback] = React.useState(false);
+  const getStickyBarStyles = () => {
+    const base = {
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: "12px 20px",
+      zIndex: 999,
+      fontFamily: "inherit",
+      color: "var(--boost-text-primary, #0f172a)",
+      transition: "all 0.3s ease",
+      containerType: "inline-size"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          borderTop: "3px solid #000000",
+          boxShadow: "0 -6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.82)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.35)",
+          boxShadow: "0 -10px 40px -10px rgba(0, 0, 0, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          boxShadow: "0 -6px 16px #cbd5e1"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderTop: "1px solid rgba(99, 102, 241, 0.3)",
+          boxShadow: "0 -4px 30px rgba(99, 102, 241, 0.2)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          borderTop: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: "0 -4px 16px rgba(0, 0, 0, 0.08)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "rgba(15, 23, 42, 0.96)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.12)",
+          boxShadow: "0 -10px 40px -10px rgba(0, 0, 0, 0.8)",
+          color: "#f8fafc"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, rgba(255, 255, 255, 0.92))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: "1px solid var(--boost-border, rgba(0, 0, 0, 0.08))",
+          boxShadow: "0 -10px 40px -10px rgba(0, 0, 0, 0.1)"
+        };
+    }
+  };
   const handleAddToCart = async () => {
     if (!inStock || isAdding || isBuying) return;
     try {
@@ -15218,20 +17798,9 @@ var StickyAddToCart = ({
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-sticky-bar ${className}`,
+      className: `boost-sticky-bar boost-sticky-bar-preset-${preset} ${className}`,
       style: {
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        padding: "12px 20px",
-        zIndex: 999,
-        fontFamily: "inherit",
-        color: "var(--boost-text-primary, #0f172a)",
-        transition: "all 0.3s ease",
-        containerType: "inline-size",
+        ...getStickyBarStyles(),
         ...style
       },
       children: [
@@ -15747,10 +18316,83 @@ var STAGES = [
 var OrderTimeline = ({
   currentStage,
   dates = {},
+  stylePreset: stylePresetProp,
   className = ""
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const currentIndex = STAGES.findIndex((s) => s.id === currentStage);
   const progressPercent = currentIndex >= 0 ? currentIndex / (STAGES.length - 1) * 100 : 0;
+  const getNodeStyles = (status) => {
+    const base = {
+      width: "32px",
+      height: "32px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "13px",
+      fontWeight: 700,
+      transition: "all 0.3s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          border: "2px solid #000000",
+          backgroundColor: status === "passed" ? "#10b981" : status === "current" ? "#fbbf24" : "#ffffff",
+          color: "#000000",
+          boxShadow: status === "current" ? "3px 3px 0px #000000" : "2px 2px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          backgroundColor: status === "passed" ? "rgba(16, 185, 129, 0.85)" : status === "current" ? "rgba(99, 102, 241, 0.85)" : "rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          color: "#ffffff",
+          boxShadow: status === "current" ? "0 0 15px rgba(99, 102, 241, 0.5)" : "none"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          border: "none",
+          backgroundColor: status === "passed" ? "#10b981" : status === "current" ? "#2563eb" : "#e0e5ec",
+          color: status === "upcoming" ? "var(--boost-text-muted, #94a3b8)" : "#ffffff",
+          boxShadow: "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          background: status === "passed" ? "linear-gradient(135deg, #10b981, #059669)" : status === "current" ? "linear-gradient(135deg, #4f46e5, #8b5cf6)" : "var(--boost-surface, #ffffff)",
+          border: status === "upcoming" ? "1px solid rgba(99, 102, 241, 0.2)" : "none",
+          color: status === "upcoming" ? "var(--boost-text-muted, #94a3b8)" : "#ffffff",
+          boxShadow: status === "passed" ? "0 0 12px rgba(16, 185, 129, 0.5)" : status === "current" ? "0 0 16px rgba(99, 102, 241, 0.7)" : "none"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: status === "passed" ? "#386a20" : status === "current" ? "var(--boost-primary, #6750a4)" : "var(--boost-surface-secondary, #e8def8)",
+          color: status === "upcoming" ? "#49454f" : "#ffffff"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: status === "passed" ? "#059669" : status === "current" ? "#2563eb" : "#1e293b",
+          border: status === "upcoming" ? "1px solid rgba(255, 255, 255, 0.12)" : "none",
+          color: status === "upcoming" ? "#64748b" : "#ffffff"
+        };
+      default:
+        return base;
+    }
+  };
   return /* @__PURE__ */ jsxs("div", { className: `boost-order-timeline ${className}`, style: { padding: "16px 8px", width: "100%", boxSizing: "border-box" }, children: [
     /* @__PURE__ */ jsx("style", { children: `
         .boost-timeline-container {
@@ -15877,7 +18519,14 @@ var OrderTimeline = ({
         const isCurrent = idx === currentIndex;
         const status = isCurrent ? "current" : isPassed ? "passed" : "upcoming";
         return /* @__PURE__ */ jsxs("div", { className: "boost-timeline-step", children: [
-          /* @__PURE__ */ jsx("div", { className: `boost-timeline-node ${status}`, children: isPassed ? /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) : isCurrent ? /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "4", fill: "currentColor" }) }) : idx + 1 }),
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              className: `boost-timeline-node boost-timeline-node-preset-${preset} ${status}`,
+              style: getNodeStyles(status),
+              children: isPassed ? /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) }) : isCurrent ? /* @__PURE__ */ jsx("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsx("circle", { cx: "12", cy: "12", r: "4", fill: "currentColor" }) }) : idx + 1
+            }
+          ),
           /* @__PURE__ */ jsx("div", { className: `boost-timeline-label ${status}`, children: stage.label }),
           dates[stage.id] && /* @__PURE__ */ jsx("div", { style: { fontSize: "10px", color: "var(--boost-text-muted, #94a3b8)", marginTop: "3px" }, children: dates[stage.id] })
         ] }, stage.id);
@@ -15947,8 +18596,11 @@ var ProductGallery = ({
   layout = "thumbnails-bottom",
   aspectRatio = "portrait",
   enableZoom = true,
-  className = ""
+  className = "",
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const [isHovered, setIsHovered] = React.useState(false);
   const [zoomPos, setZoomPos] = React.useState({ x: 0, y: 0 });
@@ -16006,10 +18658,147 @@ var ProductGallery = ({
     e.stopPropagation();
     setSelectedIndex((prev) => prev < normalizedImages.length - 1 ? prev + 1 : 0);
   };
+  const getMainShowcasePresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "3px solid #000000",
+          boxShadow: "5px 5px 0px #000000",
+          borderRadius: "0px",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
+          borderRadius: "16px",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          boxShadow: "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #e6ecf5)"
+        };
+      case "gradient-glow":
+        return {
+          border: "1px solid rgba(99, 102, 241, 0.35)",
+          boxShadow: "0 0 25px rgba(99, 102, 241, 0.25)",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "24px",
+          border: "none",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          backgroundColor: "var(--boost-surface-variant, #f3edf7)"
+        };
+      case "dark-first":
+        return {
+          border: "1px solid #334155",
+          borderRadius: "16px",
+          backgroundColor: "#0f172a",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          border: "1px solid var(--boost-border, #e2e8f0)"
+        };
+    }
+  };
+  const getThumbnailPresetStyles = (isSelected) => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderRadius: "0px",
+          border: isSelected ? "3px solid #000000" : "2px solid #94a3b8",
+          boxShadow: isSelected ? "3px 3px 0px #000000" : "none",
+          opacity: isSelected ? 1 : 0.7
+        };
+      case "glassmorphism":
+        return {
+          borderRadius: "10px",
+          border: isSelected ? "2px solid rgba(255, 255, 255, 0.9)" : "1px solid rgba(255, 255, 255, 0.25)",
+          boxShadow: isSelected ? "0 0 12px rgba(255, 255, 255, 0.5)" : "none",
+          opacity: isSelected ? 1 : 0.65
+        };
+      case "neumorphism":
+        return {
+          borderRadius: "10px",
+          border: "none",
+          boxShadow: isSelected ? "inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff" : "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff",
+          opacity: isSelected ? 1 : 0.75
+        };
+      case "material-you":
+        return {
+          borderRadius: "16px",
+          border: isSelected ? "2px solid var(--boost-primary, #6750a4)" : "2px solid transparent",
+          boxShadow: isSelected ? "0 0 0 2px rgba(103, 80, 164, 0.2)" : "none",
+          opacity: isSelected ? 1 : 0.65
+        };
+      case "gradient-glow":
+        return {
+          borderRadius: "10px",
+          border: isSelected ? "2px solid #818cf8" : "1px solid transparent",
+          boxShadow: isSelected ? "0 0 10px rgba(99, 102, 241, 0.4)" : "none",
+          opacity: isSelected ? 1 : 0.65
+        };
+      case "dark-first":
+        return {
+          borderRadius: "10px",
+          border: isSelected ? "2px solid #38bdf8" : "1px solid #334155",
+          opacity: isSelected ? 1 : 0.6
+        };
+      case "minimal":
+      default:
+        return {
+          borderRadius: "10px",
+          border: isSelected ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
+          boxShadow: isSelected ? "0 0 0 2px rgba(37, 99, 235, 0.2)" : "none",
+          opacity: isSelected ? 1 : 0.6
+        };
+    }
+  };
+  const getNavButtonPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderRadius: "0px",
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000",
+          backgroundColor: "#ffffff",
+          color: "#000000"
+        };
+      case "neumorphism":
+        return {
+          borderRadius: "9999px",
+          border: "none",
+          boxShadow: "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          color: "var(--boost-text-primary, #0f172a)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "12px",
+          border: "none",
+          backgroundColor: "#ffffff",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
+        };
+      default:
+        return {};
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-product-gallery ${className}`,
+      className: `boost-product-gallery boost-gallery-preset-${preset} ${className}`,
       style: {
         display: "flex",
         flexDirection: isThumbnailsLeft ? "row-reverse" : "column",
@@ -16028,11 +18817,9 @@ var ProductGallery = ({
               flex: isThumbnailsLeft ? "1 1 0%" : void 0,
               minWidth: 0,
               boxSizing: "border-box",
-              borderRadius: "var(--boost-radius, 16px)",
               overflow: "hidden",
-              backgroundColor: "var(--boost-surface, #f8fafc)",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              cursor: enableZoom ? "crosshair" : "default"
+              cursor: enableZoom ? "crosshair" : "default",
+              ...getMainShowcasePresetStyles()
             },
             onMouseEnter: () => enableZoom && setIsHovered(true),
             onMouseLeave: () => enableZoom && setIsHovered(false),
@@ -16078,7 +18865,8 @@ var ProductGallery = ({
                       cursor: "pointer",
                       boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                       zIndex: 3,
-                      transition: "background-color 0.15s ease"
+                      transition: "background-color 0.15s ease",
+                      ...getNavButtonPresetStyles()
                     },
                     children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" }) })
                   }
@@ -16107,7 +18895,8 @@ var ProductGallery = ({
                       cursor: "pointer",
                       boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                       zIndex: 3,
-                      transition: "background-color 0.15s ease"
+                      transition: "background-color 0.15s ease",
+                      ...getNavButtonPresetStyles()
                     },
                     children: /* @__PURE__ */ jsx("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" }) })
                   }
@@ -16120,12 +18909,13 @@ var ProductGallery = ({
                     position: "absolute",
                     bottom: "12px",
                     right: "12px",
-                    backgroundColor: "rgba(15, 23, 42, 0.75)",
+                    backgroundColor: preset === "neo-brutalism" ? "#000000" : "rgba(15, 23, 42, 0.75)",
                     color: "#ffffff",
                     fontSize: "11px",
                     fontWeight: 700,
                     padding: "3px 9px",
-                    borderRadius: "999px",
+                    borderRadius: preset === "neo-brutalism" ? "0px" : "999px",
+                    border: preset === "neo-brutalism" ? "1px solid #ffffff" : void 0,
                     pointerEvents: "none",
                     backdropFilter: "blur(6px)",
                     WebkitBackdropFilter: "blur(6px)",
@@ -16163,15 +18953,12 @@ var ProductGallery = ({
                   width: isThumbnailsLeft ? "64px" : "clamp(58px, 12vw, 74px)",
                   height: isThumbnailsLeft ? "80px" : "clamp(58px, 12vw, 74px)",
                   flexShrink: 0,
-                  borderRadius: "10px",
                   overflow: "hidden",
-                  border: selectedIndex === idx ? "2px solid var(--boost-primary, #2563eb)" : "2px solid transparent",
-                  opacity: selectedIndex === idx ? 1 : 0.6,
-                  boxShadow: selectedIndex === idx ? "0 0 0 2px rgba(37, 99, 235, 0.2)" : "none",
                   transition: "all 0.2s ease",
                   cursor: "pointer",
                   padding: 0,
-                  backgroundColor: "var(--boost-surface, #f8fafc)"
+                  backgroundColor: "var(--boost-surface, #f8fafc)",
+                  ...getThumbnailPresetStyles(selectedIndex === idx)
                 },
                 children: /* @__PURE__ */ jsx("img", { src: img, alt: `Thumb ${idx + 1}`, style: { width: "100%", height: "100%", objectFit: "cover" } })
               },
@@ -16189,10 +18976,96 @@ var VariantSelector = ({
   selectedValues,
   currencySymbol = "$",
   onChange,
+  stylePreset: stylePresetProp,
   className = "",
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const values = selectedValues || props.selectedVariants || {};
+  const getChipStyles = (isSelected, isOutOfStock) => {
+    const base = {
+      padding: "8px 16px",
+      fontSize: "13px",
+      fontWeight: 600,
+      cursor: isOutOfStock ? "not-allowed" : "pointer",
+      textDecoration: isOutOfStock ? "line-through" : "none",
+      opacity: isOutOfStock ? 0.45 : 1,
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          border: "2px solid #000000",
+          backgroundColor: isSelected ? "#fbbf24" : "#ffffff",
+          color: "#000000",
+          boxShadow: isSelected ? "3px 3px 0px #000000" : "2px 2px 0px #000000",
+          fontWeight: isSelected ? 800 : 700
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          border: isSelected ? "1px solid rgba(99, 102, 241, 0.6)" : "1px solid rgba(255, 255, 255, 0.4)",
+          backgroundColor: isSelected ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.6)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          color: isSelected ? "#4f46e5" : "var(--boost-text-primary, #0f172a)",
+          boxShadow: isSelected ? "0 4px 14px rgba(99, 102, 241, 0.25)" : "none"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "10px",
+          border: "none",
+          backgroundColor: "#e0e5ec",
+          color: isSelected ? "var(--boost-primary, #2563eb)" : "#334155",
+          boxShadow: isSelected ? "inset 3px 3px 6px #c8cdd5, inset -3px -3px 6px #f8fdff" : "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff",
+          fontWeight: isSelected ? 700 : 600
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "10px",
+          border: isSelected ? "1px solid #6366f1" : "1px solid rgba(99, 102, 241, 0.2)",
+          background: isSelected ? "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)" : "var(--boost-surface, #ffffff)",
+          color: isSelected ? "#ffffff" : "var(--boost-text-primary, #0f172a)",
+          boxShadow: isSelected ? "0 0 16px rgba(99, 102, 241, 0.5)" : "none"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          border: isSelected ? "none" : "1px solid var(--boost-border, #e2e8f0)",
+          backgroundColor: isSelected ? "var(--boost-surface-secondary, #e8def8)" : "transparent",
+          color: isSelected ? "var(--boost-primary, #6750a4)" : "var(--boost-text-primary, #49454f)",
+          fontWeight: isSelected ? 700 : 600
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "10px",
+          border: isSelected ? "1px solid #3b82f6" : "1px solid rgba(255, 255, 255, 0.12)",
+          backgroundColor: isSelected ? "#2563eb" : "#1e293b",
+          color: "#ffffff",
+          boxShadow: isSelected ? "0 4px 14px rgba(37, 99, 235, 0.4)" : "none"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "10px",
+          border: isSelected ? "1px solid #4f46e5" : "1px solid var(--boost-border, #e2e8f0)",
+          background: isSelected ? "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)" : "var(--boost-surface, #ffffff)",
+          color: isSelected ? "#ffffff" : "var(--boost-text-primary, #0f172a)",
+          boxShadow: isSelected ? "0 4px 14px rgba(79, 70, 229, 0.3)" : "none"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs("div", { className: `boost-variant-selector ${className}`, style: { display: "flex", flexDirection: "column", gap: "18px", width: "100%" }, children: [
     /* @__PURE__ */ jsx("style", { children: `
         .boost-variant-label {
@@ -16332,12 +19205,8 @@ var VariantSelector = ({
               type: "button",
               disabled: isOutOfStock,
               onClick: () => onChange && onChange(group.name, optVal, opt),
-              className: `boost-variant-chip ${isSelected ? "selected" : ""}`,
-              style: {
-                cursor: isOutOfStock ? "not-allowed" : "pointer",
-                textDecoration: isOutOfStock ? "line-through" : "none",
-                opacity: isOutOfStock ? 0.45 : 1
-              },
+              className: `boost-variant-chip boost-variant-chip-preset-${preset} ${isSelected ? "selected" : ""}`,
+              style: getChipStyles(isSelected, isOutOfStock),
               children: [
                 /* @__PURE__ */ jsx("span", { children: optDisplay }),
                 opt.priceDelta && opt.priceDelta > 0 && /* @__PURE__ */ jsxs("span", { style: { fontSize: "11px", marginLeft: "5px", opacity: 0.85 }, children: [
@@ -16375,8 +19244,11 @@ var ProductCard = ({
   onAddToCart,
   onToggleWishlist,
   onClick,
-  className = ""
+  className = "",
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [isHovered, setIsHovered] = React.useState(false);
   const effectiveOriginalPrice = compareAtPrice ?? originalPrice;
   const imageList = images && images.length > 0 ? images : imageUrl ? [imageUrl] : image ? [image] : [];
@@ -16384,28 +19256,206 @@ var ProductCard = ({
   const secondaryImage = imageList[1] || mainImage;
   const currentImage = isHovered && secondaryImage ? secondaryImage : mainImage;
   const discountPercent = effectiveOriginalPrice && effectiveOriginalPrice > price ? Math.round((effectiveOriginalPrice - price) / effectiveOriginalPrice * 100) : null;
+  const getPresetCardStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "3px solid #000000",
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+          boxShadow: isHovered ? "6px 6px 0px #000000" : "4px 4px 0px #000000",
+          transform: isHovered ? "translate(-2px, -2px)" : "none"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.85))",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid var(--boost-glass-border, rgba(255, 255, 255, 0.25))",
+          borderRadius: "16px",
+          boxShadow: isHovered ? "0 14px 32px rgba(0, 0, 0, 0.15)" : "0 4px 20px rgba(0, 0, 0, 0.08)",
+          transform: isHovered ? "translateY(-4px)" : "none"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          border: "none",
+          borderRadius: "20px",
+          boxShadow: isHovered ? "8px 8px 18px #c5cad3, -8px -8px 18px #ffffff" : "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff",
+          transform: isHovered ? "translateY(-2px)" : "none"
+        };
+      case "gradient-glow":
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.35)",
+          borderRadius: "16px",
+          boxShadow: isHovered ? "0 0 30px rgba(99, 102, 241, 0.4)" : "0 0 16px rgba(99, 102, 241, 0.2)",
+          transform: isHovered ? "translateY(-4px)" : "none"
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          borderRadius: "24px",
+          border: "none",
+          boxShadow: isHovered ? "0 6px 20px rgba(0, 0, 0, 0.1)" : "0 2px 10px rgba(0, 0, 0, 0.06)",
+          transform: isHovered ? "translateY(-3px)" : "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "12px",
+          boxShadow: isHovered ? "0 8px 25px rgba(0, 0, 0, 0.6)" : "0 4px 16px rgba(0, 0, 0, 0.4)",
+          transform: isHovered ? "translateY(-4px)" : "none"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderRadius: "var(--boost-radius, 14px)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: isHovered ? "var(--boost-shadow-lg, 0 14px 28px rgba(0, 0, 0, 0.08))" : "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))",
+          transform: isHovered ? "translateY(-4px)" : "none"
+        };
+    }
+  };
+  const getPresetBadgeStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderRadius: "0px",
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "9999px"
+        };
+      case "material-you":
+      default:
+        return {
+          borderRadius: "9999px"
+        };
+    }
+  };
+  const getPresetButtonStyles = () => {
+    if (!inStock) {
+      return {
+        backgroundColor: "var(--boost-border, #cbd5e1)",
+        color: "var(--boost-text-muted, #64748b)",
+        borderRadius: "10px"
+      };
+    }
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          backgroundColor: "var(--boost-primary, #2563eb)",
+          color: "#ffffff",
+          border: "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(37, 99, 235, 0.85)",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          borderRadius: "12px",
+          boxShadow: "0 4px 15px rgba(37, 99, 235, 0.35)"
+        };
+      case "neumorphism":
+        return {
+          backgroundColor: "var(--boost-surface, #e8ebf0)",
+          color: "var(--boost-primary, #2563eb)",
+          border: "none",
+          borderRadius: "16px",
+          boxShadow: "4px 4px 8px #c5cad3, -4px -4px 8px #ffffff",
+          fontWeight: 700
+        };
+      case "gradient-glow":
+        return {
+          background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "12px",
+          boxShadow: "0 0 16px rgba(99, 102, 241, 0.45)",
+          fontWeight: 700
+        };
+      case "material-you":
+        return {
+          backgroundColor: "var(--boost-primary, #2563eb)",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "9999px",
+          boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)",
+          fontWeight: 700
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#2563eb",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "10px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-primary, #2563eb)",
+          color: "#ffffff",
+          borderRadius: "10px",
+          boxShadow: "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08))"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-product-card ${className}`,
+      className: `boost-product-card boost-product-card-preset-${preset} ${className}`,
       onMouseEnter: () => setIsHovered(true),
       onMouseLeave: () => setIsHovered(false),
       style: {
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        borderRadius: "var(--boost-radius, 16px)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
         overflow: "hidden",
         transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease",
-        transform: isHovered ? "translateY(-4px)" : "none",
-        boxShadow: isHovered ? "var(--boost-shadow-lg, 0 14px 28px rgba(0, 0, 0, 0.08))" : "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))",
         fontFamily: "inherit",
         position: "relative",
         width: "100%",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        ...getPresetCardStyles()
       },
       children: [
+        /* @__PURE__ */ jsx("style", { children: `
+        :root[data-theme="dark"] .boost-product-card {
+          background-color: #0f172a;
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-neo-brutalism {
+          background-color: #18181b !important;
+          border-color: #f8fafc !important;
+          box-shadow: 4px 4px 0px #f8fafc !important;
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-glassmorphism {
+          background-color: rgba(15, 23, 42, 0.85) !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-neumorphism {
+          background-color: #0f172a !important;
+          box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
+        }
+        :root[data-theme="dark"] .boost-product-card-preset-gradient-glow {
+          background-color: #0f172a !important;
+          border-color: rgba(99, 102, 241, 0.5) !important;
+          box-shadow: 0 0 25px rgba(99, 102, 241, 0.3) !important;
+        }
+      ` }),
         /* @__PURE__ */ jsxs(
           "div",
           {
@@ -16445,11 +19495,11 @@ var ProductCard = ({
                     fontSize: "10px",
                     fontWeight: 800,
                     padding: "3px 8px",
-                    borderRadius: "9999px",
                     textTransform: "uppercase",
                     letterSpacing: "0.04em",
                     boxShadow: "0 2px 8px rgba(239, 68, 68, 0.35)",
-                    zIndex: 2
+                    zIndex: 2,
+                    ...getPresetBadgeStyles()
                   },
                   children: [
                     discountPercent,
@@ -16599,16 +19649,12 @@ var ProductCard = ({
                     },
                     style: {
                       width: "100%",
-                      backgroundColor: inStock ? "var(--boost-primary, #2563eb)" : "var(--boost-border, #cbd5e1)",
-                      color: inStock ? "#ffffff" : "var(--boost-text-muted, #64748b)",
-                      border: "none",
-                      borderRadius: "10px",
                       padding: "8px 12px",
                       fontSize: "12px",
                       fontWeight: 700,
                       cursor: inStock ? "pointer" : "not-allowed",
                       transition: "all 0.15s ease",
-                      boxShadow: inStock ? "var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08))" : "none"
+                      ...getPresetButtonStyles()
                     },
                     children: inStock ? "+ Add to Bag" : "Out of Stock"
                   }
@@ -16760,9 +19806,12 @@ var ReviewBreakdownBars = ({
   breakdown,
   onFilterByStar,
   selectedStar = null,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const rows = [5, 4, 3, 2, 1].map((star) => {
     let count = 0;
     if (Array.isArray(breakdown)) {
@@ -16776,22 +19825,84 @@ var ReviewBreakdownBars = ({
   const computedTotal = rows.reduce((sum, r) => sum + r.count, 0);
   const safeTotal = typeof totalReviews === "number" ? totalReviews : computedTotal || 100;
   const safeRating = typeof averageRating === "number" ? averageRating : 4.7;
+  const getContainerStyles = () => {
+    const base = {
+      display: "flex",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: "40px",
+      padding: "32px",
+      fontFamily: "inherit",
+      width: "100%",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "2px",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "24px",
+          boxShadow: "0 20px 40px -20px rgba(0, 0, 0, 0.1)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          borderRadius: "24px",
+          boxShadow: "8px 8px 20px #c8cdd5, -8px -8px 20px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          borderRadius: "24px",
+          boxShadow: "0 0 35px rgba(99, 102, 241, 0.15)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "28px",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#0f172a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "24px",
+          boxShadow: "0 20px 40px -20px rgba(0, 0, 0, 0.8)"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderRadius: "24px",
+          border: "1px solid var(--boost-border, rgba(0,0,0,0.05))",
+          boxShadow: "0 20px 40px -20px var(--boost-shadow, rgba(0,0,0,0.05))"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-review-breakdown ${className}`,
+      className: `boost-review-breakdown boost-review-breakdown-preset-${preset} ${className}`,
       style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "40px",
-        padding: "32px",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        borderRadius: "24px",
-        border: "1px solid var(--boost-border, rgba(0,0,0,0.05))",
-        boxShadow: "0 20px 40px -20px var(--boost-shadow, rgba(0,0,0,0.05))",
-        fontFamily: "inherit",
-        width: "100%",
+        ...getContainerStyles(),
         ...style
       },
       children: [
@@ -16955,13 +20066,15 @@ var AnnouncementBar = ({
   linkUrl,
   linkText,
   closable = true,
-  backgroundColor = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%)",
-  textColor = "#ffffff",
+  backgroundColor,
+  textColor,
   accentColor = "#fbbf24",
   onClose,
+  stylePreset: stylePresetProp,
   className = "",
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
   const [isVisible, setIsVisible] = React.useState(true);
   const [copied, setCopied] = React.useState(false);
   const [currentIdx, setCurrentIdx] = React.useState(0);
@@ -17118,10 +20231,13 @@ var LightningDealsBar = ({
   badgeColor = "#ef4444",
   className = "",
   style,
+  stylePreset: stylePresetProp,
   onExpire,
   hideOnExpire = true,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [timeLeft, setTimeLeft] = React.useState({
     hours: 2,
     minutes: 0,
@@ -17171,34 +20287,178 @@ var LightningDealsBar = ({
   if (timeLeft.isExpired && hideOnExpire) {
     return null;
   }
+  const getContainerStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          background: "#ffffff",
+          border: "3px solid #000000",
+          boxShadow: "5px 5px 0px #000000",
+          borderRadius: "2px"
+        };
+      case "glassmorphism":
+        return {
+          background: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.12)",
+          borderRadius: "16px"
+        };
+      case "neumorphism":
+        return {
+          background: "var(--boost-surface, #e6ecf5)",
+          border: "none",
+          boxShadow: "6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff",
+          borderRadius: "16px"
+        };
+      case "gradient-glow":
+        return {
+          background: "linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%), var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(245, 158, 11, 0.4)",
+          boxShadow: "0 0 25px rgba(245, 158, 11, 0.25)",
+          borderRadius: "16px"
+        };
+      case "material-you":
+        return {
+          background: "var(--boost-surface-variant, #fff7ed)",
+          border: "none",
+          borderRadius: "24px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.06)"
+        };
+      case "dark-first":
+        return {
+          background: "#0f172a",
+          border: "1px solid #334155",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)",
+          borderRadius: "16px"
+        };
+      case "minimal":
+      default:
+        return {
+          background: "linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(254, 226, 226, 0.25) 100%), var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, rgba(245, 158, 11, 0.25))",
+          boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(0, 0, 0, 0.03)",
+          borderRadius: "16px"
+        };
+    }
+  };
+  const getTimerBoxStyles = (isSec) => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderRadius: "0px",
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000",
+          background: isSec ? "#ef4444" : "#000000",
+          color: "#ffffff",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          borderRadius: "6px",
+          background: isSec ? "rgba(239, 68, 68, 0.85)" : "rgba(15, 23, 42, 0.75)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: "1px solid rgba(255, 255, 255, 0.25)"
+        };
+      case "neumorphism":
+        return {
+          borderRadius: "6px",
+          background: "var(--boost-surface, #e6ecf5)",
+          boxShadow: "inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff",
+          color: isSec ? "#ef4444" : "var(--boost-text-primary, #0f172a)",
+          border: "none"
+        };
+      case "material-you":
+        return {
+          borderRadius: "8px",
+          background: isSec ? "#fee2e2" : "var(--boost-surface-container-high, #ffedd5)",
+          color: isSec ? "#991b1b" : "var(--boost-text-primary, #431407)",
+          border: "none",
+          fontWeight: 800
+        };
+      default:
+        return {};
+    }
+  };
+  const getBadgeStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "2px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "2px 2px 0px #000000",
+          background: "#ef4444",
+          color: "#ffffff",
+          fontWeight: 900
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          boxShadow: "3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff"
+        };
+      case "material-you":
+        return {
+          borderRadius: "12px"
+        };
+      default:
+        return {};
+    }
+  };
+  const getTrackStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "2px solid #000000",
+          borderRadius: "0px",
+          background: "#ffffff"
+        };
+      case "neumorphism":
+        return {
+          boxShadow: "inset 2px 2px 5px #c8d0dc, inset -2px -2px 5px #ffffff",
+          backgroundColor: "transparent"
+        };
+      case "material-you":
+        return {
+          borderRadius: "8px",
+          backgroundColor: "#ffedd5"
+        };
+      default:
+        return {};
+    }
+  };
+  const containerPresetStyle = getContainerStyles();
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-lightning-deals-bar ${className}`,
+      className: `boost-lightning-deals-bar boost-deals-preset-${preset} ${className}`,
       style: {
-        borderRadius: "16px",
         padding: "16px 20px",
         display: "flex",
         flexDirection: "column",
         gap: "12px",
         width: "100%",
         boxSizing: "border-box",
+        ...containerPresetStyle,
         ...style
       },
       children: [
         /* @__PURE__ */ jsx("style", { children: `
           .boost-lightning-deals-bar {
-            background: linear-gradient(135deg, rgba(254, 243, 199, 0.45) 0%, rgba(254, 226, 226, 0.25) 100%), var(--boost-surface, #ffffff);
-            border: 1px solid var(--boost-border, rgba(245, 158, 11, 0.25));
-            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1), 0 2px 6px rgba(0, 0, 0, 0.03);
             transition: all 0.3s ease;
           }
 
-          :root[data-theme="dark"] .boost-lightning-deals-bar,
-          .dark .boost-lightning-deals-bar {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(239, 68, 68, 0.06) 100%), var(--boost-surface, #0f172a);
-            border-color: rgba(245, 158, 11, 0.3);
-            box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.4);
+          :root[data-theme="dark"] .boost-deals-preset-glassmorphism,
+          .dark .boost-deals-preset-glassmorphism {
+            background: rgba(15, 23, 42, 0.75) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+
+          :root[data-theme="dark"] .boost-deals-preset-neumorphism,
+          .dark .boost-deals-preset-neumorphism {
+            background: #1e293b !important;
+            box-shadow: 6px 6px 14px #0d1522, -6px -6px 14px #2f3d54 !important;
           }
 
           .boost-deal-badge {
@@ -17286,10 +20546,20 @@ var LightningDealsBar = ({
               gap: "12px"
             },
             children: [
-              /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxs("span", { className: "boost-deal-badge", style: { backgroundColor: badgeColor !== "#ef4444" ? badgeColor : void 0 }, children: [
-                /* @__PURE__ */ jsx("svg", { className: "boost-deal-badge-icon", width: "13", height: "13", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) }),
-                dealTitle
-              ] }) }),
+              /* @__PURE__ */ jsx("div", { style: { display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxs(
+                "span",
+                {
+                  className: "boost-deal-badge",
+                  style: {
+                    backgroundColor: badgeColor !== "#ef4444" ? badgeColor : void 0,
+                    ...getBadgeStyles()
+                  },
+                  children: [
+                    /* @__PURE__ */ jsx("svg", { className: "boost-deal-badge-icon", width: "13", height: "13", viewBox: "0 0 24 24", fill: "currentColor", children: /* @__PURE__ */ jsx("polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" }) }),
+                    dealTitle
+                  ]
+                }
+              ) }),
               /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
                 /* @__PURE__ */ jsx(
                   "span",
@@ -17306,17 +20576,17 @@ var LightningDealsBar = ({
                   }
                 ),
                 /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: [
-                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box", children: [
+                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box", style: getTimerBoxStyles(), children: [
                     pad(timeLeft.hours),
                     "h"
                   ] }),
                   /* @__PURE__ */ jsx("span", { style: { fontWeight: 800, color: "var(--boost-text-muted, #94a3b8)", lineHeight: 1 }, children: ":" }),
-                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box", children: [
+                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box", style: getTimerBoxStyles(), children: [
                     pad(timeLeft.minutes),
                     "m"
                   ] }),
                   /* @__PURE__ */ jsx("span", { style: { fontWeight: 800, color: "var(--boost-text-muted, #94a3b8)", lineHeight: 1 }, children: ":" }),
-                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box seconds", children: [
+                  /* @__PURE__ */ jsxs("span", { className: "boost-timer-box seconds", style: getTimerBoxStyles(true), children: [
                     pad(timeLeft.seconds),
                     "s"
                   ] })
@@ -17326,11 +20596,14 @@ var LightningDealsBar = ({
           }
         ),
         /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "6px" }, children: [
-          /* @__PURE__ */ jsx("div", { className: "boost-deal-track", children: /* @__PURE__ */ jsx(
+          /* @__PURE__ */ jsx("div", { className: "boost-deal-track", style: getTrackStyles(), children: /* @__PURE__ */ jsx(
             "div",
             {
               className: "boost-deal-fill",
-              style: { width: `${percent}%` }
+              style: {
+                width: `${percent}%`,
+                borderRadius: preset === "neo-brutalism" ? "0px" : void 0
+              }
             }
           ) }),
           /* @__PURE__ */ jsxs(
@@ -17371,9 +20644,12 @@ var FrequentlyBoughtTogether = ({
   locale = "en-US",
   onAddBundleToCart,
   onAddBundle,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const allItems = React.useMemo(() => {
     const list = [];
     if (mainProduct && typeof mainProduct === "object" && mainProduct.id) list.push(mainProduct);
@@ -17416,21 +20692,82 @@ var FrequentlyBoughtTogether = ({
       onAddBundle(selectedItems.map((i) => i.id));
     }
   };
+  const getCardStyles = () => {
+    const base = {
+      padding: "24px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "20px",
+      width: "100%",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "2px",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "24px",
+          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.08)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          borderRadius: "24px",
+          boxShadow: "8px 8px 20px #c8cdd5, -8px -8px 20px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          borderRadius: "20px",
+          boxShadow: "0 0 35px rgba(99, 102, 241, 0.15)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "28px",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#0f172a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "20px",
+          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.7)"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, rgba(0, 0, 0, 0.08))",
+          borderRadius: "20px",
+          boxShadow: "0 12px 30px -10px var(--boost-shadow, rgba(0, 0, 0, 0.05))"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-frequently-bought ${className}`,
+      className: `boost-frequently-bought boost-frequently-bought-preset-${preset} ${className}`,
       style: {
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, rgba(0, 0, 0, 0.08))",
-        borderRadius: "20px",
-        padding: "24px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "20px",
-        boxShadow: "0 12px 30px -10px var(--boost-shadow, rgba(0, 0, 0, 0.05))",
-        width: "100%",
-        boxSizing: "border-box",
+        ...getCardStyles(),
         ...style
       },
       children: [
@@ -17908,31 +21245,98 @@ var DEFAULT_OFFERS = [
 ];
 var BankOffersAccordion = ({
   offers = DEFAULT_OFFERS,
+  stylePreset: stylePresetProp,
   className = "",
   style
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [expanded, setExpanded] = React.useState(false);
   const [copiedCode, setCopiedCode] = React.useState(null);
   const safeOffers = Array.isArray(offers) ? offers : DEFAULT_OFFERS;
   const displayedOffers = expanded ? safeOffers : safeOffers.slice(0, 2);
   const handleCopy = (code, e) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(code);
+    navigator.clipboard?.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2e3);
+  };
+  const getOffersContainerStyles = () => {
+    const base = {
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "16px",
+      width: "100%",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          borderRadius: "2px",
+          boxShadow: "5px 5px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "20px",
+          boxShadow: "0 15px 35px -5px rgba(0, 0, 0, 0.08)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          borderRadius: "20px",
+          boxShadow: "8px 8px 18px #c8cdd5, -8px -8px 18px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          borderRadius: "18px",
+          boxShadow: "0 0 30px rgba(99, 102, 241, 0.12)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "28px",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.05)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "#0f172a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "18px",
+          boxShadow: "0 15px 35px -5px rgba(0, 0, 0, 0.6)"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "18px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, rgba(0, 0, 0, 0.08))",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02)"
+        };
+    }
   };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-bank-offers ${className}`,
+      className: `boost-bank-offers boost-bank-offers-preset-${preset} ${className}`,
       style: {
-        borderRadius: "18px",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-        width: "100%",
-        boxSizing: "border-box",
+        ...getOffersContainerStyles(),
         ...style
       },
       children: [
@@ -18328,12 +21732,92 @@ var DualMobileActionBar = ({
   position,
   addToCartText = "Add to Cart",
   buyNowText = "Buy Now",
+  stylePreset: stylePresetProp,
   className = "",
   style,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const isRelative = position === "relative" || props.position === "relative";
   const effectiveOriginalPrice = compareAtPrice ?? originalPrice ?? props.originalPrice;
+  const getActionBarStyles = () => {
+    const base = {
+      position: isRelative ? "relative" : "fixed",
+      bottom: isRelative ? void 0 : 0,
+      left: isRelative ? void 0 : 0,
+      right: isRelative ? void 0 : 0,
+      width: "100%",
+      padding: "12px 16px",
+      zIndex: isRelative ? 1 : 50,
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      boxSizing: "border-box"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#ffffff",
+          borderTop: "3px solid #000000",
+          borderLeft: isRelative ? "3px solid #000000" : "none",
+          borderRight: isRelative ? "3px solid #000000" : "none",
+          borderBottom: isRelative ? "3px solid #000000" : "none",
+          borderRadius: "0px",
+          boxShadow: "0 -4px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(255, 255, 255, 0.85)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: isRelative ? "18px" : "20px 20px 0 0",
+          boxShadow: "0 -8px 30px rgba(0, 0, 0, 0.12)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          borderRadius: isRelative ? "18px" : "24px 24px 0 0",
+          boxShadow: "0 -6px 16px #cbd5e1"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          borderTop: "1px solid rgba(99, 102, 241, 0.3)",
+          borderRadius: isRelative ? "18px" : "20px 20px 0 0",
+          boxShadow: "0 -4px 25px rgba(99, 102, 241, 0.2)"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-surface, #fffbfe)",
+          borderTop: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: isRelative ? "28px" : "28px 28px 0 0",
+          boxShadow: "0 -4px 16px rgba(0, 0, 0, 0.08)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          backgroundColor: "rgba(15, 23, 42, 0.96)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: isRelative ? "18px" : "16px 16px 0 0",
+          boxShadow: "0 -8px 30px rgba(0, 0, 0, 0.6)"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: isRelative ? "18px" : "16px 16px 0 0"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     !isRelative && /* @__PURE__ */ jsx("style", { children: `
           @media (min-width: 768px) {
@@ -18457,20 +21941,9 @@ var DualMobileActionBar = ({
     /* @__PURE__ */ jsxs(
       "div",
       {
-        className: `boost-dual-mobile-action-bar ${isRelative ? "" : "md:hidden"} ${className}`,
+        className: `boost-dual-mobile-action-bar boost-dual-mobile-action-bar-preset-${preset} ${isRelative ? "" : "md:hidden"} ${className}`,
         style: {
-          position: isRelative ? "relative" : "fixed",
-          bottom: isRelative ? void 0 : 0,
-          left: isRelative ? void 0 : 0,
-          right: isRelative ? void 0 : 0,
-          width: "100%",
-          borderRadius: isRelative ? "18px" : "16px 16px 0 0",
-          padding: "12px 16px",
-          zIndex: isRelative ? 1 : 50,
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          boxSizing: "border-box",
+          ...getActionBarStyles(),
           ...style
         },
         children: [
@@ -19537,18 +23010,323 @@ var HeroSection = ({
   overlayOpacity = 0.5,
   align = "center",
   showGlow = true,
-  glowColor = "rgba(37, 99, 235, 0.15)",
+  glowColor,
   className = "",
   style,
+  stylePreset: stylePresetProp,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const isCenter = align === "center";
   const isRight = align === "right";
   const hasBg = !!backgroundImage;
+  const defaultGlowColor = preset === "gradient-glow" ? "radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.15) 50%, transparent 70%)" : preset === "neo-brutalism" ? "rgba(0, 0, 0, 0.05)" : "rgba(37, 99, 235, 0.15)";
+  const activeGlow = glowColor || defaultGlowColor;
+  const getBadgeStyles = () => {
+    const base = {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "8px",
+      padding: "6px 14px",
+      fontSize: "13px",
+      fontWeight: 600,
+      marginBottom: "20px"
+    };
+    if (hasBg) {
+      return {
+        ...base,
+        borderRadius: "9999px",
+        backgroundColor: "rgba(255, 255, 255, 0.15)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        color: "#ffffff",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)"
+      };
+    }
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#fbbf24",
+          color: "#000000",
+          border: "2px solid #000000",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(255, 255, 255, 0.45)",
+          color: "var(--boost-primary, #2563eb)",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "rgba(99, 102, 241, 0.1)",
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          color: "var(--boost-primary, #6366f1)",
+          boxShadow: "0 0 16px rgba(99, 102, 241, 0.25)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-primary, #2563eb)",
+          boxShadow: "3px 3px 6px #bec3c9, -3px -3px 6px #ffffff",
+          fontWeight: 700
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #e8def8)",
+          color: "var(--boost-primary, #6750a4)",
+          fontWeight: 600
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "rgba(59, 130, 246, 0.15)",
+          border: "1px solid rgba(59, 130, 246, 0.3)",
+          color: "#60a5fa"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "rgba(37, 99, 235, 0.1)",
+          border: "1px solid rgba(37, 99, 235, 0.22)",
+          color: "var(--boost-primary, #2563eb)"
+        };
+    }
+  };
+  const getPrimaryButtonStyles = () => {
+    const base = {
+      padding: "14px 32px",
+      fontSize: "15px",
+      fontWeight: 700,
+      cursor: "pointer",
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#fbbf24",
+          color: "#000000",
+          border: "3px solid #000000",
+          boxShadow: "4px 4px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "rgba(99, 102, 241, 0.85)",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          boxShadow: "0 8px 24px rgba(99, 102, 241, 0.35)",
+          backdropFilter: "blur(8px)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "12px",
+          background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "0 0 25px rgba(99, 102, 241, 0.6), 0 4px 16px rgba(99, 102, 241, 0.3)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-primary, #2563eb)",
+          border: "none",
+          boxShadow: "5px 5px 12px #bec3c9, -5px -5px 12px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: "var(--boost-primary, #3b82f6)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "0 0 20px rgba(59, 130, 246, 0.4)"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "6px",
+          backgroundColor: "var(--boost-text, #0f172a)",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "none"
+        };
+    }
+  };
+  const getSecondaryButtonStyles = () => {
+    const base = {
+      padding: "14px 32px",
+      fontSize: "15px",
+      fontWeight: 600,
+      cursor: "pointer",
+      transition: "all 0.15s ease"
+    };
+    if (hasBg) {
+      return {
+        ...base,
+        borderRadius: "12px",
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        color: "#ffffff",
+        border: "1px solid rgba(255, 255, 255, 0.4)",
+        backdropFilter: "blur(8px)"
+      };
+    }
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+          color: "#000000",
+          border: "3px solid #000000",
+          boxShadow: "4px 4px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "rgba(255, 255, 255, 0.4)",
+          color: "var(--boost-text, inherit)",
+          border: "1px solid rgba(255, 255, 255, 0.45)",
+          backdropFilter: "blur(8px)",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "rgba(99, 102, 241, 0.05)",
+          color: "var(--boost-text, inherit)",
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 12px rgba(99, 102, 241, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          color: "#475569",
+          border: "none",
+          boxShadow: "inset 2px 2px 5px #bec3c9, inset -2px -2px 5px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px",
+          backgroundColor: "transparent",
+          color: "var(--boost-primary, #6750a4)",
+          border: "1px solid var(--boost-primary, #6750a4)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: "#1f2937",
+          color: "#ffffff",
+          border: "1px solid #374151"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "6px",
+          backgroundColor: "transparent",
+          color: "var(--boost-text, inherit)",
+          border: "1px solid var(--boost-border, #cbd5e1)"
+        };
+    }
+  };
+  const getMediaContainerStyles = () => {
+    const base = {
+      flex: isCenter ? "none" : "1 1 320px",
+      width: "100%",
+      maxWidth: isCenter ? "900px" : "540px",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "4px",
+          border: "3px solid #000000",
+          boxShadow: "8px 8px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "20px",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(16px)",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "16px",
+          boxShadow: "0 0 40px rgba(99, 102, 241, 0.25)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "28px",
+          boxShadow: "10px 10px 24px #bec3c9, -10px -10px 24px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "var(--boost-radius, 16px)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "section",
     {
-      className: `boost-hero-section ${className}`,
+      className: `boost-hero-section boost-hero-${preset} ${className}`,
+      "data-boost-preset": preset,
       style: {
         position: "relative",
         padding: "clamp(64px, 10vw, 120px) clamp(16px, 4vw, 32px)",
@@ -19605,7 +23383,7 @@ var HeroSection = ({
             }
           }
         ),
-        !hasBg && showGlow && /* @__PURE__ */ jsx(
+        !hasBg && showGlow && preset !== "neo-brutalism" && /* @__PURE__ */ jsx(
           "div",
           {
             style: {
@@ -19616,7 +23394,7 @@ var HeroSection = ({
               width: "clamp(280px, 45vw, 600px)",
               height: "clamp(280px, 45vw, 600px)",
               borderRadius: "50%",
-              background: glowColor,
+              background: activeGlow,
               filter: "blur(clamp(60px, 10vw, 120px))",
               pointerEvents: "none",
               zIndex: 0,
@@ -19643,27 +23421,7 @@ var HeroSection = ({
             },
             children: [
               /* @__PURE__ */ jsxs("div", { className: "boost-hero-content", style: { maxWidth: isCenter ? "820px" : "620px", width: "100%", flex: isCenter ? "none" : "1 1 300px" }, children: [
-                badge && /* @__PURE__ */ jsx(
-                  "div",
-                  {
-                    style: {
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "6px 14px",
-                      borderRadius: "9999px",
-                      backgroundColor: hasBg ? "rgba(255, 255, 255, 0.15)" : "rgba(37, 99, 235, 0.1)",
-                      border: hasBg ? "1px solid rgba(255, 255, 255, 0.3)" : "1px solid rgba(37, 99, 235, 0.22)",
-                      color: hasBg ? "#ffffff" : "var(--boost-primary, #2563eb)",
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      marginBottom: "20px",
-                      backdropFilter: "blur(8px)",
-                      WebkitBackdropFilter: "blur(8px)"
-                    },
-                    children: badge
-                  }
-                ),
+                badge && /* @__PURE__ */ jsx("div", { style: getBadgeStyles(), children: badge }),
                 /* @__PURE__ */ jsx(
                   "h1",
                   {
@@ -19712,18 +23470,7 @@ var HeroSection = ({
                         {
                           type: "button",
                           onClick: primaryAction.onClick,
-                          style: {
-                            padding: "14px 32px",
-                            borderRadius: "var(--boost-radius, 12px)",
-                            backgroundColor: "var(--boost-primary, #2563eb)",
-                            color: "#ffffff",
-                            fontSize: "15px",
-                            fontWeight: 600,
-                            border: "none",
-                            cursor: "pointer",
-                            boxShadow: "var(--boost-shadow-glow, 0 4px 16px rgba(37, 99, 235, 0.35))",
-                            transition: "all 0.15s ease"
-                          },
+                          style: getPrimaryButtonStyles(),
                           children: primaryAction.label
                         }
                       ),
@@ -19732,18 +23479,7 @@ var HeroSection = ({
                         {
                           type: "button",
                           onClick: secondaryAction.onClick,
-                          style: {
-                            padding: "14px 32px",
-                            borderRadius: "var(--boost-radius, 12px)",
-                            backgroundColor: hasBg ? "rgba(255, 255, 255, 0.1)" : "var(--boost-surface, transparent)",
-                            color: hasBg ? "#ffffff" : "var(--boost-text, inherit)",
-                            fontSize: "15px",
-                            fontWeight: 600,
-                            border: hasBg ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid var(--boost-border, #cbd5e1)",
-                            backdropFilter: hasBg ? "blur(8px)" : "none",
-                            cursor: "pointer",
-                            transition: "all 0.15s ease"
-                          },
+                          style: getSecondaryButtonStyles(),
                           children: secondaryAction.label
                         }
                       )
@@ -19751,22 +23487,7 @@ var HeroSection = ({
                   }
                 )
               ] }),
-              media && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    flex: isCenter ? "none" : "1 1 320px",
-                    width: "100%",
-                    maxWidth: isCenter ? "900px" : "540px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "var(--boost-radius, 16px)",
-                    overflow: "hidden"
-                  },
-                  children: media
-                }
-              )
+              media && /* @__PURE__ */ jsx("div", { style: getMediaContainerStyles(), children: media })
             ]
           }
         )
@@ -19914,8 +23635,11 @@ var PricingTable = ({
   showToggle = true,
   className = "",
   style,
+  stylePreset: stylePresetProp,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [internalCycle, setInternalCycle] = React.useState(billingCycle);
   const activeCycle = onBillingCycleChange ? billingCycle : internalCycle;
   const handleCycleChange = (cycle) => {
@@ -19925,10 +23649,383 @@ var PricingTable = ({
       setInternalCycle(cycle);
     }
   };
+  const getToggleContainerStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "#ffffff",
+          padding: "4px",
+          borderRadius: "4px",
+          border: "2px solid #000000",
+          boxShadow: "3px 3px 0px #000000",
+          marginBottom: "40px",
+          gap: "4px"
+        };
+      case "glassmorphism":
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "rgba(255, 255, 255, 0.45)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          padding: "4px",
+          borderRadius: "9999px",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.05)",
+          marginBottom: "40px",
+          gap: "4px"
+        };
+      case "neumorphism":
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "#e0e5ec",
+          padding: "6px",
+          borderRadius: "9999px",
+          border: "none",
+          boxShadow: "inset 3px 3px 6px #bec3c9, inset -3px -3px 6px #ffffff",
+          marginBottom: "40px",
+          gap: "6px"
+        };
+      case "gradient-glow":
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "var(--boost-surface, #f8fafc)",
+          padding: "4px",
+          borderRadius: "9999px",
+          border: "1px solid rgba(99, 102, 241, 0.3)",
+          boxShadow: "0 0 16px rgba(99, 102, 241, 0.2)",
+          marginBottom: "40px",
+          gap: "4px"
+        };
+      case "material-you":
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "var(--boost-surface, #ece6f0)",
+          padding: "6px",
+          borderRadius: "24px",
+          border: "none",
+          marginBottom: "40px",
+          gap: "4px"
+        };
+      case "dark-first":
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "#1e293b",
+          padding: "4px",
+          borderRadius: "9999px",
+          border: "1px solid #334155",
+          marginBottom: "40px",
+          gap: "4px"
+        };
+      case "minimal":
+      default:
+        return {
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "var(--boost-surface, #f1f5f9)",
+          padding: "4px",
+          borderRadius: "9999px",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          marginBottom: "40px",
+          gap: "4px"
+        };
+    }
+  };
+  const getToggleButtonStyles = (isActive) => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          padding: "8px 20px",
+          borderRadius: "2px",
+          border: isActive ? "2px solid #000000" : "2px solid transparent",
+          backgroundColor: isActive ? "var(--boost-primary, #fbbf24)" : "transparent",
+          color: "#000000",
+          fontWeight: 800,
+          fontSize: "14px",
+          cursor: "pointer",
+          boxShadow: isActive ? "2px 2px 0px #000000" : "none",
+          transition: "all 0.15s ease"
+        };
+      case "glassmorphism":
+        return {
+          padding: "8px 20px",
+          borderRadius: "9999px",
+          border: "none",
+          backgroundColor: isActive ? "rgba(255, 255, 255, 0.85)" : "transparent",
+          color: isActive ? "var(--boost-text, #0f172a)" : "var(--boost-text-muted, #64748b)",
+          fontWeight: 600,
+          fontSize: "14px",
+          cursor: "pointer",
+          boxShadow: isActive ? "0 4px 12px rgba(0, 0, 0, 0.08)" : "none",
+          transition: "all 0.15s ease"
+        };
+      case "neumorphism":
+        return {
+          padding: "8px 20px",
+          borderRadius: "9999px",
+          border: "none",
+          backgroundColor: "#e0e5ec",
+          color: isActive ? "var(--boost-primary, #2563eb)" : "#64748b",
+          fontWeight: 700,
+          fontSize: "14px",
+          cursor: "pointer",
+          boxShadow: isActive ? "3px 3px 6px #bec3c9, -3px -3px 6px #ffffff" : "none",
+          transition: "all 0.15s ease"
+        };
+      case "material-you":
+        return {
+          padding: "8px 20px",
+          borderRadius: "20px",
+          border: "none",
+          backgroundColor: isActive ? "var(--boost-primary, #6750a4)" : "transparent",
+          color: isActive ? "#ffffff" : "var(--boost-text, #49454f)",
+          fontWeight: 600,
+          fontSize: "14px",
+          cursor: "pointer",
+          transition: "all 0.15s ease"
+        };
+      default:
+        return {
+          padding: "8px 20px",
+          borderRadius: "9999px",
+          border: "none",
+          backgroundColor: isActive ? "var(--boost-bg, #ffffff)" : "transparent",
+          color: isActive ? "var(--boost-text, #0f172a)" : "var(--boost-text-muted, #64748b)",
+          fontWeight: 600,
+          fontSize: "14px",
+          cursor: "pointer",
+          boxShadow: isActive ? "0 2px 6px rgba(0, 0, 0, 0.08)" : "none",
+          transition: "all 0.15s ease"
+        };
+    }
+  };
+  const getTierCardStyles = (isPop) => {
+    const base = {
+      position: "relative",
+      boxSizing: "border-box",
+      padding: "clamp(24px, 4vw, 36px) clamp(20px, 3vw, 30px)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      transition: "transform 0.25s ease, box-shadow 0.25s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "4px",
+          backgroundColor: "#ffffff",
+          border: "3px solid #000000",
+          boxShadow: isPop ? "6px 6px 0px #000000" : "4px 4px 0px #000000",
+          transform: isPop ? "translate(-2px, -2px)" : "none"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: isPop ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.65)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: isPop ? "1.5px solid rgba(99, 102, 241, 0.6)" : "1px solid rgba(255, 255, 255, 0.45)",
+          boxShadow: isPop ? "0 16px 40px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.2)" : "0 8px 32px rgba(0, 0, 0, 0.06)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: isPop ? "2px solid var(--boost-primary, #6366f1)" : "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: isPop ? "0 0 35px rgba(99, 102, 241, 0.35), 0 12px 30px rgba(99, 102, 241, 0.2)" : "0 4px 20px rgba(0, 0, 0, 0.05)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "24px",
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          boxShadow: isPop ? "inset 2px 2px 5px #bec3c9, inset -2px -2px 5px #ffffff, 8px 8px 20px #bec3c9" : "8px 8px 18px #bec3c9, -8px -8px 18px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px",
+          backgroundColor: isPop ? "var(--boost-surface, #e8def8)" : "var(--boost-surface, #f3edf7)",
+          border: "none",
+          boxShadow: isPop ? "0 4px 16px rgba(0, 0, 0, 0.08)" : "none"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#111827",
+          border: isPop ? "1.5px solid var(--boost-primary, #3b82f6)" : "1px solid #1f2937",
+          boxShadow: isPop ? "0 0 25px rgba(59, 130, 246, 0.25)" : "none"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "8px",
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: isPop ? "2px solid #0f172a" : "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: isPop ? "0 8px 24px rgba(0, 0, 0, 0.06)" : "none"
+        };
+    }
+  };
+  const getPopularBadgeStyles = () => {
+    const base = {
+      position: "absolute",
+      top: "-13px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      fontSize: "11px",
+      fontWeight: 800,
+      padding: "4px 14px",
+      letterSpacing: "0.05em",
+      textTransform: "uppercase",
+      zIndex: 2
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          backgroundColor: "#fbbf24",
+          color: "#000000",
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000",
+          borderRadius: "2px"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          backgroundColor: "rgba(99, 102, 241, 0.85)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          color: "#ffffff",
+          borderRadius: "9999px",
+          boxShadow: "0 4px 16px rgba(99, 102, 241, 0.4)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+          color: "#ffffff",
+          borderRadius: "9999px",
+          boxShadow: "0 0 16px rgba(99, 102, 241, 0.6)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-primary, #2563eb)",
+          borderRadius: "9999px",
+          boxShadow: "3px 3px 6px #bec3c9, -3px -3px 6px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          borderRadius: "16px",
+          boxShadow: "none"
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: "var(--boost-primary, #2563eb)",
+          color: "#ffffff",
+          borderRadius: "9999px",
+          boxShadow: "0 2px 10px rgba(37, 99, 235, 0.4)"
+        };
+    }
+  };
+  const getButtonStyles = (isPop, disabled) => {
+    const base = {
+      width: "100%",
+      padding: "13px",
+      fontWeight: 700,
+      fontSize: "14px",
+      cursor: disabled ? "not-allowed" : "pointer",
+      opacity: disabled ? 0.5 : 1,
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: isPop ? "#fbbf24" : "#ffffff",
+          color: "#000000",
+          border: "2px solid #000000",
+          boxShadow: "3px 3px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: isPop ? "var(--boost-primary, #6366f1)" : "rgba(255, 255, 255, 0.5)",
+          color: isPop ? "#ffffff" : "var(--boost-text, #0f172a)",
+          border: isPop ? "none" : "1px solid rgba(255, 255, 255, 0.4)",
+          boxShadow: isPop ? "0 4px 16px rgba(99, 102, 241, 0.4)" : "none",
+          backdropFilter: "blur(8px)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "10px",
+          background: isPop ? "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)" : "var(--boost-bg, #f8fafc)",
+          color: isPop ? "#ffffff" : "var(--boost-text, #0f172a)",
+          border: isPop ? "none" : "1px solid var(--boost-border, #e2e8f0)",
+          boxShadow: isPop ? "0 0 20px rgba(99, 102, 241, 0.5)" : "none"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          color: isPop ? "var(--boost-primary, #2563eb)" : "var(--boost-text, #0f172a)",
+          border: "none",
+          boxShadow: isPop ? "inset 2px 2px 5px #bec3c9, inset -2px -2px 5px #ffffff" : "4px 4px 10px #bec3c9, -4px -4px 10px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "24px",
+          backgroundColor: isPop ? "var(--boost-primary, #6750a4)" : "transparent",
+          color: isPop ? "#ffffff" : "var(--boost-primary, #6750a4)",
+          border: isPop ? "none" : "1px solid var(--boost-primary, #6750a4)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: isPop ? "var(--boost-primary, #3b82f6)" : "#1f2937",
+          color: "#ffffff",
+          border: "none",
+          boxShadow: isPop ? "0 0 16px rgba(59, 130, 246, 0.4)" : "none"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "6px",
+          backgroundColor: isPop ? "#0f172a" : "transparent",
+          color: isPop ? "#ffffff" : "var(--boost-text, #0f172a)",
+          border: isPop ? "none" : "1px solid var(--boost-border, #e2e8f0)"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-pricing-table ${className}`,
+      className: `boost-pricing-table boost-pricing-table-${preset} ${className}`,
+      "data-boost-preset": preset,
       style: {
         display: "flex",
         flexDirection: "column",
@@ -19940,94 +24037,80 @@ var PricingTable = ({
       ...props,
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-pricing-card,
-          .dark .boost-pricing-card {
+          :root[data-theme="dark"] .boost-pricing-card.preset-glassmorphism,
+          .dark .boost-pricing-card.preset-glassmorphism {
+            background-color: rgba(15, 23, 42, 0.75) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.preset-neo-brutalism,
+          .dark .boost-pricing-card.preset-neo-brutalism {
+            background-color: #18181b !important;
+            border-color: #ffffff !important;
+            box-shadow: 4px 4px 0px #ffffff !important;
+            color: #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.preset-neo-brutalism.is-popular,
+          .dark .boost-pricing-card.preset-neo-brutalism.is-popular {
+            box-shadow: 6px 6px 0px #ffffff !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card.preset-neumorphism,
+          .dark .boost-pricing-card.preset-neumorphism {
+            background-color: #1e2530 !important;
+            box-shadow: 6px 6px 14px #13171e, -6px -6px 14px #293342 !important;
+          }
+          :root[data-theme="dark"] .boost-pricing-card:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism),
+          .dark .boost-pricing-card:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism) {
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
           }
-          :root[data-theme="dark"] .boost-pricing-card.is-popular,
-          .dark .boost-pricing-card.is-popular {
+          :root[data-theme="dark"] .boost-pricing-card.is-popular:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism),
+          .dark .boost-pricing-card.is-popular:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism) {
             border-color: var(--boost-primary, #6366f1) !important;
             box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25) !important;
           }
         ` }),
-        showToggle && /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              backgroundColor: "var(--boost-surface, #f1f5f9)",
-              padding: "4px",
-              borderRadius: "9999px",
-              border: "1px solid var(--boost-border, #e2e8f0)",
-              marginBottom: "40px",
-              gap: "4px"
-            },
-            children: [
-              /* @__PURE__ */ jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => handleCycleChange("monthly"),
-                  style: {
-                    padding: "8px 20px",
-                    borderRadius: "9999px",
-                    border: "none",
-                    backgroundColor: activeCycle === "monthly" ? "var(--boost-bg, #ffffff)" : "transparent",
-                    color: activeCycle === "monthly" ? "var(--boost-text, #0f172a)" : "var(--boost-text-muted, #64748b)",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    boxShadow: activeCycle === "monthly" ? "0 2px 6px rgba(0, 0, 0, 0.08)" : "none",
-                    transition: "all 0.15s ease"
-                  },
-                  children: "Monthly"
-                }
-              ),
-              /* @__PURE__ */ jsxs(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => handleCycleChange("annual"),
-                  style: {
-                    padding: "8px 20px",
-                    borderRadius: "9999px",
-                    border: "none",
-                    backgroundColor: activeCycle === "annual" ? "var(--boost-bg, #ffffff)" : "transparent",
-                    color: activeCycle === "annual" ? "var(--boost-text, #0f172a)" : "var(--boost-text-muted, #64748b)",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    boxShadow: activeCycle === "annual" ? "0 2px 6px rgba(0, 0, 0, 0.08)" : "none",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px"
-                  },
-                  children: [
-                    "Annual",
-                    annualDiscountLabel && /* @__PURE__ */ jsx(
-                      "span",
-                      {
-                        style: {
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          backgroundColor: "rgba(34, 197, 94, 0.15)",
-                          color: "#16a34a",
-                          padding: "2px 8px",
-                          borderRadius: "9999px"
-                        },
-                        children: annualDiscountLabel
-                      }
-                    )
-                  ]
-                }
-              )
-            ]
-          }
-        ),
+        showToggle && /* @__PURE__ */ jsxs("div", { style: getToggleContainerStyles(), children: [
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleCycleChange("monthly"),
+              style: getToggleButtonStyles(activeCycle === "monthly"),
+              children: "Monthly"
+            }
+          ),
+          /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleCycleChange("annual"),
+              style: {
+                ...getToggleButtonStyles(activeCycle === "annual"),
+                display: "flex",
+                alignItems: "center",
+                gap: "6px"
+              },
+              children: [
+                "Annual",
+                annualDiscountLabel && /* @__PURE__ */ jsx(
+                  "span",
+                  {
+                    style: {
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      backgroundColor: "rgba(34, 197, 94, 0.15)",
+                      color: "#16a34a",
+                      padding: "2px 8px",
+                      borderRadius: "9999px"
+                    },
+                    children: annualDiscountLabel
+                  }
+                )
+              ]
+            }
+          )
+        ] }),
         /* @__PURE__ */ jsx(
           "div",
           {
@@ -20047,42 +24130,10 @@ var PricingTable = ({
               return /* @__PURE__ */ jsxs(
                 "div",
                 {
-                  className: `boost-pricing-card ${isPop ? "is-popular" : ""}`,
-                  style: {
-                    position: "relative",
-                    boxSizing: "border-box",
-                    padding: "clamp(24px, 4vw, 36px) clamp(20px, 3vw, 30px)",
-                    borderRadius: "var(--boost-radius, 16px)",
-                    backgroundColor: "var(--boost-surface, #ffffff)",
-                    border: isPop ? "2px solid var(--boost-primary, #2563eb)" : "1px solid var(--boost-border, #e2e8f0)",
-                    boxShadow: isPop ? "var(--boost-shadow-glow, 0 16px 36px rgba(37, 99, 235, 0.18))" : "var(--boost-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04))",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    transition: "transform 0.25s ease, box-shadow 0.25s ease"
-                  },
+                  className: `boost-pricing-card preset-${preset} ${isPop ? "is-popular" : ""}`,
+                  style: getTierCardStyles(isPop),
                   children: [
-                    isPop && /* @__PURE__ */ jsx(
-                      "div",
-                      {
-                        style: {
-                          position: "absolute",
-                          top: "-13px",
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          backgroundColor: "var(--boost-primary, #2563eb)",
-                          color: "#ffffff",
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          padding: "4px 14px",
-                          borderRadius: "9999px",
-                          letterSpacing: "0.05em",
-                          textTransform: "uppercase",
-                          boxShadow: "0 2px 10px rgba(37, 99, 235, 0.4)"
-                        },
-                        children: tier.popularLabel || "Most Popular"
-                      }
-                    ),
+                    isPop && /* @__PURE__ */ jsx("div", { style: getPopularBadgeStyles(), children: tier.popularLabel || "Most Popular" }),
                     /* @__PURE__ */ jsxs("div", { children: [
                       /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
                         /* @__PURE__ */ jsx(
@@ -20106,8 +24157,8 @@ var PricingTable = ({
                               backgroundColor: "rgba(34, 197, 94, 0.1)",
                               color: "#16a34a",
                               padding: "2px 8px",
-                              borderRadius: "9999px",
-                              border: "1px solid rgba(34, 197, 94, 0.2)"
+                              borderRadius: preset === "neo-brutalism" ? "2px" : "9999px",
+                              border: preset === "neo-brutalism" ? "1.5px solid #000" : "1px solid rgba(34, 197, 94, 0.2)"
                             },
                             children: tier.badge
                           }
@@ -20182,7 +24233,7 @@ var PricingTable = ({
                         "div",
                         {
                           style: {
-                            borderTop: "1px solid var(--boost-border, #e2e8f0)",
+                            borderTop: preset === "neo-brutalism" ? "2px solid #000" : "1px solid var(--boost-border, #e2e8f0)",
                             paddingTop: "24px",
                             marginBottom: "32px"
                           },
@@ -20221,8 +24272,9 @@ var PricingTable = ({
                                             justifyContent: "center",
                                             width: "20px",
                                             height: "20px",
-                                            borderRadius: "9999px",
-                                            backgroundColor: included ? "rgba(37, 99, 235, 0.1)" : "rgba(148, 163, 184, 0.1)",
+                                            borderRadius: preset === "neo-brutalism" ? "2px" : "9999px",
+                                            backgroundColor: preset === "neo-brutalism" ? included ? "#fbbf24" : "#f1f5f9" : included ? "rgba(37, 99, 235, 0.1)" : "rgba(148, 163, 184, 0.1)",
+                                            border: preset === "neo-brutalism" ? "1.5px solid #000" : "none",
                                             flexShrink: 0
                                           },
                                           children: /* @__PURE__ */ jsx(
@@ -20232,8 +24284,8 @@ var PricingTable = ({
                                               height: "12",
                                               viewBox: "0 0 24 24",
                                               fill: "none",
-                                              stroke: included ? "var(--boost-primary, #2563eb)" : "#94a3b8",
-                                              strokeWidth: "2.5",
+                                              stroke: included ? preset === "neo-brutalism" ? "#000000" : "var(--boost-primary, #2563eb)" : "#94a3b8",
+                                              strokeWidth: preset === "neo-brutalism" ? "3" : "2.5",
                                               strokeLinecap: "round",
                                               strokeLinejoin: "round",
                                               children: included ? /* @__PURE__ */ jsx("polyline", { points: "20 6 9 17 4 12" }) : /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -20261,20 +24313,7 @@ var PricingTable = ({
                         type: "button",
                         onClick: tier.onSelect,
                         disabled: tier.disabled,
-                        style: {
-                          width: "100%",
-                          padding: "13px",
-                          borderRadius: "var(--boost-radius, 10px)",
-                          backgroundColor: isPop ? "var(--boost-primary, #2563eb)" : "var(--boost-bg, #f8fafc)",
-                          color: isPop ? "#ffffff" : "var(--boost-text, #0f172a)",
-                          border: isPop ? "none" : "1px solid var(--boost-border, #e2e8f0)",
-                          fontWeight: 600,
-                          fontSize: "14px",
-                          cursor: tier.disabled ? "not-allowed" : "pointer",
-                          opacity: tier.disabled ? 0.5 : 1,
-                          boxShadow: isPop ? "var(--boost-shadow-glow, 0 4px 14px rgba(37, 99, 235, 0.3))" : "none",
-                          transition: "all 0.15s ease"
-                        },
+                        style: getButtonStyles(isPop, tier.disabled),
                         children: tier.ctaText || (isPop ? "Get Started Now" : "Choose Plan")
                       }
                     )
@@ -20303,41 +24342,50 @@ var TestimonialCard = ({
   rating = 5,
   verified = true,
   companyLogo,
+  stylePreset: stylePresetProp,
   className = "",
   style,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const finalAuthor = authorName || author || props.author || "Verified Buyer";
   const finalRole = authorRole || role || props.role;
   const finalCompany = authorCompany || company || props.company;
   authorAvatar || avatar || props.avatar;
+  const getCardStyles = () => {
+    const base = { padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", position: "relative" };
+    switch (preset) {
+      case "neo-brutalism":
+        return { ...base, backgroundColor: "#ffffff", border: "3px solid #000", borderRadius: "2px", boxShadow: "5px 5px 0px #000" };
+      case "glassmorphism":
+        return { ...base, backgroundColor: "rgba(255,255,255,0.7)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "18px", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" };
+      case "neumorphism":
+        return { ...base, backgroundColor: "#e0e5ec", border: "none", borderRadius: "20px", boxShadow: "8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff" };
+      case "gradient-glow":
+        return { ...base, backgroundColor: "var(--boost-surface,#ffffff)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: "14px", boxShadow: "0 0 24px rgba(99,102,241,0.12)" };
+      case "material-you":
+        return { ...base, backgroundColor: "var(--boost-surface,#fffbfe)", border: "1px solid var(--boost-border,#e2e8f0)", borderRadius: "24px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" };
+      case "dark-first":
+        return { ...base, backgroundColor: "#0f172a", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" };
+      default:
+        return { ...base, borderRadius: "var(--boost-radius,16px)", backgroundColor: "var(--boost-surface,#ffffff)", border: "1px solid var(--boost-border,#e2e8f0)", boxShadow: "0 4px 20px -2px rgba(0,0,0,0.05)" };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-testimonial-card ${className}`,
-      style: {
-        padding: "24px",
-        borderRadius: "var(--boost-radius, 16px)",
-        backgroundColor: "var(--boost-surface, #ffffff)",
-        border: "1px solid var(--boost-border, #e2e8f0)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        boxSizing: "border-box",
-        position: "relative",
-        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
-        ...style
-      },
+      className: `boost-testimonial-card boost-testimonial-card-preset-${preset} ${className}`,
+      style: { ...getCardStyles(), ...style },
       ...props,
       children: [
         /* @__PURE__ */ jsx("style", { children: `
-          :root[data-theme="dark"] .boost-testimonial-card,
-          .dark .boost-testimonial-card {
-            background-color: var(--boost-surface, #1e293b) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
-          }
-        ` }),
+        :root[data-theme="dark"] .boost-testimonial-card-preset-${preset} {
+          background-color: var(--boost-surface, #1e293b) !important;
+          border-color: rgba(255,255,255,0.1) !important;
+          box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5) !important;
+        }
+      ` }),
         /* @__PURE__ */ jsxs("div", { children: [
           /* @__PURE__ */ jsxs(
             "div",
@@ -20485,8 +24533,11 @@ var FAQSection = ({
   searchPlaceholder = "Search questions...",
   className = "",
   style,
+  stylePreset: stylePresetProp,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [openIds, setOpenIds] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const toggleItem = (idx) => {
@@ -20497,10 +24548,116 @@ var FAQSection = ({
   const filteredItems = items.filter(
     (item) => item.question.toLowerCase().includes(searchQuery.toLowerCase()) || typeof item.answer === "string" && item.answer.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const getSearchBoxPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: "4px 4px 0px #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.65)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          borderRadius: "16px"
+        };
+      case "neumorphism":
+        return {
+          boxShadow: "inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff",
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "16px"
+        };
+      case "gradient-glow":
+        return {
+          border: "1px solid rgba(99, 102, 241, 0.4)",
+          boxShadow: "0 0 15px rgba(99, 102, 241, 0.15)",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-surface-variant, #f3edf7)",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "#0f172a",
+          border: "1px solid #334155",
+          borderRadius: "14px"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "14px"
+        };
+    }
+  };
+  const getItemPresetStyles = (isOpen) => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          border: "3px solid #000000",
+          borderRadius: "0px",
+          boxShadow: isOpen ? "5px 5px 0px #000000" : "3px 3px 0px #000000",
+          backgroundColor: "#ffffff"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "rgba(255, 255, 255, 0.7)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: isOpen ? "1px solid rgba(255, 255, 255, 0.8)" : "1px solid rgba(255, 255, 255, 0.35)",
+          borderRadius: "16px",
+          boxShadow: isOpen ? "0 8px 32px 0 rgba(31, 38, 135, 0.12)" : "none"
+        };
+      case "neumorphism":
+        return {
+          border: "none",
+          backgroundColor: "var(--boost-surface, #e6ecf5)",
+          borderRadius: "16px",
+          boxShadow: isOpen ? "inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff" : "5px 5px 12px #d1d9e6, -5px -5px 12px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          border: isOpen ? "1px solid #818cf8" : "1px solid rgba(99, 102, 241, 0.25)",
+          boxShadow: isOpen ? "0 0 20px rgba(99, 102, 241, 0.25)" : "none",
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface, #ffffff)"
+        };
+      case "material-you":
+        return {
+          borderRadius: "24px",
+          backgroundColor: isOpen ? "var(--boost-surface-container-high, #ede7f6)" : "var(--boost-surface-variant, #f3edf7)",
+          border: "none"
+        };
+      case "dark-first":
+        return {
+          border: isOpen ? "1px solid #38bdf8" : "1px solid #334155",
+          backgroundColor: "#1e293b",
+          borderRadius: "14px"
+        };
+      case "minimal":
+      default:
+        return {
+          backgroundColor: "var(--boost-surface, #ffffff)",
+          border: isOpen ? "1px solid var(--boost-primary, #6366f1)" : "1px solid var(--boost-border, #e2e8f0)",
+          borderRadius: "14px",
+          boxShadow: isOpen ? "0 4px 20px rgba(99, 102, 241, 0.12)" : "none"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "div",
     {
-      className: `boost-faq-section ${className}`,
+      className: `boost-faq-section boost-faq-preset-${preset} ${className}`,
       style: {
         maxWidth: "850px",
         margin: "0 auto",
@@ -20512,9 +24669,6 @@ var FAQSection = ({
       children: [
         /* @__PURE__ */ jsx("style", { children: `
           .boost-faq-item {
-            background-color: var(--boost-surface, #ffffff);
-            border: 1px solid var(--boost-border, #e2e8f0);
-            border-radius: var(--boost-radius, 14px);
             overflow: hidden;
             transition: all 0.2s ease;
           }
@@ -20523,16 +24677,9 @@ var FAQSection = ({
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
           }
-          .boost-faq-item.is-open {
-            border-color: var(--boost-primary, #6366f1) !important;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15) !important;
-          }
           .boost-faq-search-box {
             display: flex;
             align-items: center;
-            background-color: var(--boost-surface, #ffffff);
-            border: 1px solid var(--boost-border, #e2e8f0);
-            border-radius: var(--boost-radius, 10px);
             padding: 10px 16px;
             gap: 10px;
           }
@@ -20567,7 +24714,7 @@ var FAQSection = ({
             }
           )
         ] }),
-        searchable && /* @__PURE__ */ jsx("div", { style: { marginBottom: "32px" }, children: /* @__PURE__ */ jsxs("div", { className: "boost-faq-search-box", children: [
+        searchable && /* @__PURE__ */ jsx("div", { style: { marginBottom: "32px" }, children: /* @__PURE__ */ jsxs("div", { className: "boost-faq-search-box", style: getSearchBoxPresetStyles(), children: [
           /* @__PURE__ */ jsxs(
             "svg",
             {
@@ -20634,6 +24781,7 @@ var FAQSection = ({
             "div",
             {
               className: `boost-faq-item ${isOpen ? "is-open" : ""}`,
+              style: getItemPresetStyles(isOpen),
               children: [
                 /* @__PURE__ */ jsxs(
                   "button",
@@ -20704,7 +24852,7 @@ var FAQSection = ({
                       color: "var(--boost-text-muted, #64748b)",
                       fontSize: "14px",
                       lineHeight: 1.65,
-                      borderTop: "1px solid var(--boost-border, #e2e8f0)",
+                      borderTop: preset === "neo-brutalism" ? "2px solid #000" : "1px solid var(--boost-border, #e2e8f0)",
                       paddingTop: "14px",
                       animation: "boost-fadeIn 0.2s ease"
                     },
@@ -20871,8 +25019,11 @@ var CTASection = ({
   variant = "card",
   className = "",
   style,
+  stylePreset: stylePresetProp,
   ...props
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [email, setEmail] = React.useState("");
   const [submitted, setSubmitted] = React.useState(false);
   const handleSubmit = (e) => {
@@ -20885,11 +25036,345 @@ var CTASection = ({
   const isGradient = variant === "gradient";
   const hasBgImage = !!backgroundImage;
   const overlayAlpha = overlayOpacity ?? 0.6;
-  const backgroundStyle = hasBgImage ? `linear-gradient(rgba(0, 0, 0, ${overlayAlpha}), rgba(0, 0, 0, ${overlayAlpha})), url(${backgroundImage}) center/cover no-repeat` : isGradient ? "linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)" : "var(--boost-primary, #2563eb)";
+  const getCardBackground = () => {
+    if (hasBgImage) {
+      return `linear-gradient(rgba(0, 0, 0, ${overlayAlpha}), rgba(0, 0, 0, ${overlayAlpha})), url(${backgroundImage}) center/cover no-repeat`;
+    }
+    switch (preset) {
+      case "neo-brutalism":
+        return "#fbbf24";
+      case "glassmorphism":
+        return "rgba(255, 255, 255, 0.12)";
+      case "gradient-glow":
+        return "linear-gradient(135deg, #312e81 0%, #4338ca 40%, #6366f1 100%)";
+      case "neumorphism":
+        return "#e0e5ec";
+      case "material-you":
+        return "var(--boost-surface, #ece6f0)";
+      case "dark-first":
+        return "#111827";
+      case "minimal":
+      default:
+        return isGradient ? "linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)" : "var(--boost-primary, #2563eb)";
+    }
+  };
+  const getContainerStyles = () => {
+    const base = {
+      maxWidth: isCard ? "1100px" : "100%",
+      margin: "0 auto",
+      background: getCardBackground(),
+      color: preset === "neo-brutalism" ? "#000000" : preset === "neumorphism" ? "#0f172a" : preset === "material-you" ? "#1c1b1f" : "#ffffff",
+      padding: "clamp(36px, 6vw, 60px) clamp(20px, 4vw, 48px)",
+      textAlign: "center",
+      boxSizing: "border-box",
+      position: "relative",
+      overflow: "hidden"
+    };
+    if (!isCard) {
+      return {
+        ...base,
+        borderRadius: "0px",
+        boxShadow: "none"
+      };
+    }
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "4px",
+          border: "3px solid #000000",
+          boxShadow: "6px 6px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "24px",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "20px",
+          border: "1.5px solid rgba(99, 102, 241, 0.5)",
+          boxShadow: "0 0 50px rgba(99, 102, 241, 0.35), 0 20px 40px rgba(0, 0, 0, 0.25)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "28px",
+          border: "none",
+          boxShadow: "10px 10px 24px #bec3c9, -10px -10px 24px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "32px",
+          border: "none",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)"
+        };
+      case "dark-first":
+        return {
+          ...base,
+          borderRadius: "16px",
+          border: "1px solid #1f2937",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)"
+        };
+      case "minimal":
+      default:
+        return {
+          ...base,
+          borderRadius: "12px",
+          boxShadow: "var(--boost-shadow-glow, 0 20px 40px rgba(37, 99, 235, 0.25))"
+        };
+    }
+  };
+  const getBadgeStyles = () => {
+    const base = {
+      display: "inline-block",
+      padding: "6px 14px",
+      fontSize: "12px",
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      marginBottom: "16px"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#000000",
+          color: "#fbbf24",
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "rgba(255, 255, 255, 0.2)",
+          border: "1px solid rgba(255, 255, 255, 0.35)",
+          color: "#ffffff",
+          backdropFilter: "blur(8px)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          background: "rgba(99, 102, 241, 0.3)",
+          border: "1px solid rgba(99, 102, 241, 0.5)",
+          color: "#ffffff",
+          boxShadow: "0 0 14px rgba(99, 102, 241, 0.4)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-primary, #2563eb)",
+          boxShadow: "inset 2px 2px 4px #bec3c9, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "var(--boost-surface-variant, #e8def8)",
+          color: "var(--boost-primary, #6750a4)"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "9999px",
+          backgroundColor: "rgba(255, 255, 255, 0.2)",
+          color: "#ffffff"
+        };
+    }
+  };
+  const getPrimaryButtonStyles = () => {
+    const base = {
+      padding: "14px 30px",
+      fontSize: "15px",
+      fontWeight: 700,
+      cursor: "pointer",
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#000000",
+          color: "#ffffff",
+          border: "3px solid #000000",
+          boxShadow: "3px 3px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "#ffffff",
+          color: "var(--boost-primary, #6366f1)",
+          border: "1px solid rgba(255, 255, 255, 0.6)",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: "#ffffff",
+          color: "var(--boost-primary, #4338ca)",
+          border: "none",
+          boxShadow: "0 0 25px rgba(255, 255, 255, 0.4)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          color: "var(--boost-primary, #2563eb)",
+          border: "none",
+          boxShadow: "4px 4px 10px #bec3c9, -4px -4px 10px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px",
+          backgroundColor: "var(--boost-primary, #6750a4)",
+          color: "#ffffff",
+          border: "none"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "var(--boost-radius, 8px)",
+          backgroundColor: "#ffffff",
+          color: "var(--boost-primary, #2563eb)",
+          border: "none",
+          boxShadow: "0 4px 14px rgba(0, 0, 0, 0.15)"
+        };
+    }
+  };
+  const getSecondaryButtonStyles = () => {
+    const base = {
+      padding: "14px 30px",
+      fontSize: "15px",
+      fontWeight: 600,
+      cursor: "pointer",
+      transition: "all 0.15s ease"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+          color: "#000000",
+          border: "3px solid #000000",
+          boxShadow: "3px 3px 0px #000000",
+          fontWeight: 800
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "12px",
+          backgroundColor: "rgba(255, 255, 255, 0.15)",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(8px)"
+        };
+      case "gradient-glow":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          boxShadow: "0 0 16px rgba(255, 255, 255, 0.15)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "16px",
+          backgroundColor: "#e0e5ec",
+          color: "#475569",
+          border: "none",
+          boxShadow: "inset 2px 2px 4px #bec3c9, inset -2px -2px 4px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "28px",
+          backgroundColor: "transparent",
+          color: "var(--boost-primary, #6750a4)",
+          border: "1px solid var(--boost-primary, #6750a4)"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "var(--boost-radius, 8px)",
+          backgroundColor: "transparent",
+          color: "#ffffff",
+          border: "1px solid rgba(255, 255, 255, 0.4)"
+        };
+    }
+  };
+  const getInputStyles = () => {
+    const base = {
+      flex: 1,
+      minWidth: "220px",
+      padding: "12px 18px",
+      fontSize: "15px",
+      outline: "none",
+      color: "#0f172a"
+    };
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          ...base,
+          borderRadius: "2px",
+          backgroundColor: "#ffffff",
+          border: "2px solid #000000",
+          boxShadow: "2px 2px 0px #000000"
+        };
+      case "glassmorphism":
+        return {
+          ...base,
+          borderRadius: "10px",
+          backgroundColor: "rgba(255, 255, 255, 0.85)",
+          border: "1px solid rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(8px)"
+        };
+      case "neumorphism":
+        return {
+          ...base,
+          borderRadius: "14px",
+          backgroundColor: "#e0e5ec",
+          border: "none",
+          boxShadow: "inset 3px 3px 6px #bec3c9, inset -3px -3px 6px #ffffff"
+        };
+      case "material-you":
+        return {
+          ...base,
+          borderRadius: "24px",
+          backgroundColor: "#ffffff",
+          border: "none"
+        };
+      default:
+        return {
+          ...base,
+          borderRadius: "var(--boost-radius, 8px)",
+          border: "none"
+        };
+    }
+  };
   return /* @__PURE__ */ jsxs(
     "section",
     {
-      className: `boost-cta-section ${className}`,
+      className: `boost-cta-section boost-cta-${preset} ${className}`,
+      "data-boost-preset": preset,
       style: {
         width: "100%",
         padding: isCard ? "clamp(24px, 4vw, 48px) clamp(14px, 3vw, 24px)" : "clamp(48px, 8vw, 84px) clamp(16px, 4vw, 32px)",
@@ -20915,181 +25400,110 @@ var CTASection = ({
             }
           }
         ` }),
-        /* @__PURE__ */ jsxs(
-          "div",
-          {
-            style: {
-              maxWidth: isCard ? "1100px" : "100%",
-              margin: "0 auto",
-              borderRadius: isCard ? "var(--boost-radius, 24px)" : "0px",
-              background: backgroundStyle,
-              color: "#ffffff",
-              padding: "clamp(36px, 6vw, 60px) clamp(20px, 4vw, 48px)",
-              textAlign: "center",
-              boxShadow: isCard ? "var(--boost-shadow-glow, 0 20px 40px rgba(37, 99, 235, 0.25))" : "none",
-              boxSizing: "border-box",
-              position: "relative",
-              overflow: "hidden"
-            },
-            children: [
-              badge && /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    display: "inline-block",
-                    padding: "6px 14px",
-                    borderRadius: "9999px",
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    marginBottom: "16px"
-                  },
-                  children: badge
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                "h2",
-                {
-                  style: {
-                    fontSize: "clamp(28px, 4.5vw, 46px)",
-                    fontWeight: 800,
-                    lineHeight: 1.2,
-                    margin: "0 0 16px 0",
-                    color: "#ffffff",
-                    letterSpacing: "-0.02em"
-                  },
-                  children: title
-                }
-              ),
-              description && /* @__PURE__ */ jsx(
-                "p",
-                {
-                  style: {
-                    fontSize: "clamp(15px, 1.8vw, 18px)",
-                    lineHeight: 1.6,
-                    color: "rgba(255, 255, 255, 0.85)",
-                    margin: "0 auto 36px auto",
-                    maxWidth: "650px"
-                  },
-                  children: description
-                }
-              ),
-              showNewsletter ? submitted ? /* @__PURE__ */ jsx(
-                "div",
-                {
-                  style: {
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    color: "#ffffff",
-                    fontWeight: 600
-                  },
-                  children: "\u2713 Thank you! We have sent a confirmation link to your inbox."
-                }
-              ) : /* @__PURE__ */ jsxs(
-                "form",
-                {
-                  onSubmit: handleSubmit,
-                  style: {
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    gap: "10px",
-                    maxWidth: "480px",
-                    margin: "0 auto"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsx(
-                      "input",
-                      {
-                        type: "email",
-                        required: true,
-                        value: email,
-                        onChange: (e) => setEmail(e.target.value),
-                        placeholder: newsletterPlaceholder,
-                        style: {
-                          flex: 1,
-                          minWidth: "220px",
-                          padding: "12px 18px",
-                          borderRadius: "var(--boost-radius, 8px)",
-                          border: "none",
-                          outline: "none",
-                          fontSize: "15px",
-                          color: "#0f172a"
-                        }
-                      }
-                    ),
-                    /* @__PURE__ */ jsx(
-                      "button",
-                      {
-                        type: "submit",
-                        style: {
-                          padding: "12px 24px",
-                          borderRadius: "var(--boost-radius, 8px)",
-                          border: "none",
-                          backgroundColor: "#0f172a",
-                          color: "#ffffff",
-                          fontSize: "15px",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          transition: "background-color 0.15s ease"
-                        },
-                        children: newsletterButtonText
-                      }
-                    )
-                  ]
-                }
-              ) : (primaryAction || secondaryAction) && /* @__PURE__ */ jsxs("div", { className: "boost-cta-buttons", children: [
-                primaryAction && /* @__PURE__ */ jsx(
-                  "button",
+        /* @__PURE__ */ jsxs("div", { style: getContainerStyles(), children: [
+          badge && /* @__PURE__ */ jsx("div", { style: getBadgeStyles(), children: badge }),
+          /* @__PURE__ */ jsx(
+            "h2",
+            {
+              style: {
+                fontSize: "clamp(28px, 4.5vw, 46px)",
+                fontWeight: 800,
+                lineHeight: 1.2,
+                margin: "0 0 16px 0",
+                color: preset === "neo-brutalism" ? "#000000" : preset === "neumorphism" ? "#0f172a" : preset === "material-you" ? "#1c1b1f" : "#ffffff",
+                letterSpacing: "-0.02em"
+              },
+              children: title
+            }
+          ),
+          description && /* @__PURE__ */ jsx(
+            "p",
+            {
+              style: {
+                fontSize: "clamp(15px, 1.8vw, 18px)",
+                lineHeight: 1.6,
+                color: preset === "neo-brutalism" ? "#27272a" : preset === "neumorphism" ? "#475569" : preset === "material-you" ? "#49454f" : "rgba(255, 255, 255, 0.85)",
+                margin: "0 auto 36px auto",
+                maxWidth: "650px"
+              },
+              children: description
+            }
+          ),
+          showNewsletter ? submitted ? /* @__PURE__ */ jsx(
+            "div",
+            {
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "12px 24px",
+                borderRadius: "8px",
+                backgroundColor: preset === "neo-brutalism" ? "#22c55e" : "rgba(255, 255, 255, 0.2)",
+                color: "#ffffff",
+                fontWeight: 600,
+                border: preset === "neo-brutalism" ? "2px solid #000" : "none"
+              },
+              children: "\u2713 Thank you! We have sent a confirmation link to your inbox."
+            }
+          ) : /* @__PURE__ */ jsxs(
+            "form",
+            {
+              onSubmit: handleSubmit,
+              style: {
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "10px",
+                maxWidth: "480px",
+                margin: "0 auto"
+              },
+              children: [
+                /* @__PURE__ */ jsx(
+                  "input",
                   {
-                    type: "button",
-                    onClick: primaryAction.onClick,
-                    style: {
-                      padding: "14px 30px",
-                      borderRadius: "var(--boost-radius, 8px)",
-                      backgroundColor: "#ffffff",
-                      color: "var(--boost-primary, #2563eb)",
-                      fontSize: "15px",
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 14px rgba(0, 0, 0, 0.15)"
-                    },
-                    children: primaryAction.label
+                    type: "email",
+                    required: true,
+                    value: email,
+                    onChange: (e) => setEmail(e.target.value),
+                    placeholder: newsletterPlaceholder,
+                    style: getInputStyles()
                   }
                 ),
-                secondaryAction && /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(
                   "button",
                   {
-                    type: "button",
-                    onClick: secondaryAction.onClick,
-                    style: {
-                      padding: "14px 30px",
-                      borderRadius: "var(--boost-radius, 8px)",
-                      backgroundColor: "transparent",
-                      color: "#ffffff",
-                      fontSize: "15px",
-                      fontWeight: 600,
-                      border: "1px solid rgba(255, 255, 255, 0.4)",
-                      cursor: "pointer"
-                    },
-                    children: secondaryAction.label
+                    type: "submit",
+                    style: getPrimaryButtonStyles(),
+                    children: newsletterButtonText
                   }
                 )
-              ] })
-            ]
-          }
-        )
+              ]
+            }
+          ) : (primaryAction || secondaryAction) && /* @__PURE__ */ jsxs("div", { className: "boost-cta-buttons", children: [
+            primaryAction && /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: primaryAction.onClick,
+                style: getPrimaryButtonStyles(),
+                children: primaryAction.label
+              }
+            ),
+            secondaryAction && /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                onClick: secondaryAction.onClick,
+                style: getSecondaryButtonStyles(),
+                children: secondaryAction.label
+              }
+            )
+          ] })
+        ] })
       ]
     }
   );
 };
 CTASection.displayName = "CTASection";
 
-export { Accordion, ActivityFeed, AddToCart, AddressForm, Alert, AnnouncementBar, AreaChart, AspectRatio, AssuredBadge, Avatar, AvatarGroup, BackButton, Badge, BankOffersAccordion, BarChart, BoostProvider, BottomSheet, Box, Breadcrumb, Button, ButtonGroup, CTASection, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Carousel, CartDrawer, Checkbox, Chip, CommandPalette, ConfirmationDialog, Container, CopyButton, CouponInput, DataTable, DatePicker, DateRangePicker, Dialog, Divider, DonutChart, Drawer, DropdownMenu, DualMobileActionBar, EmptyState, ErrorState, ExportButton, FAQSection, FeatureGrid, FileDropzone, FileUpload, Filter, Flex, FloatingActionButton, Footer, ForgotPassword, FormField, FrequentlyBoughtTogether, Grid, GridItem, HStack, Header, HeroSection, IconButton, Image, Input, KPIWidget, LightningDealsBar, LinkButton, Loader, LoginForm, LogoCloud, MegaMenu, MobileBottomBar, MobileBottomNav, Modal, Motion, MultiSelect, NavLink, Navbar, NotificationCenter, OTPInput, OrderSummary, OrderTimeline, PageWrapper, Pagination, PincodeChecker, Popover, Portal, Price, PricingTable, ProductCard, ProductGallery, ProgressBar, QuantitySelector, Radio, RadioGroup, RegisterForm, ResetPassword, ReviewBreakdownBars, ScrollArea, SearchInput, Section, Select, Sidebar, Skeleton, Snackbar, Sort, Sparkline, Spinner, Stack, StarRating, StatsCard, Stepper, StickyAddToCart, SuccessMessage, Switch, Table, Tabs, TabsContent, TabsList, TabsTrigger, Tag, TestimonialCard, TestimonialGrid, Textarea, ThemeToggle, TimePicker, Toast, ToastProvider, Tooltip, TrustBadges, VStack, VariantSelector, boostTokens, createTailwindPreset, injectBoostGlobalStyles, presetHelperClasses, presetTokenCssVars, presetTokens, useBoostPreset, useCurrency, useTheme, useToast };
+export { Accordion, ActivityFeed, AddToCart, AddressForm, Alert, AnnouncementBar, AreaChart, AspectRatio, AssuredBadge, Avatar, AvatarGroup, BackButton, Badge, BankOffersAccordion, BarChart, BoostProvider, BottomSheet, Box, Breadcrumb, Button, ButtonGroup, CTASection, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Carousel, CartDrawer, Checkbox, Chip, CommandPalette, ConfirmationDialog, Container, CopyButton, CouponInput, DataTable, DatePicker, DateRangePicker, Dialog, Divider, DonutChart, Drawer, DropdownMenu, DualMobileActionBar, EmptyState, ErrorState, ExportButton, FAQSection, FeatureGrid, FileDropzone, FileUpload, Filter, Flex, FloatingActionButton, Footer, ForgotPassword, FormField, FrequentlyBoughtTogether, Grid, GridItem, HStack, Header, HeroSection, IconButton, Image, Input, KPIWidget, LightningDealsBar, LinkButton, Loader, LoginForm, LogoCloud, MegaMenu, MobileBottomBar, MobileBottomNav, Modal, Motion, MultiSelect, NavLink, Navbar, NotificationCenter, OTPInput, OrderSummary, OrderTimeline, PageWrapper, Pagination, PincodeChecker, Popover, Portal, PresetSwitcher, Price, PricingTable, ProductCard, ProductGallery, ProgressBar, QuantitySelector, Radio, RadioGroup, RegisterForm, ResetPassword, ReviewBreakdownBars, ScrollArea, SearchInput, Section, Select, Sidebar, Skeleton, Snackbar, Sort, Sparkline, Spinner, Stack, StarRating, StatsCard, Stepper, StickyAddToCart, SuccessMessage, Switch, Table, Tabs, TabsContent, TabsList, TabsTrigger, Tag, TestimonialCard, TestimonialGrid, Textarea, ThemeToggle, TimePicker, Toast, ToastProvider, Tooltip, TrustBadges, VStack, VariantSelector, boostTokens, createTailwindPreset, injectBoostGlobalStyles, presetHelperClasses, presetTokenCssVars, presetTokens, useBoostPreset, useCurrency, useTheme, useToast };

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 import { TableColumn } from './Table';
 import { Pagination } from './Pagination';
 import { SearchInput } from './SearchInput';
@@ -28,6 +30,7 @@ export interface DataTableProps<T = any> {
   totalCount?: number;
   page?: number;
   onPageChange?: (page: number) => void;
+  stylePreset?: UIStylePreset;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -50,9 +53,12 @@ export function DataTable<T extends Record<string, any>>({
   totalCount,
   page: controlledPage,
   onPageChange,
+  stylePreset: stylePresetProp,
   className = '',
   style,
 }: DataTableProps<T>) {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const [searchQuery, setSearchQuery] = React.useState('');
   const [internalPage, setInternalPage] = React.useState(1);
   const [internalSelectedRows, setInternalSelectedRows] = React.useState<T[]>([]);
@@ -189,9 +195,156 @@ export function DataTable<T extends Record<string, any>>({
 
   const isAllSelected = paginatedData.length > 0 && selectedRows.length === paginatedData.length;
 
+  const getTableCardStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      width: '100%',
+      overflowX: 'auto',
+      maxHeight: maxHeight || undefined,
+      overflowY: maxHeight ? 'auto' : undefined,
+      WebkitOverflowScrolling: 'touch',
+      position: 'relative',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          border: '3px solid #000',
+          borderRadius: '2px',
+          backgroundColor: '#ffffff',
+          boxShadow: '5px 5px 0px #000',
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '16px',
+          backgroundColor: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          border: 'none',
+          borderRadius: '16px',
+          backgroundColor: '#e0e5ec',
+          boxShadow: '6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          ...base,
+          border: '1px solid rgba(99, 102, 241, 0.2)',
+          borderRadius: '12px',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          boxShadow: '0 0 20px rgba(99, 102, 241, 0.08)',
+        };
+      case 'material-you':
+        return {
+          ...base,
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: '24px',
+          backgroundColor: 'var(--boost-surface, #fffbfe)',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+        };
+      case 'dark-first':
+        return {
+          ...base,
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '12px',
+          backgroundColor: '#0f172a',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+        };
+      default:
+        return {
+          ...base,
+          border: '1px solid var(--boost-border, #e2e8f0)',
+          borderRadius: 'var(--boost-radius, 12px)',
+          backgroundColor: 'var(--boost-surface, #ffffff)',
+          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))',
+        };
+    }
+  };
+
+  const getHeaderRowStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: stickyHeader ? 'sticky' : undefined,
+      top: stickyHeader ? 0 : undefined,
+      zIndex: stickyHeader ? 2 : undefined,
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return { ...base, backgroundColor: '#fef08a', borderBottom: '3px solid #000' };
+      case 'glassmorphism':
+        return { ...base, backgroundColor: 'rgba(255, 255, 255, 0.3)', borderBottom: '1px solid rgba(255, 255, 255, 0.3)' };
+      case 'neumorphism':
+        return { ...base, backgroundColor: '#e0e5ec', borderBottom: '1px solid #d1d9e6' };
+      case 'gradient-glow':
+        return { ...base, backgroundColor: 'rgba(99, 102, 241, 0.05)', borderBottom: '1px solid rgba(99, 102, 241, 0.15)' };
+      case 'material-you':
+        return { ...base, backgroundColor: 'var(--boost-surface-secondary, #f3edf7)', borderBottom: '1px solid var(--boost-border, #e2e8f0)' };
+      case 'dark-first':
+        return { ...base, backgroundColor: '#1e293b', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' };
+      default:
+        return { ...base, backgroundColor: 'var(--boost-bg, #f8fafc)', borderBottom: '1px solid var(--boost-border, #e2e8f0)' };
+    }
+  };
+
+  const getExportBtnStyles = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      padding: '6px 12px',
+      fontSize: '12px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      transition: 'all 0.15s ease',
+    };
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          ...base,
+          backgroundColor: '#ffffff',
+          color: '#000000',
+          border: '2px solid #000000',
+          borderRadius: '2px',
+          boxShadow: '2px 2px 0px #000000',
+          fontWeight: 700,
+        };
+      case 'glassmorphism':
+        return {
+          ...base,
+          backgroundColor: 'rgba(255, 255, 255, 0.6)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          color: 'var(--boost-text, #0f172a)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: '8px',
+        };
+      case 'neumorphism':
+        return {
+          ...base,
+          backgroundColor: '#e0e5ec',
+          color: 'var(--boost-text, #0f172a)',
+          border: 'none',
+          borderRadius: '8px',
+          boxShadow: '3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff',
+        };
+      default:
+        return {
+          ...base,
+          backgroundColor: 'var(--boost-surface-secondary, #f1f5f9)',
+          color: 'var(--boost-text, #0f172a)',
+          border: '1px solid var(--boost-border, #cbd5e1)',
+          borderRadius: '8px',
+        };
+    }
+  };
+
   return (
     <div
-      className={`boost-data-table ${className}`}
+      className={`boost-data-table boost-data-table-preset-${preset} ${className}`}
       style={{
         fontFamily: 'inherit',
         display: 'flex',
@@ -204,27 +357,27 @@ export function DataTable<T extends Record<string, any>>({
     >
       <style>
         {`
-          :root[data-theme="dark"] .boost-data-table .boost-data-table-card,
-          .dark .boost-data-table .boost-data-table-card {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} .boost-data-table-card,
+          .dark .boost-data-table-preset-${preset} .boost-data-table-card {
             background-color: var(--boost-surface, #1e293b) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
           }
-          :root[data-theme="dark"] .boost-data-table thead tr,
-          .dark .boost-data-table thead tr {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} thead tr,
+          .dark .boost-data-table-preset-${preset} thead tr {
             background-color: rgba(255, 255, 255, 0.04) !important;
             border-bottom-color: rgba(255, 255, 255, 0.1) !important;
           }
-          :root[data-theme="dark"] .boost-data-table th,
-          .dark .boost-data-table th {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} th,
+          .dark .boost-data-table-preset-${preset} th {
             color: #f8fafc !important;
           }
-          :root[data-theme="dark"] .boost-data-table td,
-          .dark .boost-data-table td {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} td,
+          .dark .boost-data-table-preset-${preset} td {
             color: #cbd5e1 !important;
             border-bottom-color: rgba(255, 255, 255, 0.06) !important;
           }
-          :root[data-theme="dark"] .boost-data-table tbody tr:hover,
-          .dark .boost-data-table tbody tr:hover {
+          :root[data-theme="dark"] .boost-data-table-preset-${preset} tbody tr:hover,
+          .dark .boost-data-table-preset-${preset} tbody tr:hover {
             background-color: rgba(255, 255, 255, 0.03) !important;
           }
           .boost-table-sort-btn {
@@ -272,19 +425,7 @@ export function DataTable<T extends Record<string, any>>({
             <button
               type="button"
               onClick={handleExportCSV}
-              style={{
-                backgroundColor: 'var(--boost-surface-secondary, #f1f5f9)',
-                color: 'var(--boost-text, #0f172a)',
-                border: '1px solid var(--boost-border, #cbd5e1)',
-                padding: '6px 12px',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
+              style={getExportBtnStyles()}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -300,29 +441,12 @@ export function DataTable<T extends Record<string, any>>({
       {/* Table Container */}
       <div
         className="boost-data-table-card"
-        style={{
-          width: '100%',
-          overflowX: 'auto',
-          maxHeight: maxHeight || undefined,
-          overflowY: maxHeight ? 'auto' : undefined,
-          WebkitOverflowScrolling: 'touch',
-          border: '1px solid var(--boost-border, #e2e8f0)',
-          borderRadius: 'var(--boost-radius, 12px)',
-          backgroundColor: 'var(--boost-surface, #ffffff)',
-          boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04))',
-          position: 'relative',
-        }}
+        style={getTableCardStyles()}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left', color: 'var(--boost-text, #334155)', minWidth: '480px' }}>
           <thead>
             <tr
-              style={{
-                backgroundColor: 'var(--boost-bg, #f8fafc)',
-                borderBottom: '1px solid var(--boost-border, #e2e8f0)',
-                position: stickyHeader ? 'sticky' : undefined,
-                top: stickyHeader ? 0 : undefined,
-                zIndex: stickyHeader ? 2 : undefined,
-              }}
+              style={getHeaderRowStyles()}
             >
               {selectable && (
                 <th style={{ width: '40px', padding: '13px 16px' }}>
@@ -434,6 +558,7 @@ export function DataTable<T extends Record<string, any>>({
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}
+            stylePreset={preset}
           />
         </div>
       )}

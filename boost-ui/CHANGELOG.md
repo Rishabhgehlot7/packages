@@ -4,6 +4,16 @@ All notable changes to `@boostengine/ui` are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] — 2026-09-21
+
+### Major Changes
+- **Universal Multi-Theme Design Presets Engine**:
+  - Full system-wide support for 7 aesthetic design presets: `minimal`, `glassmorphism`, `neumorphism`, `neo-brutalism`, `dark-first`, `gradient-glow`, and `material-you`.
+  - Added `BoostProvider` with reactive `useBoostPreset()` hook and `PresetSwitcher` floating/dockable control widget.
+  - Complete preset coverage across all 121 exported components with zero external CSS dependencies.
+  - Per-component theme override via `stylePreset` prop.
+  - Hardcoded stable Material You corner radius (`24px`) for optimal cross-platform compatibility.
+
 ## [1.8.2] — 2026-09-20
 
 ### Added
