@@ -119,13 +119,20 @@ export function slugify(text: string): string {
 
 /**
  * generateId — Generates a random short alphanumeric ID.
- * Not cryptographically secure — for UI key generation only.
+ * Uses crypto.getRandomValues when available, falls back to Math.random.
+ * Not suitable for security-sensitive contexts.
  *
  * @example
  * generateId()     // => 'a3f9k2'
  * generateId(12)   // => 'p9z1x4j2m8r3'
  */
 export function generateId(length: number = 8): string {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, (_, i) => chars[array[i] % chars.length]).join('');
+  }
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }

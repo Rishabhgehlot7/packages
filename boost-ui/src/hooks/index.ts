@@ -482,7 +482,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
     };
 
     // Auto-focus first element when trap activates, unless already focused inside
-    if (firstElement && !element.contains(document.activeElement)) {
+    if (firstElement && document.activeElement && !element.contains(document.activeElement as Node)) {
       // Small timeout to ensure element is fully rendered and focusable
       setTimeout(() => firstElement.focus(), 10);
     }
@@ -497,24 +497,27 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
 /**
  * useAnnounce — WAI-ARIA live announcement hook for screen readers.
  * Injects polite or assertive announcements into an offscreen live region.
+ * Caches the container to avoid creating multiple live regions.
  *
  * @example
  * const announce = useAnnounce();
  * announce('Cart updated with 2 items', 'polite');
  */
 export function useAnnounce() {
-  const announce = React.useCallback((message: string, mode: 'polite' | 'assertive' = 'polite') => {
-    if (typeof document === 'undefined') return;
+  const containerRef = React.useRef<HTMLElement | null>(null);
 
-    const containerId = `boost-a11y-live-${mode}`;
-    let container = document.getElementById(containerId);
+  const getOrCreateContainer = React.useCallback(() => {
+    if (containerRef.current) return containerRef.current;
 
+    if (typeof document === 'undefined') return null;
+
+    let container = document.getElementById('boost-a11y-live-polite');
     if (!container) {
       container = document.createElement('div');
-      container.id = containerId;
-      container.setAttribute('aria-live', mode);
+      container.id = 'boost-a11y-live-polite';
+      container.setAttribute('aria-live', 'polite');
       container.setAttribute('aria-atomic', 'true');
-      container.setAttribute('role', mode === 'assertive' ? 'alert' : 'status');
+      container.setAttribute('role', 'status');
       // Visually hidden styles
       Object.assign(container.style, {
         position: 'absolute',
@@ -529,14 +532,52 @@ export function useAnnounce() {
       });
       document.body.appendChild(container);
     }
+    containerRef.current = container;
+    return container;
+  }, []);
+
+  const announce = React.useCallback((message: string, mode: 'polite' | 'assertive' = 'polite') => {
+    const container = getOrCreateContainer();
+    if (!container) return;
+
+    // For assertive mode, also create/assert an alert live region
+    if (mode === 'assertive') {
+      let alertContainer = document.getElementById('boost-a11y-live-assertive');
+      if (!alertContainer) {
+        alertContainer = document.createElement('div');
+        alertContainer.id = 'boost-a11y-live-assertive';
+        alertContainer.setAttribute('aria-live', 'assertive');
+        alertContainer.setAttribute('aria-atomic', 'true');
+        alertContainer.setAttribute('role', 'alert');
+        Object.assign(alertContainer.style, {
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: '0',
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: '0',
+        });
+        document.body.appendChild(alertContainer);
+      }
+      alertContainer.textContent = '';
+      setTimeout(() => {
+        if (alertContainer) {
+          alertContainer.textContent = message;
+        }
+      }, 0);
+    }
 
     // Set text to empty first, then set message to trigger screen reader announcement
     container.textContent = '';
-    setTimeout(() => {
+    // Use queueMicrotask for better timing than setTimeout in some screen readers
+    queueMicrotask(() => {
       if (container) {
         container.textContent = message;
       }
-    }, 50);
+    });
   }, []);
 
   return announce;
