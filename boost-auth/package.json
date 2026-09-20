@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/auth",
-  "version": "1.0.2",
-  "description": "Frictionless Phone OTP & 1-Click eCommerce Identity Engine for Next.js and Node.js with session cookies, guest checkout merging, and phone auth.",
+  "version": "1.1.0",
+  "description": "Universal, zero-dependency authentication framework for Next.js, React Native, Node.js, and Express with Phone OTP, OAuth, database adapters, and React hooks.",
   "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "license": "MIT",
   "funding": {
@@ -10,14 +10,23 @@
   },
   "keywords": [
     "auth",
+    "next-auth",
+    "authjs",
+    "better-auth",
     "otp",
     "phone-auth",
+    "oauth",
+    "google-auth",
+    "github-auth",
+    "react-native-auth",
     "ecommerce-auth",
     "jwt",
     "nextjs-auth",
     "guest-checkout",
     "stateless-auth",
-    "headless-auth",
+    "prisma-auth",
+    "drizzle-auth",
+    "mongodb-auth",
     "session-cookies"
   ],
   "homepage": "https://github.com/Rishabhgehlot7/packages/tree/main/packages/boost-auth#readme",
@@ -40,12 +49,28 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.cjs"
+    },
+    "./adapters": {
+      "types": "./dist/adapters.d.ts",
+      "import": "./dist/adapters.mjs",
+      "require": "./dist/adapters.cjs"
+    },
+    "./providers": {
+      "types": "./dist/providers.d.ts",
+      "import": "./dist/providers.mjs",
+      "require": "./dist/providers.cjs"
     }
   },
   "files": [
     "bin",
     "dist",
-    "README.md"
+    "README.md",
+    "llms.txt"
   ],
   "scripts": {
     "build": "tsup",

@@ -1,4 +1,7 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { presetTokens } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -11,7 +14,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   fullWidth?: boolean;
+  stylePreset?: UIStylePreset;
 }
+
+const NEURO_LIGHT = '6px 6px 12px #c5cad3, -6px -6px 12px #ffffff';
 
 export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -27,10 +33,13 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
       disabled,
       className = '',
       style,
+      stylePreset: stylePresetProp,
       ...props
     },
     ref
   ) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const getVariantStyles = (): React.CSSProperties => {
       switch (variant) {
         case 'primary':
@@ -103,6 +112,54 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
       }
     };
 
+    const getPresetStyles = (): React.CSSProperties => {
+      if (variant === 'link') return {};
+      switch (preset) {
+        case 'neo-brutalism':
+          return {
+            border: '2px solid #000',
+            borderRadius: '0px',
+            boxShadow: '3px 3px 0 #000',
+          };
+        case 'glassmorphism':
+          return {
+            backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
+            border: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+          };
+        case 'neumorphism':
+          return {
+            backgroundColor: 'var(--boost-surface, #e8ebf0)',
+            border: 'none',
+            borderRadius: presetTokens.neumorphism.radius,
+            boxShadow: NEURO_LIGHT,
+          };
+        case 'gradient-glow':
+          return {
+            boxShadow: '0 0 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.45)',
+          };
+        case 'material-you':
+          return {
+            borderRadius: '9999px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
+          };
+        case 'dark-first':
+          return {
+            backgroundColor: 'var(--boost-surface, #0b0f17)',
+            color: 'var(--boost-text, #f8fafc)',
+            border: '1px solid var(--boost-border, #232a37)',
+          };
+        case 'minimal':
+        default:
+          return {
+            border: '1px solid var(--boost-border, #e2e8f0)',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
+          };
+      }
+    };
+
     const isBusy = loading ?? isLoading ?? false;
 
     const baseStyles: React.CSSProperties = {
@@ -120,6 +177,7 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
       userSelect: 'none',
       ...getSizeStyles(),
       ...getVariantStyles(),
+      ...getPresetStyles(),
       ...style,
     };
 
@@ -139,7 +197,7 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
         <button
           ref={ref}
           disabled={disabled || isBusy}
-          className={`boost-btn boost-btn-${variant} ${className}`}
+          className={`boost-btn boost-btn-${variant} boost-btn-preset-${preset} ${className}`}
           style={baseStyles}
           {...props}
         >

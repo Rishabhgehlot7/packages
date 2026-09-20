@@ -65,6 +65,204 @@
   }
 }
 
+/* ==========================================
+ * Multi-Style Preset Engine
+ * Scoped by [data-boost-preset="..."]
+ * ========================================== */
+
+/* Preset variables — Light mode */
+[data-boost-preset="minimal"] {
+  --boost-preset-radius: 8px;
+  --boost-preset-border-width: 1px;
+  --boost-preset-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --boost-preset-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --boost-preset-backdrop-blur: none;
+  --boost-preset-surface-opacity: 1;
+}
+[data-boost-preset="glassmorphism"] {
+  --boost-preset-radius: 12px;
+  --boost-preset-border-width: 1px;
+  --boost-preset-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --boost-preset-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --boost-preset-backdrop-blur: 16px;
+  --boost-preset-surface-opacity: 0.85;
+  --boost-glass-bg: rgba(255, 255, 255, 0.85);
+  --boost-glass-border: rgba(226, 232, 240, 0.8);
+}
+[data-boost-preset="neumorphism"] {
+  --boost-preset-radius: 16px;
+  --boost-preset-border-width: 0px;
+  --boost-preset-shadow: 6px 6px 12px #c5cad3, -6px -6px 12px #ffffff;
+  --boost-preset-shadow-hover: -6px -6px 12px #c5cad3, 6px 6px 12px #ffffff;
+  --boost-preset-backdrop-blur: none;
+  --boost-preset-surface-opacity: 1;
+  --boost-surface: #e8ebf0;
+  --boost-bg: #e8ebf0;
+}
+[data-boost-preset="neo-brutalism"] {
+  --boost-preset-radius: 0px;
+  --boost-preset-border-width: 2px;
+  --boost-preset-shadow: 4px 4px 0px #000;
+  --boost-preset-shadow-hover: 6px 6px 0px #000;
+  --boost-preset-backdrop-blur: none;
+  --boost-preset-surface-opacity: 1;
+  --boost-border: #000;
+  --boost-bg: #ffffff;
+}
+[data-boost-preset="dark-first"] {
+  --boost-preset-radius: 8px;
+  --boost-preset-border-width: 1px;
+  --boost-preset-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+  --boost-preset-shadow-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  --boost-preset-backdrop-blur: none;
+  --boost-preset-surface-opacity: 0.95;
+}
+[data-boost-preset="gradient-glow"] {
+  --boost-preset-radius: 12px;
+  --boost-preset-border-width: 1px;
+  --boost-preset-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+  --boost-preset-shadow-hover: 0 0 30px rgba(99, 102, 241, 0.45);
+  --boost-preset-backdrop-blur: none;
+  --boost-preset-surface-opacity: 1;
+  --boost-shadow-glow: 0 0 20px rgba(99, 102, 241, 0.35);
+}
+[data-boost-preset="material-you"] {
+  --boost-preset-radius: 16px;
+  --boost-preset-border-width: 1px;
+  --boost-preset-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --boost-preset-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --boost-preset-backdrop-blur: none;
+  --boost-preset-surface-opacity: 0.9;
+  --boost-surface: #eef2f7;
+}
+
+/* Preset variables — Dark mode */
+[data-theme="dark"][data-boost-preset="minimal"],
+.dark[data-boost-preset="minimal"] {
+  --boost-preset-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --boost-preset-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+[data-theme="dark"][data-boost-preset="glassmorphism"],
+.dark[data-boost-preset="glassmorphism"] {
+  --boost-glass-bg: rgba(15, 23, 42, 0.85);
+  --boost-glass-border: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"][data-boost-preset="neumorphism"],
+.dark[data-boost-preset="neumorphism"] {
+  --boost-preset-shadow: 6px 6px 12px rgba(0, 0, 0, 0.5), -6px -6px 12px rgba(255, 255, 255, 0.05);
+  --boost-preset-shadow-hover: -6px -6px 12px rgba(0, 0, 0, 0.5), 6px 6px 12px rgba(255, 255, 255, 0.05);
+  --boost-surface: #12151c;
+  --boost-bg: #12151c;
+}
+[data-theme="dark"][data-boost-preset="dark-first"],
+.dark[data-boost-preset="dark-first"] {
+  --boost-bg: #05070d;
+  --boost-surface: #0b0f17;
+  --boost-surface-secondary: #161c28;
+  --boost-border: #232a37;
+}
+[data-theme="dark"][data-boost-preset="gradient-glow"],
+.dark[data-boost-preset="gradient-glow"] {
+  --boost-shadow-glow: 0 0 20px rgba(99, 102, 241, 0.45);
+}
+[data-theme="dark"][data-boost-preset="material-you"],
+.dark[data-boost-preset="material-you"] {
+  --boost-surface: #10141b;
+}
+
+/* Preset helper classes */
+.boost-preset-neo-brutalism {
+  box-shadow: 4px 4px 0px #000;
+  border: 2px solid #000;
+}
+.boost-preset-glassmorphism {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+[data-theme="dark"] .boost-preset-glassmorphism,
+.dark .boost-preset-glassmorphism {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.boost-preset-neumorphism {
+  box-shadow: 6px 6px 12px #c5cad3, -6px -6px 12px #ffffff;
+}
+[data-theme="dark"] .boost-preset-neumorphism,
+.dark .boost-preset-neumorphism {
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.5), -6px -6px 12px rgba(255, 255, 255, 0.05);
+}
+.boost-preset-gradient-glow {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+}
+
+/* ==========================================
+ * Preset-aware component styling
+ * Interactive states scoped by preset class
+ * ========================================== */
+
+/* --- Button --- */
+.boost-btn-preset-neo-brutalism:not(:disabled):hover,
+.boost-btn-preset-neo-brutalism:not(:disabled):focus-visible {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0 #000 !important;
+}
+.boost-btn-preset-neo-brutalism:not(:disabled):active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0 #000 !important;
+}
+.boost-btn-preset-neumorphism:not(:disabled):active {
+  box-shadow: inset 6px 6px 12px #c5cad3, inset -6px -6px 12px #ffffff !important;
+}
+[data-theme="dark"] .boost-btn-preset-neumorphism:not(:disabled),
+.dark .boost-btn-preset-neumorphism:not(:disabled) {
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.06) !important;
+}
+[data-theme="dark"] .boost-btn-preset-neumorphism:not(:disabled):active,
+.dark .boost-btn-preset-neumorphism:not(:disabled):active {
+  box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.06) !important;
+}
+[data-theme="dark"] .boost-btn-preset-glassmorphism:not(:disabled),
+.dark .boost-btn-preset-glassmorphism:not(:disabled) {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+}
+
+/* --- Input / Textarea focus states --- */
+.boost-input-preset-neo-brutalism:focus,
+.boost-textarea-preset-neo-brutalism:focus {
+  box-shadow: 4px 4px 0 #000 !important;
+  outline: none !important;
+}
+.boost-input-preset-neumorphism:focus,
+.boost-textarea-preset-neumorphism:focus {
+  box-shadow: inset 6px 6px 12px #c5cad3, inset -6px -6px 12px #ffffff !important;
+}
+.boost-input-preset-glassmorphism:focus,
+.boost-textarea-preset-glassmorphism:focus {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25), 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+.boost-input-preset-gradient-glow:focus,
+.boost-textarea-preset-gradient-glow:focus {
+  border-color: rgba(99, 102, 241, 0.6) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18) !important;
+}
+.boost-input-preset-material-you:focus,
+.boost-textarea-preset-material-you:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+.boost-input-preset-dark-first:focus,
+.boost-textarea-preset-dark-first:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+.boost-input-preset-minimal:focus,
+.boost-textarea-preset-minimal:focus {
+  border-color: var(--boost-primary, #2563eb) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
 /* Dark theme contrast safety guards */
 [data-theme="dark"] .boost-btn-secondary,
 .dark .boost-btn-secondary {
@@ -126,4 +324,152 @@
 @keyframes boost-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
+}
+
+/* --- Switch preset states --- */
+.boost-switch-thumb {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.boost-switch-preset-neo-brutalism {
+  border: 2px solid #000 !important;
+  border-radius: 6px !important;
+  background-color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+.boost-switch-preset-neo-brutalism .boost-switch-thumb {
+  border-radius: 3px !important;
+  box-shadow: 2px 2px 0 #000 !important;
+}
+.boost-switch-preset-neumorphism {
+  background-color: #d7dce3 !important;
+  border: none !important;
+  box-shadow: inset 4px 4px 8px #c5cad3, inset -4px -4px 8px #ffffff !important;
+}
+.boost-switch-preset-neumorphism[aria-checked="true"] {
+  background-color: var(--boost-primary, #2563eb) !important;
+  box-shadow: 4px 4px 8px #c5cad3, -4px -4px 8px #ffffff !important;
+}
+.boost-switch-preset-neumorphism .boost-switch-thumb {
+  background-color: #eef0f4 !important;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -2px -2px 5px rgba(255, 255, 255, 0.9) !important;
+}
+.boost-switch-preset-glassmorphism {
+  background-color: rgba(148, 163, 184, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.boost-switch-preset-glassmorphism[aria-checked="true"] {
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.45) !important;
+}
+.boost-switch-preset-gradient-glow[aria-checked="true"] {
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.5) !important;
+}
+.boost-switch-preset-gradient-glow .boost-switch-thumb {
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4) !important;
+}
+.boost-switch-preset-dark-first {
+  background-color: #232a37 !important;
+  border: 1px solid #2f3a4d !important;
+}
+.boost-switch-preset-dark-first[aria-checked="true"] {
+  background-color: #3b82f6 !important;
+}
+.boost-switch-preset-material-you .boost-switch-thumb {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* --- Checkbox preset states --- */
+.boost-checkbox-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--boost-border, #cbd5e1);
+  border-radius: 4px;
+  background-color: var(--boost-surface, #ffffff);
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.boost-checkbox-input:checked {
+  background-color: var(--boost-primary, #2563eb);
+  border-color: var(--boost-primary, #2563eb);
+}
+.boost-checkbox-input:checked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+.boost-checkbox-input:indeterminate {
+  background-color: var(--boost-primary, #2563eb);
+  border-color: var(--boost-primary, #2563eb);
+}
+.boost-checkbox-input:indeterminate::after {
+  content: '−';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+.boost-checkbox-input:focus-visible {
+  outline: 2px solid var(--boost-primary, #2563eb);
+  outline-offset: 2px;
+}
+.boost-checkbox-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.boost-checkbox-preset-neo-brutalism {
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+}
+.boost-checkbox-preset-neo-brutalism:checked {
+  box-shadow: 2px 2px 0 #000 !important;
+}
+.boost-checkbox-preset-neo-brutalism:indeterminate {
+  box-shadow: 2px 2px 0 #000 !important;
+}
+.boost-checkbox-preset-neumorphism {
+  border: none !important;
+  border-radius: 6px !important;
+  background-color: #ffffff;
+  box-shadow: inset 3px 3px 6px #c5cad3, inset -3px -3px 6px #ffffff !important;
+}
+.boost-checkbox-preset-neumorphism:checked {
+  box-shadow: 3px 3px 6px #c5cad3, -3px -3px 6px #ffffff !important;
+}
+.boost-checkbox-preset-neumorphism:indeterminate {
+  box-shadow: 3px 3px 6px #c5cad3, -3px -3px 6px #ffffff !important;
+}
+.boost-checkbox-preset-material-you {
+  border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15) !important;
+}
+.boost-checkbox-preset-glassmorphism {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+.boost-checkbox-preset-gradient-glow:checked,
+.boost-checkbox-preset-gradient-glow:indeterminate {
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5) !important;
+}
+.boost-checkbox-preset-dark-first {
+  background-color: #0b0f17 !important;
+  border-color: #232a37 !important;
 }

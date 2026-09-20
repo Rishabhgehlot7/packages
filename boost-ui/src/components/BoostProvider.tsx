@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { presetTokens } from '../types/presets';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -18,6 +20,7 @@ export interface BoostThemeConfig {
   mode?: ThemeMode;
   tokens?: ThemeTokens;
   darkTokens?: ThemeTokens;
+  stylePreset?: UIStylePreset;
 }
 
 interface BoostThemeContextType {
@@ -28,6 +31,8 @@ interface BoostThemeContextType {
   tokens: ThemeTokens;
   currency: string;
   locale: string;
+  stylePreset: UIStylePreset;
+  setStylePreset: (preset: UIStylePreset) => void;
 }
 
 const defaultLightTokens: ThemeTokens = {
@@ -198,6 +203,9 @@ export interface BoostProviderProps {
   currency?: string;
   locale?: string;
   className?: string;
+  stylePreset?: UIStylePreset;
+  defaultStylePreset?: UIStylePreset;
+  syncDocumentPreset?: boolean;
 }
 
 export const BoostProvider: React.FC<BoostProviderProps> = ({
@@ -211,6 +219,9 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
   currency = '$',
   locale = 'en-US',
   className = '',
+  stylePreset: controlledStylePreset,
+  defaultStylePreset = 'minimal',
+  syncDocumentPreset = true,
 }) => {
   // Inject default animations and CSS variables on mount without top-level evaluation side effects
   React.useEffect(() => {
@@ -230,7 +241,7 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
     return defaultMode;
   });
 
-  const mode = controlledMode !== undefined ? controlledMode : internalMode;
+const mode = controlledMode !== undefined ? controlledMode : internalMode;
   const [systemIsDark, setSystemIsDark] = React.useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -277,10 +288,54 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
     }
   };
 
-  const toggleMode = () => {
+const toggleMode = () => {
     const nextMode = resolvedMode === 'dark' ? 'light' : 'dark';
     setMode(nextMode);
   };
+
+  const [internalStylePreset, setInternalStylePreset] = React.useState<UIStylePreset>(
+    () => {
+      if (typeof window !== 'undefined' && storageKey) {
+        try {
+          const stored = localStorage.getItem(`${storageKey}-preset`);
+          if (
+            stored === 'minimal' ||
+            stored === 'glassmorphism' ||
+            stored === 'neumorphism' ||
+            stored === 'neo-brutalism' ||
+            stored === 'dark-first' ||
+            stored === 'gradient-glow' ||
+            stored === 'material-you'
+          ) {
+            return stored as UIStylePreset;
+          }
+        } catch {
+          // Safe fallback on localStorage access error
+        }
+      }
+      return defaultStylePreset;
+    }
+  );
+
+  const stylePreset =
+    controlledStylePreset !== undefined ? controlledStylePreset : internalStylePreset;
+
+  const setStylePreset = (preset: UIStylePreset) => {
+    setInternalStylePreset(preset);
+    if (typeof window !== 'undefined' && storageKey) {
+      try {
+        localStorage.setItem(`${storageKey}-preset`, preset);
+      } catch {
+        // Safe ignore
+      }
+    }
+  };
+
+  // Synchronize preset attribute on document element
+  React.useEffect(() => {
+    if (typeof document === 'undefined' || !syncDocumentPreset) return;
+    document.documentElement.setAttribute('data-boost-preset', stylePreset);
+  }, [stylePreset, syncDocumentPreset]);
 
   // Inject CSS Variables for zero-config theming
   const cssVariables = React.useMemo(() => {
@@ -304,7 +359,7 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
         --boost-glass-bg: ${isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)'};
         --boost-glass-border: ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)'};
       }
-      [data-theme="${resolvedMode}"] {
+[data-theme="${resolvedMode}"] {
         --boost-primary: ${currentTokens.primary};
         --boost-primary-hover: ${currentTokens.primaryHover};
         --boost-bg: ${currentTokens.background};
@@ -314,12 +369,20 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
         --boost-muted: ${currentTokens.textMuted};
         --boost-border: ${currentTokens.border};
       }
+      [data-boost-preset="${stylePreset}"] {
+        --boost-preset-radius: ${presetTokens[stylePreset].radius};
+        --boost-preset-border-width: ${presetTokens[stylePreset].borderWidth};
+        --boost-preset-shadow: ${presetTokens[stylePreset].shadow};
+        --boost-preset-shadow-hover: ${presetTokens[stylePreset].shadowHover};
+        --boost-preset-backdrop-blur: ${presetTokens[stylePreset].backdropBlur};
+        --boost-preset-surface-opacity: ${presetTokens[stylePreset].surfaceOpacity};
+      }
     `;
-  }, [currentTokens, resolvedMode]);
+  }, [currentTokens, resolvedMode, stylePreset]);
 
   return (
     <BoostThemeContext.Provider
-      value={{
+value={{
         mode,
         resolvedMode,
         setMode,
@@ -327,12 +390,15 @@ export const BoostProvider: React.FC<BoostProviderProps> = ({
         tokens: currentTokens,
         currency,
         locale,
+        stylePreset,
+        setStylePreset,
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
       <div
         className={`boost-theme-wrapper ${resolvedMode} ${className}`}
         data-theme={resolvedMode}
+        data-boost-preset={stylePreset}
         style={{
           backgroundColor: currentTokens.background,
           color: currentTokens.text,
@@ -359,9 +425,19 @@ export const useTheme = (): BoostThemeContextType => {
       tokens: defaultLightTokens,
       currency: '$',
       locale: 'en-US',
+      stylePreset: 'minimal',
+      setStylePreset: () => {},
     };
   }
   return context;
+};
+
+export const useBoostPreset = () => {
+  const theme = useTheme();
+  return {
+    stylePreset: theme.stylePreset || 'minimal',
+    setStylePreset: theme.setStylePreset,
+  };
 };
 
 export const useCurrency = () => {

@@ -1,13 +1,18 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
   description?: string;
   indeterminate?: boolean;
+  stylePreset?: UIStylePreset;
 }
 
 export const Checkbox = /* @__PURE__ */ React.forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, description, indeterminate, checked, disabled, className = '', style, ...props }, ref) => {
+  ({ label, description, indeterminate, checked, disabled, className = '', style, stylePreset: stylePresetProp, ...props }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
@@ -38,10 +43,8 @@ export const Checkbox = /* @__PURE__ */ React.forwardRef<HTMLInputElement, Check
             type="checkbox"
             checked={checked}
             disabled={disabled}
+            className={`boost-checkbox-input boost-checkbox-preset-${preset}`}
             style={{
-              width: '16px',
-              height: '16px',
-              accentColor: 'var(--boost-primary, #2563eb)',
               cursor: disabled ? 'not-allowed' : 'pointer',
               margin: 0,
             }}

@@ -44,9 +44,11 @@ export {
 } from './utils';
 
 // 0. Theming & Design System
-export { BoostProvider, useTheme, useCurrency, injectBoostGlobalStyles } from './components/BoostProvider';
+export { BoostProvider, useTheme, useCurrency, useBoostPreset, injectBoostGlobalStyles } from './components/BoostProvider';
 export { ThemeToggle } from './components/ThemeToggle';
 export { boostTokens, createTailwindPreset } from './tokens';
+export { presetTokenCssVars, presetHelperClasses } from './tokens/presets';
+export { presetTokens } from './types/presets';
 export type {
   BoostProviderProps,
   BoostThemeConfig,
@@ -60,6 +62,10 @@ export type {
   PolymorphicComponentPropWithRef,
   PolymorphicRef,
 } from './types/polymorphic';
+export type {
+  UIStylePreset,
+  PresetTokens,
+} from './types/presets';
 
 // 1. Buttons & Actions
 export { Button } from './components/Button';

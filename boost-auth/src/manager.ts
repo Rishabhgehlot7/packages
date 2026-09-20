@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import {
   AuthConfig,
+  AuthUser,
   UserProfile,
   CreateOTPParams,
   OTPResult,
@@ -10,12 +11,17 @@ import {
   CookieHeaderResult,
   CartItemToMerge,
   MergeResult,
+  AuthAdapter,
+  AuthProvider,
+  AuthCallbacks,
 } from './types';
 import { TokenManager } from './tokens';
+import { AuthRouter } from './router';
 
 export class BoostAuth {
-  private config: Required<AuthConfig>;
+  private config: Required<Pick<AuthConfig, 'secret' | 'sessionExpirySeconds' | 'cookieName' | 'otpExpirySeconds' | 'otpLength' | 'secureCookies' | 'basePath'>> & AuthConfig;
   private tokenManager: TokenManager;
+  private router: AuthRouter;
 
   constructor(config: AuthConfig) {
     if (!config.secret) {
@@ -29,9 +35,53 @@ export class BoostAuth {
       otpExpirySeconds: config.otpExpirySeconds ?? 300, // 5 minutes
       otpLength: config.otpLength ?? 6,
       secureCookies: config.secureCookies ?? (process.env.NODE_ENV === 'production'),
+      basePath: config.basePath ?? '/api/auth',
+      baseUrl: config.baseUrl,
+      adapter: config.adapter,
+      providers: config.providers || [],
+      callbacks: config.callbacks || {},
     };
 
     this.tokenManager = new TokenManager(this.config.secret);
+    this.router = new AuthRouter(this);
+  }
+
+  /**
+   * Main Web-Standard Request Handler for Next.js, Express, Fastify, Cloudflare
+   */
+  async handleRequest(request: Request): Promise<Response> {
+    return await this.router.handleRequest(request);
+  }
+
+  getBasePath(): string {
+    return this.config.basePath;
+  }
+
+  getBaseUrl(req?: Request): string {
+    if (this.config.baseUrl) {
+      return this.config.baseUrl.replace(/\/+$/, '');
+    }
+    if (req) {
+      const url = new URL(req.url);
+      return `${url.protocol}//${url.host}`;
+    }
+    return 'http://localhost:3000';
+  }
+
+  getAdapter(): AuthAdapter | undefined {
+    return this.config.adapter;
+  }
+
+  getProviders(): AuthProvider[] {
+    return this.config.providers || [];
+  }
+
+  getCallbacks(): AuthCallbacks | undefined {
+    return this.config.callbacks;
+  }
+
+  getConfig(): AuthConfig {
+    return { ...this.config };
   }
 
   /**
@@ -79,13 +129,17 @@ export class BoostAuth {
   /**
    * Creates a signed session token and prepares HTTP cookie parameters
    */
-  createSession(user: UserProfile): { token: string; cookie: CookieHeaderResult } {
-    const payload = {
+  createSession(user: AuthUser | UserProfile): { token: string; cookie: CookieHeaderResult } {
+    const payload: SessionTokenPayload = {
       userId: user.id,
-      phone: user.phone,
-      email: user.email,
+      phone: user.phone || undefined,
+      email: user.email || undefined,
+      name: user.name || undefined,
+      image: user.image || undefined,
       role: user.role || 'customer',
       metadata: user.metadata || {},
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + this.config.sessionExpirySeconds,
     };
 
     const token = this.tokenManager.sign(payload, this.config.sessionExpirySeconds);
@@ -139,7 +193,6 @@ export class BoostAuth {
    * Extracts session token from Cookie header or Authorization: Bearer header
    */
   extractSessionToken(headers: Record<string, string | string[] | undefined> | { get(name: string): string | null }): string | null {
-    // Check Authorization header first
     let authHeader: string | undefined | null;
     let cookieHeader: string | undefined | null;
 

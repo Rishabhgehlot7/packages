@@ -28,6 +28,65 @@ function _interopNamespace(e) {
 var React__namespace = /*#__PURE__*/_interopNamespace(React);
 var ReactDOM__namespace = /*#__PURE__*/_interopNamespace(ReactDOM);
 
+// src/types/presets.ts
+var presetTokens = {
+  minimal: {
+    radius: "8px",
+    borderWidth: "1px",
+    shadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+    shadowHover: "0 2px 6px rgba(0, 0, 0, 0.1)",
+    backdropBlur: "none",
+    surfaceOpacity: "1"
+  },
+  glassmorphism: {
+    radius: "12px",
+    borderWidth: "1px",
+    shadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+    shadowHover: "0 8px 32px rgba(0, 0, 0, 0.15)",
+    backdropBlur: "16px",
+    surfaceOpacity: "0.85"
+  },
+  neumorphism: {
+    radius: "16px",
+    borderWidth: "0px",
+    shadow: "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff",
+    shadowHover: "-6px -6px 12px #c5cad3, 6px 6px 12px #ffffff",
+    backdropBlur: "none",
+    surfaceOpacity: "1"
+  },
+  "neo-brutalism": {
+    radius: "0px",
+    borderWidth: "2px",
+    shadow: "4px 4px 0px #000",
+    shadowHover: "6px 6px 0px #000",
+    backdropBlur: "none",
+    surfaceOpacity: "1"
+  },
+  "dark-first": {
+    radius: "8px",
+    borderWidth: "1px",
+    shadow: "0 4px 16px -2px rgba(0, 0, 0, 0.45)",
+    shadowHover: "0 8px 24px -4px rgba(0, 0, 0, 0.5)",
+    backdropBlur: "none",
+    surfaceOpacity: "0.95"
+  },
+  "gradient-glow": {
+    radius: "12px",
+    borderWidth: "1px",
+    shadow: "0 0 20px rgba(99, 102, 241, 0.35)",
+    shadowHover: "0 0 30px rgba(99, 102, 241, 0.45)",
+    backdropBlur: "none",
+    surfaceOpacity: "1"
+  },
+  "material-you": {
+    radius: "calc(var(--boost-radius, 4px) * 1.2)",
+    borderWidth: "1px",
+    shadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    shadowHover: "0 4px 12px rgba(0, 0, 0, 0.15)",
+    backdropBlur: "none",
+    surfaceOpacity: "0.9"
+  }
+};
 var defaultLightTokens = {
   primary: "#2563eb",
   primaryHover: "#1d4ed8",
@@ -190,7 +249,10 @@ var BoostProvider = ({
   darkTokens = {},
   currency = "$",
   locale = "en-US",
-  className = ""
+  className = "",
+  stylePreset: controlledStylePreset,
+  defaultStylePreset = "minimal",
+  syncDocumentPreset = true
 }) => {
   React__namespace.useEffect(() => {
     injectBoostGlobalStyles();
@@ -249,6 +311,34 @@ var BoostProvider = ({
     const nextMode = resolvedMode === "dark" ? "light" : "dark";
     setMode(nextMode);
   };
+  const [internalStylePreset, setInternalStylePreset] = React__namespace.useState(
+    () => {
+      if (typeof window !== "undefined" && storageKey) {
+        try {
+          const stored = localStorage.getItem(`${storageKey}-preset`);
+          if (stored === "minimal" || stored === "glassmorphism" || stored === "neumorphism" || stored === "neo-brutalism" || stored === "dark-first" || stored === "gradient-glow" || stored === "material-you") {
+            return stored;
+          }
+        } catch {
+        }
+      }
+      return defaultStylePreset;
+    }
+  );
+  const stylePreset = controlledStylePreset !== void 0 ? controlledStylePreset : internalStylePreset;
+  const setStylePreset = (preset) => {
+    setInternalStylePreset(preset);
+    if (typeof window !== "undefined" && storageKey) {
+      try {
+        localStorage.setItem(`${storageKey}-preset`, preset);
+      } catch {
+      }
+    }
+  };
+  React__namespace.useEffect(() => {
+    if (typeof document === "undefined" || !syncDocumentPreset) return;
+    document.documentElement.setAttribute("data-boost-preset", stylePreset);
+  }, [stylePreset, syncDocumentPreset]);
   const cssVariables = React__namespace.useMemo(() => {
     const isDark = resolvedMode === "dark";
     return `
@@ -270,7 +360,7 @@ var BoostProvider = ({
         --boost-glass-bg: ${isDark ? "rgba(15, 23, 42, 0.85)" : "rgba(255, 255, 255, 0.85)"};
         --boost-glass-border: ${isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(226, 232, 240, 0.8)"};
       }
-      [data-theme="${resolvedMode}"] {
+[data-theme="${resolvedMode}"] {
         --boost-primary: ${currentTokens.primary};
         --boost-primary-hover: ${currentTokens.primaryHover};
         --boost-bg: ${currentTokens.background};
@@ -280,8 +370,16 @@ var BoostProvider = ({
         --boost-muted: ${currentTokens.textMuted};
         --boost-border: ${currentTokens.border};
       }
+      [data-boost-preset="${stylePreset}"] {
+        --boost-preset-radius: ${presetTokens[stylePreset].radius};
+        --boost-preset-border-width: ${presetTokens[stylePreset].borderWidth};
+        --boost-preset-shadow: ${presetTokens[stylePreset].shadow};
+        --boost-preset-shadow-hover: ${presetTokens[stylePreset].shadowHover};
+        --boost-preset-backdrop-blur: ${presetTokens[stylePreset].backdropBlur};
+        --boost-preset-surface-opacity: ${presetTokens[stylePreset].surfaceOpacity};
+      }
     `;
-  }, [currentTokens, resolvedMode]);
+  }, [currentTokens, resolvedMode, stylePreset]);
   return /* @__PURE__ */ jsxRuntime.jsxs(
     BoostThemeContext.Provider,
     {
@@ -292,7 +390,9 @@ var BoostProvider = ({
         toggleMode,
         tokens: currentTokens,
         currency,
-        locale
+        locale,
+        stylePreset,
+        setStylePreset
       },
       children: [
         /* @__PURE__ */ jsxRuntime.jsx("style", { dangerouslySetInnerHTML: { __html: cssVariables } }),
@@ -301,6 +401,7 @@ var BoostProvider = ({
           {
             className: `boost-theme-wrapper ${resolvedMode} ${className}`,
             "data-theme": resolvedMode,
+            "data-boost-preset": stylePreset,
             style: {
               backgroundColor: currentTokens.background,
               color: currentTokens.text,
@@ -327,10 +428,20 @@ var useTheme = () => {
       },
       tokens: defaultLightTokens,
       currency: "$",
-      locale: "en-US"
+      locale: "en-US",
+      stylePreset: "minimal",
+      setStylePreset: () => {
+      }
     };
   }
   return context;
+};
+var useBoostPreset = () => {
+  const theme = useTheme();
+  return {
+    stylePreset: theme.stylePreset || "minimal",
+    setStylePreset: theme.setStylePreset
+  };
 };
 var useCurrency = () => {
   const theme = useTheme();
@@ -721,6 +832,76 @@ function createTailwindPreset() {
     }
   };
 }
+
+// src/tokens/presets.ts
+var presetTokenCssVars = {
+  minimal: {
+    "--boost-preset-radius": "8px",
+    "--boost-preset-border-width": "1px",
+    "--boost-preset-shadow": "0 1px 3px rgba(0, 0, 0, 0.05)",
+    "--boost-preset-shadow-hover": "0 2px 6px rgba(0, 0, 0, 0.1)",
+    "--boost-preset-backdrop-blur": "none",
+    "--boost-preset-surface-opacity": "1"
+  },
+  glassmorphism: {
+    "--boost-preset-radius": "12px",
+    "--boost-preset-border-width": "1px",
+    "--boost-preset-shadow": "0 4px 20px rgba(0, 0, 0, 0.1)",
+    "--boost-preset-shadow-hover": "0 8px 32px rgba(0, 0, 0, 0.15)",
+    "--boost-preset-backdrop-blur": "16px",
+    "--boost-preset-surface-opacity": "0.85"
+  },
+  neumorphism: {
+    "--boost-preset-radius": "16px",
+    "--boost-preset-border-width": "0px",
+    "--boost-preset-shadow": "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff",
+    "--boost-preset-shadow-hover": "-6px -6px 12px #c5cad3, 6px 6px 12px #ffffff",
+    "--boost-preset-backdrop-blur": "none",
+    "--boost-preset-surface-opacity": "1"
+  },
+  "neo-brutalism": {
+    "--boost-preset-radius": "0px",
+    "--boost-preset-border-width": "2px",
+    "--boost-preset-shadow": "4px 4px 0px #000",
+    "--boost-preset-shadow-hover": "6px 6px 0px #000",
+    "--boost-preset-backdrop-blur": "none",
+    "--boost-preset-surface-opacity": "1"
+  },
+  "dark-first": {
+    "--boost-preset-radius": "8px",
+    "--boost-preset-border-width": "1px",
+    "--boost-preset-shadow": "0 4px 16px -2px rgba(0, 0, 0, 0.45)",
+    "--boost-preset-shadow-hover": "0 8px 24px -4px rgba(0, 0, 0, 0.5)",
+    "--boost-preset-backdrop-blur": "none",
+    "--boost-preset-surface-opacity": "0.95"
+  },
+  "gradient-glow": {
+    "--boost-preset-radius": "12px",
+    "--boost-preset-border-width": "1px",
+    "--boost-preset-shadow": "0 0 20px rgba(99, 102, 241, 0.35)",
+    "--boost-preset-shadow-hover": "0 0 30px rgba(99, 102, 241, 0.45)",
+    "--boost-preset-backdrop-blur": "none",
+    "--boost-preset-surface-opacity": "1"
+  },
+  "material-you": {
+    "--boost-preset-radius": "calc(var(--boost-radius, 4px) * 1.2)",
+    "--boost-preset-border-width": "1px",
+    "--boost-preset-shadow": "0 2px 8px rgba(0, 0, 0, 0.1)",
+    "--boost-preset-shadow-hover": "0 4px 12px rgba(0, 0, 0, 0.15)",
+    "--boost-preset-backdrop-blur": "none",
+    "--boost-preset-surface-opacity": "0.9"
+  }
+};
+var presetHelperClasses = {
+  minimal: "",
+  glassmorphism: ".boost-preset-glassmorphism { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 232, 240, 0.8); }",
+  neumorphism: ".boost-preset-neumorphism { box-shadow: 6px 6px 12px #c5cad3, -6px -6px 12px #ffffff; }",
+  "neo-brutalism": ".boost-preset-neo-brutalism { box-shadow: 4px 4px 0px #000; border: 2px solid #000; }",
+  "gradient-glow": ".boost-preset-gradient-glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.35); }",
+  "dark-first": "",
+  "material-you": ""
+};
+var NEURO_LIGHT = "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff";
 var Button = /* @__PURE__ */ React__namespace.forwardRef(
   ({
     children,
@@ -734,8 +915,11 @@ var Button = /* @__PURE__ */ React__namespace.forwardRef(
     disabled,
     className = "",
     style,
+    stylePreset: stylePresetProp,
     ...props
   }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const getVariantStyles = () => {
       switch (variant) {
         case "primary":
@@ -806,6 +990,53 @@ var Button = /* @__PURE__ */ React__namespace.forwardRef(
           };
       }
     };
+    const getPresetStyles = () => {
+      if (variant === "link") return {};
+      switch (preset) {
+        case "neo-brutalism":
+          return {
+            border: "2px solid #000",
+            borderRadius: "0px",
+            boxShadow: "3px 3px 0 #000"
+          };
+        case "glassmorphism":
+          return {
+            backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.85))",
+            border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)"
+          };
+        case "neumorphism":
+          return {
+            backgroundColor: "var(--boost-surface, #e8ebf0)",
+            border: "none",
+            borderRadius: presetTokens.neumorphism.radius,
+            boxShadow: NEURO_LIGHT
+          };
+        case "gradient-glow":
+          return {
+            boxShadow: "0 0 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.45)"
+          };
+        case "material-you":
+          return {
+            borderRadius: "9999px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)"
+          };
+        case "dark-first":
+          return {
+            backgroundColor: "var(--boost-surface, #0b0f17)",
+            color: "var(--boost-text, #f8fafc)",
+            border: "1px solid var(--boost-border, #232a37)"
+          };
+        case "minimal":
+        default:
+          return {
+            border: "1px solid var(--boost-border, #e2e8f0)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)"
+          };
+      }
+    };
     const isBusy = loading ?? isLoading ?? false;
     const baseStyles = {
       display: fullWidth ? "flex" : "inline-flex",
@@ -822,6 +1053,7 @@ var Button = /* @__PURE__ */ React__namespace.forwardRef(
       userSelect: "none",
       ...getSizeStyles(),
       ...getVariantStyles(),
+      ...getPresetStyles(),
       ...style
     };
     return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
@@ -839,7 +1071,7 @@ var Button = /* @__PURE__ */ React__namespace.forwardRef(
         {
           ref,
           disabled: disabled || isBusy,
-          className: `boost-btn boost-btn-${variant} ${className}`,
+          className: `boost-btn boost-btn-${variant} boost-btn-preset-${preset} ${className}`,
           style: baseStyles,
           ...props,
           children: [
@@ -1282,9 +1514,59 @@ var Input = /* @__PURE__ */ React__namespace.forwardRef(
     className = "",
     id,
     style,
+    stylePreset: stylePresetProp,
     ...props
   }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const inputId = id || (label ? `input-${label.toLowerCase().replace(/\s+/g, "-")}` : void 0);
+    const getPresetStyles = () => {
+      switch (preset) {
+        case "neo-brutalism":
+          return {
+            borderRadius: "0px",
+            border: "2px solid #000",
+            backgroundColor: "#ffffff",
+            boxShadow: "none"
+          };
+        case "glassmorphism":
+          return {
+            borderRadius: "12px",
+            border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+            backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.75))",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)"
+          };
+        case "neumorphism":
+          return {
+            borderRadius: "16px",
+            border: "none",
+            backgroundColor: "var(--boost-surface, #eef0f4)",
+            boxShadow: "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff"
+          };
+        case "gradient-glow":
+          return {
+            border: "1px solid rgba(99, 102, 241, 0.3)"
+          };
+        case "material-you":
+          return {
+            borderRadius: "16px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)"
+          };
+        case "dark-first":
+          return {
+            border: "1px solid var(--boost-border, #232a37)",
+            backgroundColor: "var(--boost-surface, #0b0f17)"
+          };
+        case "minimal":
+        default:
+          return {
+            borderRadius: "var(--boost-radius, 10px)"
+          };
+      }
+    };
+    const presetStyle = getPresetStyles();
     return /* @__PURE__ */ jsxRuntime.jsxs(
       "div",
       {
@@ -1339,9 +1621,11 @@ var Input = /* @__PURE__ */ React__namespace.forwardRef(
                     ref,
                     id: inputId,
                     disabled,
+                    className: `boost-input-preset-${preset}`,
                     "aria-invalid": error ? true : void 0,
                     "aria-describedby": error && inputId ? `${inputId}-error` : helperText && inputId ? `${inputId}-helper` : void 0,
                     style: {
+                      ...presetStyle,
                       width: "100%",
                       paddingTop: "10px",
                       paddingBottom: "10px",
@@ -1349,12 +1633,13 @@ var Input = /* @__PURE__ */ React__namespace.forwardRef(
                       paddingRight: rightIcon ? "38px" : "14px",
                       fontSize: "14px",
                       color: "var(--boost-text, #0f172a)",
-                      backgroundColor: disabled ? "rgba(0, 0, 0, 0.04)" : "var(--boost-surface, #ffffff)",
-                      border: `1px solid ${error ? "#ef4444" : "var(--boost-border, #cbd5e1)"}`,
-                      borderRadius: "var(--boost-radius, 10px)",
+                      border: presetStyle.border ?? (error ? "1px solid #ef4444" : "1px solid var(--boost-border, #cbd5e1)"),
+                      borderRadius: presetStyle.borderRadius ?? "var(--boost-radius, 10px)",
                       outline: "none",
                       transition: "border-color 0.15s ease, box-shadow 0.15s ease",
                       boxSizing: "border-box",
+                      backgroundColor: disabled ? "rgba(0, 0, 0, 0.04)" : presetStyle.backgroundColor ?? "var(--boost-surface, #ffffff)",
+                      borderColor: error ? "#ef4444" : void 0,
                       ...style
                     },
                     ...props
@@ -1412,12 +1697,62 @@ var Textarea = /* @__PURE__ */ React__namespace.forwardRef(
     value,
     onChange,
     style,
+    stylePreset: stylePresetProp,
     ...props
   }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const textareaId = id || (label ? `textarea-${label.toLowerCase().replace(/\s+/g, "-")}` : void 0);
     const limit = maxLength || maxChars;
     const charCount = typeof value === "string" ? value.length : 0;
     const shouldShowCount = showCount || Boolean(maxChars);
+    const getPresetStyles = () => {
+      switch (preset) {
+        case "neo-brutalism":
+          return {
+            borderRadius: "0px",
+            border: "2px solid #000",
+            backgroundColor: "#ffffff",
+            boxShadow: "none"
+          };
+        case "glassmorphism":
+          return {
+            borderRadius: "12px",
+            border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+            backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.75))",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)"
+          };
+        case "neumorphism":
+          return {
+            borderRadius: "16px",
+            border: "none",
+            backgroundColor: "var(--boost-surface, #eef0f4)",
+            boxShadow: "6px 6px 12px #c5cad3, -6px -6px 12px #ffffff"
+          };
+        case "gradient-glow":
+          return {
+            border: "1px solid rgba(99, 102, 241, 0.3)"
+          };
+        case "material-you":
+          return {
+            borderRadius: "16px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)"
+          };
+        case "dark-first":
+          return {
+            border: "1px solid var(--boost-border, #232a37)",
+            backgroundColor: "var(--boost-surface, #0b0f17)"
+          };
+        case "minimal":
+        default:
+          return {
+            borderRadius: "var(--boost-radius, 8px)"
+          };
+      }
+    };
+    const presetStyle = getPresetStyles();
     return /* @__PURE__ */ jsxRuntime.jsxs(
       "div",
       {
@@ -1477,19 +1812,22 @@ var Textarea = /* @__PURE__ */ React__namespace.forwardRef(
               maxLength: limit,
               "aria-invalid": error ? true : void 0,
               "aria-describedby": error && textareaId ? `${textareaId}-error` : helperText && textareaId ? `${textareaId}-helper` : void 0,
-              className: "boost-textarea",
+              className: `boost-textarea boost-textarea-preset-${preset}`,
               style: {
+                ...presetStyle,
                 width: "100%",
                 padding: "10px 14px",
                 fontSize: "14px",
-                borderRadius: "var(--boost-radius, 8px)",
+                borderRadius: presetStyle.borderRadius ?? "var(--boost-radius, 8px)",
                 outline: "none",
                 minHeight: "90px",
                 resize: "vertical",
                 boxSizing: "border-box",
                 fontFamily: "inherit",
                 lineHeight: 1.5,
+                border: presetStyle.border ?? "1px solid var(--boost-border, #cbd5e1)",
                 borderColor: error ? "#ef4444" : void 0,
+                backgroundColor: disabled ? "rgba(0, 0, 0, 0.04)" : presetStyle.backgroundColor ?? "var(--boost-surface, #ffffff)",
                 ...style
               },
               ...props
@@ -1848,7 +2186,9 @@ var MultiSelect = ({
 };
 MultiSelect.displayName = "MultiSelect";
 var Checkbox = /* @__PURE__ */ React__namespace.forwardRef(
-  ({ label, description, indeterminate, checked, disabled, className = "", style, ...props }, ref) => {
+  ({ label, description, indeterminate, checked, disabled, className = "", style, stylePreset: stylePresetProp, ...props }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
     const inputRef = React__namespace.useRef(null);
     React__namespace.useImperativeHandle(ref, () => inputRef.current);
     React__namespace.useEffect(() => {
@@ -1878,10 +2218,8 @@ var Checkbox = /* @__PURE__ */ React__namespace.forwardRef(
               type: "checkbox",
               checked,
               disabled,
+              className: `boost-checkbox-input boost-checkbox-preset-${preset}`,
               style: {
-                width: "16px",
-                height: "16px",
-                accentColor: "var(--boost-primary, #2563eb)",
                 cursor: disabled ? "not-allowed" : "pointer",
                 margin: 0
               },
@@ -1992,8 +2330,46 @@ var Switch = /* @__PURE__ */ React__namespace.forwardRef(
     disabled = false,
     size = "md",
     className = "",
-    style
+    style,
+    stylePreset: stylePresetProp
   }, ref) => {
+    const { stylePreset: inheritedPreset } = useBoostPreset();
+    const preset = stylePresetProp ?? inheritedPreset;
+    const getPresetStyles = () => {
+      switch (preset) {
+        case "neo-brutalism":
+          return { track: { borderRadius: "6px", border: "2px solid #000" }, thumb: { borderRadius: "3px" } };
+        case "glassmorphism":
+          return {
+            track: {
+              backgroundColor: "rgba(148, 163, 184, 0.4)",
+              border: "1px solid rgba(255, 255, 255, 0.35)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)"
+            },
+            thumb: {}
+          };
+        case "neumorphism":
+          return {
+            track: {
+              backgroundColor: "#d7dce3",
+              border: "none",
+              boxShadow: "inset 4px 4px 8px #c5cad3, inset -4px -4px 8px #ffffff"
+            },
+            thumb: { backgroundColor: "#eef0f4", boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.2)" }
+          };
+        case "gradient-glow":
+          return { track: {}, thumb: { boxShadow: "0 0 8px rgba(99, 102, 241, 0.4)" } };
+        case "material-you":
+          return { track: {}, thumb: { boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)" } };
+        case "dark-first":
+          return { track: { backgroundColor: "#232a37", border: "1px solid #2f3a4d" }, thumb: {} };
+        case "minimal":
+        default:
+          return { track: {}, thumb: {} };
+      }
+    };
+    const presetStyle = getPresetStyles();
     const getSizes = () => {
       switch (size) {
         case "sm":
@@ -2041,7 +2417,7 @@ var Switch = /* @__PURE__ */ React__namespace.forwardRef(
               "aria-checked": checked,
               disabled,
               onClick: () => !disabled && onChange(!checked),
-              className: "boost-switch-btn",
+              className: `boost-switch-btn boost-switch-preset-${preset}`,
               style: {
                 width: `${s.width}px`,
                 height: `${s.height}px`,
@@ -2052,11 +2428,13 @@ var Switch = /* @__PURE__ */ React__namespace.forwardRef(
                 padding: 0,
                 cursor: disabled ? "not-allowed" : "pointer",
                 outline: "none",
-                flexShrink: 0
+                flexShrink: 0,
+                ...presetStyle.track
               },
               children: /* @__PURE__ */ jsxRuntime.jsx(
                 "span",
                 {
+                  className: "boost-switch-thumb",
                   style: {
                     width: `${s.circle}px`,
                     height: `${s.circle}px`,
@@ -2068,7 +2446,8 @@ var Switch = /* @__PURE__ */ React__namespace.forwardRef(
                     transform: `translateY(-50%) translateX(${checked ? `${s.translate}px` : "0px"})`,
                     transition: "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
                     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.25)",
-                    display: "block"
+                    display: "block",
+                    ...presetStyle.thumb
                   }
                 }
               )
@@ -4259,8 +4638,52 @@ var Badge = ({
   children,
   variant = "default",
   className = "",
-  style
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
+  const getPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderRadius: "0px",
+          border: "2px solid #000",
+          boxShadow: "3px 3px 0 #000"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.85))",
+          border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)"
+        };
+      case "neumorphism":
+        return {
+          borderRadius: "12px",
+          border: "none",
+          boxShadow: "4px 4px 8px #c5cad3, -4px -4px 8px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          boxShadow: "0 0 16px rgba(99, 102, 241, 0.35)"
+        };
+      case "material-you":
+        return {
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "var(--boost-surface, #0b0f17)",
+          border: "1px solid var(--boost-border, #232a37)"
+        };
+      case "minimal":
+      default:
+        return {
+          border: "1px solid var(--boost-border, #e2e8f0)"
+        };
+    }
+  };
   const getTheme = () => {
     switch (variant) {
       case "secondary":
@@ -4282,10 +4705,11 @@ var Badge = ({
     }
   };
   const theme = getTheme();
+  const presetStyle = getPresetStyles();
   return /* @__PURE__ */ jsxRuntime.jsx(
     "span",
     {
-      className: `boost-badge boost-badge-${variant} ${className}`,
+      className: `boost-badge boost-badge-${variant} boost-badge-preset-${preset} ${className}`,
       style: {
         display: "inline-flex",
         alignItems: "center",
@@ -4300,6 +4724,7 @@ var Badge = ({
         fontFamily: "inherit",
         lineHeight: 1.4,
         userSelect: "none",
+        ...presetStyle,
         ...style
       },
       children
@@ -4568,13 +4993,56 @@ var Chip = ({
   onDelete,
   avatar,
   className = "",
-  style
+  style,
+  stylePreset: stylePresetProp
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const content = children !== void 0 ? children : label;
+  const getPresetStyles = () => {
+    switch (preset) {
+      case "neo-brutalism":
+        return {
+          borderRadius: "0px",
+          border: "2px solid #000",
+          boxShadow: selected ? "3px 3px 0 #000" : "none"
+        };
+      case "glassmorphism":
+        return {
+          backgroundColor: "var(--boost-glass-bg, rgba(255, 255, 255, 0.8))",
+          border: "1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)"
+        };
+      case "neumorphism":
+        return {
+          borderRadius: "14px",
+          border: "none",
+          boxShadow: selected ? "5px 5px 10px #c5cad3, -5px -5px 10px #ffffff" : "4px 4px 8px #c5cad3, -4px -4px 8px #ffffff"
+        };
+      case "gradient-glow":
+        return {
+          boxShadow: selected ? "0 0 18px rgba(99, 102, 241, 0.45)" : "none"
+        };
+      case "material-you":
+        return {
+          boxShadow: selected ? "0 2px 8px rgba(37, 99, 235, 0.3)" : "none"
+        };
+      case "dark-first":
+        return {
+          backgroundColor: "var(--boost-surface, #0b0f17)",
+          border: "1px solid var(--boost-border, #232a37)"
+        };
+      case "minimal":
+      default:
+        return {};
+    }
+  };
+  const presetStyle = getPresetStyles();
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "div",
     {
-      className: `boost-chip ${selected ? "boost-chip-selected" : ""} ${className}`,
+      className: `boost-chip ${selected ? "boost-chip-selected" : ""} boost-chip-preset-${preset} ${className}`,
       onClick,
       role: onClick ? "button" : void 0,
       tabIndex: onClick ? 0 : void 0,
@@ -4601,6 +5069,7 @@ var Chip = ({
         fontFamily: "inherit",
         lineHeight: 1.4,
         boxShadow: selected ? "0 2px 8px rgba(37, 99, 235, 0.25)" : "none",
+        ...presetStyle,
         ...style
       },
       children: [
@@ -20911,6 +21380,10 @@ exports.VariantSelector = VariantSelector;
 exports.boostTokens = boostTokens;
 exports.createTailwindPreset = createTailwindPreset;
 exports.injectBoostGlobalStyles = injectBoostGlobalStyles;
+exports.presetHelperClasses = presetHelperClasses;
+exports.presetTokenCssVars = presetTokenCssVars;
+exports.presetTokens = presetTokens;
+exports.useBoostPreset = useBoostPreset;
 exports.useCurrency = useCurrency;
 exports.useTheme = useTheme;
 exports.useToast = useToast;

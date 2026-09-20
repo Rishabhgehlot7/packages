@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning' | 'info';
 
@@ -7,6 +9,7 @@ export interface BadgeProps {
   variant?: BadgeVariant;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -14,7 +17,53 @@ export const Badge: React.FC<BadgeProps> = ({
   variant = 'default',
   className = '',
   style,
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
+
+  const getPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          borderRadius: '0px',
+          border: '2px solid #000',
+          boxShadow: '3px 3px 0 #000',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.85))',
+          border: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        };
+      case 'neumorphism':
+        return {
+          borderRadius: '12px',
+          border: 'none',
+          boxShadow: '4px 4px 8px #c5cad3, -4px -4px 8px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          boxShadow: '0 0 16px rgba(99, 102, 241, 0.35)',
+        };
+      case 'material-you':
+        return {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: 'var(--boost-surface, #0b0f17)',
+          border: '1px solid var(--boost-border, #232a37)',
+        };
+      case 'minimal':
+      default:
+        return {
+          border: '1px solid var(--boost-border, #e2e8f0)',
+        };
+    }
+  };
+
   const getTheme = () => {
     switch (variant) {
       case 'secondary':
@@ -37,10 +86,11 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const theme = getTheme();
+  const presetStyle = getPresetStyles();
 
   return (
     <span
-      className={`boost-badge boost-badge-${variant} ${className}`}
+      className={`boost-badge boost-badge-${variant} boost-badge-preset-${preset} ${className}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -55,6 +105,7 @@ export const Badge: React.FC<BadgeProps> = ({
         fontFamily: 'inherit',
         lineHeight: 1.4,
         userSelect: 'none',
+        ...presetStyle,
         ...style,
       }}
     >

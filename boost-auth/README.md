@@ -1,58 +1,28 @@
 # @boostengine/auth 🔐
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/auth.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/auth)
-[![npm downloads](https://img.shields.io/npm/dm/@boostengine/auth.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/auth)
 [![license](https://img.shields.io/npm/l/@boostengine/auth.svg?style=flat-square)](https://github.com/Rishabhgehlot7/packages/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![Stateless](https://img.shields.io/badge/Architecture-100%25%20Stateless%20(Zero--Redis)-blueviolet.svg?style=flat-square)](https://nodejs.org/)
+[![Universal](https://img.shields.io/badge/Platforms-Next.js%20%7C%20React%20Native%20%7C%20Express%20%7C%20NestJS-success.svg?style=flat-square)](https://nodejs.org/)
+[![Stateless](https://img.shields.io/badge/Architecture-100%25%20Stateless%20%2B%20Optional%20DB-blueviolet.svg?style=flat-square)](https://nodejs.org/)
 
-> **Frictionless phone OTP login, stateless HMAC verification tokens, session cookies, and guest-to-customer cart merger for modern eCommerce.**
-
-Zero external dependencies (built exclusively with native Node.js `crypto`). Works seamlessly with Next.js App Router, Express, Fastify, and Remix.
-
----
-
-## 📸 Passwordless OTP & Guest Cart Flow
-
-```text
-  Customer Enters Phone (+91 98765 43210)
-                     │
-                     ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │                 Stateless Token Generator                   │
-  ├─────────────────────────────────────────────────────────────┤
-  │ 1. Generates 6-digit OTP (e.g. 492810)                      │
-  │ 2. Computes HMAC-SHA256 Stateless Verification Token        │
-  │    (Contains encrypted timestamp + phone signature)         │
-  │    *NO REDIS OR DATABASE WRITE REQUIRED!*                   │
-  └────────────────────────────┬────────────────────────────────┘
-                               │
-                               ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │                 SMS / WhatsApp Dispatch                     │
-  ├─────────────────────────────────────────────────────────────┤
-  │ "Your BoostStore verification code is 492810. Valid for 5m" │
-  └────────────────────────────┬────────────────────────────────┘
-                               │
-                               ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │           Customer Submits OTP & Token Verification         │
-  ├─────────────────────────────────────────────────────────────┤
-  │ 1. Cryptographic HMAC validation confirms authenticity      │
-  │ 2. Issues HttpOnly Secure Session Cookie (`boost_session`)  │
-  │ 3. Merges anonymous Guest Cart items with saved user cart   │
-  └─────────────────────────────────────────────────────────────┘
-```
+> **The Universal, Zero-Dependency Authentication Engine for Next.js, React Native (Expo), Node.js, Express, and NestJS.**
+> Supporting Frictionless Phone OTP, Google/GitHub OAuth, Pluggable DB Adapters (Prisma, Drizzle, MongoDB), and Guest-to-Customer Cart Merging.
 
 ---
 
-## 🌟 Key Features
+## ⚡ Why @boostengine/auth?
 
-- **📱 Stateless Phone OTP**: Verify OTPs cryptographically using HMAC signatures without storing OTPs in Redis, memcached, or PostgreSQL.
-- **🍪 Next.js App Router Native**: Pre-built `Set-Cookie` header generators with `HttpOnly`, `SameSite=lax`, and `Secure` flags.
-- **🔄 Guest Cart Merge Engine**: Merges anonymous visitor cart items into customer accounts after login, automatically de-duplicating line items.
-- **🛡️ Tamper-Proof Sessions**: High-performance JWT-like stateless sessions signed with HMAC-SHA256.
-- **🪶 Zero Dependency Bloat**: No external crypto libraries, completely native Node.js.
+| Feature | Next-Auth (Auth.js) | Clerk | Supabase Auth | **@boostengine/auth** |
+| :--- | :---: | :---: | :---: | :---: |
+| **Next.js App Router** | ✅ | ✅ | ✅ | **✅ (1-Line Handler)** |
+| **React Native (Expo)** | ❌ (Extremely Hard) | ✅ (Paid) | ⚠️ (Vendor Locked) | **✅ (First-Class Native Client)** |
+| **Express / Fastify / Node** | ❌ | ⚠️ | ⚠️ | **✅ (Built-in Middleware)** |
+| **Phone OTP (Zero-Redis)** | ❌ | ⚠️ | ⚠️ | **✅ (Stateless HMAC Engine)** |
+| **Zero External Dependencies** | ❌ (Many deps) | ❌ | ❌ | **✅ (Pure Node.js `crypto`)** |
+| **Database Freedom** | Prisma / Drizzle | Hosted Only | Postgres Only | **Stateless OR Prisma/Drizzle/Mongo** |
+| **eCommerce Cart Merging** | ❌ | ❌ | ❌ | **✅ Built-in Guest Merger** |
+| **Pricing** | Free | Expensive at scale | Tiered | **100% Free & Open Source (MIT)** |
 
 ---
 
@@ -69,96 +39,203 @@ pnpm add @boostengine/auth
 yarn add @boostengine/auth
 ```
 
----
-
-## 🚀 Quickstart Guide
-
-### 1. Initialize Auth Manager (`lib/auth.ts`)
-
-```typescript
-import { BoostAuth } from '@boostengine/auth';
-
-export const auth = new BoostAuth({
-  secret: process.env.BOOST_AUTH_SECRET || 'a_very_long_random_secret_string_32_chars',
-  sessionExpirySeconds: 30 * 24 * 60 * 60, // 30 days
-  cookieName: 'boost_session',
-});
-```
-
 *(Tip: Generate a production-ready secret with `npx @boostengine/auth generate-secret`)*
 
 ---
 
-### 2. Send Phone OTP (`app/api/auth/send-otp/route.ts`)
+## 🚀 1-Minute Quickstart
+
+### 1. Configure Auth Instance (`lib/auth.ts`)
 
 ```typescript
-import { NextResponse } from 'next/server';
+import { createBoostAuth, GoogleProvider, GitHubProvider } from '@boostengine/auth';
+// Optional: import { prismaAdapter } from '@boostengine/auth/adapters';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET || 'your-super-secret-key-min-32-chars-long',
+  // adapter: prismaAdapter(prisma), // Optional! Omit for 100% Stateless Zero-DB mode
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+---
+
+### 2. Next.js App Router (`app/api/auth/[...boost]/route.ts`)
+
+```typescript
+import { toNextJsHandler } from '@boostengine/auth';
 import { auth } from '@/lib/auth';
 
-export async function POST(req: Request) {
-  const { phone } = await req.json();
+// Handles all OTP, OAuth, Sessions, and SignOut requests automatically!
+export const { GET, POST } = toNextJsHandler(auth);
+```
 
-  // Generate OTP and stateless verification token
-  const otpResult = auth.generateOTP({ phone, expirySeconds: 300 });
+---
 
-  // Send OTP via SMS or WhatsApp (e.g. using @boostengine/notifications)
-  console.log(`[DEV] Send OTP ${otpResult.otp} to ${phone}`);
+### 3. Node.js & Express (`server.ts`)
 
-  // Return the stateless verification token to the client
-  return NextResponse.json({
-    success: true,
-    verificationToken: otpResult.verificationToken,
-  });
+```typescript
+import express from 'express';
+import { toNodeHandler } from '@boostengine/auth';
+import { auth } from './auth';
+
+const app = express();
+app.use(express.json());
+
+// Mount universal auth router
+app.use('/api/auth', toNodeHandler(auth));
+
+app.listen(3000, () => console.log('Auth server running on :3000'));
+```
+
+---
+
+## 📱 Universal Frontend & React Native (Expo)
+
+### Initialize Universal Client (`lib/auth-client.ts`)
+
+```typescript
+import { createAuthClient } from '@boostengine/auth/client';
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3000/api/auth',
+});
+```
+
+#### For React Native (Expo) with Secure Storage:
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAuthClient } from '@boostengine/auth/client';
+
+export const authClient = createAuthClient({
+  baseURL: 'https://api.yourdomain.com/api/auth',
+  storage: {
+    getItem: (key) => AsyncStorage.getItem(key),
+    setItem: (key, val) => AsyncStorage.setItem(key, val),
+    removeItem: (key) => AsyncStorage.removeItem(key),
+  },
+});
+```
+
+---
+
+### React Component Usage
+
+```tsx
+'use client';
+import { useState } from 'react';
+import { authClient } from '@/lib/auth-client';
+
+export function LoginCard() {
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [token, setToken] = useState('');
+
+  // 1. Send OTP
+  const handleSendOtp = async () => {
+    const res = await authClient.signIn.phone({ phone });
+    setToken(res.verificationToken);
+    alert('OTP sent to ' + phone);
+  };
+
+  // 2. Verify OTP & Create Session Cookie
+  const handleVerifyOtp = async () => {
+    await authClient.verifyOtp({ phone, otp, verificationToken: token });
+    alert('Logged in successfully!');
+  };
+
+  return (
+    <div className="auth-card">
+      {/* Phone OTP */}
+      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 9876543210" />
+      <button onClick={handleSendOtp}>Send OTP</button>
+
+      <input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" />
+      <button onClick={handleVerifyOtp}>Verify OTP</button>
+
+      <hr />
+
+      {/* 1-Click Social OAuth */}
+      <button onClick={() => authClient.signIn.social({ provider: 'google' })}>
+        Sign In with Google
+      </button>
+      <button onClick={() => authClient.signIn.social({ provider: 'github' })}>
+        Sign In with GitHub
+      </button>
+    </div>
+  );
 }
 ```
 
 ---
 
-### 3. Verify OTP & Set Session Cookie (`app/api/auth/verify-otp/route.ts`)
+## 🗄️ Database Adapters
 
+Choose any database, or run completely **Stateless (Zero DB)**:
+
+### 1. Prisma Adapter
 ```typescript
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { prismaAdapter } from '@boostengine/auth/adapters';
+import { prisma } from './prisma';
 
-export async function POST(req: Request) {
-  const { phone, otp, verificationToken } = await req.json();
-
-  // Validate OTP cryptographically
-  const verification = auth.verifyOTP({ phone, otp, verificationToken });
-  if (!verification.success) {
-    return NextResponse.json({ error: verification.error }, { status: 400 });
-  }
-
-  // Create session for authenticated customer
-  const customer = { id: `cust_${Date.now()}`, phone, role: 'customer' as const };
-  const session = auth.createSession(customer);
-
-  const res = NextResponse.json({ success: true, customer });
-  res.headers.set('Set-Cookie', session.cookie.headerString);
-  return res;
-}
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  adapter: prismaAdapter(prisma),
+});
 ```
+*(Run `npx @boostengine/auth schema prisma` to get the ready-made `schema.prisma` snippet!)*
+
+### 2. MongoDB / Mongoose Adapter
+```typescript
+import { mongodbAdapter } from '@boostengine/auth/adapters';
+import { db } from './mongodb';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  adapter: mongodbAdapter(db),
+});
+```
+
+### 3. Drizzle ORM Adapter
+```typescript
+import { drizzleAdapter } from '@boostengine/auth/adapters';
+import { eq, and } from 'drizzle-orm';
+import { db } from './db';
+import * as schema from './schema';
+
+export const auth = createBoostAuth({
+  secret: process.env.BOOST_AUTH_SECRET!,
+  adapter: drizzleAdapter(db, schema, { eq, and }),
+});
+```
+*(Run `npx @boostengine/auth schema drizzle` to get the starter schema!)*
 
 ---
 
-### 4. Merging Guest Cart Upon Login
+## 🛒 eCommerce Guest Cart Merger
+
+When an anonymous user adds products to cart and then logs in via OTP or OAuth, automatically merge their cart:
 
 ```typescript
-const guestCart = [
-  { productId: 'hoodie_01', variantId: 'L', quantity: 1, price: 1499 },
-];
+const mergedCart = auth.mergeGuestCart(guestCartItems, customerSavedCartItems);
 
-const savedUserCart = [
-  { productId: 'hoodie_01', variantId: 'L', quantity: 1, price: 1499 },
-  { productId: 'tee_02', variantId: 'M', quantity: 1, price: 499 },
-];
+console.log(mergedCart.mergedItems);        // Deduplicated and quantities merged
+console.log(mergedCart.conflictsResolved);  // Number of duplicate lines combined
+console.log(mergedCart.subtotal);           // Recalculated total
+```
 
-// Automatically consolidates quantities and recalculates subtotals
-const merged = auth.mergeGuestCart(guestCart, savedUserCart);
-
-console.log(merged.mergedItems);
-// hoodie_01 quantity is now 2!
-// subtotal is now ₹3,497
+Or call via client SDK:
+```typescript
+const merged = await authClient.guestCart.merge(localCartItems, userCartItems);
 ```
 
 ---
@@ -166,15 +243,27 @@ console.log(merged.mergedItems);
 ## 🛠️ CLI Utilities
 
 ```bash
-# Generate high entropy 256-bit secret key
+# Generate high-entropy 256-bit secret for .env
 npx @boostengine/auth generate-secret
 
-# Run interactive terminal simulation
+# Print starter Prisma schema
+npx @boostengine/auth schema prisma
+
+# Print starter Drizzle schema
+npx @boostengine/auth schema drizzle
+
+# Run interactive demo simulation
 npx @boostengine/auth demo
 ```
 
 ---
 
+## 🤖 AI-Agent Ready (Cursor / Claude / Copilot)
+
+This package contains an `llms.txt` file at the root. AI assistants automatically understand all exports, schemas, and framework adapters without hallucination.
+
+---
+
 ## 📄 License
 
-MIT © [Boost Engine](https://github.com/boostengine)
+MIT © [Rishabh Gehlot](https://github.com/Rishabhgehlot7)

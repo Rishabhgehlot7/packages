@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { UIStylePreset } from '../types/presets';
+import { useBoostPreset } from './BoostProvider';
 
 export interface ChipProps {
   label?: string;
@@ -9,6 +11,7 @@ export interface ChipProps {
   avatar?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  stylePreset?: UIStylePreset;
 }
 
 export const Chip: React.FC<ChipProps> = ({
@@ -20,12 +23,59 @@ export const Chip: React.FC<ChipProps> = ({
   avatar,
   className = '',
   style,
+  stylePreset: stylePresetProp,
 }) => {
+  const { stylePreset: inheritedPreset } = useBoostPreset();
+  const preset = stylePresetProp ?? inheritedPreset;
   const content = children !== undefined ? children : label;
+
+  const getPresetStyles = (): React.CSSProperties => {
+    switch (preset) {
+      case 'neo-brutalism':
+        return {
+          borderRadius: '0px',
+          border: '2px solid #000',
+          boxShadow: selected ? '3px 3px 0 #000' : 'none',
+        };
+      case 'glassmorphism':
+        return {
+          backgroundColor: 'var(--boost-glass-bg, rgba(255, 255, 255, 0.8))',
+          border: '1px solid var(--boost-glass-border, rgba(226, 232, 240, 0.8))',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        };
+      case 'neumorphism':
+        return {
+          borderRadius: '14px',
+          border: 'none',
+          boxShadow: selected
+            ? '5px 5px 10px #c5cad3, -5px -5px 10px #ffffff'
+            : '4px 4px 8px #c5cad3, -4px -4px 8px #ffffff',
+        };
+      case 'gradient-glow':
+        return {
+          boxShadow: selected ? '0 0 18px rgba(99, 102, 241, 0.45)' : 'none',
+        };
+      case 'material-you':
+        return {
+          boxShadow: selected ? '0 2px 8px rgba(37, 99, 235, 0.3)' : 'none',
+        };
+      case 'dark-first':
+        return {
+          backgroundColor: 'var(--boost-surface, #0b0f17)',
+          border: '1px solid var(--boost-border, #232a37)',
+        };
+      case 'minimal':
+      default:
+        return {};
+    }
+  };
+
+  const presetStyle = getPresetStyles();
 
   return (
     <div
-      className={`boost-chip ${selected ? 'boost-chip-selected' : ''} ${className}`}
+      className={`boost-chip ${selected ? 'boost-chip-selected' : ''} boost-chip-preset-${preset} ${className}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -56,6 +106,7 @@ export const Chip: React.FC<ChipProps> = ({
         fontFamily: 'inherit',
         lineHeight: 1.4,
         boxShadow: selected ? '0 2px 8px rgba(37, 99, 235, 0.25)' : 'none',
+        ...presetStyle,
         ...style,
       }}
     >
