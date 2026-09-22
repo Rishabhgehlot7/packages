@@ -2,8 +2,16 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * OrderStage — A single stage in the order timeline.
+ */
 export type OrderStage = 'placed' | 'confirmed' | 'shipped' | 'out_for_delivery' | 'delivered';
 
+
+/**
+ * OrderTimelineProps — Properties for the order status timeline component.
+ */
 export interface OrderTimelineProps {
   currentStage: OrderStage;
   dates?: {

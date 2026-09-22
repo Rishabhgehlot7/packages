@@ -2,6 +2,18 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * CardProps — Properties for the Card container component.
+ * Extends HTML div attributes.
+ *
+ * @example
+ * ```tsx
+ * <Card hoverable padding="md">
+ *   <CardTitle>Title</CardTitle>
+ *   <CardDescription>Description</CardDescription>
+ * </Card>
+ * ```
+ */
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean;
   variant?: 'elevated' | 'outlined' | 'glass';
@@ -76,8 +88,8 @@ export const Card = /* @__PURE__ */ React.forwardRef<HTMLDivElement, CardProps>(
           };
         case 'dark-first':
           return {
-            backgroundColor: '#0f172a',
-            border: '1px solid #1e293b',
+            backgroundColor: 'var(--boost-surface, #0f172a)',
+            border: '1px solid var(--boost-border, #1e293b)',
             borderRadius: '12px',
             boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
           };
@@ -118,47 +130,51 @@ export const Card = /* @__PURE__ */ React.forwardRef<HTMLDivElement, CardProps>(
         {...props}
       >
         <style>{`
-          :root[data-theme="dark"] .boost-card {
-            background-color: #1e293b;
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #f8fafc;
+          :root[data-theme="dark"] .boost-card,
+          .dark .boost-card {
+            background-color: var(--boost-surface, #1e293b);
+            border-color: var(--boost-border, rgba(255, 255, 255, 0.1));
+            color: var(--boost-text, #f8fafc);
           }
           :root[data-theme="dark"] .boost-card-preset-neo-brutalism {
             background-color: #18181b !important;
-            border-color: #f8fafc !important;
+            border-color: var(--boost-text, #f8fafc) !important;
             box-shadow: 5px 5px 0px #f8fafc !important;
           }
           :root[data-theme="dark"] .boost-card-preset-glassmorphism {
             background-color: rgba(15, 23, 42, 0.85) !important;
             border-color: rgba(255, 255, 255, 0.15) !important;
           }
-          :root[data-theme="dark"] .boost-card-preset-neumorphism {
-            background-color: #0f172a !important;
-            box-shadow: 8px 8px 16px #090d15, -8px -8px 16px #151d2c !important;
+          :root[data-theme="dark"] .boost-card-preset-neumorphism,
+          .dark .boost-card-preset-neumorphism {
+            background-color: var(--boost-neuro-surface, #0f172a) !important;
+            box-shadow: var(--boost-neuro-shadow, 8px 8px 16px #090d15, -8px -8px 16px #151d2c) !important;
           }
           :root[data-theme="dark"] .boost-card-preset-gradient-glow {
             background-color: #0f172a !important;
             border-color: rgba(99, 102, 241, 0.5) !important;
             box-shadow: 0 0 25px rgba(99, 102, 241, 0.35) !important;
           }
-          :root[data-theme="dark"] .boost-card-preset-material-you {
-            background-color: #1e293b !important;
+          :root[data-theme="dark"] .boost-card-preset-material-you,
+          .dark .boost-card-preset-material-you {
+            background-color: var(--boost-surface, #1e293b) !important;
           }
-          :root[data-theme="dark"] .boost-card-preset-dark-first {
-            background-color: #090d16 !important;
-            border-color: #1e293b !important;
+          :root[data-theme="dark"] .boost-card-preset-dark-first,
+          .dark .boost-card-preset-dark-first {
+            background-color: var(--boost-bg, #090d16) !important;
+            border-color: var(--boost-border, #1e293b) !important;
           }
           :root[data-theme="dark"] .boost-card-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
           }
           :root[data-theme="dark"] .boost-card-title {
-            color: #f8fafc !important;
+            color: var(--boost-text, #f8fafc) !important;
           }
           :root[data-theme="dark"] .boost-card-description {
-            color: #94a3b8 !important;
+            color: var(--boost-text-muted, #94a3b8) !important;
           }
           :root[data-theme="dark"] .boost-card-content {
-            color: #cbd5e1 !important;
+            color: var(--boost-text-muted, #cbd5e1) !important;
           }
           :root[data-theme="dark"] .boost-card-footer {
             background-color: #141e2e !important;

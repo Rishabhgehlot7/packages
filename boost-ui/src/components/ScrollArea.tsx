@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * ScrollAreaProps — Properties for the custom scrollable area component.
+ */
 export interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   maxHeight?: string | number;

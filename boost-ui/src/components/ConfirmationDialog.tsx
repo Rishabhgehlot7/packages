@@ -3,6 +3,10 @@ import { Modal } from './Modal';
 import { Button } from './Button';
 import type { UIStylePreset } from '../types/presets';
 
+
+/**
+ * ConfirmationDialogProps — Properties for the confirmation dialog.
+ */
 export interface ConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;

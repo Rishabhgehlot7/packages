@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * AssuredBadgeProps — Properties for the assurance/guarantee badge.
+ */
 export interface AssuredBadgeProps {
   type?: 'assured' | 'prime' | 'supercoin';
   className?: string;

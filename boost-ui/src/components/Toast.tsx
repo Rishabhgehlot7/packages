@@ -3,6 +3,14 @@ import * as React from 'react';
 export type ToastVariant = 'info' | 'success' | 'warning' | 'error' | 'loading';
 export type ToastPosition = 'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center';
 
+/**
+ * ToastProps — Properties for an individual Toast notification.
+ *
+ * @example
+ * ```tsx
+ * <Toast message="Saved!" variant="success" />
+ * ```
+ */
 export interface ToastProps {
   id?: string;
   title?: string;
@@ -66,16 +74,20 @@ export const Toast: React.FC<ToastProps> = ({
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        :root[data-theme="dark"] .boost-toast {
-          background-color: #1e293b !important;
-          border-color: rgba(255, 255, 255, 0.12) !important;
-          box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.6) !important;
+        :root[data-theme="dark"] .boost-toast,
+        .dark .boost-toast {
+          background-color: var(--boost-surface, #1e293b) !important;
+          border-color: var(--boost-border, rgba(255, 255, 255, 0.12)) !important;
+          box-shadow: var(--boost-shadow-lg, 0 14px 30px -5px rgba(0, 0, 0, 0.6)) !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
-        :root[data-theme="dark"] .boost-toast-title {
-          color: #f8fafc !important;
+        :root[data-theme="dark"] .boost-toast-title,
+        .dark .boost-toast-title {
+          color: var(--boost-text, #f8fafc) !important;
         }
-        :root[data-theme="dark"] .boost-toast-msg {
-          color: #cbd5e1 !important;
+        :root[data-theme="dark"] .boost-toast-msg,
+        .dark .boost-toast-msg {
+          color: var(--boost-text-muted, #cbd5e1) !important;
         }
       `}</style>
       <div style={{ marginTop: '2px', display: 'flex', color: theme.icon, flexShrink: 0 }}>

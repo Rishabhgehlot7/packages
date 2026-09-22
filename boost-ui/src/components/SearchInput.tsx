@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * SearchInputProps — Properties for the search input with icon and clear button.
+ */
 export interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   onClear?: () => void;
   onSearch?: (query: string) => void;

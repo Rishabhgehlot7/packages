@@ -9,6 +9,18 @@ export interface HeaderNavLink {
   active?: boolean;
 }
 
+/**
+ * HeaderProps — Properties for the Header component.
+ * Typically includes brand, navigation, and utility actions.
+ *
+ * @example
+ * ```tsx
+ * <Header
+ *   brand={{ title: 'MyApp', logo: '/logo.png' }}
+ *   navItems={[{ label: 'Home', href: '/' }]}
+ * />
+ * ```
+ */
 export interface HeaderProps {
   logo?: React.ReactNode;
   brandName?: string;
@@ -95,8 +107,8 @@ export const Header: React.FC<HeaderProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#090d16',
-          borderBottom: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-bg, #090d16)',
+          borderBottom: '1px solid var(--boost-border, #1e293b)',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
         };
       case 'minimal':
@@ -112,32 +124,38 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <style>{`
-        :root[data-theme="dark"] .boost-header {
-          background-color: rgba(15, 23, 42, 0.9) !important;
-          border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+        :root[data-theme="dark"] .boost-header,
+        .dark .boost-header {
+          background-color: var(--boost-glass-bg, rgba(15, 23, 42, 0.9)) !important;
+          border-bottom-color: var(--boost-border, rgba(255, 255, 255, 0.08)) !important;
         }
-        :root[data-theme="dark"] .boost-header .boost-brand-title {
-          color: #f8fafc !important;
+        :root[data-theme="dark"] .boost-header .boost-brand-title,
+        .dark .boost-header .boost-brand-title {
+          color: var(--boost-text, #f8fafc) !important;
         }
-        :root[data-theme="dark"] .boost-header .boost-nav-link {
-          color: #94a3b8 !important;
+        :root[data-theme="dark"] .boost-header .boost-nav-link,
+        .dark .boost-header .boost-nav-link {
+          color: var(--boost-text-muted, #94a3b8) !important;
         }
         :root[data-theme="dark"] .boost-header .boost-nav-link:hover,
-        :root[data-theme="dark"] .boost-header .boost-nav-link.is-active {
-          color: #f8fafc !important;
+        :root[data-theme="dark"] .boost-header .boost-nav-link.is-active,
+        .dark .boost-header .boost-nav-link:hover,
+        .dark .boost-header .boost-nav-link.is-active {
+          color: var(--boost-text, #f8fafc) !important;
           background-color: rgba(255, 255, 255, 0.06) !important;
         }
-        :root[data-theme="dark"] .boost-header .boost-hamburger-btn {
-          color: #f8fafc !important;
+        :root[data-theme="dark"] .boost-header .boost-hamburger-btn,
+        .dark .boost-header .boost-hamburger-btn {
+          color: var(--boost-text, #f8fafc) !important;
         }
-        :root[data-theme="dark"] .boost-header-mobile-drawer {
+        :root[data-theme="dark"] .boost-header-mobile-drawer,
+        .dark .boost-header-mobile-drawer {
           background-color: rgba(15, 23, 42, 0.98) !important;
-          border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important;
+          border-bottom-color: var(--boost-border, rgba(255, 255, 255, 0.1)) !important;
         }
-        :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link {
-          color: #cbd5e1 !important;
+        :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link,
+        .dark .boost-header-mobile-drawer .boost-mobile-nav-link {
+          color: var(--boost-text-muted, #cbd5e1) !important;
         }
         :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link:hover,
         :root[data-theme="dark"] .boost-header-mobile-drawer .boost-mobile-nav-link.is-active {
@@ -172,11 +190,11 @@ export const Header: React.FC<HeaderProps> = ({
             border-bottom-color: rgba(255, 255, 255, 0.12) !important;
           }
           :root[data-theme="dark"] .boost-header-preset-neumorphism {
-            background-color: #0f172a !important;
+            background-color: var(--boost-surface, #0f172a) !important;
             box-shadow: 0 6px 14px #090d15 !important;
           }
           :root[data-theme="dark"] .boost-header-preset-gradient-glow {
-            background-color: #0f172a !important;
+            background-color: var(--boost-surface, #0f172a) !important;
             border-bottom-color: rgba(99, 102, 241, 0.4) !important;
             box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25) !important;
           }

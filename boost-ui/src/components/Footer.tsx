@@ -14,6 +14,18 @@ export interface FooterSocialLink {
   icon?: React.ReactNode;
 }
 
+/**
+ * FooterProps — Properties for the Footer component.
+ * Supports columns of links, brand info, and copyright.
+ *
+ * @example
+ * ```tsx
+ * <Footer
+ *   columns={[{ title: 'Links', links: [{ label: 'About', href: '/about' }] }]}
+ *   copyright="© 2024"
+ * />
+ * ```
+ */
 export interface FooterProps {
   logo?: React.ReactNode;
   brandName?: string;
@@ -201,23 +213,28 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <>
       <style>{`
-        :root[data-theme="dark"] .boost-footer {
-          background-color: #07090e !important;
-          border-top-color: rgba(255, 255, 255, 0.08) !important;
+        :root[data-theme="dark"] .boost-footer,
+        .dark .boost-footer {
+          background-color: var(--boost-bg, #07090e) !important;
+          border-top-color: var(--boost-border, rgba(255, 255, 255, 0.08)) !important;
         }
-        :root[data-theme="dark"] .boost-footer .boost-footer-heading {
-          color: #f8fafc !important;
+        :root[data-theme="dark"] .boost-footer .boost-footer-heading,
+        .dark .boost-footer .boost-footer-heading {
+          color: var(--boost-text, #f8fafc) !important;
         }
-        :root[data-theme="dark"] .boost-footer .boost-footer-link {
-          color: #94a3b8 !important;
+        :root[data-theme="dark"] .boost-footer .boost-footer-link,
+        .dark .boost-footer .boost-footer-link {
+          color: var(--boost-text-muted, #94a3b8) !important;
         }
-        :root[data-theme="dark"] .boost-footer .boost-footer-link:hover {
-          color: #60a5fa !important;
+        :root[data-theme="dark"] .boost-footer .boost-footer-link:hover,
+        .dark .boost-footer .boost-footer-link:hover {
+          color: var(--boost-primary, #60a5fa) !important;
         }
-        :root[data-theme="dark"] .boost-footer-input {
+        :root[data-theme="dark"] .boost-footer-input,
+        .dark .boost-footer-input {
           background-color: rgba(255, 255, 255, 0.06) !important;
-          border-color: rgba(255, 255, 255, 0.14) !important;
-          color: #f8fafc !important;
+          border-color: var(--boost-border, rgba(255, 255, 255, 0.14)) !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
 
         @container (max-width: 640px) {

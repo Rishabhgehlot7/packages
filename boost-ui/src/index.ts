@@ -1,6 +1,8 @@
 // ==========================================
 // @boostengine/ui - Master Component Exports
 // ==========================================
+export { ErrorBoundary } from './components/ErrorBoundary';
+export type { ErrorBoundaryProps } from './components/ErrorBoundary';
 
 // Utility Hooks (SSR-safe)
 export {
@@ -18,6 +20,7 @@ export {
   useForm,
   useFocusTrap,
   useAnnounce,
+  useBreakpoint,
 } from './hooks';
 export type { UseFormOptions } from './hooks';
 
@@ -44,10 +47,12 @@ export {
 } from './utils';
 
 // 0. Theming & Design System
-export { BoostProvider, useTheme, useCurrency, useBoostPreset, injectBoostGlobalStyles } from './components/BoostProvider';
+export { BoostProvider, useTheme, useCurrency, useBoostPreset, useDesignTokens, injectBoostGlobalStyles } from './components/BoostProvider';
 export { ThemeToggle } from './components/ThemeToggle';
 export { PresetSwitcher } from './components/PresetSwitcher';
 export { boostTokens, createTailwindPreset } from './tokens';
+export { lightTokens, darkTokens, resolveTokens, tokensToCssVars } from './tokens';
+export type { BoostTokens } from './tokens';
 export { presetTokenCssVars, presetHelperClasses } from './tokens/presets';
 export { presetTokens } from './types/presets';
 export type {

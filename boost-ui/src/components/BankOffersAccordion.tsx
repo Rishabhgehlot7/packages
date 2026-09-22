@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * BankOffer — A single bank/card offer with code and discount.
+ */
 export interface BankOffer {
   id: string;
   type?: 'instant' | 'emi' | 'cashback' | 'partner' | string;
@@ -12,6 +16,10 @@ export interface BankOffer {
   termsUrl?: string;
 }
 
+
+/**
+ * BankOffersAccordionProps — Properties for the bank offer accordion.
+ */
 export interface BankOffersAccordionProps {
   offers?: BankOffer[];
   stylePreset?: UIStylePreset;
@@ -125,7 +133,7 @@ export const BankOffersAccordion: React.FC<BankOffersAccordionProps> = ({
       case 'dark-first':
         return {
           ...base,
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '18px',
           boxShadow: '0 15px 35px -5px rgba(0, 0, 0, 0.6)',

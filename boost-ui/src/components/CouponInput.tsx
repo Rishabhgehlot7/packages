@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 
+
+/**
+ * CouponInputProps — Properties for the coupon/discount code input.
+ */
 export interface CouponInputProps {
   onApply?: (code: string) => void;
   onRemove?: () => void;

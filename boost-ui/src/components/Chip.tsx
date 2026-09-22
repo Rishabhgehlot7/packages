@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * ChipProps — Properties for the chip/tag component.
+ */
 export interface ChipProps {
   label?: string;
   children?: React.ReactNode;
@@ -111,10 +115,11 @@ export const Chip: React.FC<ChipProps> = ({
       }}
     >
       <style>{`
-        :root[data-theme="dark"] .boost-chip:not(.boost-chip-selected) {
-          background-color: #1e293b;
-          color: #f1f5f9;
-          border-color: rgba(255, 255, 255, 0.1);
+        :root[data-theme="dark"] .boost-chip:not(.boost-chip-selected),
+        .dark .boost-chip:not(.boost-chip-selected) {
+          background-color: var(--boost-surface, #1e293b);
+          color: var(--boost-text, #f1f5f9);
+          border-color: var(--boost-border, rgba(255, 255, 255, 0.1));
         }
         .boost-chip:hover {
           filter: brightness(0.97);

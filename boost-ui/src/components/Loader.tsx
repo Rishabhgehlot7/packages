@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * LoaderProps — Properties for the loading spinner component.
+ */
 export interface LoaderProps {
   size?: 'sm' | 'md' | 'lg' | number;
   color?: string;

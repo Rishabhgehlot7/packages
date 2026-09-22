@@ -27,6 +27,10 @@ export interface MegaMenuCategory {
   sections?: MegaMenuSection[];
 }
 
+
+/**
+ * MegaMenuProps — Properties for the mega-menu dropdown navigation.
+ */
 export interface MegaMenuProps {
   trigger?: React.ReactNode | ((props: { isOpen: boolean }) => React.ReactNode);
   triggerLabel?: string;
@@ -265,7 +269,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({
               case 'neumorphism': return { ...base, backgroundColor: '#e0e5ec', border: 'none', borderRadius: '20px', boxShadow: '8px 8px 20px #c8cdd5, -8px -8px 20px #f8fdff' };
               case 'gradient-glow': return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '16px', boxShadow: '0 0 40px rgba(99,102,241,0.15), 0 20px 40px -10px rgba(0,0,0,0.12)' };
               case 'material-you': return { ...base, backgroundColor: 'var(--boost-surface,#fffbfe)', border: '1px solid var(--boost-border,#e2e8f0)', borderRadius: '28px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' };
-              case 'dark-first': return { ...base, backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)' };
+              case 'dark-first': return { ...base, backgroundColor: 'var(--boost-surface, #0f172a)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)' };
               default: return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid var(--boost-border,#e2e8f0)', borderRadius: '16px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.18)' };
             }
           };

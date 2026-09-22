@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * FileDropzoneProps — Properties for the drag-and-drop file area.
+ */
 export interface FileDropzoneProps {
   onFilesSelected: (files: File[]) => void;
   accept?: string;

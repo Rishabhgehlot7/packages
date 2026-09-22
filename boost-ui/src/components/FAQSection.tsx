@@ -2,12 +2,20 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * FAQItem — A single FAQ question-and-answer pair.
+ */
 export interface FAQItem {
   id?: string;
   question: string;
   answer: React.ReactNode;
 }
 
+
+/**
+ * FAQSectionProps — Properties for the FAQ accordion section.
+ */
 export interface FAQSectionProps {
   items?: FAQItem[];
   title?: React.ReactNode;
@@ -87,7 +95,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           border: '1px solid #334155',
           borderRadius: '14px',
         };

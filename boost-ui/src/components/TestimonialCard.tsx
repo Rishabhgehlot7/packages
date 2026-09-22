@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * TestimonialProps — Properties for a single testimonial card.
+ */
 export interface TestimonialProps extends React.HTMLAttributes<HTMLDivElement> {
   quote?: string;
   authorName?: string;
@@ -42,7 +46,7 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({
       case 'neumorphism': return { ...base, backgroundColor: '#e0e5ec', border: 'none', borderRadius: '20px', boxShadow: '8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff' };
       case 'gradient-glow': return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '14px', boxShadow: '0 0 24px rgba(99,102,241,0.12)' };
       case 'material-you': return { ...base, backgroundColor: 'var(--boost-surface,#fffbfe)', border: '1px solid var(--boost-border,#e2e8f0)', borderRadius: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' };
-      case 'dark-first': return { ...base, backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' };
+      case 'dark-first': return { ...base, backgroundColor: 'var(--boost-surface, #0f172a)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' };
       default: return { ...base, borderRadius: 'var(--boost-radius,16px)', backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid var(--boost-border,#e2e8f0)', boxShadow: '0 4px 20px -2px rgba(0,0,0,0.05)' };
     }
   };
@@ -169,6 +173,10 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({
   );
 };
 
+
+/**
+ * TestimonialGridProps — Properties for testimonial grid layout.
+ */
 export interface TestimonialGridProps extends React.HTMLAttributes<HTMLDivElement> {
   testimonials?: TestimonialProps[];
   columns?: 2 | 3;

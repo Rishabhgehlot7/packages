@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * ErrorStateProps — Properties for the error state display component.
+ */
 export interface ErrorStateProps {
   title?: string;
   message?: string;

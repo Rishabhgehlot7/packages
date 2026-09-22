@@ -2,6 +2,15 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * TextareaProps — Properties for the Textarea component.
+ * Extends native HTML textarea attributes.
+ *
+ * @example
+ * ```tsx
+ * <Textarea placeholder="Write a review..." rows={4} />
+ * ```
+ */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
@@ -107,10 +116,11 @@ export const Textarea = /* @__PURE__ */ React.forwardRef<HTMLTextAreaElement, Te
             border: 1px solid var(--boost-border, #cbd5e1);
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
           }
-          :root[data-theme="dark"] .boost-textarea {
-            background-color: #1e293b !important;
-            border-color: rgba(255, 255, 255, 0.12) !important;
-            color: #f8fafc !important;
+          :root[data-theme="dark"] .boost-textarea,
+          .dark .boost-textarea {
+            background-color: var(--boost-surface, #1e293b) !important;
+            border-color: var(--boost-border, rgba(255, 255, 255, 0.12)) !important;
+            color: var(--boost-text, #f8fafc) !important;
           }
           .boost-textarea:focus {
             border-color: var(--boost-primary, #2563eb) !important;

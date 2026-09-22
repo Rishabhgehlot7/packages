@@ -54,7 +54,7 @@ export const Image: React.FC<ImageProps> = ({
     >
       <style>{`
         :root[data-theme="dark"] .boost-image-container {
-          background-color: #1e293b;
+          background-color: var(--boost-surface, #1e293b);
         }
         .boost-image-shimmer {
           background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);

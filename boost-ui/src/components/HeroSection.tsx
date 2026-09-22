@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * HeroAction — A CTA button definition within the hero section.
+ */
 export interface HeroAction {
   label: string;
   onClick?: () => void;
@@ -9,6 +13,10 @@ export interface HeroAction {
   variant?: 'primary' | 'secondary' | 'outline';
 }
 
+
+/**
+ * HeroSectionProps — Properties for the hero/banner section.
+ */
 export interface HeroSectionProps {
   badge?: React.ReactNode;
   title: React.ReactNode;

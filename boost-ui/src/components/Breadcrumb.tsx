@@ -6,6 +6,10 @@ export interface BreadcrumbItem {
   icon?: React.ReactNode;
 }
 
+
+/**
+ * BreadcrumbProps — Properties for the breadcrumb navigation trail.
+ */
 export interface BreadcrumbProps {
   items?: BreadcrumbItem[];
   separator?: React.ReactNode;
@@ -46,15 +50,15 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
         {`
           :root[data-theme="dark"] .boost-breadcrumb a,
           .dark .boost-breadcrumb a {
-            color: #94a3b8 !important;
+            color: var(--boost-text-muted, #94a3b8) !important;
           }
           :root[data-theme="dark"] .boost-breadcrumb a:hover,
           .dark .boost-breadcrumb a:hover {
-            color: #818cf8 !important;
+            color: var(--boost-primary, #818cf8) !important;
           }
           :root[data-theme="dark"] .boost-breadcrumb span[aria-current="page"],
           .dark .boost-breadcrumb span[aria-current="page"] {
-            color: #f8fafc !important;
+            color: var(--boost-text, #f8fafc) !important;
           }
         `}
       </style>

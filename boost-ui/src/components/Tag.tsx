@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * TagProps — Properties for the tag/label component.
+ */
 export interface TagProps {
   label?: string;
   children?: React.ReactNode;
@@ -104,8 +108,8 @@ export const Tag: React.FC<TagProps> = ({
     >
       <style>{`
         :root[data-theme="dark"] .boost-tag-default {
-          background-color: #1e293b !important;
-          color: #f1f5f9 !important;
+          background-color: var(--boost-surface, #1e293b) !important;
+          color: var(--boost-text, #f1f5f9) !important;
           border-color: rgba(255, 255, 255, 0.12) !important;
         }
       `}</style>

@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * SectionProps — Properties for a page section with optional title and actions.
+ */
 export interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
   maxWidth?: string | number;

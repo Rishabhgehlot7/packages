@@ -3,6 +3,10 @@ import { ButtonVariant, ButtonSize } from './Button';
 
 export type IconButtonShape = 'square' | 'rounded' | 'circle';
 
+
+/**
+ * IconButtonProps — Properties for an icon-only button.
+ */
 export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   label?: string;

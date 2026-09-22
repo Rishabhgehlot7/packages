@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * KPIWidgetProps — Properties for the KPI (Key Performance Indicator) widget.
+ */
 export interface KPIWidgetProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   value: string | number;
@@ -41,7 +45,7 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
       case 'neumorphism': return { ...base, backgroundColor: '#e0e5ec', border: 'none', borderRadius: '20px', boxShadow: '8px 8px 18px #c8cdd5, -8px -8px 18px #f8fdff' };
       case 'gradient-glow': return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '14px', boxShadow: '0 0 24px rgba(99,102,241,0.14)' };
       case 'material-you': return { ...base, backgroundColor: 'var(--boost-surface,#fffbfe)', border: '1px solid var(--boost-border,#e2e8f0)', borderRadius: '24px' };
-      case 'dark-first': return { ...base, backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' };
+      case 'dark-first': return { ...base, backgroundColor: 'var(--boost-surface, #0f172a)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' };
       default: return { ...base, borderRadius: 'var(--boost-radius,16px)', backgroundColor: 'var(--boost-surface,#ffffff)', border: '1px solid var(--boost-border,#e2e8f0)', boxShadow: 'var(--boost-shadow-sm,0 4px 12px rgba(0,0,0,0.04))' };
     }
   };

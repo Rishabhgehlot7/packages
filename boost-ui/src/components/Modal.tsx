@@ -4,6 +4,17 @@ import { useFocusTrap } from '../hooks';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * ModalProps — Properties for the Modal (dialog) component.
+ * Includes focus trap, Escape key handling, and scroll lock.
+ *
+ * @example
+ * ```tsx
+ * <Modal isOpen={open} onClose={() => setOpen(false)} title="Confirm">
+ *   Are you sure?
+ * </Modal>
+ * ```
+ */
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -68,9 +79,9 @@ export const Modal: React.FC<ModalProps> = ({
     switch (preset) {
       case 'neo-brutalism':
         return {
-          border: '3px solid #000000',
+          border: '3px solid var(--boost-border, #000000)',
           borderRadius: '2px',
-          boxShadow: '8px 8px 0px #000000',
+          boxShadow: '8px 8px 0px var(--boost-border, #000000)',
           backgroundColor: 'var(--boost-surface, #ffffff)',
         };
       case 'glassmorphism':
@@ -84,10 +95,10 @@ export const Modal: React.FC<ModalProps> = ({
         };
       case 'neumorphism':
         return {
-          backgroundColor: 'var(--boost-surface, #e8ebf0)',
+          backgroundColor: 'var(--boost-neuro-surface, var(--boost-surface, #e8ebf0))',
           border: 'none',
           borderRadius: '24px',
-          boxShadow: '12px 12px 28px #cbd5e1, -12px -12px 28px #ffffff',
+          boxShadow: 'var(--boost-neuro-shadow, var(--card-shadow, 12px 12px 28px #cbd5e1, -12px -12px 28px #ffffff))',
         };
       case 'gradient-glow':
         return {
@@ -105,8 +116,8 @@ export const Modal: React.FC<ModalProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
-          border: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
+          border: '1px solid var(--boost-border, #1e293b)',
           borderRadius: '14px',
           boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
         };
@@ -136,7 +147,7 @@ export const Modal: React.FC<ModalProps> = ({
         style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.72)',
+          backgroundColor: 'var(--boost-overlay-backdrop, rgba(0, 0, 0, 0.72))',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
           zIndex: 1000,
@@ -159,7 +170,7 @@ export const Modal: React.FC<ModalProps> = ({
             to { opacity: 1; transform: scale(1) translateY(0); }
           }
           :root[data-theme="dark"] .boost-modal-card {
-            background-color: #0f172a;
+            background-color: var(--boost-surface, #0f172a);
             border-color: rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
           }
@@ -173,29 +184,33 @@ export const Modal: React.FC<ModalProps> = ({
             border-color: rgba(255, 255, 255, 0.15) !important;
           }
           :root[data-theme="dark"] .boost-modal-preset-neumorphism {
-            background-color: #0f172a !important;
+            background-color: var(--boost-surface, #0f172a) !important;
             box-shadow: 12px 12px 28px #090d15, -12px -12px 28px #151d2c !important;
           }
           :root[data-theme="dark"] .boost-modal-preset-gradient-glow {
-            background-color: #0f172a !important;
+            background-color: var(--boost-surface, #0f172a) !important;
             border-color: rgba(99, 102, 241, 0.5) !important;
             box-shadow: 0 0 40px rgba(99, 102, 241, 0.45) !important;
           }
           :root[data-theme="dark"] .boost-modal-header {
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
           }
-          :root[data-theme="dark"] .boost-modal-title {
-            color: #f8fafc !important;
+          :root[data-theme="dark"] .boost-modal-title,
+          .dark .boost-modal-title {
+            color: var(--boost-text, #f8fafc) !important;
           }
-          :root[data-theme="dark"] .boost-modal-desc {
-            color: #94a3b8 !important;
+          :root[data-theme="dark"] .boost-modal-desc,
+          .dark .boost-modal-desc {
+            color: var(--boost-text-muted, #94a3b8) !important;
           }
-          :root[data-theme="dark"] .boost-modal-body {
-            color: #cbd5e1 !important;
+          :root[data-theme="dark"] .boost-modal-body,
+          .dark .boost-modal-body {
+            color: var(--boost-text, #cbd5e1) !important;
           }
-          :root[data-theme="dark"] .boost-modal-footer {
-            background-color: #090d16 !important;
-            border-top-color: rgba(255, 255, 255, 0.08) !important;
+          :root[data-theme="dark"] .boost-modal-footer,
+          .dark .boost-modal-footer {
+            background-color: var(--boost-bg, #090d16) !important;
+            border-top-color: var(--boost-border, rgba(255, 255, 255, 0.08)) !important;
           }
           :root[data-theme="dark"] .boost-modal-close-btn:hover {
             background-color: rgba(255, 255, 255, 0.1) !important;

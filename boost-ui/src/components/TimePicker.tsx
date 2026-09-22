@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * TimePickerProps — Properties for the time picker component.
+ */
 export interface TimePickerProps {
   label?: string;
   value?: string;

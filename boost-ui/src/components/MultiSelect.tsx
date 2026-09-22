@@ -5,6 +5,10 @@ export interface MultiSelectOption {
   value: string;
 }
 
+
+/**
+ * MultiSelectProps — Properties for the multi-select dropdown with tags.
+ */
 export interface MultiSelectProps {
   label?: string;
   options?: MultiSelectOption[];
@@ -77,9 +81,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         :root[data-theme="dark"] .boost-multiselect-input {
-          background-color: #1e293b !important;
+          background-color: var(--boost-surface, #1e293b) !important;
           border-color: rgba(255, 255, 255, 0.12) !important;
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
         .boost-multiselect-dropdown {
           background-color: var(--boost-surface, #ffffff);
@@ -88,9 +92,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
         }
         :root[data-theme="dark"] .boost-multiselect-dropdown {
-          background-color: #1e293b !important;
+          background-color: var(--boost-surface, #1e293b) !important;
           border-color: rgba(255, 255, 255, 0.15) !important;
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
           box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.6) !important;
         }
         .boost-multiselect-option {
@@ -98,7 +102,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           color: var(--boost-text, #0f172a);
         }
         :root[data-theme="dark"] .boost-multiselect-option {
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
         .boost-multiselect-option:hover {
           background-color: var(--boost-surface-secondary, #f1f5f9);

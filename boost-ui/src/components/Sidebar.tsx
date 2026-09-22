@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * SidebarItem — A single navigation item in the sidebar.
+ */
 export interface SidebarItem {
   id: string;
   label: string;
@@ -16,6 +20,10 @@ export interface SidebarGroup {
   items: SidebarItem[];
 }
 
+
+/**
+ * SidebarProps — Properties for the sidebar navigation component.
+ */
 export interface SidebarProps {
   groups?: SidebarGroup[];
   activeId?: string;
@@ -48,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       case 'neumorphism': return { ...base, backgroundColor: '#e0e5ec', borderRight: 'none', boxShadow: '4px 0 14px #d1d9e6' };
       case 'gradient-glow': return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', borderRight: '1px solid rgba(99,102,241,0.2)', boxShadow: '2px 0 16px rgba(99,102,241,0.08)' };
       case 'material-you': return { ...base, backgroundColor: 'var(--boost-surface,#fffbfe)', borderRight: '1px solid var(--boost-border,#e2e8f0)' };
-      case 'dark-first': return { ...base, backgroundColor: '#0f172a', borderRight: '1px solid rgba(255,255,255,0.06)' };
+      case 'dark-first': return { ...base, backgroundColor: 'var(--boost-surface, #0f172a)', borderRight: '1px solid rgba(255,255,255,0.06)' };
       default: return { ...base, backgroundColor: 'var(--boost-surface,#ffffff)', borderRight: '1px solid var(--boost-border,#e2e8f0)' };
     }
   };

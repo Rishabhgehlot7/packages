@@ -4,6 +4,14 @@ import { useBoostPreset } from './BoostProvider';
 
 export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'outline' | 'success' | 'destructive' | 'warning' | 'info';
 
+/**
+ * BadgeProps — Properties for the Badge component.
+ *
+ * @example
+ * ```tsx
+ * <Badge variant="success">In Stock</Badge>
+ * ```
+ */
 export interface BadgeProps {
   children?: React.ReactNode;
   variant?: BadgeVariant;

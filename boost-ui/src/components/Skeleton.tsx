@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * SkeletonProps — Properties for the loading skeleton placeholder component.
+ */
 export interface SkeletonProps {
   variant?: 'text' | 'circular' | 'rectangular';
   width?: string | number;

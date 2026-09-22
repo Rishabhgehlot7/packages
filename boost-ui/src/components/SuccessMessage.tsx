@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * SuccessMessageProps — Properties for the success message component.
+ */
 export interface SuccessMessageProps {
   title?: string;
   message?: string;

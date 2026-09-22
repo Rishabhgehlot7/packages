@@ -6,7 +6,7 @@
 
 ## Overview
 - **Package**: `@boostengine/ui`
-- **Version**: `1.8.0`
+- **Version**: `2.0.0`
 - **Supported Frameworks**: Next.js (App Router & Pages Router), React 18 & 19, Vite, Remix
 - **CSS Dependencies**: Zero. All components use built-in inline styles and CSS variable hooks.
 - **Client Directives**: Pre-configured with `'use client'` for Next.js App Router.

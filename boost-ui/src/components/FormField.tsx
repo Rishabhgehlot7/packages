@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * FormFieldProps — Properties for the form field wrapper (label + input + error).
+ */
 export interface FormFieldProps {
   label: string;
   required?: boolean;

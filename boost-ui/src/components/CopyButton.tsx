@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * CopyButtonProps — Properties for the copy-to-clipboard button.
+ */
 export interface CopyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   text: string;
   label?: string;

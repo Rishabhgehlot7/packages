@@ -1,0 +1,13 @@
+src/components/BoostProvider.tsx(211,7): error TS1005: ';' expected.
+src/tokens/index.ts(173,14): error TS1005: ':' expected.
+src/tokens/index.ts(173,24): error TS1005: ',' expected.
+src/tokens/index.ts(224,2): error TS1005: ',' expected.
+src/tokens/index.ts(233,17): error TS1005: ':' expected.
+src/tokens/index.ts(233,35): error TS1005: ',' expected.
+src/tokens/index.ts(233,54): error TS1005: ',' expected.
+src/tokens/index.ts(233,68): error TS1005: ',' expected.
+src/tokens/index.ts(234,10): error TS1005: ':' expected.
+src/tokens/index.ts(234,15): error TS1005: ',' expected.
+src/tokens/index.ts(235,1): error TS1128: Declaration or statement expected.
+src/tokens/index.ts(279,14): error TS1005: ';' expected.
+src/tokens/index.ts(280,1): error TS1109: Expression expected.

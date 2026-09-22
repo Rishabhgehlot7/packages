@@ -2,6 +2,15 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * CheckboxProps — Properties for the Checkbox component.
+ * Extends native HTML input attributes (excluding 'type').
+ *
+ * @example
+ * ```tsx
+ * <Checkbox checked={checked} onChange={setChecked} label="Accept terms" />
+ * ```
+ */
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
   description?: string;

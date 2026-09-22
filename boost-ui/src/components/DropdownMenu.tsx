@@ -11,6 +11,10 @@ export interface DropdownMenuItem {
   onClick?: () => void;
 }
 
+
+/**
+ * DropdownMenuProps — Properties for the dropdown menu component.
+ */
 export interface DropdownMenuProps {
   trigger?: React.ReactNode;
   items?: DropdownMenuItem[];
@@ -148,8 +152,8 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
-          border: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
+          border: '1px solid var(--boost-border, #1e293b)',
           borderRadius: '10px',
           boxShadow: '0 15px 30px rgba(0, 0, 0, 0.6)',
         };
@@ -219,11 +223,11 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                 border-color: rgba(255, 255, 255, 0.15) !important;
               }
               :root[data-theme="dark"] .boost-dropdown-preset-neumorphism {
-                background-color: #0f172a !important;
+                background-color: var(--boost-surface, #0f172a) !important;
                 box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
               }
               :root[data-theme="dark"] .boost-dropdown-preset-gradient-glow {
-                background-color: #0f172a !important;
+                background-color: var(--boost-surface, #0f172a) !important;
                 border-color: rgba(99, 102, 241, 0.5) !important;
                 box-shadow: 0 0 30px rgba(99, 102, 241, 0.4) !important;
               }

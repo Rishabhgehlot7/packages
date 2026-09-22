@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * QuantitySelectorProps — Properties for the quantity increment/decrement control.
+ */
 export interface QuantitySelectorProps {
   value: number;
   onChange: (quantity: number) => void;

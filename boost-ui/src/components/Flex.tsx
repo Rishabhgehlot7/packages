@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * FlexProps — Properties for the Flexbox layout primitive.
+ */
 export interface FlexProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   direction?: React.CSSProperties['flexDirection'];

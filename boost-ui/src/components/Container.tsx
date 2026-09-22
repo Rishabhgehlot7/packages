@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * ContainerProps — Properties for the centered container layout component.
+ */
 export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }

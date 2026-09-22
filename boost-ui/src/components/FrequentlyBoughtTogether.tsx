@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * BundleItem — A single product in a FBT bundle.
+ */
 export interface BundleItem {
   id: string;
   title: string;
@@ -10,6 +14,10 @@ export interface BundleItem {
   originalPrice?: number;
 }
 
+
+/**
+ * FrequentlyBoughtTogetherProps — Properties for the FBT bundle component.
+ */
 export interface FrequentlyBoughtTogetherProps {
   mainProduct?: BundleItem;
   suggestedItems?: BundleItem[];
@@ -144,7 +152,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
       case 'dark-first':
         return {
           ...base,
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '20px',
           boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.7)',

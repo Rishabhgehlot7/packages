@@ -6,6 +6,10 @@ export interface DonutDataPoint {
   color?: string;
 }
 
+
+/**
+ * DonutChartProps — Properties for the donut chart component.
+ */
 export interface DonutChartProps {
   data: DonutDataPoint[];
   title?: string;

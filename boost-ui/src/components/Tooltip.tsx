@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * TooltipProps — Properties for the tooltip popover component.
+ */
 export interface TooltipProps {
   content?: React.ReactNode;
   children?: React.ReactNode;
@@ -117,7 +121,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
           style={{
             position: 'absolute',
             zIndex: 1000,
-            backgroundColor: '#0f172a',
+            backgroundColor: 'var(--boost-surface, #0f172a)',
             color: '#f8fafc',
             border: '1px solid rgba(255, 255, 255, 0.15)',
             padding: '5px 10px',

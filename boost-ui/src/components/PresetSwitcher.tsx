@@ -47,6 +47,10 @@ const PRESETS: { value: UIStylePreset; label: string; icon: string; description:
   },
 ];
 
+
+/**
+ * PresetSwitcherProps — Properties for the design preset switcher UI.
+ */
 export interface PresetSwitcherProps {
   /** Display mode — 'dropdown' collapses into a button; 'pills' shows all presets inline */
   mode?: 'dropdown' | 'pills';
@@ -328,7 +332,7 @@ export const PresetSwitcher: React.FC<PresetSwitcherProps> = ({
         case 'dark-first':
           return { ...base, backgroundColor: '#1e3a5f', color: '#60a5fa', border: '1px solid #334155', borderRadius: '9999px' };
         default:
-          return { ...base, backgroundColor: '#0f172a', color: '#fff', borderRadius: '6px' };
+          return { ...base, backgroundColor: 'var(--boost-surface, #0f172a)', color: '#fff', borderRadius: '6px' };
       }
     }
 

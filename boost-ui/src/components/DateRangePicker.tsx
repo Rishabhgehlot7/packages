@@ -5,6 +5,10 @@ export interface DateRange {
   endDate: string;
 }
 
+
+/**
+ * DateRangePickerProps — Properties for the date range picker.
+ */
 export interface DateRangePickerProps {
   startDate?: string;
   endDate?: string;

@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * NavLinkProps — Properties for a single navigation link with active state and badge support.
+ */
 export interface NavLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
   isActive?: boolean;
@@ -37,7 +41,7 @@ export const NavLink: React.FC<NavLinkProps> = ({
           }
           :root[data-theme="dark"] .boost-nav-link.active,
           .dark .boost-nav-link.active {
-            color: #818cf8 !important;
+            color: var(--boost-primary, #818cf8) !important;
             background-color: rgba(99, 102, 241, 0.15) !important;
           }
           :root[data-theme="dark"] .boost-nav-badge,

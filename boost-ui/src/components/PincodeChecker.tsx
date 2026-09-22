@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * PincodeCheckResult — Result of a pincode availability check.
+ */
 export interface PincodeCheckResult {
   isServiceable: boolean;
   estimatedDeliveryDate?: string;
@@ -7,6 +11,10 @@ export interface PincodeCheckResult {
   courier?: string;
 }
 
+
+/**
+ * PincodeCheckerProps — Properties for the pincode availability checker.
+ */
 export interface PincodeCheckerProps {
   onCheck?: (pincode: string) => Promise<PincodeCheckResult> | PincodeCheckResult;
   defaultPincode?: string;

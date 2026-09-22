@@ -2,6 +2,10 @@ import * as React from 'react';
 
 export type CarouselSlide = React.ReactNode;
 
+
+/**
+ * CarouselProps — Properties for the image/content carousel component.
+ */
 export interface CarouselProps {
   items: CarouselSlide[];
   autoPlay?: boolean;
@@ -79,7 +83,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         width: '100%',
         overflow: 'hidden',
         borderRadius: 'var(--boost-radius, 16px)',
-        backgroundColor: '#0f172a',
+        backgroundColor: 'var(--boost-surface, #0f172a)',
         boxShadow: 'var(--boost-shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.1))',
         touchAction: 'pan-y',
         userSelect: 'none',

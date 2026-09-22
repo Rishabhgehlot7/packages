@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * ButtonGroupProps — Properties for grouping multiple buttons together.
+ */
 export interface ButtonGroupProps {
   children: React.ReactNode;
   orientation?: 'horizontal' | 'vertical';

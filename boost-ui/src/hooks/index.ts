@@ -584,3 +584,88 @@ export function useAnnounce() {
 }
 
 
+/**
+ * useBreakpoint — Reactive responsive breakpoint hook.
+ * Returns the current active breakpoint name and a boolean for each breakpoint.
+ * SSR-safe (returns 'lg' as default on server).
+ *
+ * Breakpoints:
+ * - `xs`: < 480px
+ * - `sm`: 480–767px
+ * - `md`: 768–1023px
+ * - `lg`: 1024–1279px
+ * - `xl`: 1280–1535px
+ * - `2xl`: ≥ 1536px
+ *
+ * @example
+ * ```tsx
+ * const { breakpoint, isMobile, isDesktop } = useBreakpoint();
+ * // breakpoint -> 'sm', isMobile -> true
+ * if (isMobile) return <MobileView />;
+ * ```
+ */
+export function useBreakpoint() {
+  type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+  const breakpoints: Record<BreakpointName, string> = {
+    xs: '(max-width: 479px)',
+    sm: '(min-width: 480px) and (max-width: 767px)',
+    md: '(min-width: 768px) and (max-width: 1023px)',
+    lg: '(min-width: 1024px) and (max-width: 1279px)',
+    xl: '(min-width: 1280px) and (max-width: 1535px)',
+    '2xl': '(min-width: 1536px)',
+  };
+
+  const getBreakpoint = React.useCallback((): BreakpointName => {
+    if (typeof window === 'undefined') return 'lg';
+    for (const [name, query] of Object.entries(breakpoints)) {
+      if (window.matchMedia(query).matches) return name as BreakpointName;
+    }
+    return 'lg';
+  }, []);
+
+  const [breakpoint, setBreakpoint] = React.useState<BreakpointName>('lg');
+
+  React.useEffect(() => {
+    setBreakpoint(getBreakpoint());
+    const listeners: (() => void)[] = [];
+
+    for (const [name, query] of Object.entries(breakpoints)) {
+      const mq = window.matchMedia(query);
+      const handler = () => {
+        if (mq.matches) setBreakpoint(name as BreakpointName);
+      };
+      mq.addEventListener('change', handler as EventListener);
+      listeners.push(() => mq.removeEventListener('change', handler as EventListener));
+    }
+
+    return () => listeners.forEach((cleanup) => cleanup());
+  }, [getBreakpoint]);
+
+  const isMobile = breakpoint === 'xs' || breakpoint === 'sm';
+  const isTablet = breakpoint === 'md';
+  const isDesktop = breakpoint === 'lg' || breakpoint === 'xl' || breakpoint === '2xl';
+
+  return {
+    /** Current active breakpoint name ('xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl') */
+    breakpoint,
+    /** True when viewport is mobile-sized (< 768px) */
+    isMobile,
+    /** True when viewport is tablet-sized (768–1023px) */
+    isTablet,
+    /** True when viewport is desktop-sized (≥ 1024px) */
+    isDesktop,
+    /** True for extra small screens (< 480px) */
+    isXs: breakpoint === 'xs',
+    /** True for small screens (480–767px) */
+    isSm: breakpoint === 'sm',
+    /** True for medium screens (768–1023px) */
+    isMd: breakpoint === 'md',
+    /** True for large screens (1024–1279px) */
+    isLg: breakpoint === 'lg',
+    /** True for extra large screens (1280–1535px) */
+    isXl: breakpoint === 'xl',
+    /** True for 2xl screens (≥ 1536px) */
+    is2xl: breakpoint === '2xl',
+  } as const;
+}

@@ -12,6 +12,10 @@ export type DataTableColumn<T = any> = Omit<TableColumn<T>, 'header'> & {
   sortable?: boolean;
 };
 
+
+/**
+ * DataTableProps — Properties for the advanced data table with sorting, filtering, and pagination.
+ */
 export interface DataTableProps<T = any> {
   columns?: DataTableColumn<T>[];
   data?: T[];
@@ -252,7 +256,7 @@ export function DataTable<T extends Record<string, any>>({
           ...base,
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '12px',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
         };
       default:

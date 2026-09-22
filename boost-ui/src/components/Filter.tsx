@@ -6,6 +6,10 @@ export interface FilterOption {
   count?: number;
 }
 
+
+/**
+ * FilterProps — Properties for the filter controls component.
+ */
 export interface FilterProps {
   label?: string;
   options?: FilterOption[];

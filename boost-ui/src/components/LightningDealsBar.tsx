@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * LightningDealsBarProps — Properties for the lightning deal countdown bar.
+ */
 export interface LightningDealsBarProps {
   dealTitle?: string;
   endsAt?: Date | string | number;

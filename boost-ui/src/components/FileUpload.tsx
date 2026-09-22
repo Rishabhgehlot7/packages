@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * FileUploadProps — Properties for the file upload component.
+ */
 export interface FileUploadProps {
   label?: string;
   accept?: string;

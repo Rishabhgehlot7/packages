@@ -2,12 +2,26 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * SelectOption — A single option item for Select component.
+ */
 export interface SelectOption {
   label: string;
   value: string | number;
   disabled?: boolean;
 }
 
+/**
+ * SelectProps — Properties for the Select dropdown component.
+ *
+ * @example
+ * ```tsx
+ * <Select
+ *   options={[{ value: '1', label: 'Option 1' }]}
+ *   placeholder="Choose..."
+ * />
+ * ```
+ */
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
@@ -105,14 +119,16 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
             border: 1px solid var(--boost-border, #cbd5e1);
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
           }
-          :root[data-theme="dark"] .boost-select {
-            background-color: #1e293b;
-            border-color: rgba(255, 255, 255, 0.12);
-            color: #f8fafc;
+          :root[data-theme="dark"] .boost-select,
+          .dark .boost-select {
+            background-color: var(--boost-surface, #1e293b);
+            border-color: var(--boost-border, rgba(255, 255, 255, 0.12));
+            color: var(--boost-text, #f8fafc);
           }
-          :root[data-theme="dark"] .boost-select option {
-            background-color: #1e293b !important;
-            color: #f8fafc !important;
+          :root[data-theme="dark"] .boost-select option,
+          .dark .boost-select option {
+            background-color: var(--boost-surface, #1e293b) !important;
+            color: var(--boost-text, #f8fafc) !important;
           }
           .boost-select:focus {
             border-color: var(--boost-primary, #2563eb) !important;
@@ -124,18 +140,18 @@ export const Select = /* @__PURE__ */ React.forwardRef<HTMLSelectElement, Select
           }
           :root[data-theme="dark"] .boost-select-preset-neo-brutalism {
             background-color: #18181b !important;
-            border-color: #f8fafc !important;
+            border-color: var(--boost-text, #f8fafc) !important;
           }
           :root[data-theme="dark"] .boost-select-preset-neo-brutalism:focus {
             box-shadow: 3px 3px 0px #f8fafc !important;
-            border-color: #f8fafc !important;
+            border-color: var(--boost-text, #f8fafc) !important;
           }
           :root[data-theme="dark"] .boost-select-preset-glassmorphism {
             background-color: rgba(15, 23, 42, 0.8) !important;
             border-color: rgba(255, 255, 255, 0.15) !important;
           }
           :root[data-theme="dark"] .boost-select-preset-neumorphism {
-            background-color: #0f172a !important;
+            background-color: var(--boost-surface, #0f172a) !important;
             box-shadow: 6px 6px 12px #090d15, -6px -6px 12px #151d2c !important;
           }
           .boost-select-preset-gradient-glow:focus {

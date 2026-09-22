@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * RadioProps — Properties for a single radio button.
+ */
 export interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: React.ReactNode;
   description?: React.ReactNode;
@@ -60,6 +64,10 @@ export const Radio = /* @__PURE__ */ React.forwardRef<HTMLInputElement, RadioPro
 
 Radio.displayName = 'Radio';
 
+
+/**
+ * RadioOption — A single option within a RadioGroup.
+ */
 export interface RadioOption {
   label: React.ReactNode;
   value: string | number;

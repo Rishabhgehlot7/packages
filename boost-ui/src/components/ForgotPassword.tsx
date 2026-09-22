@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * ForgotPasswordProps — Properties for the forgot password form.
+ */
 export interface ForgotPasswordProps {
   onSubmit?: (email: string) => void;
   onBackToLogin?: () => void;
@@ -75,7 +79,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
       case 'dark-first':
         return {
           border: '1px solid #334155',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           borderRadius: '16px',
           boxShadow: '0 12px 35px -5px rgba(0, 0, 0, 0.5)',
         };

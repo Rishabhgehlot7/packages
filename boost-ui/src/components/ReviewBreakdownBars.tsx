@@ -3,11 +3,19 @@ import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 import { StarRating } from './StarRating';
 
+
+/**
+ * ReviewBreakdownItem — A single rating level in the breakdown.
+ */
 export interface ReviewBreakdownItem {
   star: number;
   count: number;
 }
 
+
+/**
+ * ReviewBreakdownBarsProps — Properties for the review rating breakdown chart.
+ */
 export interface ReviewBreakdownBarsProps {
   averageRating?: number;
   totalReviews?: number;
@@ -105,7 +113,7 @@ export const ReviewBreakdownBars: React.FC<ReviewBreakdownBarsProps> = ({
       case 'dark-first':
         return {
           ...base,
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '24px',
           boxShadow: '0 20px 40px -20px rgba(0, 0, 0, 0.8)',

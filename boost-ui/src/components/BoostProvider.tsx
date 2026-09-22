@@ -2,6 +2,12 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { presetTokens } from '../types/presets';
 
+/**
+ * ThemeMode — The available theme modes for BoostProvider.
+ * - 'light': Forces light mode
+ * - 'dark': Forces dark mode
+ * - 'system': Follows OS preference (default)
+ */
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface ThemeTokens {
@@ -86,6 +92,22 @@ export function injectBoostGlobalStyles() {
         --boost-shadow-glow: 0 0 24px rgba(37, 99, 235, 0.22);
         --boost-glass-bg: rgba(255, 255, 255, 0.85);
         --boost-glass-border: rgba(226, 232, 240, 0.8);
+        --boost-surface-secondary: #f1f5f9;
+        --boost-success: #16a34a;
+        --boost-success-bg: rgba(22, 163, 74, 0.1);
+        --boost-warning: #f59e0b;
+        --boost-warning-bg: rgba(245, 158, 11, 0.1);
+        --boost-destructive: #ef4444;
+        --boost-danger: #ef4444;
+        --boost-destructive-bg: rgba(239, 68, 68, 0.1);
+        --boost-info: #2563eb;
+        --boost-info-bg: rgba(37, 99, 235, 0.1);
+        --boost-overlay-backdrop: rgba(0, 0, 0, 0.56);
+        --boost-on-primary: #ffffff;
+        --boost-disabled-bg: rgba(0, 0, 0, 0.04);
+        --boost-neuro-surface: #e8ebf0;
+        --card-shadow: 6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff;
+        --card-shadow-hover: 8px 8px 18px #c5cad3, -8px -8px 18px #ffffff;
       }
       [data-theme="dark"], .dark {
         --boost-primary: #3b82f6;
@@ -104,6 +126,22 @@ export function injectBoostGlobalStyles() {
         --boost-shadow-glow: 0 0 24px rgba(59, 130, 246, 0.35);
         --boost-glass-bg: rgba(15, 23, 42, 0.85);
         --boost-glass-border: rgba(255, 255, 255, 0.1);
+        --boost-surface-secondary: #1e293b;
+        --boost-success: #22c55e;
+        --boost-success-bg: rgba(34, 197, 94, 0.15);
+        --boost-warning: #fbbf24;
+        --boost-warning-bg: rgba(251, 191, 36, 0.15);
+        --boost-destructive: #f87171;
+        --boost-danger: #f87171;
+        --boost-destructive-bg: rgba(248, 113, 113, 0.15);
+        --boost-info: #60a5fa;
+        --boost-info-bg: rgba(96, 165, 250, 0.15);
+        --boost-overlay-backdrop: rgba(0, 0, 0, 0.72);
+        --boost-on-primary: #ffffff;
+        --boost-disabled-bg: rgba(255, 255, 255, 0.06);
+        --boost-neuro-surface: #141c2a;
+        --card-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c;
+        --card-shadow-hover: 8px 8px 18px #060a10, -8px -8px 18px #1a2435;
         color-scheme: dark;
       }
       @media (prefers-color-scheme: dark) {
@@ -122,6 +160,16 @@ export function injectBoostGlobalStyles() {
           --boost-shadow-glow: 0 0 24px rgba(59, 130, 246, 0.35);
           --boost-glass-bg: rgba(15, 23, 42, 0.85);
           --boost-glass-border: rgba(255, 255, 255, 0.1);
+          --boost-success: #22c55e;
+          --boost-warning: #fbbf24;
+          --boost-destructive: #f87171;
+          --boost-danger: #f87171;
+          --boost-info: #60a5fa;
+          --boost-overlay-backdrop: rgba(0, 0, 0, 0.72);
+          --boost-disabled-bg: rgba(255, 255, 255, 0.06);
+          --boost-neuro-surface: #141c2a;
+          --card-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c;
+          --card-shadow-hover: 8px 8px 18px #060a10, -8px -8px 18px #1a2435;
           color-scheme: dark;
         }
       }
@@ -208,6 +256,19 @@ export interface BoostProviderProps {
   syncDocumentPreset?: boolean;
 }
 
+/**
+ * BoostProvider — The root theming and design system provider.
+ * Wrap your entire application with this component to enable:
+ * - Dark/light/system theme mode
+ * - 7 design presets (minimal, glassmorphism, neumorphism, etc.)
+ * - CSS variable injection (automatic, no extra imports)
+ * - Currency and locale for e-commerce components
+ *
+ * @example
+ * <BoostProvider mode="system" defaultMode="dark">
+ *   <App />
+ * </BoostProvider>
+ */
 export const BoostProvider: React.FC<BoostProviderProps> = ({
   children,
   mode: controlledMode,
@@ -413,6 +474,14 @@ value={{
   );
 };
 
+/**
+ * useTheme — Access the current theme context (mode, resolvedMode, setMode, toggleMode).
+ * Safe to use outside BoostProvider — returns fallback defaults if no provider is found.
+ *
+ * @example
+ * const { mode, resolvedMode, toggleMode, tokens } = useTheme();
+ * return <button onClick={toggleMode}>Switch to {mode === 'dark' ? 'light' : 'dark'}</button>;
+ */
 export const useTheme = (): BoostThemeContextType => {
   const context = React.useContext(BoostThemeContext);
   if (!context) {
@@ -425,6 +494,14 @@ export const useTheme = (): BoostThemeContextType => {
       tokens: defaultLightTokens,
       currency: '$',
       locale: 'en-US',
+/**
+ * useBoostPreset — Returns the current style preset and a setter function.
+ * Convenience wrapper around useTheme().
+ *
+ * @example
+ * const { stylePreset, setStylePreset } = useBoostPreset();
+ * setStylePreset('glassmorphism');
+ */
       stylePreset: 'minimal',
       setStylePreset: () => {},
     };
@@ -440,6 +517,92 @@ export const useBoostPreset = () => {
   };
 };
 
+/**
+ * useDesignTokens — Returns all resolved design token values as a typed JS object.
+ * Components can read these values without touching CSS variables directly.
+ *
+ * @example
+ * const tokens = useDesignTokens();
+ * // tokens.bg -> "#ffffff" (light) or "#090d16" (dark)
+ * // tokens.success -> "#16a34a" (light) or "#22c55e" (dark)
+ */
+export const useDesignTokens = () => {
+  const theme = useTheme();
+  const resolvedMode = theme.resolvedMode;
+  const isDark = resolvedMode === 'dark';
+
+  // Base surface tokens
+  const bg = isDark ? '#090d16' : '#ffffff';
+  const surface = isDark ? '#0f172a' : '#f8fafc';
+  const surfaceSecondary = isDark ? '#1e293b' : '#f1f5f9';
+  const text = isDark ? '#f8fafc' : '#0f172a';
+  const textMuted = isDark ? '#94a3b8' : '#64748b';
+  const border = isDark ? '#1e293b' : '#e2e8f0';
+
+  // Semantic feedback colors
+  const primary = isDark ? '#3b82f6' : '#2563eb';
+  const primaryHover = isDark ? '#60a5fa' : '#1d4ed8';
+  const success = isDark ? '#22c55e' : '#16a34a';
+  const warning = isDark ? '#fbbf24' : '#f59e0b';
+  const destructive = isDark ? '#f87171' : '#ef4444';
+  const info = isDark ? '#60a5fa' : '#2563eb';
+
+  // Shadow tokens
+  const shadowSm = isDark ? '0 1px 3px rgba(0,0,0,0.3)' : '0 1px 3px rgba(0,0,0,0.05)';
+  const shadowMd = isDark ? '0 4px 16px -2px rgba(0,0,0,0.4)' : '0 4px 16px -2px rgba(0,0,0,0.08)';
+  const shadowLg = isDark ? '0 12px 32px -4px rgba(0,0,0,0.55)' : '0 12px 32px -4px rgba(0,0,0,0.12)';
+
+  return {
+    /** Current theme mode ('light' | 'dark') */
+    resolvedMode,
+    /** Is dark mode active */
+    isDark,
+    /** Base background color */
+    bg,
+    /** Card/surface background color */
+    surface,
+    /** Secondary surface (e.g. hover states, input bg) */
+    surfaceSecondary,
+    /** Primary text color */
+    text,
+    /** Muted/secondary text color */
+    textMuted,
+    /** Border color */
+    border,
+    /** Primary brand color */
+    primary,
+    /** Primary hover state */
+    primaryHover,
+    /** Success feedback color */
+    success,
+    /** Warning feedback color */
+    warning,
+    /** Destructive/error feedback color */
+    destructive,
+    /** Info feedback color */
+    info,
+    /** Small shadow */
+    shadowSm,
+    /** Medium shadow */
+    shadowMd,
+    /** Large shadow */
+    shadowLg,
+    /** Currency symbol from provider */
+    currency: theme.currency || '$',
+    /** Locale string from provider */
+    locale: theme.locale || 'en-US',
+    /** Active style preset */
+    stylePreset: theme.stylePreset,
+  };
+};
+
+/**
+ * useCurrency — Returns the current currency symbol and locale from BoostProvider.
+ *
+ * @example
+ * const { currency, locale } = useCurrency();
+ * // currency -> "$", locale -> "en-US"
+ */
 export const useCurrency = () => {
   const theme = useTheme();
   return {
@@ -447,6 +610,5 @@ export const useCurrency = () => {
     locale: theme.locale || 'en-US',
   };
 };
-
 BoostProvider.displayName = 'BoostProvider';
 

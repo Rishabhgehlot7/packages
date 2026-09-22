@@ -6,6 +6,10 @@ export interface ChartDataPoint {
   secondaryValue?: number;
 }
 
+
+/**
+ * AreaChartProps — Properties for the area chart component.
+ */
 export interface AreaChartProps {
   data: ChartDataPoint[];
   title?: string;

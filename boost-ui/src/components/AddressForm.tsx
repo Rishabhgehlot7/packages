@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 
+
+/**
+ * AddressData — Shape of address form data.
+ */
 export interface AddressData {
   fullName: string;
   phone: string;
@@ -12,6 +16,10 @@ export interface AddressData {
   isDefault: boolean;
 }
 
+
+/**
+ * AddressFormProps — Properties for the address input form.
+ */
 export interface AddressFormProps {
   onSubmit?: (data: AddressData) => void;
   initialData?: Partial<AddressData>;

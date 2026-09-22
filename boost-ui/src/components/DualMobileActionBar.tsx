@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * DualMobileActionBarProps — Properties for dual-action mobile bottom bar.
+ */
 export interface DualMobileActionBarProps {
   price?: number;
   compareAtPrice?: number;

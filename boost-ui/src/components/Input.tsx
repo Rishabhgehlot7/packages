@@ -2,6 +2,15 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * InputProps — Properties for the Input component.
+ * Extends native HTML input attributes.
+ *
+ * @example
+ * ```tsx
+ * <Input placeholder="Enter name" size="md" leftIcon={<SearchIcon />} />
+ * ```
+ */
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;

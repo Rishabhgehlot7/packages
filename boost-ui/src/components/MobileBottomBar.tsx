@@ -10,6 +10,10 @@ export interface MobileBottomBarItem {
   href?: string;
 }
 
+
+/**
+ * MobileBottomBarProps — Properties for mobile bottom action bar.
+ */
 export interface MobileBottomBarProps {
   activeTab?: string;
   defaultActiveTab?: string;

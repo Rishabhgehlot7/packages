@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * StatsCardProps — Properties for the statistics/metric card component.
+ */
 export interface StatsCardProps {
   title: string;
   value: string | number;
@@ -65,7 +69,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
       case 'material-you':
         return { ...base, backgroundColor: 'var(--boost-surface, #fffbfe)', border: '1px solid var(--boost-border, #e2e8f0)', borderRadius: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' };
       case 'dark-first':
-        return { ...base, backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' };
+        return { ...base, backgroundColor: 'var(--boost-surface, #0f172a)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' };
       default:
         return { ...base, backgroundColor: 'var(--boost-surface, #ffffff)', border: '1px solid var(--boost-border, #e2e8f0)', borderRadius: 'var(--boost-radius, 16px)', boxShadow: 'var(--boost-shadow-sm, 0 1px 3px rgba(0,0,0,0.05))' };
     }

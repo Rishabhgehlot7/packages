@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * LoginFormProps — Properties for the login form.
+ */
 export interface LoginFormProps {
   onSubmit?: (data: { identifier: string; password: string; rememberMe: boolean }) => void;
   onForgotPassword?: () => void;
@@ -109,7 +113,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       case 'dark-first':
         return {
           border: '1px solid #334155',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           borderRadius: '16px',
           boxShadow: '0 12px 35px -5px rgba(0, 0, 0, 0.5)',
         };

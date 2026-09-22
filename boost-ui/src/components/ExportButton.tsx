@@ -1,5 +1,9 @@
 import React from 'react';
 
+
+/**
+ * ExportButtonProps — Properties for the data export button.
+ */
 export interface ExportButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onExport?: (format: 'csv' | 'xlsx' | 'pdf' | 'json') => void;
   format?: 'csv' | 'xlsx' | 'pdf' | 'json';

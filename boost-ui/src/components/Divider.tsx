@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * DividerProps — Properties for the horizontal/vertical divider line.
+ */
 export interface DividerProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: 'horizontal' | 'vertical';
   label?: React.ReactNode;

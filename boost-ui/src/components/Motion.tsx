@@ -2,6 +2,10 @@
 
 import * as React from 'react';
 
+
+/**
+ * MotionProps — Properties for the motion/animation wrapper component.
+ */
 export interface MotionProps extends React.HTMLAttributes<HTMLDivElement> {
   animation?:
     | 'fade-in'

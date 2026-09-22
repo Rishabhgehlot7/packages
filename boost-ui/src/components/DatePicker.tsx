@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * DatePickerProps — Properties for the date picker input component.
+ */
 export interface DatePickerProps {
   label?: string;
   value?: string;

@@ -3,6 +3,16 @@ import { Portal } from './Portal';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * BottomSheetProps — Properties for the BottomSheet (mobile-optimized slide-up panel) component.
+ *
+ * @example
+ * ```tsx
+ * <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Options">
+ *   <p>Bottom sheet content</p>
+ * </BottomSheet>
+ * ```
+ */
 export interface BottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -97,7 +107,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           borderTop: '1px solid #1e293b',
           borderLeft: '1px solid #1e293b',
           borderRight: '1px solid #1e293b',
@@ -149,11 +159,13 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             from { transform: translateY(100%); }
             to { transform: translateY(0); }
           }
-          :root[data-theme="dark"] .boost-bottom-sheet-panel {
-            background-color: #0f172a;
-            border-top-color: rgba(255, 255, 255, 0.1);
-            border-left-color: rgba(255, 255, 255, 0.1);
-            border-right-color: rgba(255, 255, 255, 0.1);
+          :root[data-theme="dark"] .boost-bottom-sheet-panel,
+          .dark .boost-bottom-sheet-panel {
+            background-color: var(--boost-surface, #0f172a);
+            border-top-color: var(--boost-border, rgba(255, 255, 255, 0.1));
+            border-left-color: var(--boost-border, rgba(255, 255, 255, 0.1));
+            border-right-color: var(--boost-border, rgba(255, 255, 255, 0.1));
+            color: var(--boost-text, #f8fafc);
             box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
           }
           :root[data-theme="dark"] .boost-bottom-sheet-preset-neo-brutalism {

@@ -2,6 +2,9 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * TabItem — A single tab definition with id, label, and optional content.
+ */
 export interface TabItem {
   id: string;
   label: string;
@@ -11,6 +14,14 @@ export interface TabItem {
   disabled?: boolean;
 }
 
+/**
+ * TabsProps — Properties for the Tabs component.
+ *
+ * @example
+ * ```tsx
+ * <Tabs tabs={[{ id: '1', label: 'Tab 1' }]} defaultTab="1" />
+ * ```
+ */
 export interface TabsProps {
   tabs?: TabItem[];
   items?: TabItem[];
@@ -90,7 +101,7 @@ export const Tabs: TabsComponent = (({
       case 'neumorphism': return { ...base, borderBottom: 'none', backgroundColor: '#e0e5ec', padding: '8px', borderRadius: '14px', gap: '8px' };
       case 'gradient-glow': return { ...base, borderBottom: '1px solid rgba(99,102,241,0.2)' };
       case 'material-you': return { ...base, borderBottom: '1px solid var(--boost-border,#e2e8f0)', gap: '0' };
-      case 'dark-first': return { ...base, borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f172a' };
+      case 'dark-first': return { ...base, borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'var(--boost-surface, #0f172a)' };
       default: return { ...base, borderBottom: '1px solid var(--boost-border,#e2e8f0)', gap: '8px' };
     }
   };
@@ -179,7 +190,7 @@ export const TabsList: React.FC<TabsListProps> = ({ children, className = '', st
       case 'neo-brutalism': return { ...base, borderBottom: '3px solid #000' };
       case 'glassmorphism': return { ...base, borderBottom: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderRadius: '12px 12px 0 0', padding: '4px 4px 0' };
       case 'neumorphism': return { ...base, borderBottom: 'none', backgroundColor: '#e0e5ec', padding: '8px', borderRadius: '14px', gap: '8px' };
-      case 'dark-first': return { ...base, borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f172a' };
+      case 'dark-first': return { ...base, borderBottom: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'var(--boost-surface, #0f172a)' };
       default: return { ...base, borderBottom: '1px solid var(--boost-border,#e2e8f0)', gap: '8px' };
     }
   };

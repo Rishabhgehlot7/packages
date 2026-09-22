@@ -2,6 +2,9 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * AccordionItem — A single expandable panel within an Accordion.
+ */
 export interface AccordionItem {
   id: string;
   title: string;
@@ -9,6 +12,14 @@ export interface AccordionItem {
   disabled?: boolean;
 }
 
+/**
+ * AccordionProps — Properties for the Accordion component.
+ *
+ * @example
+ * ```tsx
+ * <Accordion items={[{ title: 'FAQ 1', content: 'Answer' }]} />
+ * ```
+ */
 export interface AccordionProps {
   items?: AccordionItem[];
   allowMultiple?: boolean;
@@ -82,7 +93,7 @@ export const Accordion: React.FC<AccordionProps> = ({
       case 'material-you':
         return { ...base, border: isSeparated ? 'none' : '1px solid var(--boost-border, #e2e8f0)', borderRadius: '24px', overflow: 'hidden' };
       case 'dark-first':
-        return { ...base, border: isSeparated ? 'none' : '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', backgroundColor: '#0f172a' };
+        return { ...base, border: isSeparated ? 'none' : '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', backgroundColor: 'var(--boost-surface, #0f172a)' };
       default:
         return { ...base, border: isSeparated ? 'none' : '1px solid var(--boost-border, #e2e8f0)', borderRadius: 'var(--boost-radius, 12px)' };
     }
@@ -137,12 +148,12 @@ export const Accordion: React.FC<AccordionProps> = ({
           border-top: 1px solid ${preset === 'neo-brutalism' ? '#000' : preset === 'dark-first' ? 'rgba(255,255,255,0.06)' : 'var(--boost-border, #f1f5f9)'};
         }
         :root[data-theme="dark"] .boost-accordion-preset-${preset} .boost-accordion-header {
-          background-color: #1e293b;
-          color: #f8fafc;
+          background-color: var(--boost-surface, #1e293b);
+          color: var(--boost-text, #f8fafc);
         }
         :root[data-theme="dark"] .boost-accordion-preset-${preset} .boost-accordion-content {
-          background-color: #1e293b;
-          color: #94a3b8;
+          background-color: var(--boost-surface, #1e293b);
+          color: var(--boost-text-muted, #94a3b8);
           border-top-color: rgba(255,255,255,0.08);
         }
       `}</style>

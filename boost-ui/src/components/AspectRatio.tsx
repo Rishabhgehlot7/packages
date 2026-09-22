@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * AspectRatioProps — Properties for the aspect-ratio constrained container.
+ */
 export interface AspectRatioProps extends React.HTMLAttributes<HTMLDivElement> {
   ratio?: number | string;
   children?: React.ReactNode;

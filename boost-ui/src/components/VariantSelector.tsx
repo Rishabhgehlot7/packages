@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * VariantOption — A single selectable variant option.
+ */
 export interface VariantOption {
   id: string;
   name?: string; // e.g. "Size", "Color", "Storage"
@@ -12,6 +16,10 @@ export interface VariantOption {
   inStock?: boolean;
 }
 
+
+/**
+ * VariantGroup — A group of related variant options (e.g., all sizes).
+ */
 export interface VariantGroup {
   name: string; // e.g. "Select Size"
   type?: 'color' | 'chip' | 'dropdown';
@@ -20,6 +28,10 @@ export interface VariantGroup {
 
 export type SelectedVariants = Record<string, string>;
 
+
+/**
+ * VariantSelectorProps — Properties for the product variant picker (size, color, etc.).
+ */
 export interface VariantSelectorProps {
   groups?: VariantGroup[];
   selectedValues?: SelectedVariants; // { "Select Size": "M", "Select Color": "Black" }

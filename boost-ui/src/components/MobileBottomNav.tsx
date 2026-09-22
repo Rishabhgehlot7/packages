@@ -10,6 +10,10 @@ export interface MobileBottomNavItem {
   href?: string;
 }
 
+
+/**
+ * MobileBottomNavProps — Properties for mobile bottom navigation.
+ */
 export interface MobileBottomNavProps {
   items: MobileBottomNavItem[];
   activeId?: string;

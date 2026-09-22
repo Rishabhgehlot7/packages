@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * RegisterFormData — Shape of registration form data.
+ */
 export interface RegisterFormData {
   fullName: string;
   email: string;
@@ -10,6 +14,10 @@ export interface RegisterFormData {
   acceptTerms: boolean;
 }
 
+
+/**
+ * RegisterFormProps — Properties for the registration form.
+ */
 export interface RegisterFormProps {
   onSubmit?: (data: RegisterFormData) => void;
   onLoginClick?: () => void;
@@ -140,7 +148,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       case 'dark-first':
         return {
           border: '1px solid #334155',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           borderRadius: '16px',
           boxShadow: '0 12px 35px -5px rgba(0, 0, 0, 0.5)',
         };

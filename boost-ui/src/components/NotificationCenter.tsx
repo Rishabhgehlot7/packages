@@ -13,6 +13,10 @@ export interface NotificationItem {
   icon?: React.ReactNode;
 }
 
+
+/**
+ * NotificationCenterProps — Properties for the notification center dropdown/list.
+ */
 export interface NotificationCenterProps {
   notifications?: NotificationItem[];
   onMarkAllAsRead?: () => void;
@@ -117,7 +121,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       case 'dark-first':
         return {
           ...base,
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '14px',
           boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.7)',

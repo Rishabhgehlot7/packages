@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * StepItem — A single step in the stepper wizard.
+ */
 export interface StepItem {
   id: string | number;
   title?: string;
@@ -9,6 +13,10 @@ export interface StepItem {
   description?: string;
 }
 
+
+/**
+ * StepperProps — Properties for the step/stepper wizard component.
+ */
 export interface StepperProps {
   steps?: StepItem[];
   activeStep?: number; // 0-indexed

@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * TrustBadgesProps — Properties for trust/payment badge displays.
+ */
 export interface TrustBadgesProps {
   layout?: 'row' | 'grid';
   showCodBadge?: boolean;

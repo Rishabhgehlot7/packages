@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 
+
+/**
+ * AddToCartProps — Properties for the add-to-cart button with quantity.
+ */
 export interface AddToCartProps {
   onAdd?: (quantity: number) => void;
   onQuantityChange?: (quantity: number) => void;

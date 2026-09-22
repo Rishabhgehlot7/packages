@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { ButtonVariant, ButtonSize } from './Button';
 
+
+/**
+ * LinkButtonProps — Properties for a button styled as a link.
+ */
 export interface LinkButtonProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
   variant?: ButtonVariant;

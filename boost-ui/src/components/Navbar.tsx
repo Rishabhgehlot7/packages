@@ -10,6 +10,18 @@ export interface NavLinkItem {
   children?: NavLinkItem[];
 }
 
+/**
+ * NavbarProps — Properties for the responsive navigation bar component.
+ * Includes mobile drawer, logo, links, and action items.
+ *
+ * @example
+ * ```tsx
+ * <Navbar
+ *   logo={<img src="/logo.svg" alt="Logo" />}
+ *   links={[{ label: 'Home', href: '/' }]}
+ * />
+ * ```
+ */
 export interface NavbarProps {
   brandName?: string;
   logo?: React.ReactNode;
@@ -147,8 +159,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#090d16',
-          borderBottom: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-bg, #090d16)',
+          borderBottom: '1px solid var(--boost-border, #1e293b)',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
         };
       case 'minimal':
@@ -233,39 +245,44 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
       <style>{`
-        :root[data-theme="dark"] .boost-navbar {
-          background-color: rgba(15, 23, 42, 0.92);
-          border-bottom-color: rgba(255, 255, 255, 0.08);
+        :root[data-theme="dark"] .boost-navbar,
+        .dark .boost-navbar {
+          background-color: var(--boost-glass-bg, rgba(15, 23, 42, 0.92));
+          border-bottom-color: var(--boost-border, rgba(255, 255, 255, 0.08));
+          color: var(--boost-text, #f8fafc);
         }
         :root[data-theme="dark"] .boost-navbar-preset-neo-brutalism {
           background-color: #18181b !important;
-          border-bottom-color: #f8fafc !important;
+          border-bottom-color: var(--boost-text, #f8fafc) !important;
           box-shadow: 0 4px 0px #f8fafc !important;
         }
         :root[data-theme="dark"] .boost-navbar-preset-glassmorphism {
           background-color: rgba(15, 23, 42, 0.88) !important;
           border-bottom-color: rgba(255, 255, 255, 0.12) !important;
         }
-        :root[data-theme="dark"] .boost-navbar-preset-neumorphism {
-          background-color: #0f172a !important;
-          box-shadow: 0 6px 14px #090d15 !important;
+        :root[data-theme="dark"] .boost-navbar-preset-neumorphism,
+        .dark .boost-navbar-preset-neumorphism {
+          background-color: var(--boost-neuro-surface, #0f172a) !important;
+          box-shadow: var(--boost-neuro-shadow, 0 6px 14px #090d15) !important;
         }
         :root[data-theme="dark"] .boost-navbar-preset-gradient-glow {
           background-color: #0f172a !important;
           border-bottom-color: rgba(99, 102, 241, 0.4) !important;
           box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25) !important;
         }
-        :root[data-theme="dark"] .boost-navbar input {
-          background-color: rgba(30, 41, 59, 0.8) !important;
-          color: #f8fafc !important;
-          border-color: rgba(255, 255, 255, 0.12) !important;
+        :root[data-theme="dark"] .boost-navbar input,
+        .dark .boost-navbar input {
+          background-color: var(--boost-surface-secondary, rgba(30, 41, 59, 0.8)) !important;
+          color: var(--boost-text, #f8fafc) !important;
+          border-color: var(--boost-border, rgba(255, 255, 255, 0.12)) !important;
         }
-        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor {
-          color: #94a3b8 !important;
+        :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor,
+        .dark .boost-navbar .boost-nav-link-anchor {
+          color: var(--boost-text-muted, #94a3b8) !important;
         }
         :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor:hover,
         :root[data-theme="dark"] .boost-navbar .boost-nav-link-anchor.is-active {
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
         :root[data-theme="dark"] .boost-navbar .boost-mobile-search-bar {
           background-color: #0f172a !important;

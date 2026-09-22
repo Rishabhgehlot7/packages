@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * StarRatingProps — Properties for the star rating display/input component.
+ */
 export interface StarRatingProps {
   rating: number; // 0 to 5, e.g. 4.8
   reviewCount?: number;

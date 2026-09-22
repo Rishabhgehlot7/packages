@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * CartDrawerItem — A single item in the cart drawer.
+ */
 export interface CartDrawerItem {
   id: string;
   title: string;
@@ -11,6 +15,10 @@ export interface CartDrawerItem {
   image?: string;
 }
 
+
+/**
+ * CartDrawerProps — Properties for the slide-out cart drawer component.
+ */
 export interface CartDrawerProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -147,7 +155,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       case 'dark-first':
         return {
           ...base,
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           borderLeft: '1px solid #1e293b',
           boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.4)',
         };
@@ -507,7 +515,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         .dark .boost-cart-drawer-panel.preset-glassmorphism {
           background-color: rgba(15, 23, 42, 0.8) !important;
           border-color: rgba(255, 255, 255, 0.15) !important;
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
         :root[data-theme="dark"] .boost-cart-drawer-panel.preset-neo-brutalism,
         .dark .boost-cart-drawer-panel.preset-neo-brutalism {
@@ -520,12 +528,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         .dark .boost-cart-drawer-panel.preset-neumorphism {
           background-color: #1e2530 !important;
           box-shadow: -12px 0 30px #13171e !important;
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
         :root[data-theme="dark"] .boost-cart-drawer-panel:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism),
         .dark .boost-cart-drawer-panel:not(.preset-glassmorphism):not(.preset-neo-brutalism):not(.preset-neumorphism) {
           background-color: var(--boost-bg, #0f172a) !important;
-          color: #f8fafc !important;
+          color: var(--boost-text, #f8fafc) !important;
         }
         :root[data-theme="dark"] .boost-cart-header,
         .dark .boost-cart-header,
@@ -533,7 +541,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         .dark .boost-shipping-banner,
         :root[data-theme="dark"] .boost-cart-footer,
         .dark .boost-cart-footer {
-          background-color: #1e293b !important;
+          background-color: var(--boost-surface, #1e293b) !important;
           border-color: rgba(255, 255, 255, 0.1) !important;
         }
         :root[data-theme="dark"] .boost-cart-qty,

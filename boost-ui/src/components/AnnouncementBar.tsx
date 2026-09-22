@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * AnnouncementBarProps — Properties for the announcement/notification bar.
+ */
 export interface AnnouncementBarProps {
   messages?: string[] | string;
   text?: string;

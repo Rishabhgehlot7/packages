@@ -2,11 +2,19 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * PricingFeature — A single feature row in the pricing comparison.
+ */
 export interface PricingFeature {
   text: string;
   included: boolean;
 }
 
+
+/**
+ * PricingTier — A single pricing plan/tier.
+ */
 export interface PricingTier {
   id: string;
   name: string;
@@ -25,6 +33,10 @@ export interface PricingTier {
   disabled?: boolean;
 }
 
+
+/**
+ * PricingTableProps — Properties for the pricing table/plans component.
+ */
 export interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> {
   tiers?: PricingTier[];
   billingCycle?: 'monthly' | 'annual';

@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * CTASectionProps — Properties for the call-to-action banner section.
+ */
 export interface CTASectionProps {
   badge?: React.ReactNode;
   title: React.ReactNode;

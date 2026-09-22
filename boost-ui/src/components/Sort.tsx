@@ -7,6 +7,10 @@ export interface SortOption {
 
 export type SortDirection = 'asc' | 'desc';
 
+
+/**
+ * SortProps — Properties for the sort dropdown/controls component.
+ */
 export interface SortProps {
   options?: SortOption[];
   currentValue?: string;

@@ -12,6 +12,10 @@ export interface CommandItem {
   onSelect: () => void;
 }
 
+
+/**
+ * CommandPaletteProps — Properties for the command palette / quick search overlay.
+ */
 export interface CommandPaletteProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -136,7 +140,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       case 'dark-first':
         return {
           ...base,
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '16px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',

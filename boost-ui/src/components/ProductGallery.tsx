@@ -2,8 +2,16 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * ProductGalleryImageItem — A single image item in the product gallery.
+ */
 export type ProductGalleryImageItem = string | { id?: string; url?: string; src?: string; alt?: string };
 
+
+/**
+ * ProductGalleryProps — Properties for product image gallery with zoom.
+ */
 export interface ProductGalleryProps {
   images?: ProductGalleryImageItem[];
   title?: string;
@@ -137,7 +145,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           return {
             border: '1px solid #334155',
             borderRadius: '16px',
-            backgroundColor: '#0f172a',
+            backgroundColor: 'var(--boost-surface, #0f172a)',
             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
           };
         case 'minimal':

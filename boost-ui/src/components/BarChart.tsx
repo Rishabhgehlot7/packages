@@ -6,6 +6,10 @@ export interface BarChartDataPoint {
   secondaryValue?: number;
 }
 
+
+/**
+ * BarChartProps — Properties for the bar chart component.
+ */
 export interface BarChartProps {
   data: BarChartDataPoint[];
   title?: string;

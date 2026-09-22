@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * PopoverProps — Properties for the popover overlay component.
+ */
 export interface PopoverProps {
   trigger: React.ReactNode;
   content: React.ReactNode;
@@ -124,8 +128,8 @@ export const Popover: React.FC<PopoverProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
-          border: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
+          border: '1px solid var(--boost-border, #1e293b)',
           borderRadius: '10px',
           boxShadow: '0 15px 30px rgba(0, 0, 0, 0.6)',
         };
@@ -158,14 +162,14 @@ export const Popover: React.FC<PopoverProps> = ({
           box-sizing: border-box;
         }
         :root[data-theme="dark"] .boost-popover-panel {
-          background-color: #1e293b;
+          background-color: var(--boost-surface, #1e293b);
           border-color: rgba(255, 255, 255, 0.12);
-          color: #f8fafc;
+          color: var(--boost-text, #f8fafc);
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
         }
         :root[data-theme="dark"] .boost-popover-preset-neo-brutalism {
           background-color: #18181b !important;
-          border-color: #f8fafc !important;
+          border-color: var(--boost-text, #f8fafc) !important;
           box-shadow: 4px 4px 0px #f8fafc !important;
         }
         :root[data-theme="dark"] .boost-popover-preset-glassmorphism {
@@ -173,11 +177,11 @@ export const Popover: React.FC<PopoverProps> = ({
           border-color: rgba(255, 255, 255, 0.15) !important;
         }
         :root[data-theme="dark"] .boost-popover-preset-neumorphism {
-          background-color: #0f172a !important;
+          background-color: var(--boost-surface, #0f172a) !important;
           box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
         }
         :root[data-theme="dark"] .boost-popover-preset-gradient-glow {
-          background-color: #0f172a !important;
+          background-color: var(--boost-surface, #0f172a) !important;
           border-color: rgba(99, 102, 241, 0.5) !important;
           box-shadow: 0 0 30px rgba(99, 102, 241, 0.4) !important;
         }

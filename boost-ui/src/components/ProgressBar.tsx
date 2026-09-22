@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * ProgressBarProps — Properties for the progress bar component.
+ */
 export interface ProgressBarProps {
   value: number; // 0 to 100
   label?: string;

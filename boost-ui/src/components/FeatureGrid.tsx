@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * FeatureItem — A single feature card with icon, title, and description.
+ */
 export interface FeatureItem {
   icon?: React.ReactNode;
   title: string;
@@ -9,6 +13,10 @@ export interface FeatureItem {
   onAction?: () => void;
 }
 
+
+/**
+ * FeatureGridProps — Properties for the feature grid display section.
+ */
 export interface FeatureGridProps extends React.HTMLAttributes<HTMLDivElement> {
   features?: FeatureItem[];
   columns?: 2 | 3 | 4;

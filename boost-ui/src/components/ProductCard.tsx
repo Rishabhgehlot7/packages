@@ -3,6 +3,19 @@ import { StarRating } from './StarRating';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * ProductCardProps — Properties for the e-commerce product card component.
+ *
+ * @example
+ * ```tsx
+ * <ProductCard
+ *   title="Wireless Headphones"
+ *   price={2999}
+ *   image="/product.jpg"
+ *   onAddToCart={() => {}}
+ * />
+ * ```
+ */
 export interface ProductCardProps {
   id?: string;
   title?: string;
@@ -121,8 +134,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
-          border: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
+          border: '1px solid var(--boost-border, #1e293b)',
           borderRadius: '12px',
           boxShadow: isHovered ? '0 8px 25px rgba(0, 0, 0, 0.6)' : '0 4px 16px rgba(0, 0, 0, 0.4)',
           transform: isHovered ? 'translateY(-4px)' : 'none',
@@ -256,22 +269,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       }}
     >
       <style>{`
-        :root[data-theme="dark"] .boost-product-card {
-          background-color: #0f172a;
-          border-color: rgba(255, 255, 255, 0.1);
+        :root[data-theme="dark"] .boost-product-card,
+        .dark .boost-product-card {
+          background-color: var(--boost-surface, #0f172a);
+          border-color: var(--boost-border, rgba(255, 255, 255, 0.1));
+          color: var(--boost-text, #f8fafc);
         }
         :root[data-theme="dark"] .boost-product-card-preset-neo-brutalism {
           background-color: #18181b !important;
-          border-color: #f8fafc !important;
+          border-color: var(--boost-text, #f8fafc) !important;
           box-shadow: 4px 4px 0px #f8fafc !important;
         }
         :root[data-theme="dark"] .boost-product-card-preset-glassmorphism {
           background-color: rgba(15, 23, 42, 0.85) !important;
           border-color: rgba(255, 255, 255, 0.15) !important;
         }
-        :root[data-theme="dark"] .boost-product-card-preset-neumorphism {
-          background-color: #0f172a !important;
-          box-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c !important;
+        :root[data-theme="dark"] .boost-product-card-preset-neumorphism,
+        .dark .boost-product-card-preset-neumorphism {
+          background-color: var(--boost-neuro-surface, #0f172a) !important;
+          box-shadow: var(--card-shadow, 6px 6px 14px #090d15, -6px -6px 14px #151d2c) !important;
         }
         :root[data-theme="dark"] .boost-product-card-preset-gradient-glow {
           background-color: #0f172a !important;

@@ -19,6 +19,10 @@ export type BoxAsTag =
   | 'form'
   | React.ElementType;
 
+
+/**
+ * BoxProps — Properties for the Box primitive (generic div wrapper).
+ */
 export interface BoxProps extends React.HTMLAttributes<HTMLElement> {
   as?: BoxAsTag;
   children?: React.ReactNode;

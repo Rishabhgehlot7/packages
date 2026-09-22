@@ -21,6 +21,39 @@
   --boost-shadow-glow: 0 0 24px rgba(37, 99, 235, 0.22);
   --boost-glass-bg: rgba(255, 255, 255, 0.85);
   --boost-glass-border: rgba(226, 232, 240, 0.8);
+  --boost-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --boost-blur: 16px;
+  --boost-border-strong: #cbd5e1;
+  --boost-surface-tertiary: #e2e8f0;
+  --boost-shadow-xl: 0 20px 40px -8px rgba(0, 0, 0, 0.15);
+  --boost-success: #16a34a;
+  --boost-success-bg: rgba(22, 163, 74, 0.1);
+  --boost-success-border: rgba(22, 163, 74, 0.25);
+  --boost-success-text: #15803d;
+  --boost-warning: #f59e0b;
+  --boost-warning-bg: rgba(245, 158, 11, 0.1);
+  --boost-warning-border: rgba(245, 158, 11, 0.25);
+  --boost-warning-text: #b45309;
+  --boost-destructive: #ef4444;
+  --boost-danger: #ef4444;
+  --boost-destructive-bg: rgba(239, 68, 68, 0.1);
+  --boost-destructive-border: rgba(239, 68, 68, 0.25);
+  --boost-destructive-text: #dc2626;
+  --boost-info: #2563eb;
+  --boost-info-bg: rgba(37, 99, 235, 0.1);
+  --boost-info-border: rgba(37, 99, 235, 0.25);
+  --boost-info-text: #1d4ed8;
+  --boost-overlay-backdrop: rgba(0, 0, 0, 0.56);
+  --boost-overlay-scrim: rgba(0, 0, 0, 0.32);
+  --boost-on-primary: #ffffff;
+  --boost-disabled-bg: rgba(0, 0, 0, 0.04);
+  --boost-disabled-opacity: 0.5;
+  --boost-neuro-surface: #e8ebf0;
+  --boost-neuro-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+  --boost-neuro-shadow-hover: 12px 12px 24px #c5cad3, -12px -12px 24px #ffffff;
+  --boost-neuro-shadow-inset: inset 4px 4px 8px #c5cad3, inset -4px -4px 8px #ffffff;
+  --card-shadow: 6px 6px 14px #d1d9e6, -6px -6px 14px #ffffff;
+  --card-shadow-hover: 8px 8px 18px #c5cad3, -8px -8px 18px #ffffff;
 }
 
 [data-theme="dark"], .dark {
@@ -41,6 +74,46 @@
   --boost-shadow-glow: 0 0 24px rgba(59, 130, 246, 0.35);
   --boost-glass-bg: rgba(15, 23, 42, 0.85);
   --boost-glass-border: rgba(255, 255, 255, 0.1);
+  --boost-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --boost-blur: 16px;
+
+  --boost-border-strong: #334155;
+  --boost-surface-tertiary: #273040;
+  --boost-shadow-xl: 0 20px 40px -8px rgba(0, 0, 0, 0.6);
+
+  --boost-success: #22c55e;
+  --boost-success-bg: rgba(34, 197, 94, 0.15);
+  --boost-success-border: rgba(34, 197, 94, 0.3);
+  --boost-success-text: #4ade80;
+
+  --boost-warning: #fbbf24;
+  --boost-warning-bg: rgba(251, 191, 36, 0.15);
+  --boost-warning-border: rgba(251, 191, 36, 0.3);
+  --boost-warning-text: #fde047;
+
+  --boost-destructive: #f87171;
+  --boost-danger: #f87171;
+  --boost-destructive-bg: rgba(248, 113, 113, 0.15);
+  --boost-destructive-border: rgba(248, 113, 113, 0.3);
+  --boost-destructive-text: #fca5a5;
+
+  --boost-info: #60a5fa;
+  --boost-info-bg: rgba(96, 165, 250, 0.15);
+  --boost-info-border: rgba(96, 165, 250, 0.3);
+  --boost-info-text: #93c5fd;
+
+  --boost-overlay-backdrop: rgba(0, 0, 0, 0.72);
+  --boost-overlay-scrim: rgba(0, 0, 0, 0.5);
+  --boost-on-primary: #ffffff;
+  --boost-disabled-bg: rgba(255, 255, 255, 0.06);
+  --boost-disabled-opacity: 0.5;
+
+  --boost-neuro-surface: #141c2a;
+  --boost-neuro-shadow: 8px 8px 16px #090d15, -8px -8px 16px #151d2c;
+  --boost-neuro-shadow-hover: 12px 12px 24px #060a10, -12px -12px 24px #1a2435;
+  --boost-neuro-shadow-inset: inset 4px 4px 8px #090d15, inset -4px -4px 8px #151d2c;
+  --card-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c;
+  --card-shadow-hover: 8px 8px 18px #060a10, -8px -8px 18px #1a2435;
   color-scheme: dark;
 }
 
@@ -61,6 +134,29 @@
     --boost-shadow-glow: 0 0 24px rgba(59, 130, 246, 0.35);
     --boost-glass-bg: rgba(15, 23, 42, 0.85);
     --boost-glass-border: rgba(255, 255, 255, 0.1);
+    --boost-success: #22c55e;
+    --boost-success-bg: rgba(34, 197, 94, 0.15);
+    --boost-success-border: rgba(34, 197, 94, 0.3);
+    --boost-success-text: #4ade80;
+    --boost-warning: #fbbf24;
+    --boost-warning-bg: rgba(251, 191, 36, 0.15);
+    --boost-warning-border: rgba(251, 191, 36, 0.3);
+    --boost-warning-text: #fde047;
+    --boost-destructive: #f87171;
+    --boost-danger: #f87171;
+    --boost-destructive-bg: rgba(248, 113, 113, 0.15);
+    --boost-destructive-border: rgba(248, 113, 113, 0.3);
+    --boost-destructive-text: #fca5a5;
+    --boost-info: #60a5fa;
+    --boost-info-bg: rgba(96, 165, 250, 0.15);
+    --boost-info-border: rgba(96, 165, 250, 0.3);
+    --boost-info-text: #93c5fd;
+    --boost-overlay-backdrop: rgba(0, 0, 0, 0.72);
+    --boost-disabled-bg: rgba(255, 255, 255, 0.06);
+    --boost-neuro-surface: #141c2a;
+    --boost-neuro-shadow: 8px 8px 16px #090d15, -8px -8px 16px #151d2c;
+    --card-shadow: 6px 6px 14px #090d15, -6px -6px 14px #151d2c;
+    --card-shadow-hover: 8px 8px 18px #060a10, -8px -8px 18px #1a2435;
     color-scheme: dark;
   }
 }

@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * LogoItem — A single logo in the cloud display.
+ */
 export interface LogoItem {
   name: string;
   logo?: React.ReactNode;
@@ -7,6 +11,10 @@ export interface LogoItem {
   href?: string;
 }
 
+
+/**
+ * LogoCloudProps — Properties for the logo cloud showcase component.
+ */
 export interface LogoCloudProps extends React.HTMLAttributes<HTMLDivElement> {
   logos?: LogoItem[];
   title?: string;

@@ -4,6 +4,17 @@ import { useFocusTrap } from '../hooks';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * DrawerProps — Properties for the Drawer (slide-in panel) component.
+ * Supports 4 anchor positions: left, right, top, bottom.
+ *
+ * @example
+ * ```tsx
+ * <Drawer isOpen={open} onClose={() => setOpen(false)} anchor="right">
+ *   <p>Drawer content</p>
+ * </Drawer>
+ * ```
+ */
 export interface DrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -136,8 +147,8 @@ export const Drawer: React.FC<DrawerProps> = ({
         };
       case 'dark-first':
         return {
-          backgroundColor: '#0f172a',
-          border: '1px solid #1e293b',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
+          border: '1px solid var(--boost-border, #1e293b)',
           boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
         };
       case 'minimal':
@@ -192,14 +203,16 @@ export const Drawer: React.FC<DrawerProps> = ({
             from { transform: translateY(100%); }
             to { transform: translateY(0); }
           }
-          :root[data-theme="dark"] .boost-drawer-panel {
-            background-color: #0f172a;
-            border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+          :root[data-theme="dark"] .boost-drawer-panel,
+          .dark .boost-drawer-panel {
+            background-color: var(--boost-surface, #0f172a);
+            border-color: var(--boost-border, rgba(255, 255, 255, 0.1));
+            color: var(--boost-text, #f8fafc);
+            box-shadow: var(--boost-shadow-xl, 0 25px 50px -12px rgba(0, 0, 0, 0.7));
           }
           :root[data-theme="dark"] .boost-drawer-preset-neo-brutalism {
             background-color: #18181b !important;
-            border-color: #f8fafc !important;
+            border-color: var(--boost-text, #f8fafc) !important;
             box-shadow: 6px 6px 0px #f8fafc !important;
           }
           :root[data-theme="dark"] .boost-drawer-preset-glassmorphism {
@@ -219,10 +232,10 @@ export const Drawer: React.FC<DrawerProps> = ({
             border-bottom-color: rgba(255, 255, 255, 0.08) !important;
           }
           :root[data-theme="dark"] .boost-drawer-title {
-            color: #f8fafc !important;
+            color: var(--boost-text, #f8fafc) !important;
           }
           :root[data-theme="dark"] .boost-drawer-body {
-            color: #cbd5e1 !important;
+            color: var(--boost-text-muted, #cbd5e1) !important;
           }
           :root[data-theme="dark"] .boost-drawer-footer {
             background-color: #090d16 !important;
@@ -230,7 +243,7 @@ export const Drawer: React.FC<DrawerProps> = ({
           }
           :root[data-theme="dark"] .boost-drawer-close-btn:hover {
             background-color: rgba(255, 255, 255, 0.08) !important;
-            color: #f8fafc !important;
+            color: var(--boost-text, #f8fafc) !important;
           }
         `}</style>
         <div

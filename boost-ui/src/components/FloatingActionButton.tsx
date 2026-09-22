@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * FloatingActionButtonProps — Properties for the floating action button (FAB).
+ */
 export interface FloatingActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   label?: string;

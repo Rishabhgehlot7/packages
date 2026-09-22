@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * BackButtonProps — Properties for the back navigation button.
+ */
 export interface BackButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label?: string;
   onBack?: () => void;

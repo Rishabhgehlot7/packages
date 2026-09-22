@@ -1,5 +1,9 @@
 import React from 'react';
 
+
+/**
+ * PriceProps — Properties for the price display with currency formatting and discount.
+ */
 export interface PriceProps {
   amount?: number;
   originalAmount?: number;

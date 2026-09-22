@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { useTheme, ThemeMode } from './BoostProvider';
 
+
+/**
+ * ThemeToggleProps — Properties for the light/dark mode toggle switch.
+ */
 export interface ThemeToggleProps {
   /**
    * Visual style variant

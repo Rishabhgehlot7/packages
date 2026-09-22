@@ -3,9 +3,37 @@ import type { UIStylePreset } from '../types/presets';
 import { presetTokens } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
+
+/**
+ * ButtonVariant — Visual style variants for Button.
+ * - 'primary': Filled with brand color
+ * - 'secondary': Light surface background
+ * - 'outline': Transparent with border
+ * - 'ghost': No background or border
+ * - 'destructive': Red for dangerous actions
+ * - 'link': Text-only link style
+ */
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
+
+/**
+ * ButtonSize — Size presets for Button.
+ * - 'sm': Compact (28px height)
+ * - 'md': Default (36px height)
+ * - 'lg': Large (44px height)
+ */
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
+/**
+ * ButtonProps — Properties for the Button component.
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="md" onClick={() => {}}>
+ *   Click me
+ * </Button>
+ * ```
+ */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -45,7 +73,7 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
         case 'primary':
           return {
             backgroundColor: 'var(--boost-primary, #2563eb)',
-            color: '#ffffff',
+            color: 'var(--boost-on-primary, #ffffff)',
             border: '1px solid transparent',
             boxShadow: '0 1px 3px rgba(37, 99, 235, 0.2)',
           };
@@ -69,8 +97,8 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
           };
         case 'destructive':
           return {
-            backgroundColor: 'var(--boost-danger, #dc2626)',
-            color: '#ffffff',
+            backgroundColor: 'var(--boost-destructive, var(--boost-danger, #dc2626))',
+            color: 'var(--boost-on-primary, #ffffff)',
             border: '1px solid transparent',
             boxShadow: '0 1px 3px rgba(220, 38, 38, 0.25)',
           };
@@ -153,7 +181,7 @@ export const Button = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, Button
             border: 'none',
             boxShadow: 'var(--card-shadow, 6px 6px 14px #c5cad3, -6px -6px 14px #ffffff)',
             ...(!isSolid ? {
-              backgroundColor: 'var(--boost-surface, #e8ebf0)',
+              backgroundColor: 'var(--boost-neuro-surface, var(--boost-surface, #e8ebf0))',
               color: 'var(--boost-text, #0f172a)',
             } : {}),
           };

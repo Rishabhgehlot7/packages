@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * OTPInputProps — Properties for the one-time password input component.
+ */
 export interface OTPInputProps {
   length?: number;
   value?: string;

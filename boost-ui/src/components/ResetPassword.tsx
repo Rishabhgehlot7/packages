@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * ResetPasswordProps — Properties for the reset password form.
+ */
 export interface ResetPasswordProps {
   onSubmit?: (newPassword: string) => void;
   onBackToLogin?: () => void;
@@ -89,7 +93,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({
       case 'dark-first':
         return {
           border: '1px solid #334155',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           borderRadius: '16px',
           boxShadow: '0 12px 35px -5px rgba(0, 0, 0, 0.5)',
         };

@@ -2,6 +2,15 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+/**
+ * SwitchProps — Properties for the Toggle/Switch component.
+ * Extends native checkbox input attributes.
+ *
+ * @example
+ * ```tsx
+ * <Switch checked={enabled} onChange={setEnabled} label="Notifications" />
+ * ```
+ */
 export interface SwitchProps {
   checked?: boolean;
   onChange?: (checked: boolean) => void;

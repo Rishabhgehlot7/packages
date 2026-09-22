@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * TableColumn — Defines a single column in the Table component.
+ */
 export interface TableColumn<T = any> {
   header: string;
   key?: string;
@@ -11,6 +15,10 @@ export interface TableColumn<T = any> {
   sortable?: boolean;
 }
 
+
+/**
+ * TableProps — Properties for the data table component.
+ */
 export interface TableProps<T = any> {
   columns?: TableColumn<T>[];
   data?: T[];
@@ -90,7 +98,7 @@ export function Table<T extends Record<string, any>>({
           ...base,
           border: bordered ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
           borderRadius: '12px',
-          backgroundColor: '#0f172a',
+          backgroundColor: 'var(--boost-surface, #0f172a)',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
         };
       default:

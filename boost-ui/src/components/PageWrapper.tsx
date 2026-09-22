@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * PageWrapperProps — Properties for the page-level layout wrapper.
+ */
 export interface PageWrapperProps {
   children: React.ReactNode;
   header?: React.ReactNode;

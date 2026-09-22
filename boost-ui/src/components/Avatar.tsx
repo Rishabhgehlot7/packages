@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * AvatarProps — Properties for the user avatar with image fallback and initials.
+ */
 export interface AvatarProps {
   src?: string;
   name?: string;

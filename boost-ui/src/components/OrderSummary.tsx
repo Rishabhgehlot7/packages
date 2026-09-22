@@ -1,5 +1,9 @@
 import React from 'react';
 
+
+/**
+ * OrderSummaryItem — A single item in the order summary.
+ */
 export interface OrderSummaryItem {
   label: string;
   value: number | string;
@@ -7,6 +11,10 @@ export interface OrderSummaryItem {
   helpText?: string;
 }
 
+
+/**
+ * OrderSummaryProps — Properties for the order summary with item list.
+ */
 export interface OrderSummaryProps {
   subtotal?: number;
   discount?: number;

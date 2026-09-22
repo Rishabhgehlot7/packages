@@ -8,6 +8,10 @@ export interface ResponsiveBreakpoints<T> {
   xl?: T;
 }
 
+
+/**
+ * GridProps — Properties for the CSS Grid layout primitive.
+ */
 export interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   cols?: number | string | ResponsiveBreakpoints<number | string>;
@@ -121,6 +125,10 @@ export const Grid = /* @__PURE__ */ React.forwardRef<HTMLDivElement, GridProps>(
 
 Grid.displayName = 'Grid';
 
+
+/**
+ * GridItemProps — Properties for a Grid child item.
+ */
 export interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   colSpan?: number | 'full';

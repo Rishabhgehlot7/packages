@@ -2,6 +2,10 @@ import * as React from 'react';
 import type { UIStylePreset } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
+
+/**
+ * StickyAddToCartProps — Properties for the sticky add-to-cart bar.
+ */
 export interface StickyAddToCartProps {
   title?: string;
   price?: number;

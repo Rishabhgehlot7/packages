@@ -46,8 +46,8 @@ export function getSurfacePresetStyles(preset: UIStylePreset): CSSProperties {
       };
     case 'dark-first':
       return {
-        backgroundColor: '#090d16',
-        border: '1px solid #27272a',
+        backgroundColor: 'var(--boost-bg, #090d16)',
+        border: '1px solid var(--boost-border, #27272a)',
         borderRadius: '8px',
         boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.9)',
       };

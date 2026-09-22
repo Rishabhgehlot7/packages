@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+
+/**
+ * EmptyStateProps — Properties for the empty state placeholder component.
+ */
 export interface EmptyStateProps {
   title: string;
   description?: string;
@@ -41,15 +45,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       }}
     >
       <style>{`
-        :root[data-theme="dark"] .boost-empty-state-icon {
+        :root[data-theme="dark"] .boost-empty-state-icon,
+        .dark .boost-empty-state-icon {
           background-color: rgba(255, 255, 255, 0.08) !important;
-          color: #94a3b8 !important;
+          color: var(--boost-text-muted, #94a3b8) !important;
         }
-        :root[data-theme="dark"] .boost-empty-state-title {
-          color: #f8fafc !important;
+        :root[data-theme="dark"] .boost-empty-state-title,
+        .dark .boost-empty-state-title {
+          color: var(--boost-text, #f8fafc) !important;
         }
-        :root[data-theme="dark"] .boost-empty-state-desc {
-          color: #94a3b8 !important;
+        :root[data-theme="dark"] .boost-empty-state-desc,
+        .dark .boost-empty-state-desc {
+          color: var(--boost-text-muted, #94a3b8) !important;
         }
       `}</style>
       <div
