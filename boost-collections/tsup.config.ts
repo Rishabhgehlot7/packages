@@ -1,13 +1,17 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: {
+    index: 'src/index.ts',
+    ai: 'src/ai/index.ts',
+  },
   format: ['cjs', 'esm'],
   dts: true,
   clean: true,
-  minify: true,
-  sourcemap: true,
+  minify: false,
+  sourcemap: false,
   treeshake: true,
+  splitting: false,
   outExtension({ format }) {
     return {
       js: format === 'cjs' ? '.cjs' : '.mjs',

@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/seo",
-  "version": "1.0.3",
-  "description": "High-converting eCommerce SEO Engine: JSON-LD Rich Snippets (Product, Breadcrumbs, FAQ), Google Merchant Center XML Feed Generator, Next.js OpenGraph Metadata & Sitemaps.",
+  "version": "1.1.0",
+  "description": "Industry-king eCommerce SEO & AI Agent Engine: JSON-LD Rich Snippets (Product, Breadcrumbs, FAQ, HowTo, Article, LocalBusiness), Google Merchant Center XML Feed, Next.js Metadata, Sitemaps, Robots.txt, SEO Audit, AI Function-Calling Tools, React Hooks",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -14,10 +14,17 @@
     "nextjs-seo",
     "opengraph",
     "sitemap",
+    "robots-txt",
     "rich-snippets",
     "structured-data",
     "ecommerce-seo-optimization",
-    "merchant-return-policy"
+    "merchant-return-policy",
+    "ai-seo",
+    "seo-audit",
+    "react-seo",
+    "seo-tools",
+    "function-calling",
+    "ai-agent"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-seo#readme",
   "repository": {
@@ -39,12 +46,25 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.mjs",
+      "require": "./dist/react/index.cjs"
+    },
+    "./ai": {
+      "types": "./dist/ai/index.d.ts",
+      "import": "./dist/ai/index.mjs",
+      "require": "./dist/ai/index.cjs"
     }
   },
   "files": [
     "bin",
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "scripts": {
     "build": "tsup",
@@ -53,6 +73,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@types/react": "^19.3.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3"
   }

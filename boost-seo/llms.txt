@@ -1,0 +1,47 @@
+# @boostengine/seo — AI Agent Manifest
+
+## Summary
+Industry-king eCommerce SEO & AI Agent Engine. Zero-dependency TypeScript library for JSON-LD structured data, Google Merchant Center feeds, Next.js metadata, sitemaps, robots.txt, SEO auditing, and AI function-calling tools.
+
+## Exports
+- `.` → Core engine: JSON-LD generators, Merchant feeds, Sitemaps, Robots.txt, Metadata, SEO Audit
+- `./react` → React hooks & components: `<SEOProvider>`, `<JsonLdScript>`, `useProductJsonLd`, `useBreadcrumbJsonLd`, `useMetaTags`
+- `./ai` → AI function-calling tools: `allAITools`, `findTool`, `executeToolCall`, `toOpenAIFunctions`, `toAnthropicTools`
+
+## Core Functions (from `@boostengine/seo`)
+- `generateProductJsonLd(product)` → Product schema with Offer, AggregateRating, Review, MerchantReturnPolicy, ShippingDetails
+- `generateBreadcrumbJsonLd(items)` → BreadcrumbList schema
+- `generateFaqJsonLd(faqs)` → FAQPage schema
+- `generateHowToJsonLd(name, desc, steps, totalTime?)` → HowTo schema
+- `generateArticleJsonLd(article)` → Article schema
+- `generateOrganizationJsonLd(org)` → Organization schema
+- `generateLocalBusinessJsonLd(biz)` → LocalBusiness schema
+- `generateItemListJsonLd(items, listType?)` → ItemList schema
+- `generateMerchantFeed(store, products)` → Google Merchant Center RSS 2.0 XML
+- `generateSitemapXml(entries)` → XML sitemap with image extensions
+- `generateRobotsTxt(options)` → robots.txt content
+- `generateNextMetadata(product, options)` → Next.js Metadata object
+- `auditPageSEO(input)` → SEO audit score 0-100 with recommendations
+
+## AI Tools (from `@boostengine/seo/ai`)
+- `generate_jsonld_schema` — Generate JSON-LD for any entity type
+- `generate_merchant_feed` — Create Google Merchant XML feed
+- `optimize_meta_tags` — Generate high-CTR title & description
+- `generate_sitemap_xml` — Build XML sitemaps
+- `audit_page_seo` — Automated SEO audit
+
+## React Components (from `@boostengine/seo/react`)
+- `<SEOProvider value={...}>{children}</SEOProvider>` — SEO context provider
+- `<JsonLdScript schema={...} id="..." />` — JSON-LD script injector
+- `useSEO()` → SEO context value
+- `useProductJsonLd(product)` → Reactive product JSON-LD
+- `useBreadcrumbJsonLd(items)` → Reactive breadcrumb JSON-LD
+- `useMetaTags(meta)` → Client-side head meta updater
+
+## CLI Commands
+```
+npx @boostengine/seo demo
+npx @boostengine/seo audit --url <url>
+npx @boostengine/seo generate-jsonld --type <type>
+npx @boostengine/seo merchant-feed --input <file>
+```

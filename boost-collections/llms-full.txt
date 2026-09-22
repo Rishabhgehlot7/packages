@@ -1,0 +1,121 @@
+# @boostengine/collections — Full AI Agent Manifest
+
+> **Version**: 1.2.0 · **License**: MIT · **Author**: Boost Engine
+> Universal API Collections & Tooling engine for Indian + Global e-commerce APIs.
+
+## What this package provides
+
+1. Nine production-ready **Postman Collections (Schema v2.1.0)** and matching **Environments**.
+2. A type-safe **core query/utility engine** (`findEndpoints`, `interpolateVariables`, `generateCurl`, `generateCodeSnippet`).
+3. **Converters & exporters** — Postman → OpenAPI 3.0 JSON, Postman → Bruno, plus filesystem export.
+4. A **lightweight in-memory runner** for schema validation & mock flows.
+5. An **AI Agent Toolkit** with OpenAI / Anthropic / MCP tool schemas and a system-prompt generator.
+
+## Provider registry
+
+| provider | category | auth scheme | base URL | docs |
+|---|---|---|---|---|
+| razorpay | payments | basic | https://api.razorpay.com | https://razorpay.com/docs/api |
+| cashfree | payments | apikey (x-client-id/x-client-secret) | https://sandbox.cashfree.com | https://docs.cashfree.com/reference |
+| phonepe | payments | hmac (X-VERIFY) | https://api.phonepe.com/apis | https://developer.phonepe.com/v1/reference |
+| paytm | payments | hmac (checksum) | https://securegw.paytm.in | https://developer.paytm.com/docs/api |
+| stripe | payments | bearer | https://api.stripe.com | https://stripe.com/docs/api |
+| easyecom | wms | bearer | https://api.in.easyecom.io | https://api.easyecom.com/documentation |
+| shiprocket | logistics | bearer (login first) | https://apiv2.shiprocket.in | https://apidocs.shiprocket.in |
+| delhivery | logistics | apikey (Authorization: Token) | https://track.delhivery.com | https://delhivery.com/developer |
+| shopify | platform | apikey (X-Shopify-Access-Token) | https://{store}.myshopify.com | https://shopify.dev/docs/api/admin-rest |
+
+## Core API — full signatures
+
+```ts
+listCollections(): CollectionSummary[]
+getCollection(name: CollectionName): PostmanCollection
+getEnvironment(name: CollectionName): PostmanEnvironment
+findEndpoints(query?: { provider?, method?, path?, tag? }): APIEndpoint[]
+getAllEndpoints(): APIEndpoint[]
+interpolateVariables(request: PostmanRequest, environment?: PostmanEnvironment): PostmanRequest
+resolveVariables(input: string, variables: Record<string, string>): string
+environmentToVariables(environment?: PostmanEnvironment): Record<string, string>
+generateCurl(request: PostmanRequest, environment?, auth?, options?): string
+generateCodeSnippet(request: PostmanRequest, environment?, target?: 'fetch'|'axios'|'node-https', auth?): string
+exportToOpenAPI(name: CollectionName, options?: { version?, openapiVersion? }): OpenAPISpec
+exportToBruno(name: CollectionName): BrunoCollection
+exportToDirectory(name: CollectionName | 'all', targetDir?, format?: 'postman'|'openapi'|'bruno'): string[]
+runCollection(name: CollectionName, options?: RunCollectionOptions): Promise<RunCollectionResult[]>
+generateMockResponse(endpoint: APIEndpoint, statusCode?): Record<string, any>
+getAuthScheme(name): string
+getCollectionAuth(name): PostmanAuth | undefined
+```
+
+### CollectionSummary shape
+
+```ts
+{ id, name, provider, requestCount, folders: string[], categories: CollectionCategory[], authScheme, docsUrl }
+```
+
+### APIEndpoint shape
+
+```ts
+{ id, name, method, path, rawUrl, description, provider, providerName, folder, tag,
+  headers, body?, query, auth?, authScheme }
+```
+
+## Code snippets
+
+```ts
+import { listCollections, getCollection, findEndpoints, generateCurl, exportToOpenAPI, exportToBruno, runCollection } from '@boostengine/collections';
+
+const summaries = listCollections();
+const razorpay = getCollection('razorpay');
+const refundEndpoints = findEndpoints({ provider: 'razorpay', method: 'POST', path: 'refund' });
+
+const first = refundEndpoints[0];
+const request = { method: first.method, header: first.headers, body: first.body, url: { raw: first.rawUrl, path: first.path.split('/').filter(Boolean) } };
+const curl = generateCurl(request, getEnvironment('razorpay'), razorpay.auth);
+
+const openapi = exportToOpenAPI('razorpay');      // OpenAPI 3.0.3
+const bruno = exportToBruno('razorpay');          // Bruno format
+
+const results = await runCollection('stripe', { dryRun: true });
+```
+
+## AI Agent Toolkit (`@boostengine/collections/ai`)
+
+```ts
+import { collectionTools, anthropicTools, mcpTools, executeCollectionTool, getCollectionSystemPrompt } from '@boostengine/collections/ai';
+```
+
+### Tools
+
+| name | purpose |
+|---|---|
+| `list_api_collections` | List all providers with counts, categories, auth. |
+| `get_api_endpoints` | Search endpoints by provider/method/path/tag. |
+| `generate_api_curl` | Generate a ready-to-run cURL command. |
+| `convert_collection_format` | Convert to OpenAPI or Bruno. |
+| `generate_mock_response` | Generate a mock JSON response for an endpoint & status. |
+
+### Execute a tool
+
+```ts
+const collections = executeCollectionTool('list_api_collections', {});
+const curl = executeCollectionTool('generate_api_curl', { provider: 'razorpay', search: 'order' });
+const openapi = executeCollectionTool('convert_collection_format', { provider: 'stripe', format: 'openapi' });
+```
+
+### System prompt for a coding agent
+
+```ts
+const prompt = getCollectionSystemPrompt('stripe');
+// describes base URL, auth scheme (Bearer), mandatory headers, endpoints & webhooks
+```
+
+## CLI
+
+```bash
+boost-collections list
+boost-collections export razorpay --dir ./out --format openapi
+boost-collections curl razorpay "Create Order"
+boost-collections docs stripe
+boost-collections info shiprocket
+```

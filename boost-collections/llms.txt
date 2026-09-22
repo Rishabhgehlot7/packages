@@ -1,0 +1,43 @@
+# @boostengine/collections
+
+> Universal API Collections & Tooling engine for Indian + Global e-commerce APIs (Razorpay, Cashfree, PhonePe, Paytm, Stripe, Shiprocket, Delhivery, EasyEcom, Shopify). Ships production-ready Postman collections, OpenAPI/Bruno converters, a cURL & code-snippet generator, a lightweight runner, and an AI Agent Toolkit (OpenAI / Anthropic / MCP).
+
+## Collections
+
+- `razorpay` — payments — basic auth — 31 endpoints
+- `cashfree` — payments — apikey — 27 endpoints
+- `phonepe` — payments — hmac — 7 endpoints
+- `paytm` — payments — hmac — 5 endpoints
+- `stripe` — payments — bearer — 10 endpoints
+- `easyecom` — wms — bearer — 12 endpoints
+- `shiprocket` — logistics — bearer — 19 endpoints
+- `delhivery` — logistics — apikey — 10 endpoints
+- `shopify` — platform — apikey — 12 endpoints
+
+## Core API
+
+- `listCollections()` — summaries with endpoint counts, folders, categories, auth scheme.
+- `getCollection(name)` / `getEnvironment(name)` — type-safe Postman v2.1.0 getters.
+- `findEndpoints({ provider, method, path, tag })` — filter endpoints across collections.
+- `interpolateVariables(request, environment)` — resolve `{{var}}` placeholders.
+- `generateCurl(request, environment?)` — clean, executable cURL.
+- `generateCodeSnippet(request, environment?, target)` — `fetch` | `axios` | `node-https`.
+- `exportToOpenAPI(name)` — Postman → OpenAPI 3.0 JSON.
+- `exportToBruno(name)` — Postman → Bruno collection.
+- `exportToDirectory(name, dir, format)` — `postman` | `openapi` | `bruno`.
+- `runCollection(name, { env, baseUrl, onProgress, dryRun })` — in-memory mock runner.
+
+## AI Toolkit (`@boostengine/collections/ai`)
+
+- `collectionTools` — OpenAI function-calling schemas.
+- `anthropicTools` — Anthropic `input_schema` schemas.
+- `mcpTools` — MCP (Model Context Protocol) tool definitions.
+- `executeCollectionTool(name, args)` — runtime dispatcher.
+- `getCollectionSystemPrompt(provider)` — LLM context for a provider.
+
+## Quick Start
+
+```ts
+import { listCollections, generateCurl, exportToOpenAPI } from '@boostengine/collections';
+import { collectionTools } from '@boostengine/collections/ai';
+```

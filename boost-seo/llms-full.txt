@@ -1,0 +1,75 @@
+# @boostengine/seo — Full AI Agent Manifest
+
+## Overview
+Zero-dependency TypeScript library for eCommerce SEO. Schema.org v24+ JSON-LD, Google Merchant XML feeds, Next.js metadata, sitemaps, robots.txt, SEO audits, AI function-calling tools, and React hooks.
+
+## Package Exports
+```json
+{
+  ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs", "types": "./dist/index.d.ts" },
+  "./react": { "import": "./dist/react/index.mjs", "require": "./dist/react/index.cjs", "types": "./dist/react/index.d.ts" },
+  "./ai": { "import": "./dist/ai/index.mjs", "require": "./dist/ai/index.cjs", "types": "./dist/ai/index.d.ts" }
+}
+```
+
+## Core Types
+- `SEOProduct` — Product with id, title, description, url, images, price, currency, availability, sku, gtin, mpn, brand, category, googleProductCategory, condition, weight, color, size, material, rating, reviews, returnPolicy, shippingDetails
+- `BreadcrumbItem` — name, url
+- `OrganizationConfig` — name, url, logo, description, contactPoint, sameAs, address
+- `LocalBusinessConfig` — extends OrganizationConfig, priceRange, openingHours, servesCuisine
+- `FAQItem` — question, answer
+- `HowToStep` — name, text, image, url
+- `ArticleItem` — headline, description, url, image, datePublished, dateModified, authorName, authorUrl, publisherName, publisherLogo
+- `SitemapEntry` — loc, lastmod, changefreq, priority, images
+- `NextMetadataOptions` — siteName, twitterHandle, locale, titleTemplate, description, alternates, robots
+- `SEOAuditResult` — score 0-100, title/description/h1/openGraph/canonical checks, recommendations
+- `FeedStoreInfo` — title, link, description
+- `ShippingRate` — price, currency, free, freeOver
+## Functions (from `@boostengine/seo`)
+- `generateProductJsonLd(product)` → Full Product schema with Offer, AggregateRating, Review, MerchantReturnPolicy, ShippingDetails
+- `generateBreadcrumbJsonLd(items)` → BreadcrumbList schema
+- `generateFaqJsonLd(faqs)` → FAQPage schema
+- `generateHowToJsonLd(name, desc, steps, totalTime?)` → HowTo schema
+- `generateArticleJsonLd(article)` → Article schema
+- `generateOrganizationJsonLd(org)` → Organization schema
+- `generateLocalBusinessJsonLd(biz)` → LocalBusiness schema
+- `generateItemListJsonLd(items, listType?)` → ItemList schema
+- `toScriptTag(schema)` → HTML script tag string
+- `JsonLdGenerator` → Class wrapping all schema functions (backward compat)
+- `generateMerchantFeed(store, products)` → Google Merchant RSS 2.0 XML
+- `generateMetaCatalogCsv(products)` → Facebook product CSV
+- `ProductFeedGenerator` → Class wrapping feed functions
+- `generateSitemapXml(entries)` → XML sitemap with image extensions
+- `generateRobotsTxt(options)` → robots.txt content
+- `SitemapGenerator` → Class wrapping sitemap functions
+- `generateNextMetadata(product, options?)` → Next.js Metadata object
+- `NextSeoHelper` → Class wrapping metadata function
+- `auditPageSEO(input)` → SEO audit with score 0-100
+
+## AI Tools (from `@boostengine/seo/ai`)
+- `generate_jsonld_schema` — Generate any Schema.org JSON-LD
+- `generate_merchant_feed` — Google Merchant XML feed
+- `optimize_meta_tags` — High-CTR title & description
+- `generate_sitemap_xml` — XML sitemaps
+- `audit_page_seo` — SEO audit with score & recommendations
+- `allAITools` — Array of all 5 tools
+- `findTool(name)` — Find tool by name
+- `executeToolCall(name, args)` — Execute a tool
+- `toOpenAIFunctions()` — Convert to OpenAI format
+- `toAnthropicTools()` — Convert to Anthropic format
+
+## React (from `@boostengine/seo/react`)
+- `<SEOProvider value={...}>{children}</SEOProvider>` — SEO context
+- `useSEO()` — Access SEO config
+- `<JsonLdScript schema={...} id?="..." />` — JSON-LD script tag
+- `useProductJsonLd(product)` — Reactive Product JSON-LD
+- `useBreadcrumbJsonLd(items)` — Reactive BreadcrumbList JSON-LD
+- `useMetaTags(meta)` — Client-side head meta updater
+
+## CLI
+```
+npx @boostengine/seo demo
+npx @boostengine/seo audit --url <url>
+npx @boostengine/seo generate-jsonld --type <type>
+npx @boostengine/seo merchant-feed --input <file>
+```
