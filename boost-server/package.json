@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/server",
-  "version": "1.0.1",
-  "description": "Plug-and-Play Headless eCommerce API Router for Express, Fastify, and Node.js. 1-line auto-mount for Payments, Logistics, Returns, Coupons, Phone Auth, and GST Invoicing.",
+  "version": "1.1.0",
+  "description": "Plug-and-Play Headless eCommerce API Router for Express, Fastify, and Hono. 1-line auto-mount for Payments, Logistics, Returns, Coupons, Phone Auth, and GST Invoicing.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -26,19 +26,39 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./fastify": {
+      "types": "./dist/fastify.d.ts",
+      "import": "./dist/fastify.mjs",
+      "require": "./dist/fastify.cjs"
+    },
+    "./hono": {
+      "types": "./dist/hono.d.ts",
+      "import": "./dist/hono.mjs",
+      "require": "./dist/hono.cjs"
+    },
+    "./ai": {
+      "types": "./dist/ai.d.ts",
+      "import": "./dist/ai.mjs",
+      "require": "./dist/ai.cjs"
     }
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "scripts": {
     "build": "tsup",
+    "typecheck": "tsc --noEmit",
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
   },
@@ -53,7 +73,20 @@
     "@boostengine/shipping": "^1.0.0"
   },
   "peerDependencies": {
-    "express": ">=4.18.0"
+    "express": ">=4.18.0",
+    "fastify": ">=4.0.0",
+    "hono": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

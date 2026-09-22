@@ -1,284 +1,154 @@
 # @boostengine/server
 
-> **Plug-and-Play Headless eCommerce API Router for Express & Node.js**  
-> Mount all your eCommerce backend routes in **1 line of code**.
+> **Universal Headless eCommerce API Router** — mount payment webhooks, cart,
+> auth, shipping, coupons, returns, and invoicing endpoints in **1 line** across
+> Express, Fastify, and Hono (Edge/Cloudflare Workers).
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/server)](https://www.npmjs.com/package/@boostengine/server)
 [![license](https://img.shields.io/npm/l/@boostengine/server)](./LICENSE)
 
 ---
 
-## What is this?
-
-When building an eCommerce backend, you need dozens of API routes:
-- Payment gateway (create order, verify, webhooks)
-- Shipping (create shipment, track, pincode check)
-- OTP authentication
-- Cart management
-- Coupon validation
-- Returns & refunds
-- GST Invoice generation
-- WhatsApp/Email/SMS notifications
-
-Writing all of this from scratch takes weeks. `@boostengine/server` gives you **all of these routes pre-built** and ready to mount in your Express app.
-
----
-
 ## Installation
 
 ```bash
-npm install @boostengine/server express
+npm install @boostengine/server express        # Express
+npm install @boostengine/server fastify        # Fastify
+npm install @boostengine/server hono           # Hono
 ```
+
+> Express, Fastify, and Hono are optional peer dependencies — install only the
+> framework you use.
 
 ---
 
-## Quick Start (30 seconds)
+## Quickstart — Express
 
 ```ts
 import express from 'express';
-import { createBoostApiRouter } from '@boostengine/server';
+import { createBoostRouter } from '@boostengine/server';
 
 const app = express();
 app.use(express.json());
 
-// 1. Create the router with your credentials
-const boostRouter = createBoostApiRouter({
-  razorpayKeyId:     process.env.RAZORPAY_KEY_ID,
+app.use('/api', createBoostRouter({
+  razorpayKeyId: process.env.RAZORPAY_KEY_ID,
   razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET,
-  shiprocketEmail:   process.env.SHIPROCKET_EMAIL,
-  shiprocketPassword: process.env.SHIPROCKET_PASSWORD,
-  fast2smsApiKey:    process.env.FAST2SMS_API_KEY,
-  gstNumber:         process.env.GST_NUMBER,
-  businessName:      'My Awesome Store',
-});
+  gstNumber: process.env.GST_NUMBER,
+  businessName: 'My Awesome Store',
+}));
 
-// 2. Mount it — that's it!
-app.use('/api', boostRouter);
+app.listen(3001, () => console.log('BoostEngine API on :3001'));
+```
 
-app.listen(3001, () => {
-  console.log('BoostEngine API running on http://localhost:3001');
+---
+
+## Quickstart — Fastify
+
+```ts
+import Fastify from 'fastify';
+import { boostFastifyPlugin } from '@boostengine/server/fastify';
+
+const fastify = Fastify();
+fastify.register(boostFastifyPlugin, { businessName: 'My Store' });
+fastify.listen({ port: 3001 });
+```
+
+---
+
+## Quickstart — Hono (Edge / Workers)
+
+```ts
+import { Hono } from 'hono';
+import { boostHonoMiddleware } from '@boostengine/server/hono';
+
+const app = new Hono();
+boostHonoMiddleware(app, { businessName: 'My Store' });
+
+export default app;
+```
+
+---
+
+## Available Routes
+
+| Group | Endpoints |
+|-------|-----------|
+| 💳 Payments | `POST /payments/create-order`, `/verify`, `/webhook` |
+| 🚚 Shipping | `GET /shipping/pincode/:pincode`, `POST /shipping/check-pincode`, `POST /shipping/create-shipment`, `GET /shipping/track/:awb` |
+| 🔐 Auth | `POST /auth/send-otp`, `/auth/verify-otp` |
+| 🛒 Cart | `GET /cart`, `POST /cart/add`, `PUT /cart/update`, `DELETE /cart/remove/:itemId`, `DELETE /cart/clear` |
+| 🏷️ Coupons | `POST /coupons/validate`, `/coupons/apply` |
+| 🔄 Returns | `POST /returns/initiate`, `GET /returns/status/:returnId` |
+| 🧾 Invoicing | `POST /invoicing/generate` |
+| 📣 Notifications | `POST /notifications/whatsapp`, `/email`, `/sms` |
+| ❤️ Health | `GET /health`, `GET /ping` |
+
+Routes run in **mock mode** by default (`mockMode: true`) so you can develop
+without live credentials.
+
+---
+
+## Webhook Setup & Signature Verification
+
+`verifyWebhookSignature` validates webhooks from Razorpay, Cashfree, PhonePe,
+Paytm, Stripe, and Shiprocket:
+
+```ts
+import express from 'express';
+import { verifyWebhookSignature } from '@boostengine/server';
+
+app.post('/webhooks/razorpay', express.raw({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['x-razorpay-signature'] as string;
+  const valid = verifyWebhookSignature('razorpay', req.body.toString(), signature, process.env.RAZORPAY_WEBHOOK_SECRET!);
+  if (!valid) return res.status(400).json({ success: false, error: 'Invalid signature' });
+  // process webhook...
+  res.json({ success: true });
 });
 ```
 
 ---
 
-## Available API Routes
+## Production Security Tips
 
-Once mounted at `/api`, you get these routes automatically:
-
-### 💳 Payments (`/api/payments`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/payments/create-order` | Create Razorpay order |
-| `POST` | `/api/payments/verify` | Verify payment signature |
-| `POST` | `/api/payments/webhook` | Handle Razorpay webhooks |
-
-### 🚚 Shipping (`/api/shipping`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/shipping/create-shipment` | Create Shiprocket shipment |
-| `GET`  | `/api/shipping/track/:awb` | Track shipment by AWB |
-| `POST` | `/api/shipping/check-pincode` | Check pincode serviceability |
-
-### 🔐 Authentication (`/api/auth`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/auth/send-otp` | Send OTP via Fast2SMS |
-| `POST` | `/api/auth/verify-otp` | Verify OTP |
-
-### 🛒 Cart (`/api/cart`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET`  | `/api/cart` | Get cart contents |
-| `POST` | `/api/cart/add` | Add item to cart |
-| `PUT`  | `/api/cart/update` | Update item quantity |
-| `DELETE` | `/api/cart/remove/:itemId` | Remove specific item |
-| `DELETE` | `/api/cart/clear` | Clear entire cart |
-
-### 🏷️ Coupons (`/api/coupons`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/coupons/validate` | Validate a coupon code |
-| `POST` | `/api/coupons/apply` | Apply coupon to cart |
-
-### 🔄 Returns (`/api/returns`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/returns/initiate` | Initiate a return request |
-| `GET`  | `/api/returns/status/:returnId` | Get return status |
-
-### 🧾 Invoicing (`/api/invoicing`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/invoicing/generate` | Generate GST invoice PDF |
-
-### 🔔 Notifications (`/api/notifications`)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `POST` | `/api/notifications/whatsapp` | Send WhatsApp message |
-| `POST` | `/api/notifications/email` | Send email notification |
-| `POST` | `/api/notifications/sms` | Send SMS notification |
-
-### ❤️ Health Check
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET`  | `/api/health` | Check server status & active modules |
+1. **Verify every webhook** with `verifyWebhookSignature` — never trust the payload.
+2. **Dedupe webhooks** with `createIdempotencyHandler()` (uses the `idempotency-key` header).
+3. **Rate-limit public endpoints** with `createRateLimiter({ windowMs: 60_000, max: 100 })`.
+4. **Standardize errors** by registering `app.use(errorHandler)` last.
+5. **Never commit secrets** — inject credentials via environment variables.
 
 ---
 
 ## Configuration
 
 ```ts
-const boostRouter = createBoostApiRouter({
-  // Payment Gateway (Razorpay)
-  razorpayKeyId:      'rzp_live_XXXX',
-  razorpayKeySecret:  'XXXX',
-
-  // Logistics (Shiprocket)
-  shiprocketEmail:    'you@store.com',
-  shiprocketPassword: 'your_password',
-
-  // OTP Auth (Fast2SMS)
-  fast2smsApiKey:     'your_fast2sms_key',
-
-  // GST Invoicing
-  gstNumber:     '29ABCDE1234F1Z5',
-  businessName:  'My Store Pvt. Ltd.',
-
-  // Enable or disable specific modules
-  enable: {
-    payments:      true,
-    shipping:      true,
-    auth:          true,
-    cart:          true,
-    coupons:       true,
-    returns:       true,
-    invoicing:     true,
-    notifications: false, // disable if not needed
-  },
-
-  // Add custom middleware (e.g., JWT auth check)
-  middleware: [myAuthMiddleware],
-
-  // Add a prefix to all routes
+createBoostRouter({
+  razorpayKeyId: 'rzp_live_XXXX',
+  razorpayKeySecret: 'XXXX',
+  shiprocketEmail: 'you@store.com',
+  shiprocketPassword: '****',
+  fast2smsApiKey: 'XXXX',
+  gstNumber: '29ABCDE1234F1Z5',
+  businessName: 'My Store Pvt. Ltd.',
+  enable: { payments: true, shipping: true, auth: true, cart: true, coupons: true, returns: true, invoicing: true, notifications: false },
+  middleware: [authGuard],
   prefix: '/v1',
 });
 ```
 
 ---
 
-## Disable Specific Modules
-
-Only need payments and shipping? Disable the rest:
+## AI Agent Toolkit
 
 ```ts
-const boostRouter = createBoostApiRouter({
-  razorpayKeyId:     process.env.RAZORPAY_KEY_ID,
-  razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET,
-  enable: {
-    payments:      true,
-    shipping:      true,
-    auth:          false,
-    cart:          false,
-    coupons:       false,
-    returns:       false,
-    invoicing:     false,
-    notifications: false,
-  },
-});
+import { serverTools, toOpenAITools, getServerSystemPrompt } from '@boostengine/server/ai';
+
+toOpenAITools(serverTools);    // OpenAI function-calling schema
+getServerSystemPrompt();       // integration guide for coding agents
 ```
 
----
-
-## Add Authentication Middleware
-
-Protect routes with your JWT or session middleware:
-
-```ts
-import jwt from 'jsonwebtoken';
-
-function authGuard(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-}
-
-const boostRouter = createBoostApiRouter({
-  middleware: [authGuard],
-  // ... other config
-});
-```
-
----
-
-## Health Check
-
-Test that your server is running:
-
-```bash
-curl http://localhost:3001/api/health
-```
-
-Response:
-```json
-{
-  "success": true,
-  "service": "@boostengine/server",
-  "version": "1.0.0",
-  "modules": {
-    "payments": true,
-    "shipping": true,
-    "auth": true,
-    "cart": true,
-    "coupons": true,
-    "returns": true,
-    "invoicing": true,
-    "notifications": true
-  }
-}
-```
-
----
-
-## Used with `create-boost-app`
-
-If you scaffold a backend project with `create-boost-app --template backend-express`, `@boostengine/server` is already wired up for you:
-
-```bash
-npx create-boost-app my-api --template backend-express
-cd my-api
-npm install
-npm run dev
-```
-
----
-
-## TypeScript Support
-
-Full TypeScript support is built in:
-
-```ts
-import { createBoostApiRouter, BoostServerConfig, BoostMiddleware } from '@boostengine/server';
-
-const config: BoostServerConfig = {
-  razorpayKeyId: process.env.RAZORPAY_KEY_ID!,
-  // ...
-};
-```
+`serverTools`: `inspect_server_routes`, `generate_webhook_payload`,
+`verify_webhook_signature_tool`, `generate_server_boilerplate`.
 
 ---
 

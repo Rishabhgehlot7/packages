@@ -1,7 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: {
+    index: 'src/index.ts',
+    fastify: 'src/fastify.ts',
+    hono: 'src/hono.ts',
+    ai: 'src/ai/index.ts',
+  },
   format: ['cjs', 'esm'],
   dts: true,
   clean: true,
@@ -10,7 +15,7 @@ export default defineConfig({
   treeshake: true,
   target: 'es2020',
   outDir: 'dist',
-  external: ['express'],
+  external: ['express', 'fastify', 'hono'],
   outExtension({ format }) {
     return {
       js: format === 'cjs' ? '.cjs' : '.mjs',

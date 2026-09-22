@@ -1,0 +1,62 @@
+# @boostengine/server
+
+> Universal headless e-commerce API router for Express, Fastify, and Hono. Version 1.1.0.
+
+@boostengine/server is the BoostEngine backend router. Mount payment webhooks, cart, auth, shipping, coupons, returns, and invoicing endpoints in one line across Express, Fastify, or Hono (Edge/Workers).
+
+## Install
+
+```bash
+npm install @boostengine/server express
+```
+
+## Quick start
+
+```ts
+import express from 'express';
+import { createBoostRouter } from '@boostengine/server';
+
+const app = express();
+app.use(express.json());
+app.use('/api', createBoostRouter({ businessName: 'My Store' }));
+app.listen(3000);
+```
+
+Fastify: `fastify.register(boostFastifyPlugin, config)` from `@boostengine/server/fastify`.
+Hono: `boostHonoMiddleware(app, config)` from `@boostengine/server/hono`.
+
+## API
+
+### Adapters
+
+- `createBoostRouter(config)` — Express Router (alias `createBoostApiRouter`)
+- `boostFastifyPlugin(fastify, options, done)` — Fastify plugin
+- `boostHonoMiddleware(app, config)` — Hono route mount
+
+### Route table
+
+- `buildRouteDefinitions(config)` — framework-agnostic `RouteDefinition[]`
+- Route groups: `/payments`, `/shipping`, `/auth`, `/cart`, `/coupons`, `/returns`, `/invoicing`, `/notifications`, `/health`, `/ping`
+
+### Webhooks
+
+- `verifyWebhookSignature(provider, payload, signature, secret, options?)`
+- `signWebhookPayload(provider, payload, secret, options?)`
+- `generateWebhookPayload(provider, event)`
+- Providers: `razorpay`, `cashfree`, `phonepe`, `paytm`, `stripe`, `shiprocket`
+
+### Middleware
+
+- `errorHandler(err, req, res, next)` — standard `{ success, error }` JSON
+- `createIdempotencyHandler(options?)` — dedupe via `idempotency-key` header
+- `createRateLimiter(options?)` — in-memory sliding-window limiter
+
+### AI Toolkit (`@boostengine/server/ai`)
+
+- `serverTools` — `inspect_server_routes`, `generate_webhook_payload`, `verify_webhook_signature_tool`, `generate_server_boilerplate`
+- `toOpenAITools` / `toAnthropicTools` / `toMCPTools`
+- `getServerSystemPrompt()`
+
+## License
+
+MIT

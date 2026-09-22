@@ -1,0 +1,208 @@
+# @boostengine/server — Full API Manifest (v1.1.0)
+
+`@boostengine/server` is the universal backend router and headless API layer for
+the BoostEngine ecosystem. It auto-mounts payment, cart, auth, shipping,
+coupons, returns, and invoicing endpoints across Express, Fastify, and Hono.
+
+---
+
+## 1. Configuration
+
+```ts
+interface BoostServerConfig {
+  razorpayKeyId?: string;
+  razorpayKeySecret?: string;
+  shiprocketEmail?: string;
+  shiprocketPassword?: string;
+  fast2smsApiKey?: string;
+  gstNumber?: string;
+  businessName?: string;
+  mockMode?: boolean;                          // default true
+  webhookSecrets?: Partial<Record<WebhookProvider, string>>;
+  enable?: {
+    payments?: boolean;
+    shipping?: boolean;
+    auth?: boolean;
+    cart?: boolean;
+    coupons?: boolean;
+    returns?: boolean;
+    invoicing?: boolean;
+    notifications?: boolean;
+  };
+  middleware?: BoostMiddleware[];
+  prefix?: string;                             // default ''
+  [key: string]: any;
+}
+```
+
+`BoostMiddleware = (req: any, res: any, next: (err?: any) => void) => void`.
+
+---
+
+## 2. Adapters
+
+### Express (`@boostengine/server`)
+
+```ts
+createBoostRouter(config?: BoostServerConfig): Router;
+createBoostApiRouter; // alias
+```
+
+```ts
+import express from 'express';
+import { createBoostRouter } from '@boostengine/server';
+const app = express();
+app.use(express.json());
+app.use('/api', createBoostRouter({ businessName: 'My Store' }));
+```
+
+### Fastify (`@boostengine/server/fastify`)
+
+```ts
+boostFastifyPlugin(fastify: any, options?: BoostServerConfig, done?: (err?: Error) => void): void;
+```
+
+```ts
+import Fastify from 'fastify';
+import { boostFastifyPlugin } from '@boostengine/server/fastify';
+const fastify = Fastify();
+fastify.register(boostFastifyPlugin, { businessName: 'My Store' });
+```
+
+### Hono (`@boostengine/server/hono`)
+
+```ts
+boostHonoMiddleware(app: any, config?: BoostServerConfig): void;
+```
+
+```ts
+import { Hono } from 'hono';
+import { boostHonoMiddleware } from '@boostengine/server/hono';
+const app = new Hono();
+boostHonoMiddleware(app, { businessName: 'My Store' });
+export default app;
+```
+
+---
+
+## 3. Framework-agnostic route table
+
+```ts
+interface RouteRequest {
+  params: Record<string, string>;
+  query: Record<string, string>;
+  body: any;
+  headers: Record<string, string>;
+}
+interface RouteResult { status: number; body: any; }
+interface RouteDefinition {
+  method: HttpMethod;
+  path: string;
+  name: string;
+  description?: string;
+  handler: (req: RouteRequest) => RouteResult | Promise<RouteResult>;
+}
+
+buildRouteDefinitions(config?: BoostServerConfig): RouteDefinition[];
+```
+
+### Mounted routes (default, all modules enabled)
+
+- `POST /payments/create-order`, `/payments/verify`, `/payments/webhook`
+- `GET /shipping/pincode/:pincode`, `POST /shipping/check-pincode`, `POST /shipping/create-shipment`, `GET /shipping/track/:awb`
+- `POST /auth/send-otp`, `/auth/verify-otp`
+- `GET /cart`, `POST /cart/add`, `PUT /cart/update`, `DELETE /cart/remove/:itemId`, `DELETE /cart/clear`
+- `POST /coupons/validate`, `/coupons/apply`
+- `POST /returns/initiate`, `GET /returns/status/:returnId`
+- `POST /invoicing/generate`
+- `POST /notifications/whatsapp`, `/notifications/email`, `/notifications/sms`
+- `GET /health`, `GET /ping`
+
+---
+
+## 4. Webhook signature verification
+
+```ts
+type WebhookProvider =
+  | 'razorpay' | 'cashfree' | 'phonepe' | 'paytm' | 'stripe' | 'shiprocket';
+
+interface WebhookVerifyOptions {
+  timestamp?: string;   // epoch string for Cashfree/PhonePe
+  saltIndex?: string;   // PhonePe salt index
+}
+
+verifyWebhookSignature(provider, payload, signature, secret, options?): boolean;
+signWebhookPayload(provider, payload, secret, options?): string;
+generateWebhookPayload(provider, event): Record<string, any>;
+```
+
+Algorithm per provider (constant-time compare):
+- `razorpay` — hex HMAC-SHA256(rawBody).
+- `stripe` — `t=<ts>,v1=<sig>`; `v1 = HMAC-SHA256(secret, ts + "." + body)`.
+- `cashfree` — base64 HMAC-SHA256(`timestamp + body`).
+- `phonepe` — hex HMAC-SHA256(`body + "###" + saltIndex`).
+- `paytm` / `shiprocket` — hex HMAC-SHA256(rawBody).
+
+---
+
+## 5. Middleware primitives
+
+```ts
+errorHandler(err, req, res, next): void;
+// -> res.status(err.status || 500).json({ success: false, error: msg, code? })
+
+createIdempotencyHandler(options?: {
+  store?: Map<string, any>;
+  keyHeader?: string;          // default 'idempotency-key'
+  duplicateStatus?: number;    // default 409
+}): BoostMiddleware;
+
+createRateLimiter(options?: {
+  windowMs?: number;           // default 60_000
+  max?: number;                // default 100
+  store?: Map<string, number[]>;
+}): BoostMiddleware;
+```
+
+---
+
+## 6. AI Agent Toolkit (`@boostengine/server/ai`)
+
+```ts
+interface ToolDefinition {
+  name: string;
+  description: string;
+  parameters: JsonSchema;
+  execute?(args: Record<string, any>, context?: ToolContext): any | Promise<any>;
+}
+
+serverTools: ToolDefinition[];
+createServerTools(config?): ToolDefinition[];
+toOpenAITools(tools);   // OpenAI function-calling schema
+toAnthropicTools(tools); // Anthropic tools schema
+toMCPTools(tools);       // MCP tools/list payload
+getServerSystemPrompt(): string;
+generateServerBoilerplate(framework, config?): string;
+```
+
+Core tools:
+1. `inspect_server_routes` — list mounted routes (method, path, name).
+2. `generate_webhook_payload` — mock webhook event payload.
+3. `verify_webhook_signature_tool` — verify/debug webhook signatures.
+4. `generate_server_boilerplate` — Express/Fastify/Hono server scaffold.
+
+---
+
+## 7. Dependency integration
+
+Seamlessly pairs with `@boostengine/core`, `@boostengine/payments`,
+`@boostengine/auth`, `@boostengine/shipping`, `@boostengine/invoicing`,
+`@boostengine/returns`, `@boostengine/cart`, and `@boostengine/coupons`. The
+server routes run in mock/simulation mode until real credentials are supplied
+in `BoostServerConfig`.
+
+---
+
+## License
+
+MIT
