@@ -189,6 +189,68 @@ try {
   assert.strictEqual(boostCfg.features.reviews.enabled, false);
   console.log('✅ Custom feature filtering & boost.config.json verified!');
 
+  // ── Test v1.1.0: vite-store alias, .gitignore, pm-aware README ─────────────
+  console.log('🧪 Testing v1.1.0 CLI options (vite-store alias, .gitignore, --pm)...');
+  const cliTestDir = path.join(pairTestBase, 'cli-store');
+  const cliResult = scaffoldProject(cliTestDir, {
+    storeName: 'cli-store',
+    brandTitle: 'CLI Store',
+    template: 'vite-store',
+    pm: 'pnpm',
+    git: true,
+    install: false,
+  });
+
+  assert.strictEqual(cliResult.success, true);
+  assert.strictEqual(cliResult.template, 'vite', 'vite-store should normalize to vite');
+  assert.strictEqual(cliResult.pm, 'pnpm');
+  assert.strictEqual(cliResult.git, true);
+  assert.strictEqual(cliResult.install, false);
+
+  assert.strictEqual(fs.existsSync(path.join(cliTestDir, '.gitignore')), true);
+  const gitignore = fs.readFileSync(path.join(cliTestDir, '.gitignore'), 'utf8');
+  assert.strictEqual(gitignore.includes('node_modules'), true);
+
+  const readme = fs.readFileSync(path.join(cliTestDir, 'README.md'), 'utf8');
+  assert.strictEqual(readme.includes('pnpm install'), true);
+  assert.strictEqual(readme.includes('pnpm dev'), true);
+  console.log('✅ vite-store alias, .gitignore generation & pm-aware README verified!');
+
+  // ── Test v1.1.0: template dependency version bumps ─────────────────────────
+  console.log('🧪 Testing v1.1.0 template dependency versions...');
+  const nextjsPkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'templates/nextjs/package.json'), 'utf8'));
+  assert.strictEqual(nextjsPkg.dependencies['@boostengine/ui'], '^2.1.1');
+  assert.strictEqual(nextjsPkg.dependencies['@boostengine/core'], '^1.1.0');
+  assert.strictEqual(nextjsPkg.dependencies['@boostengine/seo'], '^1.1.0');
+  assert.strictEqual(nextjsPkg.dependencies['@boostengine/payments'], '^1.1.0');
+  assert.strictEqual(nextjsPkg.dependencies['next'], '^15.0.0');
+  assert.strictEqual(nextjsPkg.dependencies['react'], '^19.0.0');
+
+  const vitePkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'templates/vite-store/package.json'), 'utf8'));
+  assert.strictEqual(vitePkg.dependencies['@boostengine/core'], '^1.1.0');
+  assert.strictEqual(vitePkg.dependencies['@boostengine/ui'], '^2.1.1');
+  assert.strictEqual(vitePkg.dependencies['@boostengine/cart'], '^1.1.0');
+  assert.strictEqual(vitePkg.dependencies['@boostengine/payments'], '^1.1.0');
+  assert.strictEqual(vitePkg.dependencies['react'], '^19.0.0');
+
+  const expoPkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'templates/expo-mobile/package.json'), 'utf8'));
+  assert.strictEqual(expoPkg.dependencies['@boostengine/core'], '^1.1.0');
+  assert.strictEqual(expoPkg.dependencies['@boostengine/payments'], '^1.1.0');
+  assert.strictEqual(Boolean(expoPkg.dependencies['expo-notifications']), true);
+
+  const backendPkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'templates/backend-express/package.json'), 'utf8'));
+  assert.strictEqual(backendPkg.dependencies['@boostengine/server'], '^1.1.0');
+  assert.strictEqual(backendPkg.dependencies['@boostengine/core'], '^1.1.0');
+  assert.strictEqual(backendPkg.dependencies['@boostengine/shipping'], '^1.1.0');
+  assert.strictEqual(backendPkg.dependencies['@boostengine/invoicing'], '^1.1.0');
+  assert.strictEqual(backendPkg.dependencies['@boostengine/returns'], '^1.1.0');
+
+  const backendEnv = fs.readFileSync(path.join(__dirname, 'templates/backend-express/.env.example'), 'utf8');
+  assert.strictEqual(backendEnv.includes('CASHFREE_APP_ID'), true);
+  assert.strictEqual(backendEnv.includes('PHONEPE_SALT_KEY'), true);
+  assert.strictEqual(backendEnv.includes('JWT_SECRET'), true);
+  console.log('✅ v1.1.0 template dependency versions & env placeholders verified!');
+
   // Cleanup pair test
   try {
     fs.rmSync(pairTestBase, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });

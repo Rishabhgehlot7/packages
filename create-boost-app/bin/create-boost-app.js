@@ -23,6 +23,11 @@ const args = process.argv.slice(2);
 let templateFlag = null;
 let projectNameArg = null;
 let featuresFlag = null;
+let pmFlag = null;
+let gitFlag = null;      // true | false | null (unset)
+let installFlag = null;  // true | false | null (unset)
+
+const VALID_PMS = ['npm', 'pnpm', 'yarn', 'bun'];
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--template' && args[i + 1]) {
@@ -31,9 +36,26 @@ for (let i = 0; i < args.length; i++) {
   } else if (args[i] === '--features' && args[i + 1]) {
     featuresFlag = args[i + 1];
     i++;
+  } else if (args[i] === '--pm' && args[i + 1]) {
+    pmFlag = args[i + 1];
+    i++;
+  } else if (args[i] === '--git') {
+    gitFlag = true;
+  } else if (args[i] === '--no-git') {
+    gitFlag = false;
+  } else if (args[i] === '--install') {
+    installFlag = true;
+  } else if (args[i] === '--no-install') {
+    installFlag = false;
   } else if (!args[i].startsWith('--')) {
     projectNameArg = args[i];
   }
+}
+
+if (pmFlag && !VALID_PMS.includes(pmFlag)) {
+  console.error(`\n\x1b[31m✖ Unknown package manager "${pmFlag}"\x1b[0m`);
+  console.log('Valid options: ' + VALID_PMS.join(', ') + '\n');
+  process.exit(1);
 }
 
 // ─── Readline helpers ─────────────────────────────────────────────────────────
@@ -123,6 +145,8 @@ const FLAG_ALIASES = {
   'full-suite': 'omnichannel',
   'backend': 'backend-express',
   'expo': 'expo-mobile',
+  'vite-store': 'vite',
+  'next': 'nextjs',
 };
 
 function resolveFlag(flag) {
@@ -162,8 +186,43 @@ async function askFeatures() {
   return 'all';
 }
 
+// ─── Package manager & post-scaffold helpers ───────────────────────────────────
+function installCmd(pm) {
+  if (pm === 'pnpm') return 'pnpm install';
+  if (pm === 'yarn') return 'yarn';
+  if (pm === 'bun') return 'bun install';
+  return 'npm install';
+}
+
+function runCmd(pm, script) {
+  if (pm === 'pnpm') return `pnpm ${script}`;
+  if (pm === 'yarn') return `yarn ${script}`;
+  if (pm === 'bun') return `bun run ${script}`;
+  return `npm run ${script}`;
+}
+
+function runInstall(targetDir, pm) {
+  const { execSync } = require('child_process');
+  console.log(`\n\x1b[36m⚡ Installing dependencies with ${pm}...\x1b[0m`);
+  try {
+    execSync(installCmd(pm), { cwd: targetDir, stdio: 'inherit' });
+  } catch (err) {
+    console.error(`\x1b[31m✖ Install failed:\x1b[0m ${err.message || err}`);
+  }
+}
+
+function runGitInit(targetDir) {
+  const { execSync } = require('child_process');
+  console.log(`\n\x1b[36m⚡ Initializing git repository...\x1b[0m`);
+  try {
+    execSync('git init', { cwd: targetDir, stdio: 'inherit' });
+  } catch (err) {
+    console.error(`\x1b[31m✖ git init failed:\x1b[0m ${err.message || err}`);
+  }
+}
+
 // ─── Success Output ───────────────────────────────────────────────────────────
-function printPairSuccess(pairResult, projectName, brandTitle) {
+function printPairSuccess(pairResult, projectName, brandTitle, pm = 'npm') {
   const pairConfig = PAIRS[pairResult.pair];
   const projects = (pairConfig && pairConfig.projects) || [
     { key: 'frontend', role: 'Frontend', template: pairResult.frontend.template },
@@ -180,20 +239,20 @@ function printPairSuccess(pairResult, projectName, brandTitle) {
 
     console.log(`\x1b[1m${p.role || p.key.toUpperCase()} — \x1b[36m${folder}/\x1b[0m\x1b[0m`);
     console.log(`  \x1b[33mcd\x1b[0m ${folder}`);
-    console.log(`  \x1b[33mnpm install\x1b[0m`);
+    console.log(`  \x1b[33m${installCmd(pm)}\x1b[0m`);
 
     if (p.template === 'nextjs') {
-      console.log(`  \x1b[33mnpm run dev\x1b[0m`);
+      console.log(`  \x1b[33m${runCmd(pm, 'dev')}\x1b[0m`);
       console.log(`  # Open: \x1b[36mhttp://localhost:3000\x1b[0m (Storefront & /admin)`);
     } else if (p.template === 'vite') {
-      console.log(`  \x1b[33mnpm run dev\x1b[0m`);
+      console.log(`  \x1b[33m${runCmd(pm, 'dev')}\x1b[0m`);
       console.log(`  # Open: \x1b[36mhttp://localhost:3000\x1b[0m`);
     } else if (p.template === 'expo-mobile') {
       console.log(`  \x1b[33mnpx expo start\x1b[0m`);
       console.log(`  # Scan QR with Expo Go app`);
     } else if (p.template === 'backend-express') {
       console.log(`  \x1b[90m# Fill in ${folder}/.env.local with API keys\x1b[0m`);
-      console.log(`  \x1b[33mnpm run dev\x1b[0m`);
+      console.log(`  \x1b[33m${runCmd(pm, 'dev')}\x1b[0m`);
       console.log(`  # API Health: \x1b[36mhttp://localhost:3001/api/health\x1b[0m`);
       console.log(`  # Payments:   \x1b[36mhttp://localhost:3001/api/payments/*\x1b[0m`);
       console.log(`  # Shipping:   \x1b[36mhttp://localhost:3001/api/shipping/*\x1b[0m`);
@@ -205,7 +264,7 @@ function printPairSuccess(pairResult, projectName, brandTitle) {
   console.log(`\x1b[35mHappy building ${brandTitle}! 🚀\x1b[0m\n`);
 }
 
-function printStandaloneSuccess(result, projectName, brandTitle) {
+function printStandaloneSuccess(result, projectName, brandTitle, pm = 'npm') {
   const { template } = result;
   const cfg = TEMPLATES[template];
 
@@ -214,20 +273,20 @@ function printStandaloneSuccess(result, projectName, brandTitle) {
 
   console.log(`\x1b[1mNext Steps:\x1b[0m`);
   console.log(`  \x1b[33mcd\x1b[0m ${projectName}`);
-  console.log(`  \x1b[33mnpm install\x1b[0m`);
+  console.log(`  \x1b[33m${installCmd(pm)}\x1b[0m`);
 
   if (template === 'nextjs') {
-    console.log(`  \x1b[33mnpm run dev\x1b[0m\n`);
+    console.log(`  \x1b[33m${runCmd(pm, 'dev')}\x1b[0m\n`);
     console.log(`\x1b[1mEndpoints:\x1b[0m`);
     console.log(`  🌐 Storefront:  \x1b[36mhttp://localhost:3000\x1b[0m`);
     console.log(`  ⚡ Admin Panel: \x1b[36mhttp://localhost:3000/admin\x1b[0m`);
     console.log(`  🧩 Plugins Hub: \x1b[36mhttp://localhost:3000/admin/plugins\x1b[0m`);
   } else if (template === 'vite') {
-    console.log(`  \x1b[33mnpm run dev\x1b[0m\n`);
+    console.log(`  \x1b[33m${runCmd(pm, 'dev')}\x1b[0m\n`);
     console.log(`  🌐 \x1b[36mhttp://localhost:3000\x1b[0m`);
   } else if (template === 'backend-express') {
     console.log(`  \x1b[90m# Fill in .env.local with your API keys\x1b[0m`);
-    console.log(`  \x1b[33mnpm run dev\x1b[0m\n`);
+    console.log(`  \x1b[33m${runCmd(pm, 'dev')}\x1b[0m\n`);
     console.log(`\x1b[1mAPI Endpoints:\x1b[0m`);
     console.log(`  ❤️  Health:    \x1b[36mhttp://localhost:3001/api/health\x1b[0m`);
     console.log(`  💳 Payments:  \x1b[36mhttp://localhost:3001/api/payments/*\x1b[0m`);
@@ -284,6 +343,9 @@ async function main() {
     }
 
     const cwd = process.cwd();
+    const pm = pmFlag || 'npm';
+    const doGit = gitFlag === true;
+    const doInstall = installFlag === true;
 
     // ── PAIR / SUITE ──────────────────────────────────────────────────────────
     if (menuItem.type === 'pair') {
@@ -293,9 +355,22 @@ async function main() {
         storeName: projectName,
         brandTitle,
         features,
+        pm,
+        git: doGit,
+        install: doInstall,
       });
 
-      printPairSuccess(result, projectName, brandTitle);
+      printPairSuccess(result, projectName, brandTitle, pm);
+
+      if (doGit || doInstall) {
+        const projects = result.projects || {};
+        Object.values(projects).forEach((p) => {
+          if (p && p.targetDir) {
+            if (doGit) runGitInit(p.targetDir);
+            if (doInstall) runInstall(p.targetDir, pm);
+          }
+        });
+      }
 
     // ── STANDALONE ────────────────────────────────────────────────────────────
     } else {
@@ -307,9 +382,15 @@ async function main() {
         brandTitle,
         template: menuItem.key,
         features,
+        pm,
+        git: doGit,
+        install: doInstall,
       });
 
-      printStandaloneSuccess(result, projectName, brandTitle);
+      printStandaloneSuccess(result, projectName, brandTitle, pm);
+
+      if (doGit) runGitInit(targetDir);
+      if (doInstall) runInstall(targetDir, pm);
     }
 
   } catch (err) {

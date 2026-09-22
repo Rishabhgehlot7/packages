@@ -1,7 +1,7 @@
 {
   "name": "create-boost-app",
-  "version": "1.0.3",
-  "description": "Create a high-converting, production-ready D2C eCommerce store with Next.js, Indian GST math, Admin Panel, and 15 BoostEngine micro-packages in 60 seconds.",
+  "version": "1.1.0",
+  "description": "Create a high-converting, production-ready D2C eCommerce store with Next.js, Vite, Expo, and Express — pre-wired with all 23 BoostEngine micro-packages in 60 seconds.",
   "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "funding": {
     "type": "github",
@@ -41,7 +41,10 @@
     "bin",
     "src",
     "templates",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "scripts": {
     "test": "node test.cjs"

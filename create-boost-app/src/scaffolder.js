@@ -206,7 +206,13 @@ function replacePlaceholders(filePath, replacements) {
 function scaffoldProject(targetDir, options = {}) {
   const storeName  = options.storeName  || path.basename(targetDir);
   const brandTitle = options.brandTitle || 'Boost D2C Store';
-  const template   = options.template   || 'nextjs';
+  let template     = options.template   || 'nextjs';
+  const pm         = options.pm         || 'npm';
+  const git        = options.git === true;
+  const install    = options.install === true;
+
+  // Normalize `vite-store` flag value → `vite` template key
+  if (template === 'vite-store') template = 'vite';
 
   // Validate
   if (!TEMPLATES[template]) {
@@ -301,8 +307,14 @@ function scaffoldProject(targetDir, options = {}) {
   }
 
   // 6. Generate README
-  const readme = generateReadme(brandTitle, templateConfig, storeName, template);
+  const readme = generateReadme(brandTitle, templateConfig, storeName, template, pm);
   fs.writeFileSync(path.join(targetDir, 'README.md'), readme);
+
+  // 7. Generate .gitignore
+  const gitignorePath = path.join(targetDir, '.gitignore');
+  if (!fs.existsSync(gitignorePath)) {
+    fs.writeFileSync(gitignorePath, generateGitignore(), 'utf8');
+  }
 
   return {
     success: true,
@@ -313,6 +325,9 @@ function scaffoldProject(targetDir, options = {}) {
     framework: templateConfig.framework,
     type: templateConfig.type,
     features: selectedFeatureKeys,
+    pm,
+    git,
+    install,
   };
 }
 
@@ -354,6 +369,9 @@ function scaffoldPair(baseDir, pair, options = {}) {
       brandTitle: brandTitle + (p.titleSuffix || ''),
       template:   p.template,
       features:   options.features,
+      pm:         options.pm,
+      git:        options.git,
+      install:    options.install,
     });
     results[p.key] = result;
   }
@@ -370,8 +388,36 @@ function scaffoldPair(baseDir, pair, options = {}) {
 
 // ─── README Generator ─────────────────────────────────────────────────────────
 
-function generateReadme(brandTitle, templateConfig, projectName, template) {
-  const steps = getNextSteps(template, projectName);
+function installCmd(pm) {
+  if (pm === 'pnpm') return 'pnpm install';
+  if (pm === 'yarn') return 'yarn';
+  if (pm === 'bun') return 'bun install';
+  return 'npm install';
+}
+
+function runCmd(pm, script) {
+  if (pm === 'pnpm') return `pnpm ${script}`;
+  if (pm === 'yarn') return `yarn ${script}`;
+  if (pm === 'bun') return `bun run ${script}`;
+  return `npm run ${script}`;
+}
+
+function generateGitignore() {
+  return [
+    'node_modules',
+    '.next',
+    'dist',
+    '.turbo',
+    '.env',
+    '.env.local',
+    '.DS_Store',
+    '*.log',
+    'coverage',
+  ].join('\n') + '\n';
+}
+
+function generateReadme(brandTitle, templateConfig, projectName, template, pm = 'npm') {
+  const steps = getNextSteps(template, projectName, pm);
   return `# ${brandTitle}
 
 ⚡ Generated with \`npx create-boost-app\` — **${templateConfig.label}**
@@ -395,11 +441,11 @@ Visit [npmjs.com/org/boostengine](https://www.npmjs.com/org/boostengine) for ful
 `;
 }
 
-function getNextSteps(template, projectName) {
-  const base = [`cd ${projectName}`, 'npm install'];
-  if (template === 'nextjs')          return [...base, 'npm run dev', '', '# Open: http://localhost:3000'];
-  if (template === 'vite')            return [...base, 'npm run dev', '', '# Open: http://localhost:3000'];
-  if (template === 'backend-express') return [...base, '# Fill in .env.local with your API keys', 'npm run dev', '', '# API Health: http://localhost:3001/api/health'];
+function getNextSteps(template, projectName, pm = 'npm') {
+  const base = [`cd ${projectName}`, installCmd(pm)];
+  if (template === 'nextjs')          return [...base, runCmd(pm, 'dev'), '', '# Open: http://localhost:3000'];
+  if (template === 'vite')            return [...base, runCmd(pm, 'dev'), '', '# Open: http://localhost:3000'];
+  if (template === 'backend-express') return [...base, '# Fill in .env.local with your API keys', runCmd(pm, 'dev'), '', '# API Health: http://localhost:3001/api/health'];
   if (template === 'expo-mobile')     return [...base, 'npx expo start', '', '# Scan QR with Expo Go app'];
   return base;
 }

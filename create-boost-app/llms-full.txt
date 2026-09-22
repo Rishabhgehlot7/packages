@@ -1,0 +1,101 @@
+# create-boost-app — Full AI Agent Manifest (v1.1.0)
+
+`create-boost-app` is the official scaffolding CLI for the BoostEngine ecosystem.
+It lets coding agents (Cursor, Claude, Copilot, Antigravity) and developers
+generate production-ready eCommerce stores and headless backends with all 23
+`@boostengine/*` packages pre-wired.
+
+---
+
+## 1. Invocation
+
+Two binaries map to the same CLI:
+
+```bash
+npx create-boost-app <project-name>
+npx create-boost-store <project-name>
+```
+
+Without arguments the CLI runs interactively: ASCII banner → project name →
+brand title → stack menu → feature selection.
+
+---
+
+## 2. Templates
+
+| Template | Framework | Description |
+|----------|-----------|-------------|
+| `nextjs` | Next.js 15 App Router | Full-stack storefront + admin panel (MongoDB, GST math) |
+| `vite-store` | Vite + React 19 | SPA storefront (frontend only) |
+| `expo-mobile` | Expo / React Native | Mobile app: native screens, UPI sheets, cart, push notifications |
+| `backend-express` | Express | Headless REST API microservice |
+
+Paired stacks (also available): `web+app`, `vite+express`, `expo+express`,
+`omnichannel`.
+
+---
+
+## 3. Flags
+
+```
+--template <nextjs | vite-store | expo-mobile | backend-express>
+--pm <npm | pnpm | yarn | bun>
+--git | --no-git
+--install | --no-install
+--features <all | essentials | payments,shipping,auth,...>
+```
+
+- `--pm` selects the package manager used in generated README/next-steps and by
+  `--install`.
+- `--git` runs `git init` after scaffold (default: off).
+- `--install` runs the package-manager install after scaffold (default: off).
+- `--features` filters which `@boostengine/*` plugins are wired into the store.
+
+---
+
+## 4. Generated files
+
+Every scaffold writes:
+
+- `package.json` — project name derived from the user's `<project-name>`.
+- `.env.example` — placeholders for Razorpay, Cashfree, PhonePe, Shiprocket,
+  JWT, MongoDB, and notifications.
+- `.gitignore` — `node_modules`, `.next`, `dist`, `.env*`, etc.
+- `README.md` — brand-customized quick-start with the selected package manager.
+- `boost.config.json` — records which plugins are enabled.
+
+---
+
+## 5. Template dependency versions (v1.1.0)
+
+- **nextjs**: `@boostengine/ui@^2.1.1`, `@boostengine/core@^1.1.0`, plus
+  `analytics`, `auth`, `cart`, `coupons`, `payments`, `reviews`, `search`,
+  `seo`, `shipping`, `wishlist` at `^1.1.0`; `react@^19.0.0`, `next@^15.0.0`.
+- **vite-store**: `@boostengine/ui@^2.1.1`, `@boostengine/core@^1.1.0`,
+  `@boostengine/cart@^1.1.0`, `@boostengine/payments@^1.1.0`; React 19.
+- **expo-mobile**: `@boostengine/core@^1.1.0`, `@boostengine/cart@^1.1.0`,
+  `@boostengine/payments@^1.1.0`, `expo-notifications` (push).
+- **backend-express**: `@boostengine/server@^1.1.0`, `@boostengine/core@^1.1.0`,
+  `@boostengine/payments@^1.1.0`, `@boostengine/shipping@^1.1.0`,
+  `@boostengine/invoicing@^1.1.0`, `@boostengine/returns@^1.1.0`.
+
+---
+
+## 6. Programmatic API
+
+```js
+const { scaffoldProject, scaffoldPair, TEMPLATES, PAIRS, FEATURES } = require('create-boost-app/src/scaffolder');
+
+scaffoldProject(targetDir, {
+  storeName, brandTitle, template, features, pm, git, install
+});
+// -> { success, targetDir, template, framework, features, pm, git, install }
+
+scaffoldPair(baseDir, pair, { storeName, brandTitle, features });
+```
+
+---
+
+## License
+
+MIT

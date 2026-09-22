@@ -221,14 +221,35 @@ Every template includes:
 
 ---
 
-## Non-Interactive Mode
+## Non-Interactive Mode & Flags
 
-Skip all prompts by passing arguments directly:
+Skip prompts by passing arguments directly:
 
 ```bash
-npx create-boost-app my-project --template backend-express
-# Only asks for brand title, skips all other prompts
+# Scaffold a Next.js store with pnpm
+npx create-boost-app my-store --template nextjs --pm pnpm
+
+# Scaffold a Vite SPA (React 19)
+npx create-boost-app my-store --template vite-store
+
+# Scaffold a headless backend and initialize git
+npx create-boost-app my-api --template backend-express --git
+
+# Scaffold an Expo app without running install
+npx create-boost-app my-app --template expo-mobile --no-install
 ```
+
+### Full flag reference
+
+| Flag | Values | Description |
+|------|--------|-------------|
+| `--template` | `nextjs`, `vite-store`, `expo-mobile`, `backend-express` | Select the stack |
+| `--pm` | `npm`, `pnpm`, `yarn`, `bun` | Package manager for install/run commands |
+| `--git` / `--no-git` | — | Initialize a git repository after scaffold |
+| `--install` / `--no-install` | — | Run the package-manager install after scaffold |
+| `--features` | `all`, `essentials`, `payments,shipping,…` | Filter @boostengine plugins |
+
+> `vite` is also accepted as an alias for `vite-store`.
 
 ---
 

@@ -1,0 +1,43 @@
+# create-boost-app
+
+> Official BoostEngine scaffolding CLI. Generate a production-ready, high-converting eCommerce store or headless backend in 60 seconds. Version 1.1.0.
+
+## Commands
+
+```bash
+npx create-boost-app <project-name>          # interactive
+npx create-boost-store <project-name>        # same CLI (alias bin)
+```
+
+## Templates
+
+- `--template nextjs` — Next.js 15 App Router full-stack store + admin panel
+- `--template vite-store` — Vite + React 19 SPA storefront
+- `--template expo-mobile` — Expo / React Native mobile app
+- `--template backend-express` — headless Express API microservice
+
+## Flags
+
+- `--template <nextjs | vite-store | expo-mobile | backend-express>`
+- `--pm <npm | pnpm | yarn | bun>`
+- `--git` / `--no-git`
+- `--install` / `--no-install`
+- `--features <all | essentials | payments,shipping,...>`
+
+## Examples (for AI agents)
+
+```bash
+npx create-boost-app my-store --template nextjs --pm pnpm
+npx create-boost-app my-app --template expo-mobile --no-install
+npx create-boost-app my-api --template backend-express --git
+```
+
+## Output
+
+Generates `package.json` (customized name), `.env.example` (Razorpay, Cashfree,
+PhonePe, Shiprocket, JWT), `.gitignore`, `README.md`, and a `boost.config.json`
+tracking enabled plugins.
+
+## License
+
+MIT
