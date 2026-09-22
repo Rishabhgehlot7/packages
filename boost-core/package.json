@@ -1,6 +1,6 @@
 {
   "name": "@boostengine/core",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "WordPress/Shopify-style modular plugin runtime & event hook architecture for BoostEngine eCommerce stores.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
@@ -26,19 +26,29 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./ai": {
+      "types": "./dist/ai/index.d.ts",
+      "import": "./dist/ai/index.mjs",
+      "require": "./dist/ai/index.cjs"
     }
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "scripts": {
     "build": "tsup",
+    "typecheck": "tsc --noEmit",
     "test": "node test-suite.cjs"
   },
   "devDependencies": {

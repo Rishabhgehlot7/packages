@@ -1,0 +1,92 @@
+# @boostengine/core
+
+> WordPress/Shopify-style modular plugin runtime & event hook architecture for BoostEngine eCommerce stores. Version 1.1.0.
+
+@boostengine/core is the central kernel of the BoostEngine ecosystem. It provides action/filter hooks, a decoupled event bus, a modular plugin runtime with lifecycle & health checks, a reactive store primitive, and an integer-safe currency/money engine shared by all `@boostengine/*` packages.
+
+## Install
+
+```bash
+npm install @boostengine/core
+```
+
+## Quick start
+
+```ts
+import { createBoostEngine, type BoostPlugin } from '@boostengine/core';
+
+const plugin: BoostPlugin = {
+  id: 'my-plugin',
+  name: 'My Plugin',
+  version: '1.0.0',
+  async init(ctx) {},
+  async registerHooks(engine) {
+    engine.hooks.addAction('order.created', async (order) => {});
+  },
+  async boot() {},
+  async shutdown() {},
+};
+
+const engine = createBoostEngine({ autoStart: true });
+await engine.registerPlugin(plugin);
+await engine.start();
+```
+
+## API
+
+### Hooks (WordPress/Shopify style)
+
+- `addAction(tag, callback, priority?)`
+- `doAction(tag, ...args)`
+- `removeAction(tag, callback?)`
+- `hasAction(tag, callback?)`
+- `addFilter(tag, callback, priority?)`
+- `applyFilters(tag, value, ...args)`
+- `removeFilter(tag, callback?)`
+- `hasFilter(tag, callback?)`
+- `removeAllHooks(tag?)`
+- `createHooks()` / `BoostHookSystem`
+
+### Event Bus
+
+- `createEventBus(options?)` -> `EventBus`
+- `on(pattern, listener)` / `once(pattern, listener)` / `off(pattern, listener?)`
+- `emit(topic, payload?, options?)` / `emitSync(...)`
+- `replay(pattern?)` / `listenerCount(pattern?)` / `topics()` / `clear()`
+- Wildcards: `*` (one segment), `**` (many segments)
+- `DOMAIN_EVENTS` — `auth.*`, `cart.*`, `checkout.*`, `payment.*`, `order.*`, `inventory.*`, `shipping.*`
+
+### Plugin Runtime
+
+- `createBoostEngine(config?)` -> `BoostEngine`
+- `registerPlugin(plugin)` / `unregisterPlugin(id)`
+- `start()` / `shutdown()`
+- Lifecycle: `init` -> `registerHooks` -> `boot` -> `shutdown`
+- `getPlugin(id)` / `getPlugins()` / `enablePlugin` / `disablePlugin`
+- `healthCheck()` / `isPluginHealthy(id)`
+- Legacy: `BoostPluginEngine`, `boostCore`, `BOOST_HOOKS`
+
+### Store
+
+- `createStore(initialState)` / `subscribe(store, fn)` / `getState(store)` / `setState(store, update)` / `derive(store, selector)`
+
+### Money
+
+- `Money`, `CurrencyCode`, `PriceBreakdown`
+- `addMoney` / `subtractMoney` / `multiplyMoney` / `divideMoney`
+- `convertMoney(money, currency, rate)` / `formatMoney(money, options?)`
+- `toMinorUnits` / `fromMinorUnits` / `getMinorUnits`
+
+### Types
+
+`Address`, `Customer`, `LineItem`, `Order`, `PaymentSession`, `OrderStatus`, `PaymentStatus`, `PluginContext`, `PluginCategory`.
+
+### AI Toolkit (`@boostengine/core/ai`)
+
+- `coreTools` — `inspect_engine_state`, `trigger_engine_event`, `evaluate_filter_pipeline`, `generate_plugin_boilerplate`
+- `toOpenAITools` / `toAnthropicTools` / `toMCPTools`
+- `getCoreSystemPrompt()`
+
+## License
+
+MIT

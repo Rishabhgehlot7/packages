@@ -1,0 +1,254 @@
+# @boostengine/core — Full API Manifest (v1.1.0)
+
+`@boostengine/core` is the central kernel of the BoostEngine ecosystem. All 23
+`@boostengine/*` packages depend on its primitives. This manifest documents the
+complete public surface for coding agents, MCP servers, and integrators.
+
+---
+
+## 1. Action & Filter Hook System
+
+WordPress/Shopify-style hooks. Lower `priority` numbers run first. Callbacks may
+be synchronous or asynchronous; `doAction` and `applyFilters` await each one.
+
+```ts
+type ActionCallback = (...args: any[]) => Promise<void> | void;
+type FilterCallback<T = any> = (value: T, ...args: any[]) => Promise<T> | T;
+
+interface HookSystem {
+  addAction(tag: string, callback: ActionCallback, priority?: number): void;
+  doAction(tag: string, ...args: any[]): Promise<void>;
+  removeAction(tag: string, callback?: ActionCallback): boolean;
+  hasAction(tag: string, callback?: ActionCallback): boolean;
+  removeAllActions(tag?: string): void;
+  addFilter<T = any>(tag: string, callback: FilterCallback<T>, priority?: number): void;
+  applyFilters<T = any>(tag: string, value: T, ...args: any[]): Promise<T>;
+  removeFilter(tag: string, callback?: FilterCallback): boolean;
+  hasFilter(tag: string, callback?: FilterCallback): boolean;
+  removeAllFilters(tag?: string): void;
+  removeAllHooks(tag?: string): void;
+  clear(): void;
+  listActionTags(): string[];
+  listFilterTags(): string[];
+  getActions(tag?: string): Array<{ tag: string; callback: ActionCallback; priority: number }>;
+  getFilters(tag?: string): Array<{ tag: string; callback: FilterCallback; priority: number }>;
+}
+```
+
+Exports: `class BoostHookSystem`, `createHooks()`, plus standalone global
+functions `addAction`, `doAction`, `addFilter`, `applyFilters`, `removeAction`,
+`removeFilter`, `hasAction`, `hasFilter`, `removeAllHooks`, `getDefaultHooks`.
+
+```ts
+import { createHooks } from '@boostengine/core';
+const hooks = createHooks();
+hooks.addFilter('cart.total', (total, cart) => (cart.vip ? total - 100 : total), 10);
+const total = await hooks.applyFilters('cart.total', 500, { vip: true }); // 400
+```
+
+---
+
+## 2. Event Bus & Lifecycle Management
+
+```ts
+interface EventEnvelope<T = any> {
+  id: string; topic: string; payload: T; timestamp: number; expiresAt?: number;
+}
+
+interface EventBus {
+  on(pattern: string, listener: EventListener): () => void;
+  once(pattern: string, listener: EventListener): () => void;
+  off(pattern: string, listener?: EventListener): void;
+  emit<T>(topic: string, payload?: T, options?: { ttl?: number }): Promise<void>;
+  emitSync<T>(topic: string, payload?: T, options?: { ttl?: number }): void;
+  replay(pattern?: string): EventEnvelope[];
+  listenerCount(pattern?: string): number;
+  topics(): string[];
+  clear(): void;
+}
+```
+
+Exports: `createEventBus(options?)`, `EventBusImpl`, `matchesPattern(topic, pattern)`.
+
+Wildcard semantics (dot-delimited): `*` matches one segment, `**` matches zero or
+more segments, a bare `*` matches everything. `options.defaultTtl` applies a
+default TTL (ms); `replay` hides expired events. `options.historyLimit` bounds
+the replay history.
+
+### Domain Events
+
+```ts
+DOMAIN_EVENTS.AUTH.LOGIN            // 'auth.login'
+DOMAIN_EVENTS.CART.UPDATED          // 'cart.updated'
+DOMAIN_EVENTS.CHECKOUT.STARTED      // 'checkout.started'
+DOMAIN_EVENTS.PAYMENT.SUCCESS       // 'payment.success'
+DOMAIN_EVENTS.ORDER.CREATED         // 'order.created'
+DOMAIN_EVENTS.INVENTORY.STOCK_LOW   // 'inventory.stock_low'
+DOMAIN_EVENTS.SHIPPING.DISPATCHED   // 'shipping.dispatched'
+// ...plus LOGOUT/REGISTERED/PASSWORD_RESET, ITEM_ADDED/ITEM_REMOVED/CLEARED,
+// ABANDONED/COMPLETED, INITIATED/FAILED/REFUNDED, UPDATED/CONFIRMED/SHIPPED/
+// DELIVERED/CANCELLED, UPDATED/OUT_OF_STOCK, RATE_CALCULATED/LABEL_CREATED/
+// DELIVERED.
+```
+
+Also exported: `DOMAIN_NAMESPACES`, `DomainNamespace`.
+
+
+---
+
+## 3. Modular Plugin Runtime
+
+```ts
+interface BoostPlugin {
+  id: string;
+  name: string;
+  version: string;
+  description?: string;
+  icon?: string;
+  category?: PluginCategory;
+  defaultSettings?: Record<string, any>;
+  dependencies?: string[];                       // must register first
+
+  init?(context: PluginContext): Promise<void> | void;
+  registerHooks?(engine: BoostEngine): Promise<void> | void;
+  boot?(context?: PluginContext): Promise<void> | void;
+  shutdown?(): Promise<void> | void;
+
+  // Legacy aliases
+  onInit?(context: PluginContext): Promise<void> | void;
+  onActivate?(): Promise<void> | void;
+  onDeactivate?(): Promise<void> | void;
+  onOrderCreated?(order: Order, context: PluginContext): Promise<void> | void;
+  onProductViewed?(product: any, context: PluginContext): Promise<void> | void;
+  onCartUpdated?(cart: any, context: PluginContext): Promise<void> | void;
+}
+
+interface BoostEngine {
+  readonly id: string;
+  readonly config: BoostEngineConfig;
+  readonly hooks: HookSystem;
+  readonly events: EventBus;
+  readonly store: Store<EngineState>;
+  registerPlugin(plugin: BoostPlugin): Promise<RegisteredPlugin>;
+  unregisterPlugin(id: string): Promise<void>;
+  start(): Promise<void>;
+  shutdown(): Promise<void>;
+  getPlugin(id: string): RegisteredPlugin | undefined;
+  getPlugins(): RegisteredPlugin[];
+  enablePlugin(id: string): Promise<void>;
+  disablePlugin(id: string): Promise<void>;
+  isPluginHealthy(id: string): boolean;
+  healthCheck(): PluginHealthReport[];
+  inspect(): EngineInspection;
+}
+```
+
+Exports: `createBoostEngine(config?)`, `BoostEngineImpl`, `registerPlugin`,
+`getDefaultEngine`, plus legacy `BoostPluginEngine`, `boostCore`, `BOOST_HOOKS`.
+
+`BoostEngineConfig` supports `id`, `storeId`, `debug`, `strictDependencies`
+(default `true`), `autoStart`, `env`, and `plugins`.
+
+### Lifecycle order
+
+1. `start()` topologically sorts plugins by `dependencies`.
+2. For each (dependency-first): `init(ctx)` -> `registerHooks(engine)`.
+3. For each (dependency-first): `boot(ctx)`.
+4. `shutdown()` runs `shutdown()` in reverse dependency order.
+
+### Health checks
+
+`healthCheck()` returns per-plugin `PluginHealthReport`:
+`{ id, name, version, status, healthy, dependenciesSatisfied, missingDependencies, error }`.
+A plugin is healthy when its dependencies resolve, it is enabled, and it is not
+`failed` or `shutdown`.
+
+---
+
+## 4. Reactive Store
+
+```ts
+interface Store<T> {
+  getState(): T;
+  setState(update: Partial<T> | ((state: T) => Partial<T>)): void;
+  subscribe(listener: (state: T, prev: T) => void): () => void;
+  derive<D>(selector: (state: T) => D): Store<D>;
+}
+```
+
+Exports: `createStore`, `getState`, `setState`, `subscribe`, `derive`.
+`derive` memoises the selected value and only re-emits when it changes.
+
+```ts
+import { createStore, subscribe } from '@boostengine/core';
+const store = createStore({ count: 0 });
+const unsub = subscribe(store, (s) => console.log(s.count));
+store.setState({ count: 1 });
+unsub();
+```
+
+---
+
+## 5. Currency & Money Engine
+
+All arithmetic is integer-safe (computed in minor units), avoiding IEEE-754
+drift. `Money.amount` is expressed in major units for ergonomics.
+
+```ts
+interface Money { amount: number; currency: CurrencyCode; }
+```
+
+Exports: `addMoney`, `subtractMoney`, `multiplyMoney`, `divideMoney`,
+`negateMoney`, `compareMoney`, `isZeroMoney`, `assertSameCurrency`,
+`convertMoney(m, targetCurrency, rate)` (`rate` = units of target per 1 source
+unit), `formatMoney(m, options?)`, `toMinorUnits`, `fromMinorUnits`,
+`getMinorUnits`, `CURRENCY_MINOR_UNITS`, `DEFAULT_MINOR_UNITS`.
+
+Zero-decimal currencies (JPY, KRW, VND) use 0 minor units; BHD/KWD/OMR use 3;
+all others default to 2.
+
+```ts
+import { addMoney, formatMoney } from '@boostengine/core';
+const a = { amount: 0.1, currency: 'USD' };
+const b = { amount: 0.2, currency: 'USD' };
+addMoney(a, b); // { amount: 0.3, currency: 'USD' } — no 0.30000000000000004
+formatMoney({ amount: 1299.5, currency: 'INR' }); // "₹1,299.50"
+```
+
+---
+
+## 6. Shared Type Primitives
+
+`CurrencyCode`, `Money`, `PriceBreakdown`, `Address`, `Customer`, `LineItem`,
+`Order`, `PaymentSession`, `OrderStatus`, `PaymentStatus`, `PluginCategory`,
+`PluginContext`. See `src/types/index.ts` for field-level detail.
+
+---
+
+## 7. AI Agent Toolkit (`@boostengine/core/ai`)
+
+```ts
+interface ToolDefinition {
+  name: string;
+  description: string;
+  parameters: JsonSchema;
+  execute?(args: Record<string, any>, context?: ToolContext): any | Promise<any>;
+}
+```
+
+Exports: `coreTools: ToolDefinition[]`, `createCoreTools(engine?)`,
+`toOpenAITools(tools)`, `toAnthropicTools(tools)`, `toMCPTools(tools)`,
+`getCoreSystemPrompt()`, `generatePluginBoilerplate(args)`.
+
+Core tools:
+1. `inspect_engine_state` — plugins, hooks, event listeners, config.
+2. `trigger_engine_event` — dispatch a synthetic event.
+3. `evaluate_filter_pipeline` — run a value through a filter tag.
+4. `generate_plugin_boilerplate` — scaffold a type-safe plugin.
+
+---
+
+## License
+
+MIT
+
