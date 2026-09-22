@@ -31,4 +31,6 @@ export class BoostBadge extends HTMLElement {
   }
 }
 
-customElements.define('boost-badge', BoostBadge);
+if (typeof customElements !== 'undefined' && !customElements.get('boost-badge')) {
+  customElements.define('boost-badge', BoostBadge);
+}

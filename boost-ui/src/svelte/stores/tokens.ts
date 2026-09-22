@@ -19,4 +19,4 @@ const dark: SvelteTokens = {
   warning: '#fbbf24', destructive: '#f87171', info: '#60a5fa',
 };
 
-export const tokenStore = derived(themeStore.isDark, ($isDark) => $isDark ? dark : light);
+export const tokenStore = derived(themeStore.isDark, ($isDark: any) => $isDark ? dark : light);

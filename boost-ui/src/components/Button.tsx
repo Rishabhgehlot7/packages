@@ -3,8 +3,6 @@ import type { UIStylePreset } from '../types/presets';
 import { presetTokens } from '../types/presets';
 import { useBoostPreset } from './BoostProvider';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
-
 /**
  * ButtonVariant — Visual style variants for Button.
  * - 'primary': Filled with brand color

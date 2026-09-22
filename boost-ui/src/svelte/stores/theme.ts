@@ -16,14 +16,14 @@ function createThemeStore(defaultMode: ThemeMode = 'system') {
     });
   }
 
-  const resolved = derived({ subscribe }, ($mode) => {
+  const resolved = derived({ subscribe }, ($mode: any) => {
     if ($mode === 'system') return darkQuery?.matches ? 'dark' : 'light';
-    return $mode;
+    return $mode as 'light' | 'dark';
   });
 
-  const isDark = derived(resolved, ($r) => $r === 'dark');
+  const isDark = derived(resolved, ($r: any) => $r === 'dark');
 
-  resolved.subscribe(($r) => {
+  resolved.subscribe(($r: any) => {
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('data-theme', $r);
       document.documentElement.classList.toggle('dark', $r === 'dark');

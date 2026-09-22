@@ -15,14 +15,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "src/vue",
-    "src/svelte",
-    "src/solid",
-    "src/angular",
-    "src/qwik",
-    "src/native",
-    "node_modules",
-    "dist"
-  ]
+  "exclude": ["node_modules", "dist"]
 }

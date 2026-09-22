@@ -1,8 +1,18 @@
-import type { Plugin } from 'vite';
-
-interface BoostViteOptions {
+export interface BoostViteOptions {
   cssPath?: string;
   includeDarkMode?: boolean;
+}
+
+export interface BoostVitePlugin {
+  name: string;
+  enforce?: 'pre' | 'post';
+  transformIndexHtml?: () => Array<{
+    tag: string;
+    attrs?: Record<string, any>;
+    children?: string;
+  }>;
+  handleHotUpdate?: (ctx: { server: { ws: { send: (msg: any) => void } } }) => void;
+  [key: string]: any;
 }
 
 /**
@@ -15,7 +25,7 @@ interface BoostViteOptions {
  * export default defineConfig({ plugins: [boostVitePlugin()] });
  * ```
  */
-export function boostVitePlugin(options: BoostViteOptions = {}): Plugin {
+export function boostVitePlugin(options: BoostViteOptions = {}): BoostVitePlugin {
   return {
     name: '@boostengine/ui',
     enforce: 'pre',
@@ -38,8 +48,8 @@ export function boostVitePlugin(options: BoostViteOptions = {}): Plugin {
         },
       ];
     },
-    handleHotUpdate({ server }) {
+    handleHotUpdate({ server }: { server: { ws: { send: (msg: any) => void } } }) {
       server.ws.send({ type: 'full-reload' });
     },
   };
-}
+}

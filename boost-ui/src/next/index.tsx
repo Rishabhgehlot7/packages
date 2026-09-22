@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BoostProvider, type BoostProviderProps } from '../index';
+import { BoostProvider, injectBoostGlobalStyles, type BoostProviderProps } from '../components/BoostProvider';
 
 /**
  * BoostNextProvider — Next.js-optimized wrapper around BoostProvider.
@@ -23,9 +23,7 @@ export const BoostNextProvider: React.FC<BoostNextProviderProps> = ({
   ...props
 }) => {
   React.useEffect(() => {
-    import('../index').then(({ injectBoostGlobalStyles }) => {
-      injectBoostGlobalStyles();
-    });
+    injectBoostGlobalStyles();
   }, []);
 
   React.useEffect(() => {
@@ -50,7 +48,7 @@ export const BoostNextProvider: React.FC<BoostNextProviderProps> = ({
     return () => observer.disconnect();
   }, [syncThemeColor]);
 
-  return React.createElement(BoostProvider, { ...props }, children);
+  return <BoostProvider {...props}>{children}</BoostProvider>;
 };
 
-BoostNextProvider.displayName = 'BoostNextProvider';
+BoostNextProvider.displayName = 'BoostNextProvider';

@@ -42,4 +42,7 @@ export class BoostButton extends HTMLElement {
   }
 }
 
-customElements.define('boost-button', BoostButton);
+if (typeof customElements !== 'undefined' && !customElements.get('boost-button')) {
+  customElements.define('boost-button', BoostButton);
+}
+
