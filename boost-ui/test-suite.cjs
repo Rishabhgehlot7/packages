@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ui = require('./dist/index.cjs');
 
-console.log('🧪 Running @boostengine/ui Test Suite v2.0.0...\n');
+console.log('🧪 Running @boostengine/ui Test Suite v2.1.0...\n');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
 let passed = 0;
