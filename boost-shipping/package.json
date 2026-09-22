@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/shipping",
-  "version": "1.0.2",
-  "description": "Unified Multi-Carrier Logistics & Shipping Engine for Indian eCommerce (Shiprocket, Delhivery, Shadowfax, Bluedart) with rate comparison, auto-AWB, live tracking & NDR actions.",
+  "version": "1.1.0",
+  "description": "Universal Logistics, Pincode Intelligence & Shipping Engine for eCommerce (Shiprocket, Delhivery, Shadowfax) with RTO Fraud Detection, Volumetric Box Optimizer, React/React Native Hooks, and AI Agent Toolkit.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -16,14 +16,23 @@
     "awb",
     "tracking",
     "pincode-serviceability",
+    "pincode-validator",
+    "rto-protection",
+    "cod-fraud-prevention",
+    "volumetric-weight",
     "ndr",
     "headless-shipping",
-    "delivery-tracking"
+    "delivery-tracking",
+    "react-shipping-hook",
+    "nextjs",
+    "react-native",
+    "ai-agent",
+    "agent-toolkit"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-shipping#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/boostengine/boostengine.git",
+    "url": "git+https://github.com/boostengine/boostengine.git",
     "directory": "packages/boost-shipping"
   },
   "bugs": {
@@ -40,6 +49,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.cjs"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.cjs"
     }
   },
   "files": [
@@ -52,8 +71,18 @@
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
   },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "react": "^18.3.1",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3"
   }

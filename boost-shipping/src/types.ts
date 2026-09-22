@@ -1,4 +1,13 @@
-export type CarrierName = 'shiprocket' | 'delhivery' | 'shadowfax' | 'bluedart' | 'custom';
+export type CarrierName =
+  | 'shiprocket'
+  | 'delhivery'
+  | 'shadowfax'
+  | 'bluedart'
+  | 'xpressbees'
+  | 'ecomexpress'
+  | 'custom';
+
+export type CarrierRoutingStrategy = 'CHEAPEST' | 'FASTEST' | 'BEST_RATED';
 
 export interface ShippingAddress {
   name: string;
@@ -35,6 +44,7 @@ export interface CourierRateOption {
   estimatedDeliveryDays: number;
   estimatedDeliveryDate?: string;
   codAvailable: boolean;
+  rating?: number;
 }
 
 export interface PincodeCheckResult {
@@ -44,6 +54,9 @@ export interface PincodeCheckResult {
   isCodAvailable: boolean;
   estimatedDeliveryDays?: number;
   estimatedDeliveryDate?: string;
+  state?: string;
+  city?: string;
+  tier?: 'METRO' | 'TIER_1' | 'TIER_2' | 'REMOTE';
   rates?: CourierRateOption[];
   rawResponse?: any;
 }
@@ -53,6 +66,7 @@ export interface ShipmentItem {
   sku: string;
   quantity: number;
   price: number;
+  weightKg?: number;
 }
 
 export interface CreateShipmentOptions {
@@ -68,6 +82,7 @@ export interface CreateShipmentOptions {
   totalAmount: number;
   codAmount?: number;
   courierId?: string | number;
+  strategy?: CarrierRoutingStrategy;
 }
 
 export interface CreateShipmentResult {
@@ -108,7 +123,15 @@ export interface TrackingEvent {
 export interface TrackingResult {
   carrier: CarrierName;
   awbNumber: string;
-  currentStatus: 'ORDER_PLACED' | 'PICKED_UP' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'RTO_INITIATED' | 'RTO_DELIVERED' | 'FAILED';
+  currentStatus:
+    | 'ORDER_PLACED'
+    | 'PICKED_UP'
+    | 'IN_TRANSIT'
+    | 'OUT_FOR_DELIVERY'
+    | 'DELIVERED'
+    | 'RTO_INITIATED'
+    | 'RTO_DELIVERED'
+    | 'FAILED';
   rawStatus: string;
   origin?: string;
   destination?: string;
@@ -132,6 +155,45 @@ export interface NDRActionResult {
   isSuccess: boolean;
   actionTaken: string;
   rawResponse: any;
+}
+
+export interface FreeShippingRule {
+  /** Minimum order amount to qualify for 100% free delivery (e.g. 999) */
+  minOrderAmount: number;
+  /** Flat shipping fee to charge if subtotal is below minOrderAmount (e.g. 60) */
+  defaultShippingFee: number;
+}
+
+/**
+ * Universal bridge interface compatible with @boostengine/cart
+ */
+export interface BoostCartLike {
+  items: Array<{
+    id?: string;
+    productId?: string;
+    name?: string;
+    title?: string;
+    price: number;
+    quantity: number;
+    sku?: string;
+    weightKg?: number;
+    dimensions?: { lengthCm?: number; breadthCm?: number; heightCm?: number };
+  }>;
+  total?: number;
+  subtotal?: number;
+}
+
+export interface CartShippingCalculationResult {
+  isFreeShipping: boolean;
+  shippingFee: number;
+  amountNeededForFreeShipping: number;
+  freeShippingProgressPercent: number;
+  totalBillableWeightKg: number;
+  matchedCouriers: CourierRateOption[];
+  cheapestCourier?: CourierRateOption;
+  fastestCourier?: CourierRateOption;
+  estimatedDeliveryDays?: number;
+  deliveryDateFormatted?: string;
 }
 
 export interface ShiprocketConfig {
@@ -158,6 +220,20 @@ export interface BluedartConfig {
   loginId: string;
   licenceKey: string;
   customerCode: string;
+  defaultPickupPincode?: string;
+}
+
+export interface XpressbeesConfig {
+  email?: string;
+  password?: string;
+  key?: string;
+  defaultPickupPincode?: string;
+}
+
+export interface EcomExpressConfig {
+  username: string;
+  password: string;
+  defaultPickupPincode?: string;
 }
 
 export interface ShippingManagerOptions {
@@ -167,6 +243,9 @@ export interface ShippingManagerOptions {
     delhivery?: DelhiveryConfig;
     shadowfax?: ShadowfaxConfig;
     bluedart?: BluedartConfig;
+    xpressbees?: XpressbeesConfig;
+    ecomexpress?: EcomExpressConfig;
   };
   pickupAddress?: ShippingAddress;
+  freeShippingRule?: FreeShippingRule;
 }

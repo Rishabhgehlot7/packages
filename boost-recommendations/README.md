@@ -1,41 +1,28 @@
-# @boostengine/recommendations 🎯
+# @boostengine/recommendations 🧠
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/recommendations.svg?color=blue)](https://www.npmjs.com/package/@boostengine/recommendations)
-[![npm downloads](https://img.shields.io/npm/dm/@boostengine/recommendations.svg?color=green)](https://www.npmjs.com/package/@boostengine/recommendations)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![Tree Shakable](https://img.shields.io/badge/Tree--Shakable-Yes-success.svg)](https://bundlephobia.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18%20%7C%2019-61dafb.svg)](https://react.dev/)
 
-> **Amazon & Flipkart-style Frequently Bought Together (FBT) bundles, Cross-Sell, and Upsell recommendation engine for Next.js, Vite, React, and Node.js.**
+> Enterprise Frequently Bought Together (FBT) Bundles, Real Transaction Collaborative Filtering, Cart Cross-Sells, Smart Upsells, Universal Database Sync, and Autonomous AI Agent Recommendation Tools.
 
-Skyrocket your Average Order Value (AOV) by intelligently recommending complementary accessories and 1-click combo bundles directly on Product Detail Pages (PDP) and Cart Drawers.
+Part of the **BoostEngine** headless ecommerce micro-packages ecosystem.
 
 ---
 
 ## 🌟 Key Features
 
-- 🛍️ **Frequently Bought Together (FBT)**: Generates 2-3 product combo packages with automatic bundle discounts (*"Buy all 3 for ₹2,499 - Save ₹300"*).
-- 🔄 **Smart Cross-Sell Scoring**: Recommends accessories and matching items based on categories, tags, price affinity, and customer ratings.
-- 📈 **Upsell Recommender**: Recommends higher-tier or premium alternatives within a realistic price delta (+15% to +40%).
-- ⚡ **Universal Framework Support**: Works seamlessly in Next.js (Server Components & Client Components), Vite, Express, and React Native.
-
----
-
-## 📐 Frequently Bought Together UI Preview
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│  FREQUENTLY BOUGHT TOGETHER                                  │
-├──────────────────────────────────────────────────────────────┤
-│  [Main Tee]    +   [Denim Shorts]    +   [Street Cap]        │
-│    ₹999                 ₹1,499               ₹499            │
-│                                                              │
-│  Total Price: ₹2,997                                         │
-│  Bundle Price: ₹2,697 (10% OFF • Save ₹300)                  │
-│                                                              │
-│  [ ADD ALL 3 TO BAG ]                                        │
-└──────────────────────────────────────────────────────────────┘
-```
+- 📦 **Frequently Bought Together (FBT) Bundles**: Generate Amazon & Flipkart-style combo bundles with custom bundle pricing, discount percentages, and savings calculations.
+- 🤝 **Transaction Collaborative Filtering**: Mines actual customer order histories into a high-performance in-memory co-occurrence graph for genuine "Customers Who Bought This Also Bought" recommendations.
+- 🛒 **Cart Cross-Sells & Impulse Add-ons**: Recommends complementary accessories, protection warranties, and low-ticket items tailored to active cart items while excluding items already in cart.
+- ⭐ **Smart Product Upgrades (Upsell)**: Recommends higher-tier, better-spec alternatives in the same category (e.g., 128GB -> 256GB, Standard -> Pro).
+- 🎁 **Post-Purchase 1-Click Upsells**: High-converting add-on suggestions for the order confirmation / thank-you page.
+- 🔄 **Universal Database Sync**: Ingest product catalogs and historical order logs from MongoDB, PostgreSQL, Supabase, Prisma, DynamoDB, or Firebase.
+- ⚛️ **Universal React Suite**: `<RecommendationsProvider>`, `useFrequentlyBoughtTogether()`, `useCartCrossSells()`, `useSimilarProducts()`, `usePersonalizedPicks()`, and `useProductUpgrades()`.
+- 🤖 **Autonomous AI Agent Toolkit**: 5 tools ready for OpenAI, Claude, Gemini, and Vercel AI SDK.
+- 💻 **Interactive CLI**: Test recommendation bundles directly in your terminal (`npx boost-recommendations demo`).
+- 🛡️ **100% Backward Compatible**: Retains all original static methods on `RecommendationsEngine`.
 
 ---
 
@@ -51,139 +38,221 @@ pnpm add @boostengine/recommendations
 
 ---
 
-## ⚡ 60-Second Quickstart
+## 🚀 Quick Start (Node.js / Backend)
 
 ```typescript
-import { RecommendationsEngine } from '@boostengine/recommendations';
+import { recommendations, RecommendationsEngine } from '@boostengine/recommendations';
 
-const mainProduct = {
-  id: 'p_hoodie',
-  title: 'Vintage Acid Wash Hoodie',
-  price: 1999,
-  category: 'Hoodies',
-  tags: ['streetwear', 'winter', 'oversized']
-};
-
+// 1. Set Catalog
 const catalog = [
-  { id: 'p_tee', title: 'Heavyweight Inner Tee', price: 699, category: 'Tees', tags: ['streetwear', 'oversized'], rating: 4.8 },
-  { id: 'p_cap', title: 'Washed Cotton Cap', price: 499, category: 'Accessories', tags: ['streetwear'], rating: 4.5 },
-  { id: 'p_sofa', title: 'Living Room Sofa', price: 18000, category: 'Furniture' }, // Unrelated
+  { id: 'phone', title: 'Flagship Smartphone (128GB)', price: 60000, category: 'Electronics', tags: ['mobile'] },
+  { id: 'phone_pro', title: 'Flagship Smartphone Pro (512GB)', price: 85000, category: 'Electronics', tags: ['mobile', 'pro'] },
+  { id: 'case', title: 'Armor Shockproof Case', price: 999, category: 'Electronics', tags: ['accessory', 'mobile'] },
+  { id: 'charger', title: '65W Fast GaN Charger', price: 1499, category: 'Electronics', tags: ['accessory', 'mobile'] },
 ];
 
-// 1. Generate Frequently Bought Together Bundle with 10% Bundle Discount
-const bundle = RecommendationsEngine.getFrequentlyBoughtTogether(mainProduct, catalog, {
+recommendations.setCatalog(catalog);
+
+// 2. Train with Real Historical Order Transactions
+recommendations.recordOrders([
+  { productIds: ['phone', 'case', 'charger'] },
+  { productIds: ['phone', 'case'] }
+]);
+
+// 3. Generate Amazon-style Frequently Bought Together Bundle
+const bundle = recommendations.getFrequentlyBoughtTogether(catalog[0], catalog, {
   maxItems: 2,
-  discountPercentage: 10,
+  discountPercentage: 10
 });
 
-console.log(bundle.bundlePrice);       // ₹2,878 (Combined discounted price)
-console.log(bundle.savingsAmount);     // ₹319 Saved
-console.log(bundle.bundleItems.length); // 2 Recommended items
+console.log(bundle);
+/*
+{
+  mainProduct: { id: 'phone', price: 60000, ... },
+  bundleItems: [ { id: 'case', price: 999 }, { id: 'charger', price: 1499 } ],
+  totalRegularPrice: 62498,
+  bundleDiscountPercentage: 10,
+  bundlePrice: 56248,
+  savingsAmount: 6250
+}
+*/
 
-// 2. Get Related Cross-Sell Products for Cart Drawer
-const crossSells = RecommendationsEngine.getCrossSells(mainProduct, catalog, 3);
-console.log(crossSells.map(p => p.title));
+// 4. Get Cart Cross-Sells (Cart Drawer / Checkout)
+const cartCrossSells = recommendations.getCartCrossSells(
+  [{ id: 'phone', category: 'Electronics', price: 60000 }],
+  catalog
+);
+console.log('Impulse cross-sells:', cartCrossSells);
+
+// 5. Get Smart Product Upgrades
+const upgrades = recommendations.getUpgrades(catalog[0], catalog);
+console.log('Upgrade options:', upgrades);
 ```
 
 ---
 
-## 🚀 Framework Integration Examples
+## 🤝 Collaborative Filtering ("Customers Also Bought")
 
-### A. Next.js App Router (PDP Server Component)
+Mine actual customer purchase baskets to discover true product relationships:
 
-In `app/products/[id]/page.tsx`:
+```typescript
+import { recommendations } from '@boostengine/recommendations';
+
+// Record past sales
+recommendations.recordOrder(['shoes_running', 'socks_cushioned', 'water_bottle']);
+recommendations.recordOrder(['shoes_running', 'socks_cushioned']);
+
+// Query items frequently co-purchased with running shoes
+const alsoBought = recommendations.getCustomersAlsoBought('shoes_running');
+console.log(alsoBought); // Output: [socks_cushioned, water_bottle]
+```
+
+---
+
+## 🔄 Universal Database Sync
+
+Ingest products and historical orders from any database:
+
+```typescript
+import { recommendations } from '@boostengine/recommendations';
+
+// MongoDB, PostgreSQL, Prisma, Supabase
+const mongoProducts = await db.collection('products').find().toArray();
+const mongoOrders = await db.collection('orders').find().limit(5000).toArray();
+
+recommendations.sync(mongoProducts, mongoOrders, {
+  catalogMapper: p => ({
+    id: p._id.toString(),
+    title: p.title,
+    price: p.price,
+    category: p.category,
+    imageUrl: p.images?.[0] || ''
+  }),
+  orderMapper: o => ({
+    productIds: o.items.map(i => i.productId)
+  })
+});
+```
+
+---
+
+## ⚛️ Universal React Suite
+
+Import from `@boostengine/recommendations/react` in Next.js, Vite, React, or React Native:
+
+### 1. App-Wide Provider
 
 ```tsx
-import { RecommendationsEngine } from '@boostengine/recommendations';
-import { getProduct, getAllProducts } from '@/lib/products';
+import { RecommendationsProvider } from '@boostengine/recommendations/react';
 
-export default async function ProductPage({ params }) {
-  const product = await getProduct(params.id);
-  const catalog = await getAllProducts();
-
-  const bundle = RecommendationsEngine.getFrequentlyBoughtTogether(product, catalog, {
-    discountPercentage: 12
-  });
-
+export function App({ children, products }) {
   return (
-    <div>
-      {/* Product Details */}
-      <h1>{product.title}</h1>
-
-      {/* Frequently Bought Together Widget */}
-      <section className="mt-12 border p-6 rounded-3xl bg-gray-50">
-        <h2 className="text-xl font-bold">Frequently Bought Together</h2>
-        <div className="flex gap-4 my-4">
-          {bundle.allProducts.map(item => (
-            <div key={item.id} className="text-center">
-              <img src={item.imageUrl} alt={item.title} className="w-24 h-24 rounded-xl object-cover" />
-              <p className="font-bold text-sm">₹{item.price}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-lg font-black">
-          Bundle Price: ₹{bundle.bundlePrice}{' '}
-          <span className="text-emerald-600 font-bold text-sm">(Save ₹{bundle.savingsAmount})</span>
-        </p>
-        <button className="bg-black text-white px-6 py-3 rounded-2xl font-bold mt-2">
-          Add All {bundle.allProducts.length} to Cart
-        </button>
-      </section>
-    </div>
+    <RecommendationsProvider initialCatalog={products}>
+      {children}
+    </RecommendationsProvider>
   );
 }
 ```
 
-### B. Vite + React (Cart Drawer Cross-Sell Carousel)
+### 2. Amazon-style FBT Widget
 
 ```tsx
 import React from 'react';
-import { RecommendationsEngine } from '@boostengine/recommendations';
+import { useFrequentlyBoughtTogether } from '@boostengine/recommendations/react';
 
-export function CartUpsellSection({ cartItems, catalog, onAddToCart }) {
-  if (!cartItems.length) return null;
-
-  const crossSells = RecommendationsEngine.getCrossSells(cartItems[0], catalog, 2);
+export function FrequentlyBoughtTogetherSection({ product }) {
+  const bundle = useFrequentlyBoughtTogether(product, undefined, { discountPercentage: 15 });
 
   return (
-    <div className="mt-4 border-t pt-4">
-      <h4 className="font-bold text-xs uppercase tracking-wider text-gray-400">Complete the Look</h4>
-      <div className="grid grid-cols-2 gap-2 mt-2">
-        {crossSells.map((prod) => (
-          <div key={prod.id} className="border p-2 rounded-xl flex flex-col justify-between">
-            <span className="text-xs font-semibold truncate">{prod.title}</span>
-            <span className="text-xs font-bold mt-1">₹{prod.price}</span>
-            <button
-              onClick={() => onAddToCart(prod)}
-              className="mt-2 text-xs bg-gray-100 hover:bg-black hover:text-white py-1 rounded-lg font-bold"
-            >
-              + Quick Add
-            </button>
-          </div>
+    <div className="border p-6 rounded-2xl bg-gray-50">
+      <h3 className="font-bold text-xl mb-4">Frequently Bought Together</h3>
+      <div className="flex gap-4 items-center">
+        <span>{bundle.mainProduct.title}</span>
+        {bundle.bundleItems.map(item => (
+          <span key={item.id}>+ {item.title}</span>
         ))}
+      </div>
+
+      <div className="mt-4">
+        <p className="text-gray-500 line-through">Total: ₹{bundle.totalRegularPrice}</p>
+        <p className="text-2xl font-bold text-green-700">Bundle Price: ₹{bundle.bundlePrice}</p>
+        <p className="text-sm text-green-600 font-semibold">You Save: ₹{bundle.savingsAmount} (15% OFF)</p>
+
+        <button 
+          onClick={() => alert(`Add ${bundle.allProducts.length} items to cart!`)}
+          className="mt-4 bg-yellow-400 hover:bg-yellow-500 font-bold py-2 px-6 rounded-xl"
+        >
+          Add all {bundle.allProducts.length} to Cart
+        </button>
       </div>
     </div>
   );
 }
 ```
 
+### 3. Cart Drawer Impulse Cross-Sells
+
+```tsx
+import React from 'react';
+import { useCartCrossSells } from '@boostengine/recommendations/react';
+
+export function CartDrawerCrossSells({ cartItems }) {
+  const crossSells = useCartCrossSells(cartItems, undefined, { limit: 2 });
+
+  if (crossSells.length === 0) return null;
+
+  return (
+    <div className="mt-6 border-t pt-4">
+      <h4 className="font-bold text-sm text-gray-700">Recommended Add-ons:</h4>
+      {crossSells.map(({ item, reason }) => (
+        <div key={item.id} className="flex justify-between items-center py-2">
+          <div>
+            <p className="text-sm font-semibold">{item.title}</p>
+            <p className="text-xs text-gray-500">₹{item.price} • {reason}</p>
+          </div>
+          <button className="text-xs bg-black text-white px-3 py-1.5 rounded-lg">+ Add</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
 ---
 
-## 📖 API Reference
+## 🤖 Autonomous AI Agent Toolkit
 
-### `RecommendationsEngine.getFrequentlyBoughtTogether(mainProduct, catalog, options?): FrequentlyBoughtTogetherBundle`
-Combines the target product with the most complementary accessories and applies a bundle discount.
-- **Options:** `{ maxItems?: number, discountPercentage?: number }`
-- **Returns:** `{ mainProduct, bundleItems, allProducts, totalRegularPrice, bundleDiscountPercentage, bundlePrice, savingsAmount }`
+Equip AI shopping agents and conversational bots with recommendation capabilities:
 
-### `RecommendationsEngine.getCrossSells(product, catalog, limit?: number): ProductRecommendationItem[]`
-Ranks and returns the best matching products from the catalog.
+```typescript
+import { RecommendationsAgentToolkit, recommendations } from '@boostengine/recommendations';
 
-### `RecommendationsEngine.getUpsells(product, catalog, limit?: number): ProductRecommendationItem[]`
-Finds higher-tier alternatives with richer specs and premium price tier.
+const toolkit = new RecommendationsAgentToolkit(recommendations);
+
+// Universal schemas for OpenAI, Claude, Gemini, or Vercel AI SDK
+const openAITools = toolkit.toOpenAITools();
+const claudeTools = toolkit.toClaudeTools();
+const geminiTools = toolkit.toGeminiTools();
+
+// Autonomous execution router
+const result = await toolkit.executeTool('get_frequently_bought_together', {
+  mainProduct: currentProduct,
+  catalog: allProducts,
+  discountPercentage: 10
+});
+```
+
+---
+
+## 💻 CLI Commands
+
+```bash
+# Run interactive simulation of FBT Bundles, Cross-Sells & Collaborative Filtering
+npx boost-recommendations demo
+```
 
 ---
 
 ## 📄 License
 
-MIT © [Boost Engine Team](https://github.com/boostengine)
+MIT © [BoostEngine Team](https://github.com/boostengine)

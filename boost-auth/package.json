@@ -1,13 +1,9 @@
 {
   "name": "@boostengine/auth",
-  "version": "1.1.0",
-  "description": "Universal, zero-dependency authentication framework for Next.js, React Native, Node.js, and Express with Phone OTP, OAuth, database adapters, and React hooks.",
-  "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
+  "version": "1.2.0",
+  "description": "Universal, zero-dependency authentication framework for Next.js, React Native, Node.js, Express, and AI Agents with Phone OTP, WhatsApp, OAuth, Database Adapters, and React Hooks.",
+  "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
-  "funding": {
-    "type": "github",
-    "url": "https://github.com/sponsors/Rishabhgehlot7"
-  },
   "keywords": [
     "auth",
     "next-auth",
@@ -15,28 +11,34 @@
     "better-auth",
     "otp",
     "phone-auth",
+    "whatsapp-auth",
     "oauth",
     "google-auth",
     "github-auth",
+    "apple-auth",
     "react-native-auth",
+    "expo-auth",
     "ecommerce-auth",
     "jwt",
     "nextjs-auth",
     "guest-checkout",
+    "guest-cart-merge",
     "stateless-auth",
     "prisma-auth",
     "drizzle-auth",
     "mongodb-auth",
-    "session-cookies"
+    "session-cookies",
+    "ai-agent",
+    "agent-toolkit"
   ],
-  "homepage": "https://github.com/Rishabhgehlot7/packages/tree/main/packages/boost-auth#readme",
+  "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-auth#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rishabhgehlot7/packages.git",
+    "url": "git+https://github.com/boostengine/boostengine.git",
     "directory": "packages/boost-auth"
   },
   "bugs": {
-    "url": "https://github.com/Rishabhgehlot7/packages/issues"
+    "url": "https://github.com/boostengine/boostengine/issues"
   },
   "bin": {
     "boost-auth": "./bin/cli.cjs"
@@ -64,6 +66,11 @@
       "types": "./dist/providers.d.ts",
       "import": "./dist/providers.mjs",
       "require": "./dist/providers.cjs"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.cjs"
     }
   },
   "files": [

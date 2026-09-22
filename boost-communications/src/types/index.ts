@@ -273,4 +273,105 @@ export interface OmnichannelConfig {
   otpSecret?: string;
   debug?: boolean;
   retry?: RetryConfig;
+  deduplication?: DeduplicationConfig;
 }
+
+// ----------------- Anti-Spam Deduplication & Rate Limiting -----------------
+export interface DeduplicationConfig {
+  enabled?: boolean;
+  windowMs?: number; // default 60000ms (1 min)
+  maxPerWindow?: number; // default 3 messages per window
+}
+
+// ----------------- E-Commerce Lifecycle Notification Options -----------------
+export interface OrderNotificationParams {
+  customerName: string;
+  phone: string;
+  orderId: string;
+  amount: number;
+  items?: Array<{ name: string; quantity: number; price?: number }>;
+  trackingUrl?: string;
+  storeName?: string;
+  currency?: string;
+}
+
+export interface ShippingNotificationParams {
+  customerName: string;
+  phone: string;
+  orderId: string;
+  courierName: string;
+  awbNumber: string;
+  trackingUrl: string;
+  expectedDelivery?: string;
+  storeName?: string;
+}
+
+export interface DeliveryNotificationParams {
+  customerName: string;
+  phone: string;
+  orderId: string;
+  deliveredAt?: string;
+  storeName?: string;
+  feedbackUrl?: string;
+}
+
+export interface OutForDeliveryNotificationParams {
+  customerName: string;
+  phone: string;
+  orderId: string;
+  riderName?: string;
+  riderPhone?: string;
+  expectedTime?: string;
+  trackingUrl?: string;
+  storeName?: string;
+}
+
+export interface CartRecoveryParams {
+  customerName: string;
+  phone: string;
+  cartUrl: string;
+  discountCode?: string;
+  discountPercent?: number;
+  itemCount?: number;
+  cartTotal?: number;
+  storeName?: string;
+}
+
+export interface CODVerificationParams {
+  customerName?: string;
+  phone: string;
+  orderId: string;
+  amount: number;
+  storeName?: string;
+}
+
+export interface RefundNotificationParams {
+  customerName: string;
+  phone: string;
+  orderId: string;
+  refundAmount: number;
+  refundId?: string;
+  modeOfRefund?: string; // UPI, Original Payment Method, Wallet
+  estimatedDays?: string;
+  storeName?: string;
+}
+
+export interface ReviewRequestParams {
+  customerName: string;
+  phone: string;
+  orderId: string;
+  productName?: string;
+  reviewUrl: string;
+  incentiveText?: string; // e.g., "Get ₹50 cashback"
+  storeName?: string;
+}
+
+// ----------------- Webhook Signature Verification -----------------
+export interface WebhookVerifyOptions {
+  provider: 'meta' | 'msg91' | 'twilio' | 'resend' | 'gupshup';
+  secret: string;
+  payload: string | Buffer | Record<string, any>;
+  signature?: string;
+  headers?: Record<string, string | undefined>;
+}
+

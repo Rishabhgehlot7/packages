@@ -1,48 +1,6 @@
-interface ReviewMerchantReply {
-    author: string;
-    body: string;
-    date: string;
-}
-interface ProductReview {
-    id: string;
-    productId: string;
-    author: string;
-    rating: number;
-    title?: string;
-    body: string;
-    verifiedBuyer: boolean;
-    images?: string[];
-    videos?: string[];
-    helpfulVotes?: number;
-    unhelpfulVotes?: number;
-    merchantReply?: ReviewMerchantReply;
-    isPinned?: boolean;
-    createdAt: string;
-}
-interface RatingBucket {
-    count: number;
-    percentage: number;
-}
-interface RatingBreakdown {
-    average: number;
-    totalCount: number;
-    distribution: {
-        5: RatingBucket;
-        4: RatingBucket;
-        3: RatingBucket;
-        2: RatingBucket;
-        1: RatingBucket;
-    };
-    recommendationPercentage: number;
-}
-interface ReviewFilterOptions {
-    rating?: number;
-    verifiedOnly?: boolean;
-    withMediaOnly?: boolean;
-    sortBy?: 'recent' | 'highest' | 'lowest' | 'most_helpful';
-    limit?: number;
-    offset?: number;
-}
+import { P as ProductReview, R as RatingBreakdown, a as ReviewFilterOptions, b as ReviewSubmissionInput, c as ReviewSentimentSummary, d as ReviewModerationResult, e as ReviewIncentiveConfig, f as ReviewIncentiveReward, G as GoogleProductJSONLD } from './index-DRYjE3yL.js';
+export { g as RatingBucket, h as ReviewMerchantReply, i as ReviewStatus, u as useProductReviews, j as useReviewBreakdown, k as useSubmitReview } from './index-DRYjE3yL.js';
+export { AgentToolDeclaration, ReviewsAgentToolkit, agentToolkit } from './agent.js';
 
 declare class ReviewsEngine {
     /**
@@ -56,43 +14,81 @@ declare class ReviewsEngine {
     /**
      * Helper to instantiate a valid sanitized ProductReview object
      */
-    static createReview(params: {
-        productId: string;
-        author: string;
-        rating: number;
-        title?: string;
-        body: string;
-        verifiedBuyer?: boolean;
-        images?: string[];
-        videos?: string[];
-    }): ProductReview;
+    static createReview(params: ReviewSubmissionInput): ProductReview;
+    /**
+     * AI-Powered Sentiment Analysis & Highlights Consensus Engine
+     */
+    static analyzeSentiment(reviews: ProductReview[]): ReviewSentimentSummary;
+    /**
+     * Generates a crisp, high-converting 1-paragraph summary of reviews
+     */
+    static generateAISummary(reviews: ProductReview[]): string;
+    /**
+     * Automatic Profanity, Abusive Language & Spam Guard
+     */
+    static moderateReview(text: string, options?: {
+        maxRepeatedChars?: number;
+    }): ReviewModerationResult;
+    /**
+     * Calculates loyalty reward points for review submissions (Bridge for boost-loyalty)
+     */
+    static calculateRewards(review: ProductReview, config?: ReviewIncentiveConfig): ReviewIncentiveReward;
     /**
      * Formats reviews directly into Schema.org AggregateRating and Review snippets
      */
     static toSchemaOrg(reviews: ProductReview[]): {
         aggregateRating: {
-            '@type': string;
+            '@type': "AggregateRating";
             ratingValue: number;
             reviewCount: number;
             bestRating: number;
             worstRating: number;
         };
         review: {
-            '@type': string;
+            '@type': "Review";
             reviewRating: {
-                '@type': string;
+                '@type': "Rating";
                 ratingValue: number;
                 bestRating: number;
                 worstRating: number;
             };
             author: {
-                '@type': string;
+                '@type': "Person";
                 name: string;
             };
             reviewBody: string;
             datePublished: string;
         }[];
     } | null;
+    /**
+     * Generates Complete Google SEO Product Rich Snippet JSON-LD
+     */
+    static generateFullJSONLD(params: {
+        product: {
+            name: string;
+            image?: string | string[];
+            description?: string;
+            brand?: string;
+            price?: number | string;
+            currency?: string;
+            sku?: string;
+        };
+        reviews: ProductReview[];
+    }): GoogleProductJSONLD | null;
+    /**
+     * Deduplicated Helpful / Unhelpful vote tracker
+     */
+    static voteHelpful(review: ProductReview, userIdentifier: string, isHelpful: boolean, historyMap: Map<string, 'helpful' | 'unhelpful'>): {
+        review: ProductReview;
+        changed: boolean;
+    };
+    /**
+     * Developer-Friendly Quick Submit with automated moderation & sanitization
+     */
+    static quickSubmit(input: ReviewSubmissionInput, autoModerate?: boolean): {
+        review: ProductReview;
+        moderation: ReviewModerationResult;
+    };
 }
 
-export { type ProductReview, type RatingBreakdown, type RatingBucket, type ReviewFilterOptions, type ReviewMerchantReply, ReviewsEngine };
+export { GoogleProductJSONLD, ProductReview, RatingBreakdown, ReviewFilterOptions, ReviewIncentiveConfig, ReviewIncentiveReward, ReviewModerationResult, ReviewSentimentSummary, ReviewSubmissionInput, ReviewsEngine };

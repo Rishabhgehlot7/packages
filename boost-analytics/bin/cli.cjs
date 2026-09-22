@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+'use strict';
+const { BoostAnalyticsManager } = require('../dist/index.js');
+console.log('\n╔══════════════════════════════════════════════════╗');
+console.log('║      @boostengine/analytics — CLI Demo           ║');
+console.log('╚══════════════════════════════════════════════════╝\n');
+const mgr = new BoostAnalyticsManager();
+mgr.on('sale:recorded', ({ orderId, revenue }) => console.log(`  💰 Sale recorded: ${orderId} | ₹${revenue}`));
+mgr.on('funnel:converted', ({ sessionId }) => console.log(`  🎯 Funnel converted: session ${sessionId}`));
+console.log('▶ Simulating 3 user sessions...');
+['s1','s2','s3'].forEach(s => {
+  mgr.trackEvent('page_view', s);
+  mgr.trackEvent('product_view', s);
+});
+mgr.trackEvent('add_to_cart', 's1');
+mgr.trackEvent('add_to_cart', 's2');
+mgr.trackEvent('checkout_started', 's1');
+mgr.trackEvent('checkout_completed', 's1');
+console.log('▶ Recording sales...');
+mgr.recordSale({ orderId: 'ORD-A1', sessionId: 's1', revenue: 2500, items: [{ productId: 'P1', productName: 'Sneakers', quantity: 1, price: 2500 }, { productId: 'P2', productName: 'Socks', quantity: 2, price: 200 }] });
+mgr.recordSale({ orderId: 'ORD-A2', sessionId: 's2', revenue: 1800, items: [{ productId: 'P1', productName: 'Sneakers', quantity: 1, price: 1800 }] });
+const kpis = mgr.getKPIs();
+console.log('\n▶ KPI Dashboard:');
+console.log(`  Total Revenue:    ₹${kpis.totalRevenue}`);
+console.log(`  Total Orders:     ${kpis.totalOrders}`);
+console.log(`  AOV:              ₹${kpis.averageOrderValue}`);
+console.log(`  CVR:              ${kpis.conversionRate}%`);
+console.log(`  RPV:              ₹${kpis.revenuePerVisit}`);
+console.log(`  Cart Abandonment: ${kpis.cartAbandonmentRate}%`);
+console.log('\n▶ Top Products:');
+kpis.topProducts.forEach((p, i) => console.log(`  #${i+1} ${p.productName} — ₹${p.totalRevenue} (${p.unitsSold} units)`));
+console.log('\n▶ Funnel Stats:');
+mgr.getFunnelStats().steps.forEach(s => console.log(`  ${s.step}: ${s.count} users (${s.dropOffRate}% drop-off)`));
+console.log('\n✅ CLI demo complete!\n');

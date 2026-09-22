@@ -330,7 +330,7 @@ export class BoostAuth {
     const itemMap = new Map<string, T>();
     let conflictsResolved = 0;
 
-    const getKey = (item: T) => `${item.productId}_${item.variantId || 'default'}`;
+    const getKey = (item: T) => `${item.productId || item.id || 'item'}_${item.variantId || 'default'}`;
 
     // Add existing user items first
     for (const item of userItems) {

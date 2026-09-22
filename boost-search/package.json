@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/search",
-  "version": "1.0.2",
-  "description": "Lightning-Fast Typo-Tolerant Product Search & Multi-Faceted Filter Engine with Facet Aggregations and URL Query Sync for eCommerce.",
+  "version": "1.1.0",
+  "description": "Ultra-fast headless eCommerce product search, typo-tolerant inverted indexing, dynamic multi-faceted filtering, autocomplete, synonym expansion, AI agent toolkit, and universal React/React Native hooks.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -11,9 +11,14 @@
     "faceted-search",
     "filter-engine",
     "typo-tolerant",
+    "autocomplete",
+    "synonyms",
     "in-memory-search",
     "headless-search",
-    "catalog-filters"
+    "ai-agent",
+    "react-hooks",
+    "nextjs",
+    "react-native"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-search#readme",
   "repository": {
@@ -35,6 +40,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.cjs"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.cjs"
     }
   },
   "files": [
@@ -46,6 +61,14 @@
     "build": "tsup",
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

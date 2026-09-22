@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/wishlist",
-  "version": "1.0.2",
-  "description": "High-Converting Wishlist & Save-for-Later Engine with Guest Merge, Price-Drop Alerts & Cart Integration for eCommerce.",
+  "version": "1.1.0",
+  "description": "Enterprise Wishlist & Save-for-Later Engine with Multi-Boards, Guest Merge, Move-to-Cart, Price Drop & Restock Alerts, and Autonomous AI Agent Tools.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -11,7 +11,11 @@
     "price-drop",
     "cart-integration",
     "headless-wishlist",
-    "saved-items"
+    "saved-items",
+    "multi-board",
+    "restock-alerts",
+    "ai-agent",
+    "react-hooks"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-wishlist#readme",
   "repository": {
@@ -33,6 +37,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.cjs"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.cjs"
     }
   },
   "files": [
@@ -44,6 +58,14 @@
     "build": "tsup",
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

@@ -1,3 +1,235 @@
+import { EventEmitter } from 'events';
+
+type NotificationChannel$1 = 'whatsapp' | 'sms' | 'email' | 'push' | 'webhook';
+type NotificationStatus = 'pending' | 'sent' | 'failed' | 'scheduled';
+type NotificationTemplate = 'order_confirmed' | 'order_shipped' | 'order_delivered' | 'order_cancelled' | 'payment_received' | 'cart_recovery' | 'otp_verification' | 'return_initiated' | 'return_approved' | 'refund_processed' | 'custom';
+interface NotificationRecipient {
+    id: string;
+    phone?: string;
+    email?: string;
+    deviceToken?: string;
+    name?: string;
+}
+interface NotificationRecord {
+    id: string;
+    channel: NotificationChannel$1;
+    template: NotificationTemplate | string;
+    recipient: NotificationRecipient;
+    variables: Record<string, string>;
+    status: NotificationStatus;
+    scheduledAt?: Date;
+    sentAt?: Date;
+    error?: string;
+    createdAt: Date;
+}
+interface WebhookRegistration {
+    id: string;
+    url: string;
+    events: string[];
+    secret?: string;
+    isActive: boolean;
+    createdAt: Date;
+}
+interface WebhookPayload {
+    event: string;
+    data: Record<string, unknown>;
+    timestamp: Date;
+    signature?: string;
+}
+interface NotificationsConfig {
+    defaultChannel: NotificationChannel$1;
+    throttleMs: number;
+}
+declare const DEFAULT_NOTIFICATIONS_CONFIG: NotificationsConfig;
+interface NotificationsEvents {
+    'notification:sent': {
+        id: string;
+        channel: NotificationChannel$1;
+        recipientId: string;
+    };
+    'notification:failed': {
+        id: string;
+        channel: NotificationChannel$1;
+        error: string;
+    };
+    'notification:scheduled': {
+        id: string;
+        scheduledAt: Date;
+    };
+    'webhook:triggered': {
+        webhookId: string;
+        event: string;
+        url: string;
+    };
+}
+
+declare class BoostNotificationsManager extends EventEmitter {
+    private history;
+    private webhooks;
+    readonly config: NotificationsConfig;
+    constructor(config?: Partial<NotificationsConfig>);
+    send(params: {
+        channel?: NotificationChannel$1;
+        template: NotificationTemplate | string;
+        recipient: NotificationRecipient;
+        variables?: Record<string, string>;
+    }): NotificationRecord;
+    scheduleNotification(params: {
+        channel?: NotificationChannel$1;
+        template: NotificationTemplate | string;
+        recipient: NotificationRecipient;
+        variables?: Record<string, string>;
+        scheduledAt: Date;
+    }): NotificationRecord;
+    registerWebhook(url: string, events: string[], secret?: string): WebhookRegistration;
+    deactivateWebhook(webhookId: string): void;
+    triggerWebhooks(event: string, data: Record<string, unknown>): WebhookPayload[];
+    getHistory(recipientId: string): NotificationRecord[];
+    getAllHistory(): NotificationRecord[];
+    getWebhooks(): WebhookRegistration[];
+    sync(records: NotificationRecord[]): void;
+    export(): NotificationRecord[];
+}
+
+declare const notificationsAgentTools: ({
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            channel: {
+                type: string;
+                enum: string[];
+            };
+            template: {
+                type: string;
+            };
+            recipient: {
+                type: string;
+            };
+            variables: {
+                type: string;
+            };
+            scheduledAt?: undefined;
+            recipientId?: undefined;
+            url?: undefined;
+            events?: undefined;
+            secret?: undefined;
+            event?: undefined;
+            data?: undefined;
+        };
+        required: string[];
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            channel: {
+                type: string;
+                enum?: undefined;
+            };
+            template: {
+                type: string;
+            };
+            recipient: {
+                type: string;
+            };
+            variables: {
+                type: string;
+            };
+            scheduledAt: {
+                type: string;
+                description: string;
+            };
+            recipientId?: undefined;
+            url?: undefined;
+            events?: undefined;
+            secret?: undefined;
+            event?: undefined;
+            data?: undefined;
+        };
+        required: string[];
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            recipientId: {
+                type: string;
+            };
+            channel?: undefined;
+            template?: undefined;
+            recipient?: undefined;
+            variables?: undefined;
+            scheduledAt?: undefined;
+            url?: undefined;
+            events?: undefined;
+            secret?: undefined;
+            event?: undefined;
+            data?: undefined;
+        };
+        required: string[];
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            url: {
+                type: string;
+            };
+            events: {
+                type: string;
+                items: {
+                    type: string;
+                };
+            };
+            secret: {
+                type: string;
+            };
+            channel?: undefined;
+            template?: undefined;
+            recipient?: undefined;
+            variables?: undefined;
+            scheduledAt?: undefined;
+            recipientId?: undefined;
+            event?: undefined;
+            data?: undefined;
+        };
+        required: string[];
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            event: {
+                type: string;
+            };
+            data: {
+                type: string;
+            };
+            channel?: undefined;
+            template?: undefined;
+            recipient?: undefined;
+            variables?: undefined;
+            scheduledAt?: undefined;
+            recipientId?: undefined;
+            url?: undefined;
+            events?: undefined;
+            secret?: undefined;
+        };
+        required: string[];
+    };
+})[];
+type NotificationsAgentToolName = typeof notificationsAgentTools[number]['name'];
+
 type NotificationChannel = 'whatsapp' | 'sms' | 'email';
 type WhatsAppProvider = 'interakt' | 'wati' | 'gupshup' | 'meta';
 type SMSProvider = 'msg91' | 'fast2sms' | 'twilio';
@@ -88,22 +320,4 @@ declare class NotificationManager {
 }
 declare function createNotificationManager(options: NotificationManagerOptions): NotificationManager;
 
-declare class WhatsAppAdapter {
-    private readonly config;
-    constructor(config: WhatsAppConfig);
-    send(options: SendMessageOptions): Promise<SendMessageResult>;
-}
-
-declare class SMSAdapter {
-    private readonly config;
-    constructor(config: SMSConfig);
-    send(options: SendMessageOptions): Promise<SendMessageResult>;
-}
-
-declare class EmailAdapter {
-    private readonly config;
-    constructor(config: EmailConfig);
-    send(options: SendMessageOptions): Promise<SendMessageResult>;
-}
-
-export { EmailAdapter, type EmailConfig, type EmailProvider, type NotificationChannel, NotificationManager, type NotificationManagerOptions, type OrderNotificationPayload, type Recipient, SMSAdapter, type SMSConfig, type SMSProvider, type SendMessageOptions, type SendMessageResult, WhatsAppAdapter, type WhatsAppConfig, type WhatsAppProvider, createNotificationManager };
+export { BoostNotificationsManager, DEFAULT_NOTIFICATIONS_CONFIG, type NotificationChannel$1 as NotificationChannel, NotificationManager, type NotificationRecipient, type NotificationRecord, type NotificationStatus, type NotificationTemplate, type NotificationsAgentToolName, type NotificationsConfig, type NotificationsEvents, type WebhookPayload, type WebhookRegistration, createNotificationManager, notificationsAgentTools };

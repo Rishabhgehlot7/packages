@@ -8,6 +8,10 @@ export type GatewayName =
 
 export type SupportedGateway = GatewayName;
 
+export type PaymentMode = 'one_time' | 'subscription' | 'digital_download' | 'donation';
+
+export type BillingInterval = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
 export interface UnifiedCustomer {
   id?: string;
   name: string;
@@ -41,6 +45,10 @@ export interface UnifiedCreateOrderOptions {
   callbackUrl?: string;
   /** Explicitly override gateway for this transaction */
   gateway?: GatewayName;
+  /** Unique key to prevent double-charging or duplicate order creation on network retries */
+  idempotencyKey?: string;
+  /** Business transaction mode */
+  mode?: PaymentMode;
 }
 
 export type CreateOrderOptions = UnifiedCreateOrderOptions;
@@ -53,17 +61,156 @@ export interface UnifiedOrderResult {
   amount: number;
   currency: string;
   status: 'CREATED' | 'PENDING' | 'PAID' | 'FAILED';
+  mode?: PaymentMode;
   /** Cashfree payment_session_id for Drop-in UI or SDK */
   paymentSessionId?: string;
   /** Redirect or hosted pay URL (PhonePe, Stripe, Cashfree) */
   redirectUrl?: string;
   /** Paytm checkout txnToken */
   txnToken?: string;
+  /** Generated UPI Intent links if applicable */
+  upiIntent?: UPIIntentResult;
+  /** Digital delivery token or metadata if mode is digital_download */
+  digitalAccess?: {
+    licenseKey?: string;
+    downloadUrl?: string;
+  };
   /** Raw response object from gateway */
   rawResponse: any;
 }
 
 export type PaymentOrderResult = UnifiedOrderResult;
+
+// ==========================================
+// RECURRING SUBSCRIPTIONS & SAAS
+// ==========================================
+
+export interface SubscriptionPlanOptions {
+  planId?: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  interval: BillingInterval;
+  intervalCount?: number;
+  trialDays?: number;
+  totalBillingCycles?: number;
+  customer: UnifiedCustomer;
+  notes?: Record<string, any>;
+  redirectUrl?: string;
+  gateway?: GatewayName;
+}
+
+export interface SubscriptionResult {
+  subscriptionId: string;
+  gateway: GatewayName;
+  status: 'ACTIVE' | 'PENDING' | 'HALTED' | 'CANCELLED';
+  planName: string;
+  amount: number;
+  currency: string;
+  interval: BillingInterval;
+  shortUrl?: string;
+  customer: UnifiedCustomer;
+  rawResponse: any;
+}
+
+// ==========================================
+// DIGITAL PRODUCTS & DOWNLOADS
+// ==========================================
+
+export interface DigitalProductCheckoutOptions {
+  productId: string;
+  title: string;
+  amount: number;
+  currency: string;
+  customer: UnifiedCustomer;
+  licenseKey?: string;
+  downloadUrl?: string;
+  expiryHours?: number;
+  notes?: Record<string, any>;
+  redirectUrl?: string;
+  gateway?: GatewayName;
+  idempotencyKey?: string;
+}
+
+// ==========================================
+// DONATIONS & TIPS
+// ==========================================
+
+export interface DonationCheckoutOptions {
+  cause: string;
+  amount: number;
+  currency: string;
+  customer: UnifiedCustomer;
+  notes?: Record<string, any>;
+  redirectUrl?: string;
+  gateway?: GatewayName;
+  idempotencyKey?: string;
+}
+
+// ==========================================
+// BOOSTCART BRIDGE
+// ==========================================
+
+export interface BoostCartLike {
+  getSummary(): {
+    finalTotal: number;
+    subtotal: number;
+    items: Array<{ title: string; quantity: number; price: number; sku?: string }>;
+    discount?: { code: string; amount: number } | null;
+    shippingFee?: number;
+  };
+}
+
+export interface CartOrderOptions {
+  customer: UnifiedCustomer;
+  receipt?: string;
+  currency?: string;
+  gateway?: GatewayName;
+  redirectUrl?: string;
+  callbackUrl?: string;
+  notes?: Record<string, any>;
+  idempotencyKey?: string;
+}
+
+// ==========================================
+// UPI INTENT & MOBILE DEEP LINKING
+// ==========================================
+
+export interface UPIIntentOptions {
+  /** Virtual Payment Address (VPA) / Merchant UPI ID (e.g. merchant@icici) */
+  pa: string;
+  /** Merchant display name */
+  pn: string;
+  /** Amount in INR */
+  am: number;
+  /** Currency code (default: 'INR') */
+  cu?: string;
+  /** Transaction Reference / Order ID */
+  tr: string;
+  /** Transaction Note / Description */
+  tn?: string;
+  /** Merchant Category Code */
+  mc?: string;
+}
+
+export interface UPIIntentResult {
+  /** Standard cross-app UPI URI (e.g. upi://pay?pa=...) */
+  upiUri: string;
+  /** Direct deep-link for Google Pay */
+  gpay: string;
+  /** Direct deep-link for PhonePe */
+  phonepe: string;
+  /** Direct deep-link for Paytm */
+  paytm: string;
+  /** Direct deep-link for CRED */
+  cred: string;
+  /** Direct deep-link for BHIM */
+  bhim: string;
+}
+
+// ==========================================
+// VERIFICATION & REFUNDS
+// ==========================================
 
 export interface UnifiedPaymentVerificationOptions {
   gateway: GatewayName;
@@ -113,6 +260,10 @@ export type NormalizedWebhookEvent =
   | 'PAYMENT_FAILED'
   | 'REFUND_PROCESSED'
   | 'REFUND_FAILED'
+  | 'SUBSCRIPTION_ACTIVATED'
+  | 'SUBSCRIPTION_CHARGED'
+  | 'SUBSCRIPTION_CANCELLED'
+  | 'SUBSCRIPTION_HALTED'
   | 'DISPUTE_CREATED'
   | 'UNKNOWN';
 
@@ -132,6 +283,7 @@ export interface WebhookVerificationResult {
   gateway: GatewayName;
   orderId?: string;
   paymentId?: string;
+  subscriptionId?: string;
   /** Amount in standard currency units (e.g. 1499.00) */
   amount?: number;
   currency?: string;
@@ -200,6 +352,10 @@ export interface PaymentManagerOptions {
   defaultGateway?: GatewayName;
   gateways: GatewayConfigs;
   smartRouting?: SmartRoutingConfig;
+  /** Default merchant UPI VPA for mobile intent generation */
+  merchantUpiVpa?: string;
+  /** Default merchant display name for UPI */
+  merchantName?: string;
 }
 
 // Client-side Checkout SDK options

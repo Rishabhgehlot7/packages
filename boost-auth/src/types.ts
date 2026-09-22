@@ -294,8 +294,11 @@ export interface CookieHeaderResult {
 // ---------------------------------------------------------------------------
 
 export interface CartItemToMerge {
-  productId: string;
+  id?: string;
+  productId?: string;
   variantId?: string;
+  title?: string;
+  name?: string;
   quantity: number;
   price: number;
   [key: string]: any;

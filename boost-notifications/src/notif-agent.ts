@@ -1,0 +1,8 @@
+export const notificationsAgentTools = [
+  { name: 'send_notification', description: 'Send a notification via WhatsApp, SMS, Email, or Push using a predefined template.', parameters: { type: 'object', properties: { channel: { type: 'string', enum: ['whatsapp','sms','email','push'] }, template: { type: 'string' }, recipient: { type: 'object' }, variables: { type: 'object' } }, required: ['template', 'recipient'] } },
+  { name: 'schedule_notification', description: 'Schedule a notification to be sent at a future date/time.', parameters: { type: 'object', properties: { channel: { type: 'string' }, template: { type: 'string' }, recipient: { type: 'object' }, variables: { type: 'object' }, scheduledAt: { type: 'string', description: 'ISO 8601 datetime' } }, required: ['template', 'recipient', 'scheduledAt'] } },
+  { name: 'get_notification_history', description: 'Get all notifications sent to a specific recipient.', parameters: { type: 'object', properties: { recipientId: { type: 'string' } }, required: ['recipientId'] } },
+  { name: 'register_webhook', description: 'Register a webhook URL to receive event notifications for specific events.', parameters: { type: 'object', properties: { url: { type: 'string' }, events: { type: 'array', items: { type: 'string' } }, secret: { type: 'string' } }, required: ['url', 'events'] } },
+  { name: 'trigger_webhooks', description: 'Trigger all registered webhooks for a specific event with a payload.', parameters: { type: 'object', properties: { event: { type: 'string' }, data: { type: 'object' } }, required: ['event', 'data'] } },
+];
+export type NotificationsAgentToolName = typeof notificationsAgentTools[number]['name'];

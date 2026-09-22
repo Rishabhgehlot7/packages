@@ -1,232 +1,187 @@
+import { EventEmitter } from 'events';
 import {
-  ReturnReason,
-  ReturnStatus,
-  ReturnResolution,
-  ReturnItemRequest,
-  ReturnPolicyConfig,
-  PickupAddress,
-  ReturnRequest,
-  EligibilityResult,
-  RefundQuote,
-  ReversePickupManifest,
+  ReturnRequest, ReturnItem, ReturnStatus, ReturnType, RefundMethod,
+  ReturnPolicy, PickupAddress, PickupSchedule, ReturnTimeline,
+  ReturnsStats, DEFAULT_RETURN_POLICY,
 } from './types';
 
-export class ReturnEngine {
-  static readonly DEFAULT_POLICY: ReturnPolicyConfig = {
-    returnWindowDays: 7,
-    nonReturnableCategories: ['innerwear', 'lingerie', 'clearance-sale', 'perfumes'],
-    replacementOnlyCategories: ['electronics-accessories', 'footwear-size-swap'],
-    reversePickupDeductionFee: 100, // ₹100 deducted if customer changed their mind
-    allowInstantRefundOnPickup: false,
-  };
+function uuid(): string { return 'RMA-' + Math.random().toString(36).slice(2, 10).toUpperCase(); }
 
-  /**
-   * Check if an item in an order is eligible for return/replacement
-   */
-  static checkEligibility(
-    deliveredAt: string | Date,
-    categorySlug: string,
-    orderStatus: string,
-    policy: Partial<ReturnPolicyConfig> = {}
-  ): EligibilityResult {
-    const activePolicy = { ...this.DEFAULT_POLICY, ...policy };
+// ─── BoostReturnsManager ──────────────────────────────────────────────────────
 
-    if (orderStatus.toUpperCase() !== 'DELIVERED') {
-      return {
-        isEligible: false,
-        reason: 'Return is only available once the order is Delivered.',
-        allowedResolutions: [],
-      };
-    }
+export class BoostReturnsManager extends EventEmitter {
+  private returns = new Map<string, ReturnRequest>();
+  readonly policy : ReturnPolicy;
 
-    const deliveryDate = new Date(deliveredAt);
-    const now = new Date();
-    const diffMs = now.getTime() - deliveryDate.getTime();
-    const daysElapsed = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const daysRemaining = activePolicy.returnWindowDays - daysElapsed;
-
-    if (daysRemaining < 0) {
-      return {
-        isEligible: false,
-        reason: `Return window expired. Orders can only be returned within ${activePolicy.returnWindowDays} days of delivery.`,
-        daysRemaining: 0,
-        allowedResolutions: [],
-      };
-    }
-
-    const isNonReturnable = activePolicy.nonReturnableCategories.some((cat) =>
-      categorySlug.toLowerCase().includes(cat.toLowerCase())
-    );
-
-    if (isNonReturnable) {
-      return {
-        isEligible: false,
-        reason: 'This category is marked as non-returnable due to hygiene and safety guidelines.',
-        daysRemaining,
-        allowedResolutions: [],
-      };
-    }
-
-    const isReplacementOnly = activePolicy.replacementOnlyCategories.some((cat) =>
-      categorySlug.toLowerCase().includes(cat.toLowerCase())
-    );
-
-    if (isReplacementOnly) {
-      return {
-        isEligible: true,
-        daysRemaining,
-        allowedResolutions: ['REPLACEMENT', 'STORE_CREDIT'],
-      };
-    }
-
-    return {
-      isEligible: true,
-      daysRemaining,
-      allowedResolutions: ['REFUND', 'REPLACEMENT', 'STORE_CREDIT'],
-    };
+  constructor(policy: Partial<ReturnPolicy> = {}) {
+    super();
+    this.policy = { ...DEFAULT_RETURN_POLICY, ...policy };
   }
 
-  /**
-   * Calculate detailed refund quote based on reason and policy deductions
-   */
-  static calculateRefundQuote(
-    items: ReturnItemRequest[],
-    policy: Partial<ReturnPolicyConfig> = {}
-  ): RefundQuote {
-    const activePolicy = { ...this.DEFAULT_POLICY, ...policy };
+  // ── Create Return ─────────────────────────────────────────────────────────
 
-    const itemSubtotal = items.reduce(
-      (sum, item) => sum + item.unitPrice * item.quantity,
-      0
-    );
-
-    // If reason is CHANGED_MIND, apply reverse pickup deduction fee
-    const hasChangedMind = items.some((it) => it.reason === 'CHANGED_MIND');
-    const reversePickupFeeDeducted = hasChangedMind
-      ? activePolicy.reversePickupDeductionFee
-      : 0;
-
-    const netRefundAmount = Math.max(0, itemSubtotal - reversePickupFeeDeducted);
-
-    return {
-      itemSubtotal,
-      reversePickupFeeDeducted,
-      netRefundAmount,
-      refundDestination: 'ORIGINAL_PAYMENT_SOURCE',
-      estimatedSettlementDays: 3, // 3-5 business days for Indian PG/UPI
-    };
-  }
-
-  /**
-   * Create a new structured return request
-   */
-  static createReturnRequest(payload: {
+  createReturn(params: {
     orderId: string;
     customerId: string;
-    items: ReturnItemRequest[];
-    pickupAddress: PickupAddress;
-    policy?: Partial<ReturnPolicyConfig>;
+    items: ReturnItem[];
+    type?: ReturnType;
+    refundMethod?: RefundMethod;
+    pickupAddress?: PickupAddress;
   }): ReturnRequest {
-    const now = new Date().toISOString();
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const id = `RET-${new Date().getFullYear()}-${randomSuffix}`;
-    const quote = this.calculateRefundQuote(payload.items, payload.policy);
+    const { orderId, customerId, items, type = 'return', refundMethod = 'original_payment', pickupAddress } = params;
 
-    return {
-      id,
-      orderId: payload.orderId,
-      customerId: payload.customerId,
-      status: 'REQUESTED',
-      items: payload.items,
-      pickupAddress: payload.pickupAddress,
-      createdAt: now,
-      updatedAt: now,
-      refundDestination: 'ORIGINAL_PAYMENT_SOURCE',
-      refundAmount: quote.netRefundAmount,
-      deductionFee: quote.reversePickupFeeDeducted,
+    const refundAmount = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+    const initialStatus: ReturnStatus = this.policy.autoApprove ? 'approved' : 'requested';
+
+    const request: ReturnRequest = {
+      id: uuid(),
+      orderId, customerId, type,
+      status: initialStatus,
+      items,
+      refundAmount: Math.min(refundAmount, refundAmount * (this.policy.maxRefundPct / 100)),
+      refundMethod,
+      pickupAddress,
+      timeline: [{ status: initialStatus, timestamp: new Date() }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
+
+    this.returns.set(request.id, request);
+    this.emit('return:created', { returnId: request.id, orderId, customerId });
+    if (this.policy.autoApprove) {
+      this.emit('return:approved', { returnId: request.id, refundAmount: request.refundAmount });
+    }
+    return request;
   }
 
-  /**
-   * Generate reverse pickup manifest compatible with Shiprocket / Delhivery
-   */
-  static generateReversePickupManifest(
-    returnReq: ReturnRequest,
-    warehouse: {
-      hubName: string;
-      address: string;
-      city: string;
-      state: string;
-      pincode: string;
-    },
-    courierPartner: 'Shiprocket' | 'Delhivery' | 'Shadowfax' = 'Shiprocket'
-  ): ReversePickupManifest {
-    const awbPrefix = courierPartner === 'Shiprocket' ? 'SRR' : 'DELR';
-    const awbNumber = `${awbPrefix}${Math.floor(100000000 + Math.random() * 900000000)}`;
+  // ── Status Transitions ────────────────────────────────────────────────────
 
-    const totalWeightKg = returnReq.items.reduce(
-      (sum, item) => sum + (0.4 * item.quantity),
-      0
+  approveReturn(returnId: string, adminNote?: string): ReturnRequest {
+    const r = this._get(returnId);
+    return this._transition(r, 'approved', adminNote, () =>
+      this.emit('return:approved', { returnId, refundAmount: r.refundAmount })
     );
-
-    const declaredValue = returnReq.refundAmount || 0;
-
-    // Pickup scheduled for next day
-    const pickupDate = new Date();
-    pickupDate.setDate(pickupDate.getDate() + 1);
-
-    return {
-      returnRequestId: returnReq.id,
-      orderId: returnReq.orderId,
-      courierPartner,
-      awbNumber,
-      pickupDate: pickupDate.toISOString().split('T')[0],
-      sender: returnReq.pickupAddress,
-      recipientWarehouse: warehouse,
-      packageDetails: {
-        weightKg: Number(totalWeightKg.toFixed(2)),
-        dimensionsCm: { length: 25, width: 20, height: 10 },
-        declaredValue,
-      },
-    };
   }
 
-  /**
-   * Transition state machine for Return lifecycle
-   */
-  static transitionStatus(
-    currentStatus: ReturnStatus,
-    targetStatus: ReturnStatus,
-    notes?: string
-  ): { allowed: boolean; newStatus: ReturnStatus; error?: string } {
-    const validTransitions: Record<ReturnStatus, ReturnStatus[]> = {
-      REQUESTED: ['APPROVED', 'REJECTED'],
-      APPROVED: ['PICKUP_SCHEDULED', 'REJECTED'],
-      REJECTED: ['CLOSED'],
-      PICKUP_SCHEDULED: ['PICKED_UP'],
-      PICKED_UP: ['IN_TRANSIT', 'REFUND_INITIATED'], // instant refund option
-      IN_TRANSIT: ['RECEIVED_AT_HUB'],
-      RECEIVED_AT_HUB: ['QC_PASSED', 'QC_FAILED'],
-      QC_PASSED: ['REFUND_INITIATED', 'REPLACEMENT_SHIPPED'],
-      QC_FAILED: ['CLOSED'],
-      REFUND_INITIATED: ['REFUND_COMPLETED'],
-      REFUND_COMPLETED: ['CLOSED'],
-      REPLACEMENT_SHIPPED: ['CLOSED'],
-      CLOSED: [],
-    };
+  rejectReturn(returnId: string, reason: string): ReturnRequest {
+    const r = this._get(returnId);
+    r.adminNote = reason;
+    return this._transition(r, 'rejected', reason, () =>
+      this.emit('return:rejected', { returnId, reason })
+    );
+  }
 
-    const allowedTargets = validTransitions[currentStatus] || [];
-    if (!allowedTargets.includes(targetStatus)) {
-      return {
-        allowed: false,
-        newStatus: currentStatus,
-        error: `Cannot transition return from ${currentStatus} to ${targetStatus}`,
-      };
+  schedulePickup(returnId: string, pickup: PickupSchedule): ReturnRequest {
+    const r = this._get(returnId);
+    r.pickup = pickup;
+    return this._transition(r, 'pickup_scheduled', `Pickup via ${pickup.provider ?? 'provider'}`, () =>
+      this.emit('return:pickup_scheduled', { returnId, pickup })
+    );
+  }
+
+  markPickedUp(returnId: string, awbNumber?: string): ReturnRequest {
+    const r = this._get(returnId);
+    if (r.pickup && awbNumber) r.pickup.awbNumber = awbNumber;
+    if (r.pickup) r.pickup.pickedUpAt = new Date();
+    return this._transition(r, 'picked_up', 'Item picked up by courier', () =>
+      this.emit('return:picked_up', { returnId })
+    );
+  }
+
+  markReceived(returnId: string): ReturnRequest {
+    const r = this._get(returnId);
+    return this._transition(r, 'received', 'Item received at warehouse', () =>
+      this.emit('return:received', { returnId })
+    );
+  }
+
+  processRefund(returnId: string, method?: RefundMethod): ReturnRequest {
+    const r = this._get(returnId);
+    if (method) r.refundMethod = method;
+    return this._transition(r, 'refunded', `Refund processed via ${r.refundMethod}`, () =>
+      this.emit('return:refunded', { returnId, refundAmount: r.refundAmount, method: r.refundMethod })
+    );
+  }
+
+  dispatchExchange(returnId: string, exchangeOrderId: string): ReturnRequest {
+    const r = this._get(returnId);
+    r.exchangeOrderId = exchangeOrderId;
+    return this._transition(r, 'exchange_dispatched', `Exchange order ${exchangeOrderId} dispatched`, () =>
+      this.emit('return:exchange_dispatched', { returnId, exchangeOrderId })
+    );
+  }
+
+  // ── Queries ───────────────────────────────────────────────────────────────
+
+  getReturn(returnId: string): ReturnRequest | undefined {
+    return this.returns.get(returnId);
+  }
+
+  getReturnsByOrder(orderId: string): ReturnRequest[] {
+    return Array.from(this.returns.values()).filter(r => r.orderId === orderId);
+  }
+
+  getReturnsByCustomer(customerId: string): ReturnRequest[] {
+    return Array.from(this.returns.values()).filter(r => r.customerId === customerId);
+  }
+
+  getAllReturns(): ReturnRequest[] {
+    return Array.from(this.returns.values());
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+
+  getStats(): ReturnsStats {
+    const all   = this.getAllReturns();
+    const byStatus = {} as Record<ReturnStatus, number>;
+    const reasonCount: Record<string, number> = {};
+
+    for (const r of all) {
+      byStatus[r.status] = (byStatus[r.status] || 0) + 1;
+      for (const item of r.items) {
+        reasonCount[item.reason] = (reasonCount[item.reason] || 0) + 1;
+      }
     }
 
+    const refunded      = all.filter(r => r.status === 'refunded');
+    const totalRefunded = refunded.reduce((s, r) => s + r.refundAmount, 0);
+    const avgDays       = refunded.length
+      ? refunded.reduce((s, r) => s + ((r.updatedAt.getTime() - r.createdAt.getTime()) / 86400_000), 0) / refunded.length
+      : 0;
+
     return {
-      allowed: true,
-      newStatus: targetStatus,
+      total: all.length, byStatus, totalRefunded,
+      avgProcessingDays: Math.round(avgDays * 10) / 10,
+      topReasons: Object.entries(reasonCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([reason, count]) => ({ reason: reason as any, count })),
     };
+  }
+
+  // ── Sync ─────────────────────────────────────────────────────────────────
+
+  sync(returns: ReturnRequest[]): void {
+    returns.forEach(r => this.returns.set(r.id, r));
+  }
+
+  export(): ReturnRequest[] { return this.getAllReturns(); }
+
+  // ── Private ───────────────────────────────────────────────────────────────
+
+  private _get(id: string): ReturnRequest {
+    const r = this.returns.get(id);
+    if (!r) throw new Error(`Return ${id} not found`);
+    return r;
+  }
+
+  private _transition(r: ReturnRequest, status: ReturnStatus, note?: string, onEvent?: () => void): ReturnRequest {
+    r.status    = status;
+    r.updatedAt = new Date();
+    const entry: ReturnTimeline = { status, timestamp: new Date() };
+    if (note) entry.note = note;
+    r.timeline.push(entry);
+    onEvent?.();
+    return r;
   }
 }

@@ -6,6 +6,7 @@ export default defineConfig({
     client: 'src/client/index.ts',
     adapters: 'src/adapters/index.ts',
     providers: 'src/providers/index.ts',
+    agent: 'src/agent.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,

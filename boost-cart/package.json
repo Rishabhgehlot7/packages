@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/cart",
-  "version": "1.0.2",
-  "description": "High-performance eCommerce Cart Calculation Engine with Indian GST (CGST/SGST/IGST), Free Shipping Threshold Progress, Multi-Tax Rates & Prepaid Discounts.",
+  "version": "1.1.0",
+  "description": "High-performance Universal eCommerce Cart Engine with Indian GST (CGST/SGST/IGST), Reactive Subscriptions, Pluggable Storage Adapters, Next.js / React / React Native / Vue support, and Advanced Discounts.",
   "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "license": "MIT",
   "funding": {
@@ -18,6 +18,9 @@
     "headless-commerce",
     "nextjs-cart",
     "react-cart",
+    "react-native-cart",
+    "vue-cart",
+    "svelte-cart",
     "d2c-checkout",
     "shopify-cart-alternative"
   ],
@@ -41,6 +44,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.cjs"
     }
   },
   "files": [
@@ -52,6 +60,14 @@
     "build": "tsup",
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/payments",
-  "version": "1.1.2",
-  "description": "Unified Multi-Gateway Payment Orchestration for Indian & Global eCommerce (Razorpay, Cashfree, PhonePe, Paytm, Stripe, COD) with smart routing, automatic fallbacks, signature verification, and React checkout hooks.",
+  "version": "1.2.0",
+  "description": "Universal Payment Orchestration for Physical eCommerce, Digital Downloads, SaaS Subscriptions, and Donations across Indian & Global Gateways (Razorpay, Cashfree, PhonePe, Paytm, Stripe, COD) with Indian UPI Intent, Idempotency, and Multi-Framework support (Next.js, Express, React Native, Vue, Svelte).",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -13,14 +13,20 @@
     "paytm",
     "stripe",
     "cod",
+    "upi",
+    "upi-intent",
+    "digital-products",
+    "subscriptions",
+    "saas-billing",
     "payment-orchestration",
     "india-payments",
     "ecommerce",
     "checkout",
-    "upi",
     "smart-routing",
     "nextjs-webhook",
-    "react-payments"
+    "express-payments",
+    "react-payments",
+    "react-native-payments"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-payments#readme",
   "repository": {

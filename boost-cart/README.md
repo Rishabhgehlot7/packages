@@ -4,56 +4,26 @@
 [![npm downloads](https://img.shields.io/npm/dm/@boostengine/cart.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/cart)
 [![license](https://img.shields.io/npm/l/@boostengine/cart.svg?style=flat-square)](https://github.com/Rishabhgehlot7/packages/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![Universal](https://img.shields.io/badge/Runs%20On-Node%20%7C%20Browser%20%7C%20Edge-success.svg?style=flat-square)](https://nodejs.org/)
+[![Frameworks](https://img.shields.io/badge/Next.js%20%7C%20React%20%7C%20React%20Native%20%7C%20Vue%20%7C%20Node-Universal-success.svg?style=flat-square)](https://nodejs.org/)
 
-> **Lightweight, deterministic eCommerce cart engine with compliant Indian GST (CGST, SGST, IGST), real-time Free Shipping progress meter, prepaid discounts, and coupon savings breakdown.**
-
-Zero external dependencies. Runs seamlessly on Node.js, Next.js (Server & Client), React, Vite, React Native, and Cloudflare Workers.
-
----
-
-## 📸 Visual Calculation Architecture
-
-```text
-  [ Customer Adds Items ]
-            │
-            ▼
- ┌─────────────────────────────────────────────────────────────┐
- │                    @boostengine/cart                        │
- ├─────────────────────────────────────────────────────────────┤
- │ 1. Compute Base Subtotal & MRP Savings                      │
- │ 2. Destination vs Origin Check                              │
- │    ├─ Intra-State (e.g. MH -> MH) ──► Split CGST (9%) + SGST│
- │    └─ Inter-State (e.g. MH -> KA) ──► Full IGST (18%)       │
- │ 3. Free Shipping Threshold Check                            │
- │    └─ Subtotal >= ₹999 ? Free (₹0) : Flat Rate (₹79)        │
- │ 4. Deduct Coupon Discounts & Add COD / Prepaid Surcharges   │
- └──────────────────────────────┬──────────────────────────────┘
-                                │
-                                ▼
- ┌─────────────────────────────────────────────────────────────┐
- │                      Order Summary                          │
- ├─────────────────────────────────────────────────────────────┤
- │ Total MRP:               ₹1,999                             │
- │ Product Discount:       -  ₹500                             │
- │ Coupon (SAVE10):        -  ₹150                             │
- │ Subtotal:                ₹1,349                             │
- │ Estimated GST (18%):     Inclusive [₹205.78 IGST]           │
- │ Shipping Fee:            FREE (Unlocked > ₹999!)            │
- ├─────────────────────────────────────────────────────────────┤
- │ FINAL PAYABLE AMOUNT:    ₹1,199                             │
- └─────────────────────────────────────────────────────────────┘
-```
+> **The Universal, Zero-Bloat eCommerce Cart & Checkout Engine for India & Global D2C Brands.**  
+> Built for Next.js (App Router), React, React Native (Expo), Vite, Vue, Svelte, and Node.js. 100% compliant Indian GST (CGST/SGST/IGST), cross-tab realtime sync, BOGO & Tiered discounts, gift wrap/custom fees, abandoned cart recovery, and AI-agent introspection.
 
 ---
 
-## 🌟 Key Features
+## ⚡ Feature Matrix
 
-- **🇮🇳 100% Compliant Indian GST Engine**: Automatically detects intra-state (50/50 CGST + SGST split) vs inter-state (100% IGST) based on two-letter state codes (`MH`, `DL`, `KA`, `TN`, etc.). Supports both tax-inclusive and tax-exclusive pricing models.
-- **🚚 Free Shipping Progress**: Returns remaining amount needed (e.g. *"Add ₹250 more for Free Delivery"*) and a 0-100 percentage for animated progress bars.
-- **💰 Complete Savings Breakdown**: Computes MRP savings, coupon discounts, and prepaid online payment savings so customers clearly see what they saved.
-- **💳 Payment Surcharges**: Automatic handling of Cash-on-Delivery (COD) convenience fees or prepaid 5% instant cashback discounts.
-- **💾 State Persistence**: Built-in `.toJSON()` and `.fromJSON()` for 1-line syncing with browser `localStorage`, session cookies, or backend databases.
+| Feature | Generic Libraries (`use-shopping-cart`) | Monolithic Platforms (Shopify / Medusa) | **@boostengine/cart** |
+|---|:---:|:---:|:---:|
+| **Bundle Size** | ~40 KB (Stripe-heavy) | Hundreds of KB / Monolith | **~5 KB Zero Dependencies** |
+| **Indian GST Math** | ❌ None | Buggy external apps | **✅ Native CGST + SGST + IGST + HSN** |
+| **Framework Freedom** | React only | Liquid / Platform lock-in | **✅ Next.js, React, React Native, Vue, Node** |
+| **Cross-Tab Realtime Sync** | ❌ None | Complex WebSockets | **✅ Automatic via `LocalStorageAdapter`** |
+| **Free Delivery Meter** | ❌ Manual UI code | Hard to customize | **✅ Dynamic progress + celebratory copy** |
+| **BOGO & Tiered Offers** | ❌ Custom math | Expensive apps | **✅ Built-in BOGO & Volume tiers** |
+| **Custom Fees (Gift Wrap)** | ❌ None | Extra plugins | **✅ Built-in `cart.addFee(...)`** |
+| **Abandoned Cart Recovery**| ❌ None | Heavy analytics SDKs | **✅ Built-in `cart.getRecoveryPayload()`** |
+| **AI Agent Friendly** | Ambiguous | Poor introspection | **✅ Built-in `CartAgentToolkit`** |
 
 ---
 
@@ -72,124 +42,309 @@ yarn add @boostengine/cart
 
 ---
 
-## 🚀 Quickstart (3 Simple Steps)
+## 🚀 30-Second Quickstart
 
-### Step 1: Create your cart instance
 ```typescript
-import { createBoostCart } from '@boostengine/cart';
+import { createBoostCart, createLocalStorageAdapter } from '@boostengine/cart';
 
+// 1. Initialize cart with Cross-Tab LocalStorage sync & Indian store origin
 const cart = createBoostCart({
-  // Store warehouse location
   origin: { state: 'Maharashtra', taxMode: 'inclusive' },
-  
-  // Customer delivery destination
-  destination: { state: 'Karnataka' },
-  
-  // Shipping rule: Free delivery for orders above ₹999, else ₹79
   shipping: { freeShippingThreshold: 999, flatShippingRate: 79 },
-  
-  // Payment rules
-  payment: { paymentMethod: 'cod', codFee: 49 },
+  payment: { paymentMethod: 'prepaid', codFee: 49, prepaidDiscountPercentage: 5 },
+  storage: createLocalStorageAdapter(), // Safe in browser & SSR!
 });
-```
 
-### Step 2: Add or update items
-```typescript
+// 2. Add an item
 cart.addItem({
-  productId: 'hoodie_01',
-  variantId: 'L_Black',
-  title: 'Cyberpunk Heavyweight Hoodie',
-  price: 1499,
-  compareAtPrice: 2499, // Original MRP
+  productId: 'prod_tee',
+  title: 'Oversized Streetwear Tee',
+  price: 799,
+  compareAtPrice: 1299,
   quantity: 1,
-  taxRate: 18,          // 18% GST
+  taxRate: 18,
   hsnCode: '6109',
 });
-```
 
-### Step 3: Get instant totals & summary
-```typescript
+// 3. Get complete checkout summary
 const summary = cart.getSummary();
 
-console.log(summary.subtotal);              // 1499
-console.log(summary.totalSavings);          // 1000 (Saved from MRP!)
-console.log(summary.freeShipping.isFree);   // true (1499 >= 999)
-console.log(summary.shippingFee);           // 0
-console.log(summary.gst.taxType);           // "INTER_STATE" (IGST)
-console.log(summary.gst.igst);              // 228.66
-console.log(summary.finalTotal);            // 1548 (1499 + 49 COD Fee)
+console.log(summary.formatted.subtotal);   // "₹799.00"
+console.log(summary.freeShipping.message);  // "🚚 Add ₹200.00 more to unlock FREE Delivery!"
+console.log(summary.gst.cgst);              // ₹60.94 (Intra-state CGST)
+console.log(summary.gst.sgst);              // ₹60.94 (Intra-state SGST)
+console.log(summary.formatted.finalTotal); // "₹838.05"
 ```
 
 ---
 
-## ⚛️ React & Next.js Integration Example
+## 🌐 Universal Framework Guides
 
-Sync effortlessly with React state or `localStorage`:
+### 1. Next.js 14 / 15 (App Router & SSR Safe)
+
+Import directly from `@boostengine/cart/react` without dragging React into your Node.js backend:
 
 ```tsx
+// lib/cart.ts
+import { createBoostCart, createLocalStorageAdapter } from '@boostengine/cart';
+
+export const cart = createBoostCart({
+  origin: { state: 'Maharashtra' },
+  storage: createLocalStorageAdapter(), // Cross-tab sync enabled by default!
+});
+
+// components/CartDrawer.tsx
 'use client';
+import { useBoostCart } from '@boostengine/cart/react';
+import { cart } from '@/lib/cart';
 
-import { useState, useEffect } from 'react';
-import { createBoostCart, type BoostCart } from '@boostengine/cart';
+export function CartDrawer() {
+  const { items, formatted, freeShipping, customFees, updateQuantity, removeItem } = useBoostCart(cart);
 
-export function useCart() {
-  const [cart, setCart] = useState<BoostCart | null>(null);
+  return (
+    <div className="p-4 bg-white shadow-xl">
+      {/* Free Shipping Meter */}
+      <div className="p-3 mb-4 rounded bg-amber-50">
+        <p className="text-sm font-medium text-amber-900">{freeShipping.message}</p>
+        <div className="w-full bg-gray-200 h-2 rounded mt-1 overflow-hidden">
+          <div className="bg-green-500 h-full transition-all duration-300" style={{ width: `${freeShipping.percentage}%` }} />
+        </div>
+      </div>
 
-  useEffect(() => {
-    // 1. Initialize from localStorage if saved
-    const saved = localStorage.getItem('boost_cart');
-    const instance = createBoostCart({
-      origin: { state: 'Maharashtra', taxMode: 'inclusive' },
-      shipping: { freeShippingThreshold: 999, flatShippingRate: 79 },
-    });
+      {/* Cart Items */}
+      {items.map((item) => (
+        <div key={item.id} className="flex justify-between py-2 border-b">
+          <span>{item.title} (x{item.quantity})</span>
+          <button onClick={() => removeItem(item.id)}>Remove</button>
+        </div>
+      ))}
 
-    if (saved) {
-      instance.fromJSON(JSON.parse(saved));
-    }
-    setCart(instance);
-  }, []);
-
-  const addItem = (item: any) => {
-    if (!cart) return;
-    cart.addItem(item);
-    localStorage.setItem('boost_cart', JSON.stringify(cart.toJSON()));
-    setCart(Object.assign(Object.create(Object.getPrototypeOf(cart)), cart)); // trigger re-render
-  };
-
-  return { cart, summary: cart?.getSummary(), addItem };
+      {/* Final Total */}
+      <div className="mt-4 font-bold text-lg">
+        Payable: {formatted.finalTotal}
+      </div>
+    </div>
+  );
 }
 ```
 
 ---
 
-## 📖 API Reference
+### 2. React Native & Expo (Mobile Apps)
 
-### Methods on `BoostCart`
+Pass `@react-native-async-storage/async-storage` directly to `createAsyncStorageAdapter`:
 
-| Method | Parameters | Returns | Description |
-| :--- | :--- | :--- | :--- |
-| `addItem(item)` | `CartItem` | `void` | Adds an item or increments quantity if item already exists. |
-| `updateQuantity(id, qty)` | `string, number` | `void` | Updates item quantity. Removes item if quantity is 0. |
-| `removeItem(id)` | `string` | `void` | Removes item from cart. |
-| `applyDiscount(discount)`| `{ code, amount }` | `void` | Applies a fixed coupon or promotional discount. |
-| `setDestination(dest)` | `{ state, pincode }` | `void` | Updates destination state to re-evaluate IGST vs CGST/SGST. |
-| `setPaymentConfig(config)`| `PaymentConfig` | `void` | Switches between COD and prepaid modes. |
-| `getSummary()` | *none* | `CartSummary` | Returns complete breakdown of subtotal, tax, discounts, and final total. |
-| `toJSON()` | *none* | `string` | Serializes state for caching in LocalStorage or Redis. |
-| `fromJSON(data)` | `object` | `void` | Restores cart state from serialized object. |
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createBoostCart, createAsyncStorageAdapter } from '@boostengine/cart';
+import { useBoostCart } from '@boostengine/cart/react';
+
+export const mobileCart = createBoostCart({
+  storage: createAsyncStorageAdapter(AsyncStorage, { key: 'my_app_cart' }),
+  shipping: { freeShippingThreshold: 999 },
+});
+
+// In any React Native Screen:
+export function CheckoutScreen() {
+  const { formatted, items } = useBoostCart(mobileCart);
+  return (
+    <View>
+      <Text>Total: {formatted.finalTotal}</Text>
+    </View>
+  );
+}
+```
 
 ---
 
-## 🛠️ Interactive CLI Simulation
+### 3. Vue 3 & Pinia
 
-Test cart calculations directly in your terminal:
+`cart.subscribe` seamlessly bridges into Vue's `shallowRef`:
 
-```bash
-npx @boostengine/cart demo
+```typescript
+import { shallowRef, onUnmounted } from 'vue';
+import { createBoostCart } from '@boostengine/cart';
+
+const cart = createBoostCart();
+
+export function useVueCart() {
+  const summary = shallowRef(cart.getSummary());
+  const unsubscribe = cart.subscribe((val) => {
+    summary.value = val;
+  });
+
+  onUnmounted(unsubscribe);
+  return { summary, cart };
+}
 ```
+
+---
+
+### 4. Svelte & SvelteKit
+
+`BoostCart` implements the official Svelte store contract (`subscribe`):
+
+```svelte
+<script>
+  import { createBoostCart } from '@boostengine/cart';
+  const cart = createBoostCart();
+</script>
+
+<!-- Auto-subscribes with Svelte's $ syntax! -->
+<h1>Total: {$cart.formatted.finalTotal}</h1>
+<p>{$cart.freeShipping.message}</p>
+```
+
+---
+
+## 🎯 Advanced Features
+
+### 1. Custom Surcharges & Add-ons (Gift Wrap, Express Delivery)
+
+Add or remove custom convenience fees with 1 line:
+
+```typescript
+// Add luxury gift wrapping
+cart.addFee({
+  id: 'gift_wrap',
+  title: 'Luxury Gift Wrap & Handwritten Card',
+  amount: 49,
+  isTaxable: false,
+});
+
+// Add same-day express courier
+cart.addFee({
+  id: 'express_delivery',
+  title: 'Same-Day Express Courier',
+  amount: 149,
+  isTaxable: true, // Auto-computes GST on courier service
+});
+
+console.log(cart.getSummary().formatted.totalCustomFees); // "₹198.00"
+```
+
+### 2. BOGO & Tiered Volume Discounts
+
+```typescript
+// BOGO: Buy 2 Get 1 Free (Lowest priced item is free)
+cart.applyDiscount({
+  code: 'BUY2GET1',
+  type: 'bogo',
+  bogoConfig: { buyQuantity: 2, getQuantity: 1 },
+});
+
+// Tiered Volume: Buy 2 get 10%, Buy 3 get 20%
+cart.applyDiscount({
+  code: 'VOLUMESAVE',
+  type: 'tiered',
+  tieredRules: [
+    { minQuantity: 2, discountPercentage: 10 },
+    { minQuantity: 3, discountPercentage: 20 },
+  ],
+});
+```
+
+### 3. Abandoned Cart & WhatsApp Bot Recovery
+
+Track customer funnel step and get pre-formatted payloads for WhatsApp / SMS recovery bots (Wati, Interakt, Klaviyo):
+
+```typescript
+cart.setCustomerInfo({
+  name: 'Aarav Mehta',
+  phone: '9876543210',
+  email: 'aarav@gmail.com',
+});
+cart.setCheckoutStep('address');
+
+// Ready-to-post payload for WhatsApp bot webhook:
+const payload = cart.getRecoveryPayload();
+console.log(payload);
+/*
+{
+  customer: { name: 'Aarav Mehta', phone: '9876543210', email: 'aarav@gmail.com' },
+  checkoutStep: 'address',
+  lastModifiedAt: 1726938000000,
+  subtotal: 1999,
+  finalTotal: 1999,
+  itemCount: 1,
+  items: [{ title: 'Leather Backpack', quantity: 1, price: 1999 }]
+}
+*/
+```
+
+### 4. Indian GST Breakdown (CGST / SGST / IGST)
+`@boostengine/cart` detects destination state vs warehouse origin automatically:
+
+```typescript
+// Intra-state (e.g. Maharashtra -> Maharashtra): Split 50/50
+cart.setDestination({ state: 'MH' });
+const intra = cart.getSummary().gst;
+console.log(intra.taxType); // 'INTRA_STATE'
+console.log(intra.cgst);    // Half of tax
+console.log(intra.sgst);    // Half of tax
+console.log(intra.igst);    // 0
+
+// Inter-state (e.g. Maharashtra -> Karnataka): Full IGST
+cart.setDestination({ state: 'Karnataka' });
+const inter = cart.getSummary().gst;
+console.log(inter.taxType); // 'INTER_STATE'
+console.log(inter.igst);    // 100% of tax
+```
+
+### 5. Guest-to-User Cart Merge
+
+When an anonymous customer logs in at checkout, merge their guest items into their stored account cart with 1 line:
+
+```typescript
+guestCart.merge(userSavedCart, { strategy: 'combine' });
+```
+
+---
+
+## 🤖 AI Agent & LLM Integration (`CartAgentToolkit`)
+
+Are you building with **Cursor, Gemini, Claude, or autonomous Antigravity agents**?  
+`@boostengine/cart` includes built-in introspection tools for AI pair programmers:
+
+```typescript
+import { CartAgentToolkit } from '@boostengine/cart';
+
+// Generate human-readable markdown status for agent prompts
+const report = CartAgentToolkit.inspect(cart);
+console.log(report);
+```
+
+---
+
+## 🛠️ Complete API Reference
+
+### `createBoostCart(options?: CartOptions): BoostCart`
+- `addItem(item: CartItem): CartItem`
+- `updateQuantity(id: string, quantity: number): boolean`
+- `removeItem(id: string): boolean`
+- `clear(): void`
+- `getItems(): CartItem[]`
+- `getItem(id: string): CartItem | undefined`
+- `hasItem(id: string): boolean`
+- `addFee(fee: CustomFee): void`
+- `removeFee(id: string): boolean`
+- `getFees(): CustomFee[]`
+- `clearFees(): void`
+- `setCustomerInfo(info: { email?: string; phone?: string; name?: string }): void`
+- `setCheckoutStep(step: 'cart' | 'address' | 'payment' | 'completed'): void`
+- `getRecoveryPayload(): object`
+- `applyDiscount(rule: DiscountRule): DiscountValidationResult`
+- `removeDiscount(): void`
+- `getSummary(): CartSummary`
+- `subscribe(listener: (summary: CartSummary) => void): () => void`
+- `on(event: CartEventType, listener: CartEventListener): () => void`
+- `merge(source: CartItem[] | { items: CartItem[] }, options?: { strategy: 'combine' | 'replace' }): void`
+- `toJSON(): object`
+- `fromJSON(data: object): void`
+- `destroy(): void`
 
 ---
 
 ## 📄 License
 
-MIT © [Boost Engine](https://github.com/boostengine)
+MIT © [Rishabh Gehlot](https://github.com/Rishabhgehlot7)

@@ -1,40 +1,31 @@
 # @boostengine/deals ⚡
 
 [![npm version](https://img.shields.io/npm/v/@boostengine/deals.svg?color=blue)](https://www.npmjs.com/package/@boostengine/deals)
-[![npm downloads](https://img.shields.io/npm/dm/@boostengine/deals.svg?color=green)](https://www.npmjs.com/package/@boostengine/deals)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![Tree Shakable](https://img.shields.io/badge/Tree--Shakable-Yes-success.svg)](https://bundlephobia.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18%20%7C%2019-61dafb.svg)](https://react.dev/)
 
-> **Amazon & Flipkart-style Lightning Deals, Flash Sales, and Countdown Urgency Timers for Next.js, Vite, React, and Node.js.**
+> Enterprise Promotions, Flash Sales, Lightning Deals with Claim Holds & Bot Protection, BOGO, Tiered Volume Discounts, Stacking & Exclusivity Rules, Real-Time Events, and Autonomous AI Agent Deals Toolkit for Modern Commerce.
 
-Drive urgency and boost checkout conversion with live countdown clocks, stock claim progress bars, and active deal verifications.
-
----
-
-## 🌟 Features
-
-- ⏳ **High-Precision Countdown Timers**: Calculates formatted hours, minutes, seconds (`02h 45m 12s`) and expiry flags with zero drift.
-- 🔥 **Amazon-style Claim Progress Meter**: Dynamic percentage claimed calculation with urgency labels (*"Almost Gone! 85% Claimed"*).
-- 🏷️ **Deal Exclusivity & Verification**: Validate if a deal is currently active, upcoming, or expired based on ISO timestamps.
-- 🚀 **Universal Compatibility**: Works effortlessly in Next.js (App Router / SSR), Vite (React, Vue), and Node.js backends.
+Part of the **BoostEngine** headless ecommerce micro-packages ecosystem.
 
 ---
 
-## 📐 Deal Card UI Preview
+## 🌟 Key Features
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│  ⚡ LIGHTNING DEAL                Ends in: 02h 14m 38s   │
-├──────────────────────────────────────────────────────────┤
-│  Urban Acid Wash Hoodie                                  │
-│  ₹1,499  MRP: ₹2,999 (50% OFF)                           │
-│                                                          │
-│  [████████████████████░░░░] 82% Claimed (Almost Gone!)   │
-│                                                          │
-│  [ ADD TO BAG NOW ]                                      │
-└──────────────────────────────────────────────────────────┘
-```
+- ⚡ **Lightning Deals & Flash Sales**: Real-time claim counters, remaining claims, and live countdown timers.
+- 🔒 **TTL Claim Reservations**: Temporarily lock flash deal stock for shoppers during checkout with auto-sweep expiration.
+- 🛡️ **Bot & Scalper Protection**: Enforce `maxClaimsPerUser` to prevent scalpers/bots from hoarding flash sale inventory.
+- 🎁 **BOGO (Buy X Get Y)**: Configurable BOGO rules (e.g. "Buy 2 Get 1 Free" or "Buy 1 Get 2nd at 50% Off").
+- 📦 **Tiered Volume Discounts**: Quantity-based wholesale/bulk pricing tiers (e.g., 3+ units 10% off, 5+ units 20% off).
+- 🔀 **Deal Stacking & Exclusivity**: Precision promotion rules (`stackable: false`, `exclusive: true`, `priority: number`).
+- 🛒 **Cart Spend Threshold Promotions**: Dynamic order value discounts (e.g., "Spend $100 get $15 off").
+- 📡 **Real-time Event Emitter**: Subscribe to live promotional events (`claim:reserved`, `claim:released`, `deal:sold_out`, `deal:expired`) for WebSockets.
+- 🔄 **Universal Database Sync**: Ingest deals effortlessly from MongoDB, PostgreSQL, Supabase, Prisma, DynamoDB, or Firebase.
+- ⚛️ **Universal React Suite**: `<DealsProvider>`, `useDeals()`, `useLightningDeal()`, `useCountdownTimer()`, and `useCartDeals()`.
+- 🤖 **Autonomous AI Agent Toolkit**: Ready-to-use function definitions and executor for OpenAI, Claude, Gemini, and Vercel AI SDK.
+- 💻 **Interactive CLI**: Test and simulate promotions right in your terminal.
+- 🛡️ **100% Backward Compatible**: Retains all original static `DealsEngine` methods (`calculateTimeRemaining`, `calculateClaimInfo`, `computeDealPrice`).
 
 ---
 
@@ -50,75 +41,196 @@ pnpm add @boostengine/deals
 
 ---
 
-## ⚡ 60-Second Quickstart
+## 🚀 Quick Start (Node.js / Backend)
 
 ```typescript
-import { DealsEngine } from '@boostengine/deals';
+import { deals, DealsEngine } from '@boostengine/deals';
 
-// 1. Calculate Time Remaining for a Flash Sale
-const timer = DealsEngine.calculateTimeRemaining('2026-09-14T23:59:59Z');
+// 1. Register a Flash Sale Deal with Bot Protection & Exclusivity
+deals.registerDeal({
+  id: 'deal_headphones',
+  title: 'Midnight Flash Sale: ANC Headphones',
+  type: 'flash_sale',
+  discountValue: 40, // 40% OFF
+  startDate: '2026-01-01T00:00:00Z',
+  endDate: '2026-12-31T23:59:59Z',
+  applicableProductIds: ['prod_headphones_1'],
+  totalClaimLimit: 100,
+  maxClaimsPerUser: 1, // Only 1 per customer
+  stackable: false,    // Cannot combine with other discounts
+  priority: 10
+});
 
-console.log(timer.formatted); // "05h 22m 14s"
-console.log(timer.isExpired); // false
-console.log(timer.hours);     // 5
+// 2. Register a BOGO Deal ("Buy 2 Get 1 Free")
+deals.registerDeal({
+  id: 'deal_bogo_tees',
+  title: 'Summer BOGO: T-Shirts',
+  type: 'bogo',
+  discountValue: 0,
+  startDate: '2026-01-01T00:00:00Z',
+  endDate: '2026-12-31T23:59:59Z',
+  applicableProductIds: ['prod_tee_1'],
+  bogoRule: {
+    buyQuantity: 2,
+    getQuantity: 1,
+    discountPercentage: 100 // Free
+  }
+});
 
-// 2. Calculate Stock Claim Percentage & Urgency Label
-const claim = DealsEngine.calculateClaimInfo(
-  85, // 85 items claimed
-  100 // 100 total deal inventory
-);
+// 3. Register a Cart Spend Rule ("Spend $100 Get $15 Off")
+deals.registerDeal({
+  id: 'deal_spend_100',
+  title: 'Spend $100 Get $15 Off',
+  type: 'spend_threshold',
+  discountValue: 15,
+  startDate: '2026-01-01T00:00:00Z',
+  endDate: '2026-12-31T23:59:59Z',
+  spendThreshold: {
+    minimumSpend: 100,
+    discountAmount: 15
+  }
+});
 
-console.log(claim.percentageClaimed); // 85
-console.log(claim.urgencyText);       // "Almost Gone! 85% Claimed"
-console.log(claim.isSoldOut);         // false
+// 4. Evaluate Entire Shopping Cart
+const cart = [
+  { productId: 'prod_headphones_1', unitPrice: 150, quantity: 1 },
+  { productId: 'prod_tee_1', unitPrice: 25, quantity: 3 }
+];
+
+const result = deals.evaluateCartDeals(cart);
+console.log(`Original: $${result.originalSubtotal}, Saved: $${result.totalSavings}, Pay: $${result.discountedSubtotal}`);
 ```
 
 ---
 
-## 🚀 Framework Integration Examples
+## 📡 Real-time Event Emitter (WebSockets / Socket.io)
 
-### A. Next.js / React (Live Countdown Hook & Widget)
+Broadcast live flash sale updates to all connected customers:
+
+```typescript
+import { deals } from '@boostengine/deals';
+
+// When customer locks a claim during checkout
+deals.on('claim:reserved', ({ dealId, remainingClaims }) => {
+  io.emit('flash_deal:updated', { dealId, remainingClaims });
+});
+
+// When flash sale sells out
+deals.on('deal:sold_out', ({ dealId, title }) => {
+  io.emit('flash_deal:sold_out', { dealId, message: `${title} is now SOLD OUT!` });
+});
+
+// When expired checkout locks are released back to stock
+deals.on('claim:released', ({ dealId, quantity, reason }) => {
+  io.emit('flash_deal:restocked', { dealId, freedQuantity: quantity });
+});
+```
+
+---
+
+## 🔒 Lightning Deals & TTL Claim Locks
+
+Prevent inventory overselling during high-concurrency flash sales:
+
+```typescript
+import { deals } from '@boostengine/deals';
+
+// Lock 1 unit claim during checkout for 10 minutes (600s)
+const reservation = deals.reserveClaim('deal_headphones', 'user_12345', 1, 600);
+console.log(`Reservation created: ${reservation.reservationId}`);
+
+// If customer completes payment:
+deals.commitClaim(reservation.reservationId);
+
+// Or if customer leaves checkout:
+deals.releaseClaim(reservation.reservationId);
+
+// Background auto-sweep will automatically return expired reservations!
+const freedSlots = deals.sweepExpiredReservations();
+```
+
+---
+
+## 🔄 Universal Database Sync
+
+Sync promotional rules from any database into memory for lightning-fast evaluations:
+
+```typescript
+import { deals } from '@boostengine/deals';
+
+// MongoDB, Prisma, PostgreSQL, Supabase, DynamoDB
+const mongoDeals = await db.collection('promotions').find({ status: 'active' }).toArray();
+
+deals.sync(mongoDeals, doc => ({
+  id: doc._id.toString(),
+  title: doc.name,
+  type: doc.dealType,
+  discountValue: doc.percentageOff || doc.flatOff,
+  startDate: doc.startsAt.toISOString(),
+  endDate: doc.endsAt.toISOString(),
+  applicableProductIds: doc.productIds,
+  totalClaimLimit: doc.stockLimit,
+  claimedCount: doc.claimedCount
+}));
+```
+
+---
+
+## ⚛️ Universal React Suite
+
+Import from `@boostengine/deals/react` in Next.js, Vite, React, or React Native:
+
+### 1. App-Wide Provider
 
 ```tsx
-'use client';
+import { DealsProvider } from '@boostengine/deals/react';
 
-import React, { useState, useEffect } from 'react';
-import { DealsEngine } from '@boostengine/deals';
+export function App({ children }) {
+  return (
+    <DealsProvider>
+      {children}
+    </DealsProvider>
+  );
+}
+```
 
-export function LightningDealBanner({ dealEndsAt, claimed, total }) {
-  const [timer, setTimer] = useState(() => DealsEngine.calculateTimeRemaining(dealEndsAt));
+### 2. Live Countdown & Claim Bar
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer(DealsEngine.calculateTimeRemaining(dealEndsAt));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [dealEndsAt]);
+```tsx
+import React from 'react';
+import { useLightningDeal } from '@boostengine/deals/react';
 
-  const claim = DealsEngine.calculateClaimInfo(claimed, total);
+export function FlashSaleCard({ dealId }: { dealId: string }) {
+  const { deal, claimInfo, countdown, reserve, isSoldOut, isExpired, remainingClaims } = useLightningDeal(dealId);
 
-  if (timer.isExpired) {
-    return <div className="text-gray-400 text-sm">Deal Ended</div>;
-  }
+  if (!deal) return null;
 
   return (
-    <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-gray-900">
-      <div className="flex items-center justify-between">
-        <span className="font-bold text-amber-600 flex items-center gap-1">⚡ Lightning Deal</span>
-        <span className="font-mono font-bold text-xs bg-black text-white px-2.5 py-1 rounded-lg">
-          {timer.formatted}
-        </span>
+    <div className="border p-4 rounded-xl shadow-sm">
+      <h3 className="font-bold text-lg">{deal.title}</h3>
+      
+      {/* Real-time Countdown */}
+      <div className="text-red-600 font-mono text-sm my-2">
+        ⏳ Ends in: {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
       </div>
 
-      <div className="mt-3">
-        <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-          <div
-            className="bg-amber-500 h-full transition-all duration-300"
-            style={{ width: `${claim.percentageClaimed}%` }}
-          />
-        </div>
-        <p className="text-xs text-amber-700 font-semibold mt-1">{claim.urgencyText}</p>
+      {/* Progress Bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2.5 my-2">
+        <div 
+          className="bg-orange-500 h-2.5 rounded-full" 
+          style={{ width: `${claimInfo.percentageClaimed}%` }}
+        />
       </div>
+      <p className="text-xs text-gray-500">{claimInfo.percentageClaimed}% claimed ({remainingClaims} left!)</p>
+
+      {/* Action Button */}
+      <button 
+        disabled={isSoldOut || isExpired}
+        onClick={() => reserve('current_user_id')}
+        className="mt-3 w-full bg-orange-600 text-white py-2 rounded-lg disabled:opacity-50"
+      >
+        {isSoldOut ? 'Sold Out' : isExpired ? 'Deal Expired' : 'Claim Deal Now'}
+      </button>
     </div>
   );
 }
@@ -126,18 +238,42 @@ export function LightningDealBanner({ dealEndsAt, claimed, total }) {
 
 ---
 
-## 📖 API Reference
+## 🤖 Autonomous AI Agent Toolkit
 
-### `DealsEngine.calculateTimeRemaining(endsAt: string | Date): TimeRemaining`
-Calculates remaining hours, minutes, seconds, and human-readable formatted clock string.
-- **Returns:** `{ hours, minutes, seconds, totalSeconds, isExpired, formatted }`
+Equip AI shopping assistants and customer support bots with promotional tools:
 
-### `DealsEngine.calculateClaimInfo(claimedCount: number, totalAvailable: number): DealClaimInfo`
-Computes stock claim percentage and dynamic psychological urgency messages.
-- **Returns:** `{ claimedCount, totalAvailable, percentageClaimed, isSoldOut, urgencyText }`
+```typescript
+import { DealsAgentToolkit, deals } from '@boostengine/deals';
+
+const toolkit = new DealsAgentToolkit(deals);
+
+// Universal schemas for OpenAI, Claude, Gemini, or Vercel AI SDK
+const openAITools = toolkit.toOpenAITools();
+const claudeTools = toolkit.toClaudeTools();
+const geminiTools = toolkit.toGeminiTools();
+
+// Autonomous Tool Execution Router
+const result = await toolkit.executeTool('evaluate_cart_deals', {
+  items: [
+    { productId: 'prod_laptop', unitPrice: 1200, quantity: 1 }
+  ]
+});
+```
+
+---
+
+## 💻 CLI Commands
+
+```bash
+# Run interactive simulation of Flash Sale, BOGO & Cart Deals
+npx boost-deals demo
+
+# Evaluate sample cart
+npx boost-deals evaluate
+```
 
 ---
 
 ## 📄 License
 
-MIT © [Boost Engine Team](https://github.com/boostengine)
+MIT © [BoostEngine Team](https://github.com/Rishabhgehlot7)

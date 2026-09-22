@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/invoicing",
-  "version": "1.0.2",
-  "description": "Enterprise GST Tax Invoice & 4x6 Thermal Shipping Label Generator with HSN Tax Breakdown, Amount in Words & Barcodes for eCommerce.",
+  "version": "1.1.0",
+  "description": "Enterprise GST Tax Invoice, Bill of Supply, Credit Note & Thermal Shipping Label Generator with HSN/SAC Directory, GSTIN Validator, Multi-Framework Hooks & AI Agent Toolkit.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -12,13 +12,21 @@
     "shipping-label",
     "packing-slip",
     "hsn-breakdown",
+    "gstin-validator",
+    "bill-of-supply",
+    "credit-note",
+    "thermal-receipt",
+    "pos-receipt",
     "headless-invoicing",
-    "pdf-invoice-generator"
+    "pdf-invoice-generator",
+    "react-invoice-hook",
+    "ai-agent",
+    "agent-toolkit"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-invoicing#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/boostengine/boostengine.git",
+    "url": "git+https://github.com/boostengine/boostengine.git",
     "directory": "packages/boost-invoicing"
   },
   "bugs": {
@@ -35,6 +43,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.cjs"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.cjs"
     }
   },
   "files": [
@@ -46,6 +64,17 @@
     "build": "tsup",
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "puppeteer": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

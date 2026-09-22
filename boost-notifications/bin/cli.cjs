@@ -1,54 +1,24 @@
 #!/usr/bin/env node
-
-const args = process.argv.slice(2);
-const command = args[0] || 'help';
-
-console.log('\n=======================================================');
-console.log('📲 @boostengine/notifications - Multi-Channel Messaging CLI');
-console.log('=======================================================\n');
-
-switch (command) {
-  case 'list': {
-    console.log('Supported Notification Channels & Providers:\n');
-    console.table([
-      { channel: 'WhatsApp', providers: 'Interakt, Wati, Gupshup, Meta Cloud API', templates: 'Order Confirmed, Tracking, Cart Recovery, OTP' },
-      { channel: 'SMS', providers: 'Msg91, Fast2SMS, Twilio', templates: 'DLT SMS, Transactional OTP' },
-      { channel: 'Email', providers: 'Resend, SendGrid, AWS SES', templates: 'HTML Invoices, Order Updates' },
-    ]);
-    break;
-  }
-
-  case 'init-env': {
-    const fs = require('fs');
-    const path = require('path');
-    const content = `# Boost Engine Notifications - Environment Template
-
-DEFAULT_NOTIFICATION_CHANNEL=whatsapp
-
-# WhatsApp (Interakt / Wati / Gupshup)
-INTERAKT_API_KEY=your_interakt_api_key
-
-# SMS (Fast2SMS / Msg91)
-FAST2SMS_API_KEY=your_fast2sms_key
-FAST2SMS_SENDER_ID=TXTIND
-FAST2SMS_DLT_TEMPLATE_ID=your_dlt_template_id
-
-# Email (Resend)
-RESEND_API_KEY=re_your_api_key
-EMAIL_FROM="Boost Store <orders@yourstore.com>"
-`;
-    const target = path.join(process.cwd(), '.env.notifications.example');
-    fs.writeFileSync(target, content, 'utf8');
-    console.log(`✅ Created environment template: ${target}`);
-    console.log('Copy desired variables into your project .env file.\n');
-    break;
-  }
-
-  default: {
-    console.log('Usage:');
-    console.log('  npx @boostengine/notifications list      - List channels & providers');
-    console.log('  npx @boostengine/notifications init-env  - Create .env.notifications.example');
-    console.log('\nDocumentation: https://github.com/boostengine/notifications\n');
-    break;
-  }
-}
+'use strict';
+const { BoostNotificationsManager } = require('../dist/index.js');
+console.log('\n╔══════════════════════════════════════════════════╗');
+console.log('║    @boostengine/notifications — CLI Demo         ║');
+console.log('╚══════════════════════════════════════════════════╝\n');
+const mgr = new BoostNotificationsManager({ defaultChannel: 'whatsapp' });
+mgr.on('notification:sent',     ({ id, channel }) => console.log(`  ✅ Sent [${channel}] — ${id}`));
+mgr.on('notification:scheduled',({ id, scheduledAt }) => console.log(`  🕐 Scheduled — ${id} at ${scheduledAt.toISOString()}`));
+mgr.on('webhook:triggered',     ({ event, url }) => console.log(`  🔔 Webhook: ${event} → ${url}`));
+console.log('▶ Sending transactional notifications...');
+mgr.send({ template: 'order_confirmed',  recipient: { id: 'C1', phone: '+91-9876543210', name: 'Alice' }, variables: { orderId: 'ORD-001', total: '₹2500' } });
+mgr.send({ channel: 'email', template: 'order_shipped', recipient: { id: 'C1', email: 'alice@example.com' }, variables: { trackingUrl: 'https://track.example.com/XYZ' } });
+mgr.send({ channel: 'sms',   template: 'otp_verification', recipient: { id: 'C1', phone: '+91-9876543210' }, variables: { otp: '451823' } });
+console.log('\n▶ Scheduling cart recovery...');
+mgr.scheduleNotification({ template: 'cart_recovery', recipient: { id: 'C2', phone: '+91-9000000001' }, variables: { discount: '10%' }, scheduledAt: new Date(Date.now() + 3600_000) });
+console.log('\n▶ Registering webhooks...');
+mgr.registerWebhook('https://myapp.com/hooks/orders', ['order.confirmed', 'order.shipped']);
+mgr.registerWebhook('https://myapp.com/hooks/all', ['*']);
+console.log('\n▶ Triggering order.confirmed event...');
+mgr.triggerWebhooks('order.confirmed', { orderId: 'ORD-001', total: 2500 });
+console.log('\n▶ History for C1:');
+mgr.getHistory('C1').forEach(h => console.log(`  [${h.channel}] ${h.template} — ${h.status}`));
+console.log('\n✅ CLI demo complete!\n');

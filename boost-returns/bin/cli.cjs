@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+'use strict';
+const { BoostReturnsManager } = require('../dist/index.js');
+console.log('\n╔══════════════════════════════════════════════════╗');
+console.log('║       @boostengine/returns — CLI Demo            ║');
+console.log('╚══════════════════════════════════════════════════╝\n');
+const mgr = new BoostReturnsManager({ autoApprove: false });
+mgr.on('return:created',  e => console.log(`  📦 Return created: ${e.returnId}`));
+mgr.on('return:approved', e => console.log(`  ✅ Approved: ${e.returnId} | Refund: ₹${e.refundAmount}`));
+mgr.on('return:refunded', e => console.log(`  💰 Refunded: ₹${e.refundAmount} via ${e.method}`));
+console.log('▶ Creating return request...');
+const r = mgr.createReturn({ orderId: 'ORD-001', customerId: 'C-001', items: [{ productId: 'P1', productName: 'Running Shoes', quantity: 1, unitPrice: 2500, reason: 'defective' }] });
+console.log('▶ Approving return...');
+mgr.approveReturn(r.id, 'Defect verified');
+console.log('▶ Scheduling pickup...');
+mgr.schedulePickup(r.id, { provider: 'Shiprocket', awbNumber: 'SHP123456' });
+console.log('▶ Marking picked up...');
+mgr.markPickedUp(r.id);
+console.log('▶ Marking received at warehouse...');
+mgr.markReceived(r.id);
+console.log('▶ Processing refund...');
+mgr.processRefund(r.id, 'original_payment');
+console.log('\n▶ Final timeline:');
+mgr.getReturn(r.id)?.timeline.forEach(t => console.log(`  ${t.status} @ ${t.timestamp.toISOString()}`));
+console.log('\n▶ Stats:', JSON.stringify(mgr.getStats(), null, 2));
+console.log('\n✅ CLI demo complete!\n');

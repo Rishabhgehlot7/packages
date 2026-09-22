@@ -1,4 +1,6 @@
 @echo off
+setlocal
+cd /d "%~dp0"
 echo ==============================================
 echo Building and Publishing @boostengine/cart
 echo ==============================================
@@ -18,3 +20,4 @@ if %errorlevel% neq 0 (
 echo Publishing to npm...
 call npm publish --access public
 echo Finished!
+endlocal

@@ -475,12 +475,55 @@ npx @boostengine/auth demo
 
 ---
 
-## 🤖 AI-Agent Ready (Cursor / Claude / Copilot)
+## 📱 React Native & Expo Mobile Apps
 
-This package contains an `llms.txt` file at the root. AI assistants automatically understand all exports, schemas, and framework adapters without hallucination.
+Use `createReactNativeStorage` with `@react-native-async-storage/async-storage` or `expo-secure-store` to persist sessions securely on iOS and Android:
+
+```typescript
+import { createAuthClient, createReactNativeStorage } from '@boostengine/auth/client';
+import * as SecureStore from 'expo-secure-store';
+
+export const authClient = createAuthClient({
+  baseURL: 'https://your-api.com/api/auth',
+  storage: createReactNativeStorage(SecureStore),
+});
+
+// React Native Login Flow:
+const handleOtpLogin = async (phone: string, otp: string, token: string) => {
+  const session = await authClient.verifyOtp({ phone, otp, verificationToken: token });
+  console.log('Mobile user logged in:', session.user);
+};
+```
+
+---
+
+## 🤖 AI Agent Toolkit (`@boostengine/auth/agent`)
+
+Equip AI customer service agents (Google Gemini, OpenAI, Claude, LangChain, Antigravity) with native authentication and permission verification tools:
+
+```typescript
+import { AuthAgentToolkit } from '@boostengine/auth/agent';
+import { auth } from '@/lib/auth';
+
+const agentToolkit = new AuthAgentToolkit(auth);
+
+// 1. Get Function Calling Schemas for LLM
+const tools = agentToolkit.getToolDefinitions();
+
+// 2. Directly execute tool upon LLM function call
+const result = await agentToolkit.executeTool('verifySessionToken', {
+  token: 'jwt_session_token_here',
+});
+
+// 3. Verify user permissions dynamically in agent workflows
+const permission = await agentToolkit.executeTool('checkUserPermission', {
+  token: 'jwt_session_token_here',
+  requiredRole: 'admin',
+});
+```
 
 ---
 
 ## 📄 License
 
-MIT © [Rishabh Gehlot](https://github.com/Rishabhgehlot7)
+MIT © Boost Engine

@@ -1143,7 +1143,7 @@ var BoostAuth = class {
   mergeGuestCart(guestItems, userItems) {
     const itemMap = /* @__PURE__ */ new Map();
     let conflictsResolved = 0;
-    const getKey = (item) => `${item.productId}_${item.variantId || "default"}`;
+    const getKey = (item) => `${item.productId || item.id || "item"}_${item.variantId || "default"}`;
     for (const item of userItems) {
       itemMap.set(getKey(item), { ...item });
     }
@@ -1930,22 +1930,99 @@ var MemoryStorage = class {
 };
 var WebStorage = class {
   getItem(key) {
-    if (typeof window !== "undefined" && window.localStorage) {
-      return window.localStorage.getItem(key);
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+    } catch {
     }
     return null;
   }
   setItem(key, value) {
-    if (typeof window !== "undefined" && window.localStorage) {
-      window.localStorage.setItem(key, value);
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(key, value);
+      }
+    } catch {
     }
   }
   removeItem(key) {
-    if (typeof window !== "undefined" && window.localStorage) {
-      window.localStorage.removeItem(key);
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.removeItem(key);
+      }
+    } catch {
     }
   }
 };
+var ReactNativeStorage = class {
+  constructor(backend) {
+    this.backend = backend;
+    if (!backend) {
+      throw new Error(
+        "[@boostengine/auth] ReactNativeStorage requires an underlying storage backend (e.g. AsyncStorage or SecureStore)."
+      );
+    }
+  }
+  async getItem(key) {
+    try {
+      if (typeof this.backend.getItemAsync === "function") {
+        return await this.backend.getItemAsync(key);
+      }
+      if (typeof this.backend.getItem === "function") {
+        return await this.backend.getItem(key);
+      }
+      if (typeof this.backend.getString === "function") {
+        return this.backend.getString(key) ?? null;
+      }
+    } catch {
+    }
+    return null;
+  }
+  async setItem(key, value) {
+    try {
+      if (typeof this.backend.setItemAsync === "function") {
+        await this.backend.setItemAsync(key, value);
+        return;
+      }
+      if (typeof this.backend.setItem === "function") {
+        await this.backend.setItem(key, value);
+        return;
+      }
+      if (typeof this.backend.set === "function") {
+        this.backend.set(key, value);
+        return;
+      }
+    } catch {
+    }
+  }
+  async removeItem(key) {
+    try {
+      if (typeof this.backend.deleteItemAsync === "function") {
+        await this.backend.deleteItemAsync(key);
+        return;
+      }
+      if (typeof this.backend.removeItem === "function") {
+        await this.backend.removeItem(key);
+        return;
+      }
+      if (typeof this.backend.delete === "function") {
+        this.backend.delete(key);
+        return;
+      }
+    } catch {
+    }
+  }
+};
+function createReactNativeStorage(backend) {
+  return new ReactNativeStorage(backend);
+}
+function getDefaultAuthStorage() {
+  if (typeof window !== "undefined" && window.localStorage) {
+    return new WebStorage();
+  }
+  return new MemoryStorage();
+}
 
 // src/client/react.ts
 var AuthContext = null;
@@ -2403,6 +2480,188 @@ var BoostAuthClient = class {
 function createAuthClient(config) {
   return new BoostAuthClient(config);
 }
+
+// src/agent.ts
+var AuthAgentToolkit = class {
+  constructor(auth) {
+    this.auth = auth;
+  }
+  /**
+   * Returns standard OpenAI/Gemini/JSON Schema tool declarations for LLM function calling
+   */
+  getToolDefinitions() {
+    return [
+      {
+        name: "verifySessionToken",
+        description: "Verify if a customer or admin session token/JWT is active and extract the user identity, email, and role.",
+        parameters: {
+          type: "object",
+          properties: {
+            token: { type: "string", description: "The session token or JWT string" }
+          },
+          required: ["token"]
+        }
+      },
+      {
+        name: "checkUserPermission",
+        description: "Check if an authenticated user possesses a required role (e.g. admin, customer, vendor, support) or permission.",
+        parameters: {
+          type: "object",
+          properties: {
+            token: { type: "string", description: "Session token of the user" },
+            requiredRole: { type: "string", description: "Role required to perform the action (e.g. admin, support)" }
+          },
+          required: ["token", "requiredRole"]
+        }
+      },
+      {
+        name: "generatePhoneOtp",
+        description: "Generate a stateless One-Time Password (OTP) and verification token for a customer mobile number.",
+        parameters: {
+          type: "object",
+          properties: {
+            phone: { type: "string", description: "Customer mobile number with country code (e.g. +919876543210)" }
+          },
+          required: ["phone"]
+        }
+      },
+      {
+        name: "verifyPhoneOtp",
+        description: "Verify an OTP entered by the customer against the stateless verification token.",
+        parameters: {
+          type: "object",
+          properties: {
+            phone: { type: "string", description: "Customer mobile number" },
+            otp: { type: "string", description: "6-digit OTP code entered by user" },
+            verificationToken: { type: "string", description: "HMAC verification token generated during OTP dispatch" }
+          },
+          required: ["phone", "otp", "verificationToken"]
+        }
+      },
+      {
+        name: "mergeGuestCart",
+        description: "Merge an anonymous guest shopping cart into the customer account after successful login.",
+        parameters: {
+          type: "object",
+          properties: {
+            guestItems: {
+              type: "array",
+              items: { type: "object" },
+              description: "Array of items from the anonymous guest cart"
+            },
+            userItems: {
+              type: "array",
+              items: { type: "object" },
+              description: "Array of items currently saved in the user cart"
+            }
+          },
+          required: ["guestItems", "userItems"]
+        }
+      }
+    ];
+  }
+  /**
+   * Executes a tool invoked by the AI agent
+   */
+  async executeTool(name, args) {
+    switch (name) {
+      case "verifySessionToken": {
+        const token = String(args.token);
+        if (this.auth) {
+          return this.auth.verifySession(token);
+        }
+        return this.simulateSessionVerification(token);
+      }
+      case "checkUserPermission": {
+        const token = String(args.token);
+        const requiredRole = String(args.requiredRole);
+        let user;
+        if (this.auth) {
+          const res = this.auth.verifySession(token);
+          user = res.user;
+        } else {
+          user = this.simulateSessionVerification(token).user;
+        }
+        const hasPermission = user?.role?.toLowerCase() === requiredRole.toLowerCase() || user?.role === "admin";
+        return {
+          hasPermission,
+          userRole: user?.role || "anonymous",
+          userId: user?.userId
+        };
+      }
+      case "generatePhoneOtp": {
+        const phone = String(args.phone);
+        if (this.auth) {
+          return this.auth.generateOTP({ phone });
+        }
+        return {
+          otp: "123456",
+          verificationToken: `sim_token_${Date.now()}`,
+          expiresInSeconds: 300
+        };
+      }
+      case "verifyPhoneOtp": {
+        if (this.auth) {
+          return this.auth.verifyOTP({
+            phone: String(args.phone),
+            otp: String(args.otp),
+            verificationToken: String(args.verificationToken)
+          });
+        }
+        const isValid = args.otp === "123456" || !args.verificationToken.startsWith("expired");
+        return {
+          isValid,
+          phone: args.phone,
+          error: isValid ? void 0 : "Invalid or expired OTP"
+        };
+      }
+      case "mergeGuestCart": {
+        const guestItems = Array.isArray(args.guestItems) ? args.guestItems : [];
+        const userItems = Array.isArray(args.userItems) ? args.userItems : [];
+        if (this.auth) {
+          return this.auth.mergeGuestCart(guestItems, userItems);
+        }
+        const map = /* @__PURE__ */ new Map();
+        for (const item of [...userItems, ...guestItems]) {
+          const key = item.productId || item.id || "item";
+          if (map.has(key)) {
+            map.get(key).quantity += item.quantity || 1;
+          } else {
+            map.set(key, { ...item });
+          }
+        }
+        const merged = Array.from(map.values());
+        return {
+          mergedItems: merged,
+          itemCount: merged.reduce((acc, i) => acc + (i.quantity || 1), 0),
+          subtotal: merged.reduce((acc, i) => acc + (i.price || 0) * (i.quantity || 1), 0)
+        };
+      }
+      default:
+        throw new Error(`Unknown auth agent tool: '${name}'`);
+    }
+  }
+  /**
+   * Simulates session verification for offline bot testing
+   */
+  simulateSessionVerification(token) {
+    if (!token || token.includes("invalid") || token.includes("expired")) {
+      return { isValid: false };
+    }
+    return {
+      isValid: true,
+      user: {
+        userId: "usr_simulated_1001",
+        phone: "+919876543210",
+        email: "customer@example.com",
+        name: "Demo Customer",
+        role: token.includes("admin") ? "admin" : "customer",
+        iat: Math.floor(Date.now() / 1e3),
+        exp: Math.floor(Date.now() / 1e3) + 86400
+      }
+    };
+  }
+};
 var TOTPManager = class {
   /**
    * Encodes a Buffer to a Base32 string
@@ -2528,6 +2787,6 @@ async function verifyPassword(password, storedHash) {
   });
 }
 
-export { AppleProvider, AuthProvider, AuthRouter, BoostAuth, BoostAuthClient, BoostCommunicationsProvider, CredentialsProvider, DiscordProvider, EmailOtpProvider, GitHubProvider, GoogleProvider, InMemoryRateLimiter, MemoryAdapter, OAuthHelper, OrganizationManager, PhoneOtpProvider, SignInCard, TOTPManager, TokenManager, createAuthClient, createAuthMiddleware, createBoostAuth, defaultRateLimiter, drizzleAdapter, getServerSession, hashPassword, memoryAdapter, mongodbAdapter, prismaAdapter, toNextJsHandler, toNodeHandler, toPagesHandler, useSession, verifyPassword };
+export { AppleProvider, AuthAgentToolkit, AuthProvider, AuthRouter, BoostAuth, BoostAuthClient, BoostCommunicationsProvider, CredentialsProvider, DiscordProvider, EmailOtpProvider, GitHubProvider, GoogleProvider, InMemoryRateLimiter, MemoryAdapter, OAuthHelper, OrganizationManager, PhoneOtpProvider, SignInCard, TOTPManager, TokenManager, createAuthClient, createAuthMiddleware, createBoostAuth, createReactNativeStorage, defaultRateLimiter, drizzleAdapter, getDefaultAuthStorage, getServerSession, hashPassword, memoryAdapter, mongodbAdapter, prismaAdapter, toNextJsHandler, toNodeHandler, toPagesHandler, useSession, verifyPassword };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

@@ -1,9 +1,10 @@
 'use client';
 import { useState, useCallback } from 'react';
 
+// src/client.ts
 function loadScript(src) {
   return new Promise((resolve) => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || typeof document === "undefined") {
       return resolve(false);
     }
     if (document.querySelector(`script[src="${src}"]`)) {
@@ -23,10 +24,16 @@ async function loadRazorpay() {
 async function loadCashfree() {
   return loadScript("https://sdk.cashfree.com/js/v3/cashfree.js");
 }
-async function openPaymentModal(options) {
+async function createPaymentCheckout(options) {
   const { order, onSuccess, onFailure, onDismiss, name, description, image, themeColor, prefill } = options;
-  if (typeof window === "undefined") {
-    throw new Error("openPaymentModal can only be called in a browser environment.");
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    if (order.redirectUrl) {
+      return;
+    }
+    if (order.upiIntent?.upiUri) {
+      return;
+    }
+    throw new Error("createPaymentCheckout requires browser DOM or mobile redirectUrl.");
   }
   const gateway = order.gateway;
   if (gateway === "razorpay") {
@@ -44,8 +51,8 @@ async function openPaymentModal(options) {
       key: order.rawResponse?.key || order.rawResponse?.key_id,
       amount: Math.round(order.amount * 100),
       currency: order.currency,
-      name: name || "Order Checkout",
-      description: description || `Payment for order #${order.orderId}`,
+      name: name || "Checkout",
+      description: description || `Order #${order.orderId}`,
       image,
       order_id: order.gatewayOrderId,
       prefill: prefill || {},
@@ -100,7 +107,7 @@ async function openPaymentModal(options) {
       window.location.href = order.redirectUrl;
       return;
     }
-    onFailure?.({ gateway: "cashfree", message: "No payment session ID or redirect URL found for Cashfree order." });
+    onFailure?.({ gateway: "cashfree", message: "No payment session ID or redirect URL found for Cashfree." });
     return;
   }
   if (gateway === "phonepe" || gateway === "stripe" || gateway === "paytm") {
@@ -122,6 +129,9 @@ async function openPaymentModal(options) {
   }
   onFailure?.({ gateway, message: `Unsupported checkout gateway: ${gateway}` });
 }
+
+// src/react/index.ts
+var openPaymentModal = createPaymentCheckout;
 function useBoostPayment() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -129,7 +139,7 @@ function useBoostPayment() {
     setIsProcessing(true);
     setError(null);
     try {
-      await openPaymentModal({
+      await createPaymentCheckout({
         ...options,
         onSuccess: (res) => {
           setIsProcessing(false);

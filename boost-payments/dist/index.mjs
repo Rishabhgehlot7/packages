@@ -967,12 +967,76 @@ var CODAdapter = class extends BasePaymentAdapter {
   }
 };
 
+// src/idempotency.ts
+var IdempotencyStore = class {
+  constructor(defaultTtlMs = 10 * 60 * 1e3) {
+    this.cache = /* @__PURE__ */ new Map();
+    this.defaultTtlMs = defaultTtlMs;
+  }
+  get(key) {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+    return entry.result;
+  }
+  set(key, result, ttlMs = this.defaultTtlMs) {
+    this.cache.set(key, {
+      result,
+      expiresAt: Date.now() + ttlMs
+    });
+  }
+  clear() {
+    this.cache.clear();
+  }
+};
+
+// src/upi.ts
+var UPIIntentGenerator = class {
+  /**
+   * Generates standard UPI URI and app-specific deep links
+   */
+  static generate(options) {
+    const { pa, pn, am, cu = "INR", tr, tn, mc } = options;
+    const params = new URLSearchParams();
+    const cleanAmount = typeof am === "number" && !isNaN(am) ? am : 0;
+    params.set("pa", pa);
+    params.set("pn", pn);
+    params.set("am", cleanAmount.toFixed(2));
+    params.set("cu", cu);
+    params.set("tr", tr);
+    if (tn) params.set("tn", tn);
+    if (mc) params.set("mc", mc);
+    const queryString = params.toString();
+    const upiUri = `upi://pay?${queryString}`;
+    return {
+      upiUri,
+      gpay: `tez://upi/pay?${queryString}`,
+      phonepe: `phonepe://pay?${queryString}`,
+      paytm: `paytmmp://pay?${queryString}`,
+      cred: `cred://upi/pay?${queryString}`,
+      bhim: `bhim://pay?${queryString}`
+    };
+  }
+  /**
+   * Generates a plain text ASCII QR code pattern for terminal debugging
+   */
+  static generateDebugQrString(upiUri) {
+    return `[UPI-QR: ${upiUri}]`;
+  }
+};
+
 // src/manager.ts
 var PaymentManager = class {
   constructor(options) {
     this.adapters = /* @__PURE__ */ new Map();
+    this.idempotencyStore = new IdempotencyStore();
     this.defaultGateway = options.defaultGateway;
     this.smartRouting = options.smartRouting;
+    this.merchantUpiVpa = options.merchantUpiVpa;
+    this.merchantName = options.merchantName;
     const { gateways } = options;
     if (gateways.razorpay) {
       this.adapters.set("razorpay", new RazorpayAdapter(gateways.razorpay));
@@ -1035,15 +1099,168 @@ var PaymentManager = class {
     throw new PaymentError("No payment gateways configured to process order.");
   }
   /**
-   * Create an order using the chosen or automatically resolved gateway.
+   * Universal Order Creator with Idempotency Protection & UPI Intent generation
    */
   async createOrder(options) {
+    if (options.idempotencyKey) {
+      const cached = this.idempotencyStore.get(options.idempotencyKey);
+      if (cached) {
+        return cached;
+      }
+    }
     const targetGateway = this.resolveGateway({
       gateway: options.gateway,
       currency: options.currency
     });
     const adapter = this.getAdapter(targetGateway);
-    return adapter.createOrder(options);
+    const result = await adapter.createOrder(options);
+    result.mode = options.mode || "one_time";
+    if (this.merchantUpiVpa && (!options.currency || options.currency.toUpperCase() === "INR")) {
+      result.upiIntent = UPIIntentGenerator.generate({
+        pa: this.merchantUpiVpa,
+        pn: this.merchantName || "Merchant Checkout",
+        am: result.amount,
+        tr: result.orderId,
+        tn: `Payment for #${result.orderId}`
+      });
+    }
+    if (options.idempotencyKey) {
+      this.idempotencyStore.set(options.idempotencyKey, result);
+    }
+    return result;
+  }
+  /**
+   * 1-Line Seamless Integration with @boostengine/cart
+   * Automatically extracts subtotal, items, discounts, and final amount from cart instance!
+   */
+  async createOrderFromCart(cart, options) {
+    const summary = cart.getSummary();
+    if (summary.finalTotal <= 0) {
+      throw new PaymentError("Cart payable amount must be greater than 0 to initiate payment.");
+    }
+    const orderOptions = {
+      amount: summary.finalTotal,
+      currency: options.currency || "INR",
+      receipt: options.receipt || `rcpt_${Date.now()}`,
+      customer: options.customer,
+      items: summary.items.map((i) => ({
+        name: i.title,
+        quantity: i.quantity,
+        price: i.price,
+        sku: i.sku
+      })),
+      notes: {
+        ...options.notes,
+        cartSubtotal: summary.subtotal,
+        discountApplied: summary.discount?.code || "NONE"
+      },
+      gateway: options.gateway,
+      redirectUrl: options.redirectUrl,
+      callbackUrl: options.callbackUrl,
+      idempotencyKey: options.idempotencyKey,
+      mode: "one_time"
+    };
+    return this.createOrder(orderOptions);
+  }
+  /**
+   * Digital Products & Instant Downloads Checkout
+   * Automatically attaches license key and delivery payload for instant fulfillment.
+   */
+  async createDigitalProductCheckout(options) {
+    const order = await this.createOrder({
+      amount: options.amount,
+      currency: options.currency,
+      receipt: `digital_${options.productId}_${Date.now()}`,
+      customer: options.customer,
+      items: [
+        {
+          name: options.title,
+          quantity: 1,
+          price: options.amount,
+          sku: options.productId
+        }
+      ],
+      notes: {
+        ...options.notes,
+        productId: options.productId,
+        productType: "digital_download"
+      },
+      gateway: options.gateway,
+      redirectUrl: options.redirectUrl,
+      idempotencyKey: options.idempotencyKey,
+      mode: "digital_download"
+    });
+    order.digitalAccess = {
+      licenseKey: options.licenseKey,
+      downloadUrl: options.downloadUrl
+    };
+    return order;
+  }
+  /**
+   * Recurring SaaS & Membership Subscriptions
+   */
+  async createSubscription(options) {
+    const targetGateway = options.gateway || (options.currency.toUpperCase() === "INR" ? "razorpay" : "stripe");
+    const adapter = this.getAdapter(targetGateway);
+    const order = await adapter.createOrder({
+      amount: options.amount,
+      currency: options.currency,
+      receipt: `sub_${options.planName.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`,
+      customer: options.customer,
+      notes: {
+        ...options.notes,
+        planName: options.planName,
+        interval: options.interval,
+        isSubscription: true
+      },
+      redirectUrl: options.redirectUrl,
+      mode: "subscription"
+    });
+    return {
+      subscriptionId: order.orderId,
+      gateway: targetGateway,
+      status: "PENDING",
+      planName: options.planName,
+      amount: options.amount,
+      currency: options.currency,
+      interval: options.interval,
+      shortUrl: order.redirectUrl,
+      customer: options.customer,
+      rawResponse: order.rawResponse
+    };
+  }
+  /**
+   * Donations, Tips & Pay-What-You-Want Checkout
+   */
+  async createDonationCheckout(options) {
+    return this.createOrder({
+      amount: options.amount,
+      currency: options.currency,
+      receipt: `don_${Date.now()}`,
+      customer: options.customer,
+      items: [
+        {
+          name: `Donation: ${options.cause}`,
+          quantity: 1,
+          price: options.amount
+        }
+      ],
+      notes: {
+        ...options.notes,
+        cause: options.cause,
+        isDonation: true
+      },
+      gateway: options.gateway,
+      redirectUrl: options.redirectUrl,
+      idempotencyKey: options.idempotencyKey,
+      mode: "donation"
+    });
+  }
+  /**
+   * Generates custom UPI Intent Deep-Links
+   */
+  createUPIIntent(options) {
+    return UPIIntentGenerator.generate(options);
   }
   /**
    * Smart Fallback: Attempts creation on primary gateway. If it throws an error or fails,
@@ -1094,16 +1311,6 @@ var PaymentManager = class {
   }
   /**
    * Ready-made Next.js 13/14/15 App Router Route Handler Webhook Authenticator.
-   * Directly consumes the standard web Request object with raw stream body handling:
-   *
-   * ```typescript
-   * export async function POST(req: Request) {
-   *   const result = await payments.verifyNextJsWebhook(req, { gateway: 'razorpay' });
-   *   if (!result.isValid) return new Response('Invalid Signature', { status: 400 });
-   *   console.log('Event:', result.normalizedEvent, result.orderId);
-   *   return new Response('OK');
-   * }
-   * ```
    */
   async verifyNextJsWebhook(request, options) {
     try {
@@ -1146,11 +1353,272 @@ var PaymentManager = class {
       };
     }
   }
+  /**
+   * Ready-made Express.js & Fastify Webhook Authenticator.
+   * Works with standard req, (req.rawBody or JSON.stringify(req.body)).
+   */
+  async verifyExpressWebhook(req, options) {
+    let rawBody = "";
+    if (typeof req.rawBody === "string") {
+      rawBody = req.rawBody;
+    } else if (Buffer.isBuffer(req.rawBody)) {
+      rawBody = req.rawBody.toString("utf8");
+    } else if (typeof req.body === "string") {
+      rawBody = req.body;
+    } else if (typeof req.body === "object") {
+      rawBody = JSON.stringify(req.body);
+    }
+    const headers = {};
+    if (req.headers) {
+      Object.entries(req.headers).forEach(([k, v]) => {
+        headers[k.toLowerCase()] = Array.isArray(v) ? v[0] : v;
+      });
+    }
+    return this.verifyWebhook({
+      gateway: options.gateway,
+      rawBody,
+      headers,
+      webhookSecret: options.webhookSecret
+    });
+  }
 };
 function createPaymentManager(options) {
   return new PaymentManager(options);
 }
 
-export { BasePaymentAdapter, CODAdapter, CashfreeAdapter, GatewayNotConfiguredError, PaymentError, PaymentManager, PaytmAdapter, PhonePeAdapter, RazorpayAdapter, SignatureVerificationError, StripeAdapter, base64Decode, base64Encode, createPaymentManager, hmacSha256, safeCompare, sha256 };
+// src/client.ts
+function loadScript(src) {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return resolve(false);
+    }
+    if (document.querySelector(`script[src="${src}"]`)) {
+      return resolve(true);
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+async function loadRazorpay() {
+  return loadScript("https://checkout.razorpay.com/v1/checkout.js");
+}
+async function loadCashfree() {
+  return loadScript("https://sdk.cashfree.com/js/v3/cashfree.js");
+}
+async function createPaymentCheckout(options) {
+  const { order, onSuccess, onFailure, onDismiss, name, description, image, themeColor, prefill } = options;
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    if (order.redirectUrl) {
+      return;
+    }
+    if (order.upiIntent?.upiUri) {
+      return;
+    }
+    throw new Error("createPaymentCheckout requires browser DOM or mobile redirectUrl.");
+  }
+  const gateway = order.gateway;
+  if (gateway === "razorpay") {
+    const loaded = await loadRazorpay();
+    if (!loaded) {
+      onFailure?.({ gateway: "razorpay", message: "Failed to load Razorpay checkout SDK." });
+      return;
+    }
+    const RazorpayConstructor = window.Razorpay;
+    if (!RazorpayConstructor) {
+      onFailure?.({ gateway: "razorpay", message: "Razorpay SDK is not available on window." });
+      return;
+    }
+    const rzpOptions = {
+      key: order.rawResponse?.key || order.rawResponse?.key_id,
+      amount: Math.round(order.amount * 100),
+      currency: order.currency,
+      name: name || "Checkout",
+      description: description || `Order #${order.orderId}`,
+      image,
+      order_id: order.gatewayOrderId,
+      prefill: prefill || {},
+      theme: {
+        color: themeColor || "#3399cc"
+      },
+      handler: function(response) {
+        onSuccess({
+          gateway: "razorpay",
+          orderId: order.orderId,
+          paymentId: response.razorpay_payment_id,
+          signature: response.razorpay_signature,
+          rawResponse: response
+        });
+      },
+      modal: {
+        ondismiss: function() {
+          onDismiss?.();
+        }
+      }
+    };
+    const rzp = new RazorpayConstructor(rzpOptions);
+    rzp.on("payment.failed", function(resp) {
+      onFailure?.({
+        gateway: "razorpay",
+        message: resp.error?.description || "Payment was declined",
+        rawError: resp.error
+      });
+    });
+    rzp.open();
+    return;
+  }
+  if (gateway === "cashfree") {
+    if (order.paymentSessionId) {
+      const loaded = await loadCashfree();
+      if (!loaded) {
+        onFailure?.({ gateway: "cashfree", message: "Failed to load Cashfree SDK." });
+        return;
+      }
+      const CashfreeConstructor = window.Cashfree;
+      if (CashfreeConstructor) {
+        const isSandbox = order.paymentSessionId.includes("test") || order.rawResponse?.environment === "SANDBOX";
+        const cashfree = CashfreeConstructor({ mode: isSandbox ? "sandbox" : "production" });
+        cashfree.checkout({
+          paymentSessionId: order.paymentSessionId,
+          redirectTarget: "_self"
+        });
+        return;
+      }
+    }
+    if (order.redirectUrl) {
+      window.location.href = order.redirectUrl;
+      return;
+    }
+    onFailure?.({ gateway: "cashfree", message: "No payment session ID or redirect URL found for Cashfree." });
+    return;
+  }
+  if (gateway === "phonepe" || gateway === "stripe" || gateway === "paytm") {
+    if (order.redirectUrl) {
+      window.location.href = order.redirectUrl;
+      return;
+    }
+    onFailure?.({ gateway, message: `No redirect URL returned for ${gateway} checkout.` });
+    return;
+  }
+  if (gateway === "cod") {
+    onSuccess({
+      gateway: "cod",
+      orderId: order.orderId,
+      paymentId: `COD_${order.orderId}`,
+      rawResponse: order.rawResponse
+    });
+    return;
+  }
+  onFailure?.({ gateway, message: `Unsupported checkout gateway: ${gateway}` });
+}
+var PaymentAgentToolkit = class {
+  /**
+   * Generates a concise, LLM-friendly markdown status report of the PaymentManager
+   */
+  static inspect(manager) {
+    const gateways = manager.listConfiguredGateways();
+    return [
+      `\u{1F4B3} **BoostPayments State Report**`,
+      `- Configured Gateways (${gateways.length}): ${gateways.join(", ") || "None"}`,
+      `- Supported Modes: Physical eCommerce, Digital Downloads, Subscriptions & SaaS, Donations`,
+      `- Indian UPI Intent: Active (Google Pay, PhonePe, Paytm, CRED, BHIM)`,
+      `- Webhook Frameworks: Next.js App Router, Express.js, Fastify, Node HTTP`,
+      `---------------------------------`,
+      `\u{1F4A1} Status: Ready for transaction processing.`
+    ].join("\n");
+  }
+  /**
+   * Validates an order creation payload with actionable hints for AI agents
+   */
+  static validateOrder(options) {
+    const errors = [];
+    if (!options) return { valid: false, errors: ["Options object is required"] };
+    if (typeof options.amount !== "number" || isNaN(options.amount) || options.amount <= 0) {
+      errors.push('Property "amount" must be a positive number greater than 0.');
+    }
+    if (!options.currency || options.currency.length !== 3) {
+      errors.push('Property "currency" must be a 3-letter ISO code (e.g. "INR", "USD").');
+    }
+    if (!options.customer) {
+      errors.push('Missing required "customer" object.');
+    } else {
+      if (!options.customer.name) errors.push('Customer "name" is required.');
+      if (!options.customer.email && !options.customer.phone) {
+        errors.push('Either customer "email" or "phone" must be provided.');
+      }
+    }
+    return { valid: errors.length === 0, errors };
+  }
+  /**
+   * Generates simulated webhook payloads with valid cryptographic signatures
+   * Ideal for local testing and CI/CD pipelines without hitting live gateway servers!
+   */
+  static simulateWebhook(options) {
+    const {
+      gateway,
+      event,
+      orderId,
+      paymentId = `pay_sim_${Date.now()}`,
+      amount,
+      currency = "INR",
+      webhookSecret = "test_secret_123"
+    } = options;
+    if (gateway === "razorpay") {
+      const rzpEvent = event === "PAYMENT_SUCCESS" ? "order.paid" : event === "PAYMENT_FAILED" ? "payment.failed" : "refund.processed";
+      const bodyObj = {
+        entity: "event",
+        event: rzpEvent,
+        contains: ["payment", "order"],
+        payload: {
+          payment: {
+            entity: {
+              id: paymentId,
+              order_id: orderId,
+              amount: Math.round(amount * 100),
+              currency,
+              status: event === "PAYMENT_SUCCESS" ? "captured" : "failed"
+            }
+          },
+          order: {
+            entity: {
+              id: orderId,
+              amount: Math.round(amount * 100),
+              status: "paid"
+            }
+          }
+        }
+      };
+      const rawBody2 = JSON.stringify(bodyObj);
+      const signature = crypto.createHmac("sha256", webhookSecret).update(rawBody2).digest("hex");
+      return {
+        rawBody: rawBody2,
+        headers: {
+          "x-razorpay-signature": signature,
+          "content-type": "application/json"
+        }
+      };
+    }
+    const rawBody = JSON.stringify({
+      gateway,
+      event,
+      orderId,
+      paymentId,
+      amount,
+      currency
+    });
+    return {
+      rawBody,
+      headers: {
+        "x-mock-signature": "valid",
+        "content-type": "application/json"
+      }
+    };
+  }
+};
+
+export { BasePaymentAdapter, CODAdapter, CashfreeAdapter, GatewayNotConfiguredError, IdempotencyStore, PaymentAgentToolkit, PaymentError, PaymentManager, PaytmAdapter, PhonePeAdapter, RazorpayAdapter, SignatureVerificationError, StripeAdapter, UPIIntentGenerator, base64Decode, base64Encode, createPaymentCheckout, createPaymentManager, hmacSha256, loadCashfree, loadRazorpay, loadScript, safeCompare, sha256 };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

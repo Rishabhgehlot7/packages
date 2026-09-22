@@ -587,6 +587,61 @@ async function runAll() {
     assert.strictEqual(invalidRes.status, 401);
   });
 
+  // Test 18: React Native Mobile Storage Adapter
+  await test('React Native mobile storage adapter handles async storage', async () => {
+    const mockStorageBackend = {
+      store: new Map(),
+      async getItem(key) { return this.store.get(key) || null; },
+      async setItem(key, val) { this.store.set(key, val); },
+      async removeItem(key) { this.store.delete(key); },
+    };
+
+    const rnStorage = pkg.createReactNativeStorage(mockStorageBackend);
+    await rnStorage.setItem('test_token', 'jwt_mobile_abc123');
+    const val = await rnStorage.getItem('test_token');
+    assert.strictEqual(val, 'jwt_mobile_abc123');
+    await rnStorage.removeItem('test_token');
+    const emptyVal = await rnStorage.getItem('test_token');
+    assert.strictEqual(emptyVal, null);
+  });
+
+  // Test 19: AI Agent Toolkit
+  await test('AuthAgentToolkit exports valid function-calling schemas', async () => {
+    const toolkit = new pkg.AuthAgentToolkit(auth);
+    const tools = toolkit.getToolDefinitions();
+    assert.strictEqual(tools.length, 5, 'Must expose 5 core auth tools');
+    
+    const toolNames = tools.map(t => t.name);
+    assert.ok(toolNames.includes('verifySessionToken'));
+    assert.ok(toolNames.includes('checkUserPermission'));
+    assert.ok(toolNames.includes('generatePhoneOtp'));
+    assert.ok(toolNames.includes('verifyPhoneOtp'));
+    assert.ok(toolNames.includes('mergeGuestCart'));
+
+    // Execute session verification via tool
+    const res = await toolkit.executeTool('generatePhoneOtp', { phone: '+919999988888' });
+    assert.ok(res.otp);
+    assert.ok(res.verificationToken);
+  });
+
+  // Test 20: Guest Cart Merging with @boostengine/cart compatibility
+  await test('mergeGuestCart seamlessly merges items with id and productId', () => {
+    const guestCart = [
+      { id: 'cart_item_1', productId: 'prod_101', quantity: 2, price: 499 },
+      { id: 'cart_item_2', productId: 'prod_102', quantity: 1, price: 999 },
+    ];
+    const userCart = [
+      { id: 'user_item_1', productId: 'prod_101', quantity: 1, price: 499 },
+      { id: 'user_item_3', productId: 'prod_103', quantity: 3, price: 299 },
+    ];
+
+    const result = auth.mergeGuestCart(guestCart, userCart);
+    assert.strictEqual(result.mergedItems.length, 3, 'Should deduplicate prod_101 and merge to 3 distinct products');
+    assert.strictEqual(result.conflictsResolved, 1, '1 conflict resolved for prod_101');
+    const mergedProd101 = result.mergedItems.find(i => i.productId === 'prod_101');
+    assert.strictEqual(mergedProd101.quantity, 3, 'prod_101 quantity should be 1 + 2 = 3');
+  });
+
   console.log(`\n🎉 All ${passed} tests in @boostengine/auth passed successfully!\n`);
 }
 

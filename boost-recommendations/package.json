@@ -1,24 +1,39 @@
 {
   "name": "@boostengine/recommendations",
-  "version": "1.0.2",
-  "description": "Amazon & Flipkart-style Frequently Bought Together (FBT) bundles, cross-sell, and upsell recommendation engine for Next.js, Vite, and React.",
+  "version": "1.1.0",
+  "description": "Enterprise Frequently Bought Together (FBT) bundles, Collaborative Filtering, Cart Cross-Sells, Smart Upsells, and Autonomous AI Recommendation Tools.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "boost-recommendations": "./bin/cli.cjs"
+  },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.js"
     }
   },
   "files": [
     "dist",
+    "bin",
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "test": "node test-suite.cjs"
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "recommendations",
@@ -26,12 +41,11 @@
     "cross-sell",
     "upsell",
     "bundle-deals",
+    "collaborative-filtering",
+    "ai-agent",
+    "react-hooks",
     "average-order-value",
     "ecommerce",
-    "nextjs",
-    "vite",
-    "react",
-    "d2c",
     "boostengine"
   ],
   "author": "Boost Engine <boostengine001@gmail.com>",
@@ -43,7 +57,16 @@
   },
   "homepage": "https://github.com/boostengine/boostengine#readme",
   "sideEffects": false,
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@types/node": "^20.14.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   }

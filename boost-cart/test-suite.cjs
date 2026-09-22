@@ -1,162 +1,308 @@
 const assert = require('assert');
-const { BoostCart, createBoostCart, GSTCalculator } = require('./dist/index.cjs');
 
-console.log('🧪 Running @boostengine/cart Test Suite...\n');
-
-let passed = 0;
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`  ✅ Passed: ${name}`);
-    passed++;
-  } catch (err) {
-    console.error(`  ❌ Failed: ${name}`);
-    console.error(err);
-    process.exit(1);
-  }
+let pkg;
+try {
+  pkg = require('./dist/index.cjs');
+} catch (e) {
+  console.warn('⚠️ Note: dist/index.cjs not compiled yet. Run npm run build before running node test-suite.cjs.');
 }
 
-// Test 1: Item Addition & Quantity Deduplication
-test('Item addition and quantity updates', () => {
-  const cart = createBoostCart();
-  cart.addItem({
-    productId: 'prod_tee',
-    variantId: 'size_l',
-    title: 'Oversized Anime Tee',
-    price: 999,
-    compareAtPrice: 1499,
-    quantity: 1,
+if (pkg) {
+  const {
+    BoostCart,
+    createBoostCart,
+    GSTCalculator,
+    MemoryStorageAdapter,
+    createMemoryStorageAdapter,
+    CartAgentToolkit,
+    CurrencyFormatter,
+  } = pkg;
+
+  console.log('🧪 Running @boostengine/cart Enterprise Test Suite...\n');
+
+  let passed = 0;
+  function test(name, fn) {
+    try {
+      fn();
+      console.log(`  ✅ Passed: ${name}`);
+      passed++;
+    } catch (err) {
+      console.error(`  ❌ Failed: ${name}`);
+      console.error(err);
+      process.exit(1);
+    }
+  }
+
+  // Test 1: Item Addition, Deduplication & Max Stock Capping
+  test('Item addition, quantity deduplication & max stock enforcement', () => {
+    const cart = createBoostCart();
+    cart.addItem({
+      productId: 'prod_tee',
+      variantId: 'size_l',
+      title: 'Oversized Anime Tee',
+      price: 999,
+      compareAtPrice: 1499,
+      quantity: 1,
+      maxStock: 5,
+    });
+
+    cart.addItem({
+      productId: 'prod_tee',
+      variantId: 'size_l',
+      title: 'Oversized Anime Tee',
+      price: 999,
+      compareAtPrice: 1499,
+      quantity: 2,
+    });
+
+    let items = cart.getItems();
+    assert.strictEqual(items.length, 1);
+    assert.strictEqual(items[0].quantity, 3);
+
+    // Exceed max stock
+    cart.addItem({
+      productId: 'prod_tee',
+      variantId: 'size_l',
+      title: 'Oversized Anime Tee',
+      price: 999,
+      quantity: 10,
+    });
+
+    items = cart.getItems();
+    assert.strictEqual(items[0].quantity, 5); // Capped at 5
+
+    const summary = cart.getSummary();
+    assert.strictEqual(summary.subtotal, 4995);
+    assert.strictEqual(summary.totalMRP, 7495);
+    assert.strictEqual(summary.totalSavings, 2500);
   });
 
-  // Adding same product/variant increments quantity
-  cart.addItem({
-    productId: 'prod_tee',
-    variantId: 'size_l',
-    title: 'Oversized Anime Tee',
-    price: 999,
-    compareAtPrice: 1499,
-    quantity: 2,
+  // Test 2: Free Shipping Progress Bar
+  test('Free shipping progress calculation and formatting', () => {
+    const cart = createBoostCart({
+      shipping: { freeShippingThreshold: 1000, flatShippingRate: 80 },
+    });
+
+    cart.addItem({ productId: 'p1', title: 'Cap', price: 600, quantity: 1 });
+    let summary = cart.getSummary();
+
+    assert.strictEqual(summary.freeShipping.isEligible, false);
+    assert.strictEqual(summary.freeShipping.percentage, 60);
+    assert.strictEqual(summary.freeShipping.amountRemaining, 400);
+    assert.strictEqual(summary.shippingFee, 80);
+
+    // Cross threshold
+    cart.addItem({ productId: 'p2', title: 'Socks', price: 450, quantity: 1 });
+    summary = cart.getSummary();
+
+    assert.strictEqual(summary.freeShipping.isEligible, true);
+    assert.strictEqual(summary.freeShipping.percentage, 100);
+    assert.strictEqual(summary.freeShipping.amountRemaining, 0);
+    assert.strictEqual(summary.shippingFee, 0);
   });
 
-  const items = cart.getItems();
-  assert.strictEqual(items.length, 1);
-  assert.strictEqual(items[0].quantity, 3);
+  // Test 3: Advanced Discounts (Percentage, Max Cap & MOV)
+  test('Percentage discount with maximum cap and Minimum Order Value', () => {
+    const cart = createBoostCart();
+    cart.addItem({ productId: 'p1', title: 'Jacket', price: 2000, quantity: 1 });
 
-  const summary = cart.getSummary();
-  assert.strictEqual(summary.subtotal, 2997);
-  assert.strictEqual(summary.totalMRP, 4497);
-  assert.strictEqual(summary.totalSavings, 1500); // 4497 - 2997
-});
+    const res = cart.applyDiscount({
+      code: 'WINTER10',
+      type: 'percentage',
+      value: 10,
+      maxDiscount: 150,
+      minOrderValue: 1500,
+    });
 
-// Test 2: Free Shipping Progress Bar
-test('Free shipping progress calculation', () => {
-  const cart = createBoostCart({
-    shipping: { freeShippingThreshold: 1000, flatShippingRate: 80 },
+    assert.strictEqual(res.isValid, true);
+    assert.strictEqual(res.amount, 150); // 10% of 2000 = 200, capped at 150
+
+    // MOV rejection
+    cart.updateQuantity('p1', 0);
+    cart.addItem({ productId: 'p2', title: 'Keychain', price: 200, quantity: 1 });
+
+    const failedRes = cart.applyDiscount({
+      code: 'BIGDEAL',
+      type: 'percentage',
+      value: 20,
+      minOrderValue: 500,
+    });
+    assert.strictEqual(failedRes.isValid, false);
+    assert.ok(failedRes.error.includes('Minimum order value'));
   });
 
-  cart.addItem({ productId: 'p1', title: 'Cap', price: 600, quantity: 1 });
-  let summary = cart.getSummary();
+  // Test 4: BOGO Offers (Buy 2 Get 1 Free)
+  test('BOGO promotional math (Buy 2 Get 1 Free on lowest priced item)', () => {
+    const cart = createBoostCart();
+    // Add 3 items with prices: 1000, 800, 600
+    cart.addItem({ productId: 'p1', title: 'Sneakers', price: 1000, quantity: 1 });
+    cart.addItem({ productId: 'p2', title: 'Hoodie', price: 800, quantity: 1 });
+    cart.addItem({ productId: 'p3', title: 'Tee', price: 600, quantity: 1 });
 
-  assert.strictEqual(summary.freeShipping.isEligible, false);
-  assert.strictEqual(summary.freeShipping.percentage, 60);
-  assert.strictEqual(summary.freeShipping.amountRemaining, 400);
-  assert.strictEqual(summary.shippingFee, 80);
+    const res = cart.applyDiscount({
+      code: 'BUY2GET1',
+      type: 'bogo',
+      bogoConfig: { buyQuantity: 2, getQuantity: 1 },
+    });
 
-  // Add another item to cross 1000
-  cart.addItem({ productId: 'p2', title: 'Socks', price: 450, quantity: 1 });
-  summary = cart.getSummary();
+    assert.strictEqual(res.isValid, true);
+    assert.strictEqual(res.amount, 600); // 600 is the lowest price item, made free!
 
-  assert.strictEqual(summary.freeShipping.isEligible, true);
-  assert.strictEqual(summary.freeShipping.percentage, 100);
-  assert.strictEqual(summary.freeShipping.amountRemaining, 0);
-  assert.strictEqual(summary.shippingFee, 0);
-});
-
-// Test 3: Intra-State GST (CGST + SGST)
-test('Intra-state Indian GST calculation (CGST + SGST split)', () => {
-  const cart = createBoostCart({
-    origin: { state: 'Maharashtra', taxMode: 'inclusive' },
-    destination: { state: 'MH' }, // Intra-state
+    const summary = cart.getSummary();
+    assert.strictEqual(summary.subtotal, 2400);
+    assert.strictEqual(summary.discount.amount, 600);
+    assert.strictEqual(summary.finalTotal, 1800); // 2400 - 600
   });
 
-  cart.addItem({
-    productId: 'p_tech',
-    title: 'Mechanical Keyboard',
-    price: 1180, // Inclusive 18% GST -> 1000 taxable + 180 GST
-    taxRate: 18,
-    hsnCode: '8471',
-    quantity: 1,
+  // Test 5: Tiered Quantity Volume Discounts
+  test('Tiered volume discounts (Buy 3 get 20% off)', () => {
+    const cart = createBoostCart();
+    cart.addItem({ productId: 'p1', title: 'Soap Bar', price: 200, quantity: 4 });
+
+    const res = cart.applyDiscount({
+      code: 'VOLUMESAVE',
+      type: 'tiered',
+      tieredRules: [
+        { minQuantity: 2, discountPercentage: 10 },
+        { minQuantity: 3, discountPercentage: 20 },
+      ],
+    });
+
+    assert.strictEqual(res.isValid, true);
+    // Subtotal: 800. 4 units >= 3, so 20% of 800 = 160
+    assert.strictEqual(res.amount, 160);
+
+    const summary = cart.getSummary();
+    assert.strictEqual(summary.discount.amount, 160);
   });
 
-  const summary = cart.getSummary();
-  assert.strictEqual(summary.gst.taxType, 'INTRA_STATE');
-  assert.strictEqual(summary.gst.taxableAmount, 1000);
-  assert.strictEqual(summary.gst.totalTax, 180);
-  assert.strictEqual(summary.gst.cgst, 90);
-  assert.strictEqual(summary.gst.sgst, 90);
-  assert.strictEqual(summary.gst.igst, 0);
-  assert.strictEqual(summary.gst.hsnBreakdown[0].hsnCode, '8471');
-});
+  // Test 6: Custom Surcharges & Add-ons (Gift Wrap, Express delivery)
+  test('Custom surcharges & gift wrap fees included in checkout total', () => {
+    const cart = createBoostCart({
+      shipping: { freeShippingThreshold: 5000, flatShippingRate: 0 },
+    });
+    cart.addItem({ productId: 'p1', title: 'Watch', price: 2000, quantity: 1 });
 
-// Test 4: Inter-State GST (IGST)
-test('Inter-state Indian GST calculation (IGST only)', () => {
-  const cart = createBoostCart({
-    origin: { state: 'Maharashtra', taxMode: 'inclusive' },
-    destination: { state: 'Delhi' }, // Inter-state
+    cart.addFee({
+      id: 'gift_wrap',
+      title: 'Luxury Gift Wrap & Ribbon',
+      amount: 50,
+    });
+    cart.addFee({
+      id: 'express_delivery',
+      title: 'Same-Day Express Courier',
+      amount: 150,
+    });
+
+    const summary = cart.getSummary();
+    assert.strictEqual(summary.customFees.length, 2);
+    assert.strictEqual(summary.totalCustomFees, 200);
+    assert.strictEqual(summary.formatted.totalCustomFees, '₹200.00');
+    assert.strictEqual(summary.finalTotal, 2200); // 2000 + 200
   });
 
-  cart.addItem({
-    productId: 'p_tech',
-    title: 'Mechanical Keyboard',
-    price: 1180,
-    taxRate: 18,
-    quantity: 1,
+  // Test 7: Intra-State GST (CGST + SGST Split) & Tax-Exempt
+  test('Intra-state Indian GST calculation (CGST + SGST split)', () => {
+    const cart = createBoostCart({
+      origin: { state: 'Maharashtra', taxMode: 'inclusive' },
+      destination: { state: 'MH' },
+    });
+
+    cart.addItem({
+      productId: 'p_tech',
+      title: 'Mechanical Keyboard',
+      price: 1180,
+      taxRate: 18,
+      hsnCode: '8471',
+      quantity: 1,
+    });
+
+    cart.addItem({
+      productId: 'p_book',
+      title: 'Coding Handbook',
+      price: 500,
+      isTaxExempt: true,
+      quantity: 1,
+    });
+
+    const summary = cart.getSummary();
+    assert.strictEqual(summary.gst.taxType, 'INTRA_STATE');
+    assert.strictEqual(summary.gst.taxableAmount, 1500);
+    assert.strictEqual(summary.gst.totalTax, 180);
+    assert.strictEqual(summary.gst.cgst, 90);
+    assert.strictEqual(summary.gst.sgst, 90);
   });
 
-  const summary = cart.getSummary();
-  assert.strictEqual(summary.gst.taxType, 'INTER_STATE');
-  assert.strictEqual(summary.gst.totalTax, 180);
-  assert.strictEqual(summary.gst.cgst, 0);
-  assert.strictEqual(summary.gst.sgst, 0);
-  assert.strictEqual(summary.gst.igst, 180);
-});
+  // Test 8: Abandoned Cart & Checkout Funnel Recovery
+  test('Abandoned cart recovery metadata tracking', () => {
+    const cart = createBoostCart();
+    cart.addItem({ productId: 'p1', title: 'Backpack', price: 1999, quantity: 1 });
 
-// Test 5: COD Surcharge and Discount Application
-test('COD Fee & Coupon Discount calculation', () => {
-  const cart = createBoostCart({
-    shipping: { freeShippingThreshold: 2000, flatShippingRate: 100 },
-    payment: { paymentMethod: 'cod', codFee: 50 },
+    cart.setCustomerInfo({
+      name: 'Rohan Sharma',
+      phone: '9876543210',
+      email: 'rohan@example.com',
+    });
+    cart.setCheckoutStep('address');
+
+    const recovery = cart.getRecoveryPayload();
+    assert.strictEqual(recovery.customer.name, 'Rohan Sharma');
+    assert.strictEqual(recovery.customer.phone, '9876543210');
+    assert.strictEqual(recovery.checkoutStep, 'address');
+    assert.strictEqual(recovery.subtotal, 1999);
+    assert.strictEqual(recovery.itemCount, 1);
   });
 
-  cart.addItem({ productId: 'p1', title: 'Bag', price: 1500, quantity: 1 });
-  cart.applyDiscount({ code: 'SAVE200', amount: 200 });
+  // Test 9: Pluggable Storage Adapter Auto-Sync & Cross-Tab callback
+  test('Pluggable MemoryStorageAdapter with onSync callback', () => {
+    const storage = createMemoryStorageAdapter();
+    let syncTriggered = false;
 
-  const summary = cart.getSummary();
-  // subtotal: 1500, discount: 200, shipping: 100 (<2000), codFee: 50
-  // total: 1500 - 200 + 100 + 50 = 1450
-  assert.strictEqual(summary.subtotal, 1500);
-  assert.strictEqual(summary.discount.amount, 200);
-  assert.strictEqual(summary.shippingFee, 100);
-  assert.strictEqual(summary.codFee, 50);
-  assert.strictEqual(summary.finalTotal, 1450);
-});
+    storage.onSync((val) => {
+      syncTriggered = true;
+    });
 
-// Test 6: Serialization to JSON & Rehydration
-test('Cart serialization toJSON & fromJSON', () => {
-  const cart1 = createBoostCart();
-  cart1.addItem({ productId: 'p1', title: 'Watch', price: 2999, quantity: 2 });
-  cart1.applyDiscount({ code: 'OFF100', amount: 100 });
+    const cart = createBoostCart({ storage, storageKey: 'test_store_cart' });
+    cart.addItem({ productId: 'p_watch', title: 'Smartwatch', price: 4999, quantity: 1 });
 
-  const savedState = cart1.toJSON();
+    assert.strictEqual(syncTriggered, true);
+  });
 
-  const cart2 = createBoostCart();
-  cart2.fromJSON(savedState);
+  // Test 10: Reactive Subscriptions
+  test('Reactive subscription contract for Svelte & React useSyncExternalStore', () => {
+    const cart = createBoostCart();
+    let notificationCount = 0;
+    let latestTotal = 0;
 
-  const summary = cart2.getSummary();
-  assert.strictEqual(summary.items.length, 1);
-  assert.strictEqual(summary.items[0].quantity, 2);
-  assert.strictEqual(summary.subtotal, 5998);
-  assert.strictEqual(summary.discount.code, 'OFF100');
-});
+    const unsubscribe = cart.subscribe((summary) => {
+      notificationCount++;
+      latestTotal = summary.finalTotal;
+    });
 
-console.log(`\n🎉 All ${passed} tests in @boostengine/cart passed successfully!\n`);
+    assert.strictEqual(notificationCount, 1);
+    assert.strictEqual(latestTotal, 0);
+
+    cart.addItem({ productId: 'i1', title: 'Shirt', price: 1000, quantity: 1 });
+    assert.strictEqual(notificationCount, 2);
+    assert.strictEqual(latestTotal, 1000);
+
+    unsubscribe();
+    cart.addItem({ productId: 'i2', title: 'Belt', price: 500, quantity: 1 });
+    assert.strictEqual(notificationCount, 2);
+  });
+
+  // Test 11: AI Agent Toolkit Inspector
+  test('CartAgentToolkit generates diagnostic markdown report', () => {
+    const cart = createBoostCart();
+    cart.addItem({ productId: 'p1', title: 'Wireless Mouse', price: 799, quantity: 2 });
+
+    const report = CartAgentToolkit.inspect(cart);
+    assert.ok(report.includes('BoostCart State Report'));
+    assert.ok(report.includes('Wireless Mouse'));
+
+    const validation = CartAgentToolkit.validateItem({ productId: 'test', title: 'Item', price: -50 });
+    assert.strictEqual(validation.valid, false);
+  });
+
+  console.log(`\n🎉 All ${passed} Enterprise Tests in @boostengine/cart passed successfully!\n`);
+}

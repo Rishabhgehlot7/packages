@@ -1,47 +1,68 @@
 {
   "name": "@boostengine/deals",
-  "version": "1.0.2",
-  "description": "Amazon-style Lightning Deals, Flash Sales, and Countdown Urgency Timers for Next.js, Vite, React, and Node.js.",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "version": "1.1.0",
+  "description": "Enterprise promotions, flash sales, lightning deals, BOGO, tiered volume discounts, and autonomous AI deal tools for modern commerce.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "boost-deals": "./bin/cli.cjs"
+  },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.js"
     }
   },
   "files": [
     "dist",
+    "bin",
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "test": "node test-suite.cjs"
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test",
+    "prepare": "tsup"
   },
   "keywords": [
-    "deals",
-    "lightning-deals",
-    "flash-sale",
-    "countdown-timer",
-    "urgency-marketing",
+    "boostengine",
     "ecommerce",
-    "nextjs",
-    "vite",
-    "react",
-    "d2c",
-    "boostengine"
+    "deals",
+    "promotions",
+    "flash-sale",
+    "lightning-deal",
+    "bogo",
+    "volume-discount",
+    "ai-agent",
+    "react-hooks",
+    "cart-rules"
   ],
-  "author": "Boost Engine <boostengine001@gmail.com>",
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/boostengine/boostengine.git",
-    "directory": "packages/boost-deals"
+    "url": "git+https://github.com/boostengine/boostengine.git"
   },
-  "homepage": "https://github.com/boostengine/boostengine#readme",
-  "sideEffects": false,
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"

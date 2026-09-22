@@ -1,5 +1,5 @@
-import { G as GatewayName, U as UnifiedCreateOrderOptions, a as UnifiedOrderResult, b as UnifiedPaymentVerificationOptions, c as UnifiedPaymentVerificationResult, d as UnifiedRefundOptions, e as UnifiedRefundResult, W as WebhookVerificationOptions, f as WebhookVerificationResult, P as PaymentManagerOptions, R as RazorpayConfig, C as CashfreeConfig, g as PhonePeConfig, h as PaytmConfig, S as StripeConfig, i as CODConfig } from './types-D3bPaYhQ.mjs';
-export { B as BoostPaymentOpenOptions, j as CreateOrderOptions, k as GatewayConfigs, N as NormalizedWebhookEvent, l as PaymentOrderResult, m as RefundResult, n as SmartRoutingConfig, o as SupportedGateway, p as UnifiedCustomer, q as UnifiedOrderItem, V as VerificationResult, r as WebhookResult } from './types-D3bPaYhQ.mjs';
+import { G as GatewayName, U as UnifiedCreateOrderOptions, a as UnifiedOrderResult, b as UnifiedPaymentVerificationOptions, c as UnifiedPaymentVerificationResult, d as UnifiedRefundOptions, e as UnifiedRefundResult, W as WebhookVerificationOptions, f as WebhookVerificationResult, P as PaymentManagerOptions, B as BoostCartLike, C as CartOrderOptions, D as DigitalProductCheckoutOptions, S as SubscriptionPlanOptions, g as SubscriptionResult, h as DonationCheckoutOptions, i as UPIIntentOptions, j as UPIIntentResult, N as NormalizedWebhookEvent, R as RazorpayConfig, k as CashfreeConfig, l as PhonePeConfig, m as PaytmConfig, n as StripeConfig, o as CODConfig } from './client-CSvi_y91.mjs';
+export { p as BillingInterval, q as BoostPaymentOpenOptions, r as CreateOrderOptions, s as GatewayConfigs, t as PaymentMode, u as PaymentOrderResult, v as RefundResult, w as SmartRoutingConfig, x as SupportedGateway, y as UnifiedCustomer, z as UnifiedOrderItem, V as VerificationResult, A as WebhookResult, E as createPaymentCheckout, F as loadCashfree, H as loadRazorpay, I as loadScript } from './client-CSvi_y91.mjs';
 
 declare abstract class BasePaymentAdapter {
     abstract readonly name: GatewayName;
@@ -40,6 +40,9 @@ declare class PaymentManager {
     private readonly adapters;
     private readonly defaultGateway?;
     private readonly smartRouting?;
+    private readonly merchantUpiVpa?;
+    private readonly merchantName?;
+    private readonly idempotencyStore;
     constructor(options: PaymentManagerOptions);
     /**
      * Returns an active adapter instance by gateway name.
@@ -57,9 +60,31 @@ declare class PaymentManager {
         currency?: string;
     }): GatewayName;
     /**
-     * Create an order using the chosen or automatically resolved gateway.
+     * Universal Order Creator with Idempotency Protection & UPI Intent generation
      */
     createOrder(options: UnifiedCreateOrderOptions): Promise<UnifiedOrderResult>;
+    /**
+     * 1-Line Seamless Integration with @boostengine/cart
+     * Automatically extracts subtotal, items, discounts, and final amount from cart instance!
+     */
+    createOrderFromCart(cart: BoostCartLike, options: CartOrderOptions): Promise<UnifiedOrderResult>;
+    /**
+     * Digital Products & Instant Downloads Checkout
+     * Automatically attaches license key and delivery payload for instant fulfillment.
+     */
+    createDigitalProductCheckout(options: DigitalProductCheckoutOptions): Promise<UnifiedOrderResult>;
+    /**
+     * Recurring SaaS & Membership Subscriptions
+     */
+    createSubscription(options: SubscriptionPlanOptions): Promise<SubscriptionResult>;
+    /**
+     * Donations, Tips & Pay-What-You-Want Checkout
+     */
+    createDonationCheckout(options: DonationCheckoutOptions): Promise<UnifiedOrderResult>;
+    /**
+     * Generates custom UPI Intent Deep-Links
+     */
+    createUPIIntent(options: UPIIntentOptions): UPIIntentResult;
     /**
      * Smart Fallback: Attempts creation on primary gateway. If it throws an error or fails,
      * it automatically routes through fallback gateways in sequence!
@@ -81,18 +106,16 @@ declare class PaymentManager {
     verifyWebhook(options: WebhookVerificationOptions): Promise<WebhookVerificationResult>;
     /**
      * Ready-made Next.js 13/14/15 App Router Route Handler Webhook Authenticator.
-     * Directly consumes the standard web Request object with raw stream body handling:
-     *
-     * ```typescript
-     * export async function POST(req: Request) {
-     *   const result = await payments.verifyNextJsWebhook(req, { gateway: 'razorpay' });
-     *   if (!result.isValid) return new Response('Invalid Signature', { status: 400 });
-     *   console.log('Event:', result.normalizedEvent, result.orderId);
-     *   return new Response('OK');
-     * }
-     * ```
      */
     verifyNextJsWebhook(request: Request | any, options: {
+        gateway: GatewayName;
+        webhookSecret?: string;
+    }): Promise<WebhookVerificationResult>;
+    /**
+     * Ready-made Express.js & Fastify Webhook Authenticator.
+     * Works with standard req, (req.rawBody or JSON.stringify(req.body)).
+     */
+    verifyExpressWebhook(req: any, options: {
         gateway: GatewayName;
         webhookSecret?: string;
     }): Promise<WebhookVerificationResult>;
@@ -101,6 +124,69 @@ declare class PaymentManager {
  * Factory function to instantiate a PaymentManager.
  */
 declare function createPaymentManager(options: PaymentManagerOptions): PaymentManager;
+
+/**
+ * Universal Indian UPI Intent & Mobile App Deep-Link Generator
+ * Generates direct one-click payment URLs for Google Pay, PhonePe, Paytm, CRED, and BHIM.
+ */
+declare class UPIIntentGenerator {
+    /**
+     * Generates standard UPI URI and app-specific deep links
+     */
+    static generate(options: UPIIntentOptions): UPIIntentResult;
+    /**
+     * Generates a plain text ASCII QR code pattern for terminal debugging
+     */
+    static generateDebugQrString(upiUri: string): string;
+}
+
+/**
+ * In-Memory Idempotency Cache with auto-expiring TTL
+ * Guarantees zero duplicate transactions and protects against customer double-clicks
+ */
+declare class IdempotencyStore {
+    private cache;
+    private defaultTtlMs;
+    constructor(defaultTtlMs?: number);
+    get<T>(key: string): T | null;
+    set(key: string, result: any, ttlMs?: number): void;
+    clear(): void;
+}
+
+/**
+ * AI Agent Introspection & Diagnostics Toolkit for @boostengine/payments
+ * Enables autonomous coding agents to inspect gateway configurations,
+ * validate order payloads, and simulate offline webhooks for unit testing.
+ */
+declare class PaymentAgentToolkit {
+    /**
+     * Generates a concise, LLM-friendly markdown status report of the PaymentManager
+     */
+    static inspect(manager: PaymentManager): string;
+    /**
+     * Validates an order creation payload with actionable hints for AI agents
+     */
+    static validateOrder(options: UnifiedCreateOrderOptions): {
+        valid: boolean;
+        errors: string[];
+    };
+    /**
+     * Generates simulated webhook payloads with valid cryptographic signatures
+     * Ideal for local testing and CI/CD pipelines without hitting live gateway servers!
+     */
+    static simulateWebhook(options: {
+        gateway: GatewayName;
+        event: NormalizedWebhookEvent;
+        orderId: string;
+        paymentId?: string;
+        amount: number;
+        currency?: string;
+        webhookSecret?: string;
+    }): {
+        rawBody: string;
+        headers: Record<string, string>;
+    };
+}
 
 /**
  * Computes HMAC-SHA256 hex digest.
@@ -211,4 +297,4 @@ declare class CODAdapter extends BasePaymentAdapter {
     verifyWebhook(_options: WebhookVerificationOptions): Promise<WebhookVerificationResult>;
 }
 
-export { BasePaymentAdapter, CODAdapter, CODConfig, CashfreeAdapter, CashfreeConfig, GatewayName, GatewayNotConfiguredError, PaymentError, PaymentManager, PaymentManagerOptions, PaytmAdapter, PaytmConfig, PhonePeAdapter, PhonePeConfig, RazorpayAdapter, RazorpayConfig, SignatureVerificationError, StripeAdapter, StripeConfig, UnifiedCreateOrderOptions, UnifiedOrderResult, UnifiedPaymentVerificationOptions, UnifiedPaymentVerificationResult, UnifiedRefundOptions, UnifiedRefundResult, WebhookVerificationOptions, WebhookVerificationResult, base64Decode, base64Encode, createPaymentManager, hmacSha256, safeCompare, sha256 };
+export { BasePaymentAdapter, BoostCartLike, CODAdapter, CODConfig, CartOrderOptions, CashfreeAdapter, CashfreeConfig, DigitalProductCheckoutOptions, DonationCheckoutOptions, GatewayName, GatewayNotConfiguredError, IdempotencyStore, NormalizedWebhookEvent, PaymentAgentToolkit, PaymentError, PaymentManager, PaymentManagerOptions, PaytmAdapter, PaytmConfig, PhonePeAdapter, PhonePeConfig, RazorpayAdapter, RazorpayConfig, SignatureVerificationError, StripeAdapter, StripeConfig, SubscriptionPlanOptions, SubscriptionResult, UPIIntentGenerator, UPIIntentOptions, UPIIntentResult, UnifiedCreateOrderOptions, UnifiedOrderResult, UnifiedPaymentVerificationOptions, UnifiedPaymentVerificationResult, UnifiedRefundOptions, UnifiedRefundResult, WebhookVerificationOptions, WebhookVerificationResult, base64Decode, base64Encode, createPaymentManager, hmacSha256, safeCompare, sha256 };

@@ -6,6 +6,11 @@ echo.
 
 cd /d "%~dp0"
 
+if not exist "node_modules\@types\react" (
+    echo [*] Ensuring dependencies are up-to-date...
+    call npm install --prefer-offline
+)
+
 echo [1/3] Building and validating package...
 call npm run build
 if %errorlevel% neq 0 (

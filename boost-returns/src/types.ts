@@ -1,125 +1,124 @@
-export type ReturnReason =
-  | 'SIZE_FIT_ISSUE'
-  | 'DEFECTIVE_PRODUCT'
-  | 'WRONG_ITEM_DELIVERED'
-  | 'NOT_AS_PICTURED'
-  | 'DAMAGED_IN_TRANSIT'
-  | 'CHANGED_MIND'
-  | 'QUALITY_NOT_SATISFACTORY';
+// ─── Return Status & Types ────────────────────────────────────────────────────
 
 export type ReturnStatus =
-  | 'REQUESTED'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'PICKUP_SCHEDULED'
-  | 'PICKED_UP'
-  | 'IN_TRANSIT'
-  | 'RECEIVED_AT_HUB'
-  | 'QC_PASSED'
-  | 'QC_FAILED'
-  | 'REFUND_INITIATED'
-  | 'REFUND_COMPLETED'
-  | 'REPLACEMENT_SHIPPED'
-  | 'CLOSED';
+  | 'requested'
+  | 'approved'
+  | 'rejected'
+  | 'pickup_scheduled'
+  | 'picked_up'
+  | 'received'
+  | 'refund_initiated'
+  | 'refunded'
+  | 'exchange_dispatched';
 
-export type ReturnResolution = 'REFUND' | 'REPLACEMENT' | 'STORE_CREDIT';
+export type ReturnReason =
+  | 'defective'
+  | 'wrong_item'
+  | 'not_as_described'
+  | 'changed_mind'
+  | 'damaged_in_transit'
+  | 'size_fit_issue'
+  | 'other';
 
-export type RefundDestination =
-  | 'ORIGINAL_PAYMENT_SOURCE'
-  | 'UPI'
-  | 'BANK_ACCOUNT'
-  | 'STORE_WALLET';
+export type RefundMethod = 'original_payment' | 'store_credit' | 'bank_transfer' | 'upi';
 
-export interface ReturnItemRequest {
+export type ReturnType = 'return' | 'exchange' | 'partial_return';
+
+// ─── Return Item ──────────────────────────────────────────────────────────────
+
+export interface ReturnItem {
   productId: string;
-  variantId?: string;
-  name: string;
+  productName: string;
+  sku?: string;
   quantity: number;
   unitPrice: number;
   reason: ReturnReason;
-  comment?: string;
-  imageUrls?: string[];
-  requestedResolution: ReturnResolution;
-  replacementVariantId?: string;
+  reasonNote?: string;
+  imageUrls?: string[];         // customer-uploaded photos
 }
 
-export interface ReturnPolicyConfig {
-  /** Maximum days from delivery date allowed for return (default: 7) */
-  returnWindowDays: number;
-  /** Categories that cannot be returned (e.g. underwear, clearance) */
-  nonReturnableCategories: string[];
-  /** Allow replacement only, no cash refund for certain items */
-  replacementOnlyCategories: string[];
-  /** Reverse pickup fee in INR to deduct if return reason is 'CHANGED_MIND' */
-  reversePickupDeductionFee: number;
-  /** Allow instant refund upon pickup vs after QC at warehouse */
-  allowInstantRefundOnPickup: boolean;
-}
+// ─── Pickup Info ──────────────────────────────────────────────────────────────
 
 export interface PickupAddress {
   name: string;
   phone: string;
-  addressLine1: string;
-  addressLine2?: string;
+  line1: string;
   city: string;
   state: string;
   pincode: string;
 }
 
+export interface PickupSchedule {
+  provider?: string;            // e.g. 'shiprocket', 'delhivery'
+  awbNumber?: string;
+  scheduledAt?: Date;
+  pickedUpAt?: Date;
+  trackingUrl?: string;
+}
+
+// ─── Return Request ───────────────────────────────────────────────────────────
+
 export interface ReturnRequest {
-  id: string; // e.g. RET-2026-9812
+  id: string;                   // RMA-XXXXXXXX
   orderId: string;
   customerId: string;
+  type: ReturnType;
   status: ReturnStatus;
-  items: ReturnItemRequest[];
-  pickupAddress: PickupAddress;
-  createdAt: string;
-  updatedAt: string;
-  refundDestination?: RefundDestination;
-  refundDetails?: {
-    upiId?: string;
-    bankAccount?: string;
-    ifsc?: string;
-  };
-  reverseTrackingNumber?: string;
-  reverseCourierName?: string;
-  qcNotes?: string;
-  refundAmount?: number;
-  deductionFee?: number;
+  items: ReturnItem[];
+  refundAmount: number;         // calculated total
+  refundMethod: RefundMethod;
+  pickupAddress?: PickupAddress;
+  pickup?: PickupSchedule;
+  exchangeOrderId?: string;
+  adminNote?: string;
+  timeline: ReturnTimeline[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface EligibilityResult {
-  isEligible: boolean;
-  reason?: string;
-  daysRemaining?: number;
-  allowedResolutions: ReturnResolution[];
+export interface ReturnTimeline {
+  status: ReturnStatus;
+  note?: string;
+  timestamp: Date;
 }
 
-export interface RefundQuote {
-  itemSubtotal: number;
-  reversePickupFeeDeducted: number;
-  netRefundAmount: number;
-  refundDestination: RefundDestination;
-  estimatedSettlementDays: number;
+// ─── Return Policy ────────────────────────────────────────────────────────────
+
+export interface ReturnPolicy {
+  windowDays: number;           // default: 7
+  allowedReasons: ReturnReason[];
+  nonReturnableCategories: string[];
+  autoApprove: boolean;         // auto-approve if reason is valid
+  maxRefundPct: number;         // max % of order value refundable (default 100)
 }
 
-export interface ReversePickupManifest {
-  returnRequestId: string;
-  orderId: string;
-  courierPartner: 'Shiprocket' | 'Delhivery' | 'Shadowfax';
-  awbNumber: string;
-  pickupDate: string;
-  sender: PickupAddress;
-  recipientWarehouse: {
-    hubName: string;
-    address: string;
-    city: string;
-    state: string;
-    pincode: string;
-  };
-  packageDetails: {
-    weightKg: number;
-    dimensionsCm: { length: number; width: number; height: number };
-    declaredValue: number;
-  };
+export const DEFAULT_RETURN_POLICY: ReturnPolicy = {
+  windowDays: 7,
+  allowedReasons: ['defective', 'wrong_item', 'not_as_described', 'damaged_in_transit', 'size_fit_issue', 'changed_mind', 'other'],
+  nonReturnableCategories: [],
+  autoApprove: false,
+  maxRefundPct: 100,
+};
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+export interface ReturnsEvents {
+  'return:created':        { returnId: string; orderId: string; customerId: string };
+  'return:approved':       { returnId: string; refundAmount: number };
+  'return:rejected':       { returnId: string; reason: string };
+  'return:pickup_scheduled': { returnId: string; pickup: PickupSchedule };
+  'return:picked_up':      { returnId: string };
+  'return:received':       { returnId: string };
+  'return:refunded':       { returnId: string; refundAmount: number; method: RefundMethod };
+  'return:exchange_dispatched': { returnId: string; exchangeOrderId: string };
+}
+
+// ─── Stats ───────────────────────────────────────────────────────────────────
+
+export interface ReturnsStats {
+  total: number;
+  byStatus: Record<ReturnStatus, number>;
+  totalRefunded: number;
+  avgProcessingDays: number;
+  topReasons: Array<{ reason: ReturnReason; count: number }>;
 }

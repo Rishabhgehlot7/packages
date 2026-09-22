@@ -46,12 +46,17 @@ export {
   AuthProvider,
   useSession,
   SignInCard,
+  createReactNativeStorage,
+  getDefaultAuthStorage,
   type ClientConfig,
   type ClientSessionState,
   type AuthContextValue,
   type SignInCardProps,
   type AuthStorage,
 } from './client';
+
+// AI Agent Toolkit
+export { AuthAgentToolkit, type AgentToolDefinition } from './agent';
 
 // Security & 2FA
 export { TOTPManager } from './security/totp';

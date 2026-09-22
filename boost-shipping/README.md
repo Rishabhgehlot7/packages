@@ -1,196 +1,293 @@
-# @boostengine/shipping 🚚
+# 🚚 @boostengine/shipping
 
-[![npm version](https://img.shields.io/npm/v/@boostengine/shipping.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@boostengine/shipping)
-[![npm downloads](https://img.shields.io/npm/dm/@boostengine/shipping.svg?style=flat-square&color=green)](https://www.npmjs.com/package/@boostengine/shipping)
-[![license](https://img.shields.io/npm/l/@boostengine/shipping.svg?style=flat-square)](https://github.com/boostengine/boostengine/blob/main/LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![Carriers](https://img.shields.io/badge/Carriers-Shiprocket%20%7C%20Delhivery%20%7C%20Shadowfax%20%7C%20BlueDart-orange.svg?style=flat-square)](https://npmjs.com/package/@boostengine/shipping)
+> **Universal Multi-Carrier Logistics & Shipping Engine for Indian & Global eCommerce**  
+> Supports **Shiprocket**, **Delhivery**, **Shadowfax**, **BlueDart**, **Xpressbees**, and **Ecom Express** with Indian Pincode Intelligence, RTO & COD Fraud Prevention, 3D Box Packaging Optimizer, Universal React / React Native Hooks, and AI Agent Toolkits.
 
-> **Unified multi-carrier shipping and logistics orchestration for Indian eCommerce. Integrate Shiprocket, Delhivery, Shadowfax, and BlueDart through a single, clean API with real-time freight rate comparison, automatic cheapest courier selection, 1-click AWB generation, and live parcel tracking.**
-
-Zero vendor lock-in. Works directly with standard Node.js runtime, Next.js, Express, and serverless edge functions.
+[![npm version](https://img.shields.io/npm/v/@boostengine/shipping.svg?color=cb3837)](https://www.npmjs.com/package/@boostengine/shipping)
+[![license](https://img.shields.io/npm/l/@boostengine/shipping.svg?color=blue)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6.svg)](https://www.typescriptlang.org/)
+[![Framework Agnostic](https://img.shields.io/badge/Framework-Next.js%20%7C%20React%20%7C%20React%20Native%20%7C%20Vue%20%7C%20Node.js-success.svg)](#)
 
 ---
 
-## 📸 Logistics Flow & Live Tracking Timeline
+## ⚡ Key Superpowers
 
-```text
-  Customer Places Order (Destination: 400053 Mumbai)
-                       │
-                       ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │                 Compare Live Freight Rates                  │
-  ├─────────────────────────────────────────────────────────────┤
-  │ 1. Shadowfax Express: ₹58 (Est. Delivery: 2 Days) ◄── [BEST]│
-  │ 2. Delhivery Surface: ₹72 (Est. Delivery: 3 Days)           │
-  │ 3. BlueDart Air:      ₹115 (Est. Delivery: 1 Day)           │
-  └────────────────────────────┬────────────────────────────────┘
-                               │
-                               ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │              1-Click Shipment & AWB Generation              │
-  ├─────────────────────────────────────────────────────────────┤
-  │ AWB Assigned: SFX_982173912                                 │
-  │ Shipping Label: PDF Thermal Barcode Ready                   │
-  │ Pickup Scheduled: Warehouse Slot 2:00 PM                    │
-  └────────────────────────────┬────────────────────────────────┘
-                               │
-                               ▼
-  ┌─────────────────────────────────────────────────────────────┐
-  │                 Live Parcel Tracking Timeline               │
-  ├─────────────────────────────────────────────────────────────┤
-  │ (●) [PICKED UP]       Package handed to courier driver      │
-  │ (●) [IN TRANSIT]      Arrived at Gurgaon Sorting Hub        │
-  │ (●) [REACHED HUB]     Arrived at Mumbai Kurla Hub           │
-  │ (●) [OUT FOR DELIVERY]Rider: Rajesh Kumar (+91 98765 43210) │
-  │ (○) [DELIVERED]       Pending OTP verification              │
-  └─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🌟 Key Highlights
-
-- **⚡ Unified Carrier API**: Query rates, verify serviceability, and generate tracking details across carriers with identical function signatures.
-- **💰 Cheapest Courier Auto-Selector**: Automatically fetches quotes across Delhivery, Bluedart, and Shadowfax, then assigns the most economical carrier.
-- **📍 29,000+ Indian Pincode Validator**: Fast check for Cash on Delivery (COD) serviceability, prepaid coverage, and expected delivery days.
-- **🏷️ Automated Label & Manifest**: Generate downloadable shipping labels with standard thermal barcode compliance.
-- **🔄 NDR Workflows**: Streamlined API to respond to Non-Delivery Reports (e.g. reschedule delivery attempt or initiate RTO).
+- 🇮🇳 **Indian Pincode Intelligence**: Instant offline city/state auto-fill & delivery tier resolution (`METRO`, `TIER_1`, `TIER_2`, `REMOTE`) with zero API latency.
+- 🛡️ **RTO & COD Fraud Predictor**: Machine-logic scoring (0-100) to mitigate high COD cancellation and Return-to-Origin losses before dispatch.
+- 📦 **Packaging & Volumetric Weight Optimizer**: Automatically calculates `(L * B * H) / 5000` vs dead weight and suggests the cheapest tamper-proof flyer or corrugated box.
+- ⚡ **Smart Multi-Carrier Routing**: Automatically choose the **Cheapest** or **Fastest** courier across Shiprocket, Delhivery, and Shadowfax with auto-failover.
+- 🛒 **@boostengine/cart Bridge**: Direct calculation of billable weights, shipping fees, and progressive "Add ₹X for Free Delivery!" banners.
+- ⚛️ **Universal React & React Native Hooks**: Drop-in hooks (`usePincodeCheck`, `useShipmentTracker`, `useFreeShippingProgress`) for instant checkout and tracking UI.
+- 🤖 **AI Agent Toolkit**: Pre-configured JSON schema tools for Google Gemini, OpenAI, Claude, LangChain, and Antigravity.
 
 ---
 
 ## 📦 Installation
 
 ```bash
-# npm
 npm install @boostengine/shipping
-
-# pnpm
-pnpm add @boostengine/shipping
-
-# yarn
+# or
 yarn add @boostengine/shipping
+# or
+pnpm add @boostengine/shipping
 ```
 
 ---
 
-## 🚀 Quickstart Guide
-
-### 1. Initialize Shipping Manager (`lib/shipping.ts`)
+## 🚀 Quick Start (Node.js / Express / Next.js Server)
 
 ```typescript
 import { createShippingManager } from '@boostengine/shipping';
 
-export const shipping = createShippingManager({
+const shipping = createShippingManager({
   defaultCarrier: 'shiprocket',
-
+  freeShippingRule: {
+    minOrderAmount: 999, // Free shipping above ₹999
+    defaultShippingFee: 60, // ₹60 standard shipping
+  },
   carriers: {
     shiprocket: {
-      email: process.env.SHIPROCKET_EMAIL!,
-      password: process.env.SHIPROCKET_PASSWORD!,
+      email: process.env.SHIPROCKET_EMAIL,
+      password: process.env.SHIPROCKET_PASSWORD,
       defaultPickupPincode: '110001',
-      defaultPickupLocation: 'Main Delhi Warehouse',
     },
     delhivery: {
-      apiToken: process.env.DELHIVERY_API_TOKEN!,
-      defaultPickupPincode: '110001',
+      apiToken: process.env.DELHIVERY_TOKEN,
+      defaultPickupLocation: 'Main Warehouse',
     },
     shadowfax: {
-      apiKey: process.env.SHADOWFAX_API_KEY!,
+      apiKey: process.env.SHADOWFAX_KEY,
+    },
+    bluedart: {
+      loginId: process.env.BLUEDART_LOGIN_ID,
+      licenceKey: process.env.BLUEDART_LICENCE_KEY,
+      customerCode: process.env.BLUEDART_CUSTOMER_CODE,
+    },
+    xpressbees: {
+      email: process.env.XPRESSBEES_EMAIL,
+      password: process.env.XPRESSBEES_PASSWORD,
+    },
+    ecomexpress: {
+      username: process.env.ECOMEXPRESS_USERNAME,
+      password: process.env.ECOMEXPRESS_PASSWORD,
     },
   },
 });
+
+// 1. Instant Pincode Verification & Auto-fill
+const pinResult = await shipping.checkPincode({ deliveryPincode: '560001', isCod: true });
+console.log(pinResult);
+// { isServiceable: true, isCodAvailable: true, city: 'Bengaluru', state: 'Karnataka', tier: 'METRO' }
+
+// 2. Compare Rates Across Couriers
+const rates = await shipping.compareRates({ deliveryPincode: '400050', weightKg: 1.2 });
+console.log(rates);
+// [ { courierName: 'Shadowfax Express', rate: 58 }, { courierName: 'Delhivery Surface', rate: 75 } ]
+
+// 3. Smart Routing: Book with the Cheapest or Fastest Courier
+const shipment = await shipping.routeShipment({
+  orderId: 'ORDER_1001',
+  customerAddress: {
+    name: 'Rahul Sharma',
+    phone: '9876543210',
+    addressLine1: 'Flat 402, Lotus Heights',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    pincode: '400050',
+  },
+  items: [{ name: 'Running Shoes', sku: 'SHOE-01', quantity: 1, price: 2499 }],
+  dimensions: { weightKg: 1.1, lengthCm: 30, breadthCm: 20, heightCm: 12 },
+  paymentMode: 'Prepaid',
+  totalAmount: 2499,
+}, 'CHEAPEST');
+
+console.log(`Shipment Booked! AWB: ${shipment.awbNumber}`);
 ```
 
 ---
 
-### 2. Check Pincode & Compare Rates
+## 🛡️ RTO & COD Fraud Predictor
+
+Mitigate costly Return-to-Origin delivery failures before handing parcels to couriers:
 
 ```typescript
-// 1. Check if delivery is possible to pincode
-const check = await shipping.checkPincode({
-  deliveryPincode: '400053',
-  isCod: true,
-  weightKg: 0.5,
+import { RTORiskEngine } from '@boostengine/shipping';
+
+const risk = RTORiskEngine.evaluateOrder({
+  pincode: '841226',
+  paymentMode: 'COD',
+  totalAmount: 7500, // High-ticket COD order
+  customerPhone: '9876543210',
+  isPhoneVerified: false,
+  addressText: 'Near temple',
 });
 
-console.log('Serviceable:', check.isServiceable);
-console.log('COD Available:', check.isCodAvailable);
-console.log('Expected Days:', check.estimatedDeliveryDays);
-
-// 2. Compare live courier rates
-const rates = await shipping.compareRates({
-  deliveryPincode: '400053',
-  weightKg: 0.5,
-  isCod: false,
-});
-
-console.log(rates);
+console.log(risk);
 /*
-[
-  { courierName: 'Shadowfax Express', rate: 58, estimatedDeliveryDays: 2 },
-  { courierName: 'Delhivery Surface', rate: 72, estimatedDeliveryDays: 3 },
-  { courierName: 'BlueDart Air', rate: 115, estimatedDeliveryDays: 1 }
-]
+{
+  riskScore: 75,
+  riskLevel: 'HIGH',
+  suggestedAction: 'REQUIRE_OTP_VERIFICATION',
+  prepaidIncentiveAmount: 50, // Offer ₹50 discount for UPI payment!
+  canSafelyAutoFulfill: false,
+  riskReasons: [
+    'Payment mode is Cash on Delivery (COD).',
+    'High value COD order (₹7,500 > ₹6,000).',
+    'Delivery location is Remote tier.',
+    'Customer phone number has not completed OTP verification.',
+    'Very short or vague shipping address.'
+  ]
+}
 */
 ```
 
 ---
 
-### 3. Book Shipment with Auto-Cheapest Courier
+## 📦 Packaging & Volumetric Weight Optimizer
+
+Prevent volumetric weight penalties on lightweight, bulky parcels:
 
 ```typescript
-const shipment = await shipping.createShipmentWithCheapestCourier({
-  orderId: 'ORD_98124',
-  customerAddress: {
-    name: 'Pooja Verma',
-    phone: '9876543210',
-    addressLine1: 'Flat 302, Green Meadows',
-    city: 'Mumbai',
-    state: 'Maharashtra',
-    pincode: '400053',
-  },
-  items: [
-    { name: 'Minimalist Oversized Tee', sku: 'TEE-BLK-M', quantity: 1, price: 999 }
-  ],
-  dimensions: {
-    weightKg: 0.3,
-    lengthCm: 10,
-    breadthCm: 10,
-    heightCm: 4,
-  },
-  paymentMode: 'Prepaid',
-  totalAmount: 999,
+import { PackagingOptimizer } from '@boostengine/shipping';
+
+// 1. Billable Weight Comparison: (L * B * H) / 5000 vs Dead Weight
+const billable = PackagingOptimizer.calculateBillableWeight(
+  0.8, // 800g actual weight
+  { lengthCm: 40, breadthCm: 30, heightCm: 20 } // Volumetric = 4.8 kg!
+);
+console.log(billable);
+// { deadWeightKg: 0.8, volumetricWeightKg: 4.8, billableWeightKg: 4.8, billedOn: 'VOLUMETRIC_WEIGHT' }
+
+// 2. Recommend Best Packaging Container
+const suggestion = PackagingOptimizer.suggestContainer(0.4);
+console.log(suggestion.suggestedContainer.name);
+// "Standard Poly Flyer S (T-Shirt / Mobile Cover)"
+```
+
+---
+
+## 🛒 Integration with `@boostengine/cart`
+
+```typescript
+import { cart } from '@boostengine/cart';
+import { shipping } from './shipping';
+
+// Directly calculate shipping rates and free delivery progress from your cart
+const shippingSummary = await shipping.calculateCartShipping(cart, '560001');
+
+console.log(`Shipping Fee: ₹${shippingSummary.shippingFee}`);
+console.log(`Progress: ${shippingSummary.freeShippingProgressPercent}%`);
+if (!shippingSummary.isFreeShipping) {
+  console.log(`Add ₹${shippingSummary.amountNeededForFreeShipping} more for Free Delivery!`);
+}
+```
+
+---
+
+## ⚛️ React & React Native Hooks (`@boostengine/shipping/react`)
+
+Compatible with Next.js (App Router / Pages), React (Vite/CRA), and React Native (Expo/Bare):
+
+### 1. Pincode Validation & Instant City/State Auto-Fill
+
+```tsx
+import { usePincodeCheck } from '@boostengine/shipping/react';
+
+function CheckoutAddressForm() {
+  const [pincode, setPincode] = useState('');
+  const { isValid, city, state, tier, isCodAvailable, estimatedDeliveryDateFormatted, isLoading } =
+    usePincodeCheck(pincode);
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Enter 6-digit Pincode"
+        value={pincode}
+        onChange={(e) => setPincode(e.target.value)}
+      />
+
+      {isValid && (
+        <div className="pincode-badge">
+          <span>📍 {city}, {state} ({tier})</span>
+          <span>🚚 Expected Delivery: {estimatedDeliveryDateFormatted}</span>
+          <span>💵 COD: {isCodAvailable ? 'Available' : 'Prepaid Only'}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### 2. Free Delivery Marketing Banner
+
+```tsx
+import { useFreeShippingProgress } from '@boostengine/shipping/react';
+
+function CartHeader({ cartSubtotal }: { cartSubtotal: number }) {
+  const { isFreeShipping, progressPercent, amountNeeded, bannerText } =
+    useFreeShippingProgress(cartSubtotal, 999);
+
+  return (
+    <div className="shipping-progress">
+      <p>{bannerText}</p>
+      <div className="progress-bar">
+        <div style={{ width: `${progressPercent}%` }} />
+      </div>
+    </div>
+  );
+}
+```
+
+### 3. Real-Time Order Tracking
+
+```tsx
+import { useShipmentTracker } from '@boostengine/shipping/react';
+
+function OrderTrackingScreen({ awbNumber }: { awbNumber: string }) {
+  const { currentStatus, isDelivered, isOutForDelivery, data, isLoading, refresh } =
+    useShipmentTracker(awbNumber, {
+      fetcher: async (awb) => fetch(`/api/track?awb=${awb}`).then((r) => r.json()),
+      autoPoll: true,
+      pollIntervalMs: 30000,
+    });
+
+  return (
+    <div>
+      <h3>Status: {currentStatus}</h3>
+      {isOutForDelivery && <p className="badge">🚴 Delivery associate is arriving today!</p>}
+      {isDelivered && <p className="badge">✅ Package delivered successfully!</p>}
+    </div>
+  );
+}
+```
+
+---
+
+## 🤖 AI Agent Toolkit (`@boostengine/shipping/agent`)
+
+Equip AI customer support bots (Google Gemini, OpenAI, Claude, LangChain) with live shipping functions:
+
+```typescript
+import { ShippingAgentToolkit } from '@boostengine/shipping/agent';
+
+const agentToolkit = new ShippingAgentToolkit(shippingManager);
+
+// 1. Get Function Calling Schemas for LLM
+const tools = agentToolkit.getToolDefinitions();
+
+// 2. Execute tool directly on LLM tool_call
+const result = await agentToolkit.executeTool('checkPincodeServiceability', {
+  pincode: '560001',
+  isCod: true,
 });
 
-console.log(`Shipment Booked! Carrier: ${shipment.courierName}, AWB: ${shipment.awbNumber}`);
+// 3. Simulate full parcel delivery lifecycle for offline testing
+const simulation = agentToolkit.simulateTrackingLifecycle('AWB_TEST_99', 'OUT_FOR_DELIVERY');
 ```
 
 ---
 
-### 4. Real-time Live Tracking
+## 📜 License
 
-```typescript
-const tracking = await shipping.track('SFX_982173912');
-
-console.log('Status:', tracking.currentStatus); // 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED'
-console.log('Events:', tracking.events);
-```
-
----
-
-## 🛠️ CLI Utilities
-
-```bash
-# List supported carriers
-npx @boostengine/shipping list
-
-# Generate .env.shipping template
-npx @boostengine/shipping init-env
-```
-
----
-
-## 📄 License
-
-MIT © [Boost Engine](https://github.com/boostengine)
+MIT © Boost Engine

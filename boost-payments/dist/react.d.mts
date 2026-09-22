@@ -1,24 +1,10 @@
-import { B as BoostPaymentOpenOptions } from './types-D3bPaYhQ.mjs';
+import { E as createPaymentCheckout, q as BoostPaymentOpenOptions } from './client-CSvi_y91.mjs';
+export { F as loadCashfree, H as loadRazorpay, I as loadScript } from './client-CSvi_y91.mjs';
 
+declare const openPaymentModal: typeof createPaymentCheckout;
 /**
- * Dynamically loads an external script into the browser document.
- */
-declare function loadScript(src: string): Promise<boolean>;
-/**
- * Loads Razorpay Checkout JavaScript library.
- */
-declare function loadRazorpay(): Promise<boolean>;
-/**
- * Loads Cashfree JS SDK v3.
- */
-declare function loadCashfree(): Promise<boolean>;
-/**
- * Universal Checkout Launcher for Browser & React applications.
- * Automatically loads the gateway script, opens modals, or redirects.
- */
-declare function openPaymentModal(options: BoostPaymentOpenOptions): Promise<void>;
-/**
- * React Hook for seamless payment checkout in Next.js / React.
+ * Universal React Hook for payment checkout in Next.js / React / React Native WebView.
+ * Supports eCommerce, Digital Products, SaaS Subscriptions, and Donations.
  */
 declare function useBoostPayment(): {
     openPaymentModal: (options: BoostPaymentOpenOptions) => Promise<void>;
@@ -26,4 +12,4 @@ declare function useBoostPayment(): {
     error: string | null;
 };
 
-export { loadCashfree, loadRazorpay, loadScript, openPaymentModal, useBoostPayment };
+export { openPaymentModal, useBoostPayment };

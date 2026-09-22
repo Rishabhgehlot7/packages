@@ -242,5 +242,12 @@ export function createAuthClient(config: ClientConfig): BoostAuthClient {
   return new BoostAuthClient(config);
 }
 
-export { AuthStorage, WebStorage, MemoryStorage } from './storage';
+export {
+  AuthStorage,
+  WebStorage,
+  MemoryStorage,
+  ReactNativeStorage,
+  createReactNativeStorage,
+  getDefaultAuthStorage,
+} from './storage';
 export { AuthProvider, useSession, SignInCard, type AuthContextValue, type SignInCardProps } from './react';

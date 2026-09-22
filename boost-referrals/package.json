@@ -1,52 +1,27 @@
 {
   "name": "@boostengine/referrals",
-  "version": "1.0.2",
-  "description": "Double-sided viral referral & reward engine with anti-fraud shield and 1-click WhatsApp social share for Next.js, Vite, and Node.js.",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "version": "1.1.0",
+  "description": "Enterprise Viral Referral Engine — double-sided rewards, anti-fraud shield, leaderboard, WhatsApp share & AI Agent Toolkit for Next.js, Vite, React, and Node.js.",
+  "main": "./dist/index.js", "module": "./dist/index.mjs", "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
+    ".":       { "types": "./dist/index.d.ts",   "import": "./dist/index.mjs",  "require": "./dist/index.js"  },
+    "./react": { "types": "./dist/react.d.ts",   "import": "./dist/react.mjs",  "require": "./dist/react.js"  },
+    "./agent": { "types": "./dist/agent.d.ts",   "import": "./dist/agent.mjs",  "require": "./dist/agent.js"  }
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist","bin","README.md"],
+  "bin": { "boost-referrals": "./bin/cli.cjs" },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "test": "node test-suite.cjs"
+    "build":          "tsup --config tsup.config.ts",
+    "test":           "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test"
   },
-  "keywords": [
-    "referral",
-    "refer-and-earn",
-    "viral-growth",
-    "rewards",
-    "supercoins",
-    "cashback",
-    "discount-codes",
-    "anti-fraud",
-    "ecommerce",
-    "nextjs",
-    "vite",
-    "react",
-    "d2c",
-    "boostengine"
-  ],
+  "keywords": ["referrals","refer-earn","viral-growth","anti-fraud","rewards","cashback","discount","whatsapp-share","ecommerce","nextjs","react","boostengine"],
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/boostengine/boostengine.git",
-    "directory": "packages/boost-referrals"
-  },
+  "repository": { "type": "git", "url": "https://github.com/boostengine/boostengine.git", "directory": "packages/boost-referrals" },
   "homepage": "https://github.com/boostengine/boostengine#readme",
   "sideEffects": false,
-  "devDependencies": {
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
-  }
+  "peerDependencies": { "react": ">=17.0.0" },
+  "peerDependenciesMeta": { "react": { "optional": true } },
+  "devDependencies": { "@types/node": "^20.0.0", "@types/react": "^18.0.0", "react": "^18.0.0", "tsup": "^8.3.5", "typescript": "^5.7.2" }
 }

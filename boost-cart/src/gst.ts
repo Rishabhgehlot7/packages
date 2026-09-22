@@ -44,7 +44,10 @@ const STATE_CODE_MAP: Record<string, string> = {
   ld: 'lakshadweep',
 };
 
-function normalizeState(state: string | undefined): string {
+/**
+ * Normalizes Indian state names and short codes to standard lowercase strings
+ */
+export function normalizeIndianState(state: string | undefined): string {
   if (!state) return '';
   const clean = state.trim().toLowerCase();
   return STATE_CODE_MAP[clean] || clean;
@@ -53,14 +56,15 @@ function normalizeState(state: string | undefined): string {
 export class GSTCalculator {
   /**
    * Calculates detailed GST breakdown across cart items
+   * Compliant with Indian GST rules (Intra-state CGST + SGST vs Inter-state IGST)
    */
   static calculate(
     items: CartItem[],
     origin: StoreOriginConfig,
     destination?: CustomerShippingAddress
   ): GSTBreakdown {
-    const originState = normalizeState(origin.state);
-    const destState = destination ? normalizeState(destination.state) : originState;
+    const originState = normalizeIndianState(origin.state);
+    const destState = destination?.state ? normalizeIndianState(destination.state) : originState;
     const isIntraState = Boolean(originState && destState && originState === destState);
     const taxMode = origin.taxMode || 'inclusive';
 
@@ -69,14 +73,21 @@ export class GSTCalculator {
     const hsnMap = new Map<string, HSNTaxEntry>();
 
     for (const item of items) {
-      const rate = item.taxRate !== undefined ? item.taxRate : 18; // Default 18% GST
+      if (item.quantity <= 0) continue;
+
+      // Handle tax exempt items
+      const isExempt = Boolean(item.isTaxExempt);
+      const rate = isExempt ? 0 : item.taxRate !== undefined ? item.taxRate : 18; // Default 18% GST
       const itemTotalPrice = Math.round(item.price * item.quantity * 100) / 100;
       const hsn = item.hsnCode || 'GENERAL';
 
       let taxable = 0;
       let tax = 0;
 
-      if (taxMode === 'inclusive') {
+      if (isExempt || rate === 0) {
+        taxable = itemTotalPrice;
+        tax = 0;
+      } else if (taxMode === 'inclusive') {
         // Price includes GST
         taxable = Math.round((itemTotalPrice / (1 + rate / 100)) * 100) / 100;
         tax = Math.round((itemTotalPrice - taxable) * 100) / 100;
@@ -112,7 +123,7 @@ export class GSTCalculator {
 
     if (isIntraState) {
       cgst = Math.round((totalTax / 2) * 100) / 100;
-      sgst = Math.round((totalTax - cgst) * 100) / 100; // avoid 1-paisa rounding drift
+      sgst = Math.round((totalTax - cgst) * 100) / 100; // prevent 1-paisa rounding divergence
       igst = 0;
     } else {
       cgst = 0;

@@ -32,7 +32,25 @@ export type {
   VerifyOTPResult,
   OmnichannelProvidersConfig,
   OmnichannelConfig,
+  DeduplicationConfig,
+  OrderNotificationParams,
+  ShippingNotificationParams,
+  DeliveryNotificationParams,
+  OutForDeliveryNotificationParams,
+  CartRecoveryParams,
+  CODVerificationParams,
+  RefundNotificationParams,
+  ReviewRequestParams,
+  WebhookVerifyOptions,
 } from './types';
+
+// Export AI Agent Toolkit
+export { CommunicationsAgentToolkit, agentToolkit } from './agent';
+export type { AgentToolDeclaration } from './agent';
+
+// Export React & React Native hook types
+export type { useCommunications, useOTP, UseOTPOptions } from './react';
+
 
 // Export individual WhatsApp adapters
 export { InteraktWhatsAppAdapter } from './adapters/whatsapp/interakt.adapter';

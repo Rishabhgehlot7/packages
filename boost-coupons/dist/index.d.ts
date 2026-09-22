@@ -1,75 +1,30 @@
-type CouponDiscountType = 'PERCENTAGE' | 'FLAT' | 'FREE_SHIPPING' | 'TIERED' | 'BOGO';
-interface CartItem {
-    id: string;
-    name: string;
-    sku?: string;
-    price: number;
-    quantity: number;
-    category?: string;
-}
-interface CartContext {
-    items: CartItem[];
-    subtotal: number;
-    shippingFee?: number;
-    paymentMode?: 'Prepaid' | 'COD';
-    customer?: {
-        id?: string;
-        isFirstOrder?: boolean;
-        orderCount?: number;
-        email?: string;
-        phone?: string;
-    };
-}
-interface TierRule {
-    minAmount: number;
-    discountAmount: number;
-}
-interface CouponRule {
-    code: string;
-    discountType: CouponDiscountType;
-    discountValue: number;
-    maxDiscount?: number;
-    minSubtotal?: number;
-    applicablePaymentMode?: 'Prepaid' | 'COD' | 'ANY';
-    firstOrderOnly?: boolean;
-    startDate?: string;
-    expiryDate?: string;
-    usageLimitPerUser?: number;
-    totalUsageLimit?: number;
-    currentUsageCount?: number;
-    tiers?: TierRule[];
-    bogoRules?: {
-        buyQuantity: number;
-        getQuantity: number;
-        discountPercentOnGet: number;
-    };
-    allowedCategories?: string[];
-    excludedSkus?: string[];
-}
-interface CouponApplicationResult {
-    isValid: boolean;
-    couponCode: string;
-    discountAmount: number;
-    freeShippingApplied: boolean;
-    finalTotal: number;
-    reason?: string;
-    appliedRule?: CouponRule;
-}
-interface BestCouponResult {
-    bestCoupon?: CouponApplicationResult;
-    allEvaluated: CouponApplicationResult[];
-}
+import { C as CartContext, B as BoostCartLike, a as CouponRule, b as CouponApplicationResult, M as MultiCouponApplicationResult, c as BestCouponResult, d as CouponUpsellHint } from './types-rF_biqFC.js';
+export { e as CartItem, f as CouponDiscountType, T as TierRule } from './types-rF_biqFC.js';
+export { AgentToolDefinition, CouponAgentToolkit } from './agent.js';
+export { UseCouponOptions, UseCouponResult, useCoupon } from './react.js';
 
 declare class CouponEngine {
     /**
-     * Applies and validates a specific coupon code against the cart context.
+     * Normalize arbitrary cart or @boostengine/cart instance into standard CartContext
      */
-    static apply(coupon: CouponRule, cart: CartContext): CouponApplicationResult;
+    static normalizeCart(cart: CartContext | BoostCartLike): CartContext;
     /**
-     * Evaluates all available coupons and automatically selects the one that provides the HIGHEST savings!
+     * Applies and validates a specific coupon code against the cart.
      */
-    static autoApplyBest(availableCoupons: CouponRule[], cart: CartContext): BestCouponResult;
+    static apply(coupon: CouponRule, rawCart: CartContext | BoostCartLike): CouponApplicationResult;
+    /**
+     * Applies multiple stackable coupons in combination.
+     */
+    static applyMultiple(coupons: CouponRule[], rawCart: CartContext | BoostCartLike): MultiCouponApplicationResult;
+    /**
+     * Evaluates all available coupons and selects the single coupon that saves the user the MOST money!
+     */
+    static autoApplyBest(availableCoupons: CouponRule[], rawCart: CartContext | BoostCartLike): BestCouponResult;
+    /**
+     * Generates motivational Average Order Value (AOV) upsell hints for coupons the user is close to unlocking!
+     */
+    static getUpsellHints(availableCoupons: CouponRule[], rawCart: CartContext | BoostCartLike): CouponUpsellHint[];
     private static invalid;
 }
 
-export { type BestCouponResult, type CartContext, type CartItem, type CouponApplicationResult, type CouponDiscountType, CouponEngine, type CouponRule, type TierRule };
+export { BestCouponResult, BoostCartLike, CartContext, CouponApplicationResult, CouponEngine, CouponRule, CouponUpsellHint, MultiCouponApplicationResult };

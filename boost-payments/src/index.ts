@@ -1,6 +1,10 @@
 // Main Server & Core Entrypoint for @boostengine/payments
 export * from './types';
 export * from './manager';
+export * from './upi';
+export * from './client';
+export * from './idempotency';
+export * from './agent';
 export * from './utils/crypto';
 export * from './utils/errors';
 export * from './adapters/base.adapter';
@@ -21,4 +25,14 @@ export type {
   NormalizedWebhookEvent,
   CreateOrderOptions,
   BoostPaymentOpenOptions,
+  PaymentMode,
+  BillingInterval,
+  SubscriptionPlanOptions,
+  SubscriptionResult,
+  DigitalProductCheckoutOptions,
+  DonationCheckoutOptions,
+  BoostCartLike,
+  CartOrderOptions,
+  UPIIntentOptions,
+  UPIIntentResult,
 } from './types';

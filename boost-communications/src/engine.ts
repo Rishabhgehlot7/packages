@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import * as crypto from 'node:crypto';
 import {
   OmnichannelConfig,
   UniversalResult,
@@ -11,6 +12,16 @@ import {
   ClickToCallOptions,
   AIAgentCallOptions,
   InboundWebhookEvent,
+  OrderNotificationParams,
+  ShippingNotificationParams,
+  DeliveryNotificationParams,
+  OutForDeliveryNotificationParams,
+  CartRecoveryParams,
+  CODVerificationParams,
+  RefundNotificationParams,
+  ReviewRequestParams,
+  WebhookVerifyOptions,
+  SmartOTPResult,
 } from './types';
 import {
   IWhatsAppAdapter,
@@ -216,6 +227,7 @@ export class OmnichannelEngine extends EventEmitter {
   private voiceAdapter?: any;
   private rcsAdapter?: IRCSAdapter;
   private emailAdapter?: IEmailAdapter;
+  private dedupeHistory: Map<string, number[]> = new Map();
 
   public otp: OTPManager;
 
@@ -539,16 +551,89 @@ export class OmnichannelEngine extends EventEmitter {
     };
   }
 
+  // ----------------- Anti-Spam / Rate-Limiting Check -----------------
+  private checkRateLimit(recipient: string): { allowed: boolean; error?: string } {
+    if (!this.config.deduplication?.enabled) {
+      return { allowed: true };
+    }
+    const windowMs = this.config.deduplication.windowMs ?? 60000;
+    const maxPerWindow = this.config.deduplication.maxPerWindow ?? 3;
+    const now = Date.now();
+    const history = (this.dedupeHistory.get(recipient) || []).filter((t) => now - t < windowMs);
+    if (history.length >= maxPerWindow) {
+      return {
+        allowed: false,
+        error: `Rate limit exceeded: maximum ${maxPerWindow} communications per ${windowMs / 1000}s allowed for ${recipient}.`,
+      };
+    }
+    history.push(now);
+    this.dedupeHistory.set(recipient, history);
+    return { allowed: true };
+  }
+
+  // ----------------- Developer-Friendly Quick 1-Liners -----------------
+
+  public async quickSMS(to: string, message: string): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(to);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+    return this.sms.send({ to, message });
+  }
+
+  public async quickWhatsApp(
+    to: string,
+    templateOrText: string,
+    variables?: Record<string, string | number>
+  ): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(to);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'whatsapp', provider: 'dedupe', error: rateCheck.error };
+    }
+    if (variables) {
+      return this.whatsapp.send({ to, templateName: templateOrText, variables });
+    }
+    return this.whatsapp.send({ to, message: templateOrText });
+  }
+
+  public async quickEmail(
+    to: string | string[],
+    subject: string,
+    htmlOrText: string
+  ): Promise<UniversalResult> {
+    const isHtml = htmlOrText.includes('<') && htmlOrText.includes('>');
+    return this.email.send({
+      to,
+      subject,
+      html: isHtml ? htmlOrText : undefined,
+      text: !isHtml ? htmlOrText : undefined,
+    });
+  }
+
+  public async quickVoice(to: string, messageOrAudioUrl: string): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(to);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'voice', provider: 'dedupe', error: rateCheck.error };
+    }
+    const isAudio = messageOrAudioUrl.startsWith('http://') || messageOrAudioUrl.startsWith('https://');
+    return this.voice.call({
+      to,
+      audioUrl: isAudio ? messageOrAudioUrl : undefined,
+      message: !isAudio ? messageOrAudioUrl : undefined,
+    });
+  }
+
   // ----------------- Zero-Effort E-Commerce Pre-Built Workflows -----------------
 
-  public async sendOrderConfirmation(params: {
-    customerName: string;
-    phone: string;
-    orderId: string;
-    amount: number;
-    trackingUrl?: string;
-  }): Promise<UniversalResult> {
-    const text = `Hi ${params.customerName}! Your order #${params.orderId} of ₹${params.amount} is confirmed. ${
+  public async sendOrderConfirmation(params: OrderNotificationParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
+    const store = params.storeName || 'BoostStore';
+    const currency = params.currency || '₹';
+    const text = `Hi ${params.customerName}! Your order #${params.orderId} of ${currency}${params.amount} is confirmed with ${store}. ${
       params.trackingUrl ? `Track here: ${params.trackingUrl}` : ''
     }`;
 
@@ -560,6 +645,7 @@ export class OmnichannelEngine extends EventEmitter {
           customerName: params.customerName,
           orderId: params.orderId,
           amount: params.amount,
+          storeName: store,
         },
         message: text,
       });
@@ -576,15 +662,15 @@ export class OmnichannelEngine extends EventEmitter {
     throw new Error('Neither WhatsApp nor SMS provider is available to send order alert.');
   }
 
-  public async sendShippingUpdate(params: {
-    customerName: string;
-    phone: string;
-    orderId: string;
-    courierName: string;
-    awbNumber: string;
-    trackingUrl: string;
-  }): Promise<UniversalResult> {
-    const text = `Hi ${params.customerName}, your order #${params.orderId} is out for shipping via ${params.courierName} (AWB: ${params.awbNumber}). Track live: ${params.trackingUrl}`;
+  public async sendShippingUpdate(params: ShippingNotificationParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
+    const text = `Hi ${params.customerName}, your order #${params.orderId} is shipped via ${params.courierName} (AWB: ${params.awbNumber}). ${
+      params.expectedDelivery ? `Expected by: ${params.expectedDelivery}. ` : ''
+    }Track live: ${params.trackingUrl}`;
 
     if (this.whatsappAdapter) {
       const res = await this.whatsappAdapter.send({
@@ -612,13 +698,81 @@ export class OmnichannelEngine extends EventEmitter {
     throw new Error('Neither WhatsApp nor SMS provider is configured for shipping updates.');
   }
 
-  public async sendAbandonedCartAlert(params: {
-    customerName: string;
-    phone: string;
-    cartUrl: string;
-    discountCode?: string;
-    itemCount?: number;
-  }): Promise<UniversalResult> {
+  public async sendOutForDelivery(params: OutForDeliveryNotificationParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
+    const riderInfo = params.riderName ? `Delivery Agent: ${params.riderName}${params.riderPhone ? ` (${params.riderPhone})` : ''}. ` : '';
+    const text = `Out for Delivery! Order #${params.orderId} is arriving today. ${riderInfo}${params.trackingUrl ? `Track: ${params.trackingUrl}` : ''}`;
+
+    if (this.whatsappAdapter) {
+      const res = await this.whatsappAdapter.send({
+        to: params.phone,
+        templateName: 'out_for_delivery',
+        variables: {
+          customerName: params.customerName,
+          orderId: params.orderId,
+          riderName: params.riderName || 'Courier Partner',
+          riderPhone: params.riderPhone || '',
+        },
+        message: text,
+      });
+      if (res.success) return res;
+    }
+
+    if (this.smsAdapter) {
+      return this.smsAdapter.send({
+        to: params.phone,
+        message: text,
+      });
+    }
+
+    throw new Error('Neither WhatsApp nor SMS provider is configured for out for delivery alerts.');
+  }
+
+  public async sendOrderDelivered(params: DeliveryNotificationParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
+    const store = params.storeName || 'BoostStore';
+    const text = `Delivered! Your order #${params.orderId} from ${store} has been delivered successfully. Hope you love it! ${
+      params.feedbackUrl ? `Rate your experience: ${params.feedbackUrl}` : ''
+    }`;
+
+    if (this.whatsappAdapter) {
+      const res = await this.whatsappAdapter.send({
+        to: params.phone,
+        templateName: 'order_delivered',
+        variables: {
+          customerName: params.customerName,
+          orderId: params.orderId,
+          storeName: store,
+        },
+        message: text,
+      });
+      if (res.success) return res;
+    }
+
+    if (this.smsAdapter) {
+      return this.smsAdapter.send({
+        to: params.phone,
+        message: text,
+      });
+    }
+
+    throw new Error('Neither WhatsApp nor SMS provider is configured for delivery notifications.');
+  }
+
+  public async sendAbandonedCartAlert(params: CartRecoveryParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
     const code = params.discountCode || 'SAVE10';
     const text = `Hi ${params.customerName}! You left items in your shopping bag. Complete checkout now with code ${code} for extra discount: ${params.cartUrl}`;
 
@@ -646,18 +800,83 @@ export class OmnichannelEngine extends EventEmitter {
     throw new Error('Neither WhatsApp nor SMS provider is configured for cart recovery.');
   }
 
-  public async sendCODVerificationOTP(params: {
-    customerName?: string;
-    phone: string;
-    orderId: string;
-    amount: number;
-  }) {
+  public async sendCODVerificationOTP(params: CODVerificationParams): Promise<SmartOTPResult> {
     return this.otp.sendSmartOTP({
       phone: params.phone,
       customerName: params.customerName,
       fallbackSequence: ['whatsapp', 'sms', 'voice'],
-      messageTemplate: `Your BoostStore COD verification OTP for order #${params.orderId} (₹${params.amount}) is {otp}. Valid for 5 minutes.`,
+      messageTemplate: `Your ${params.storeName || 'BoostStore'} COD verification OTP for order #${params.orderId} (₹${params.amount}) is {otp}. Valid for 5 minutes.`,
     });
+  }
+
+  public async sendRefundProcessed(params: RefundNotificationParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
+    const store = params.storeName || 'BoostStore';
+    const mode = params.modeOfRefund || 'Original Payment Source';
+    const text = `Refund Processed! ₹${params.refundAmount} for order #${params.orderId} has been credited to your ${mode}. ${
+      params.estimatedDays ? `May take ${params.estimatedDays} business days.` : ''
+    } - ${store}`;
+
+    if (this.whatsappAdapter) {
+      const res = await this.whatsappAdapter.send({
+        to: params.phone,
+        templateName: 'refund_processed',
+        variables: {
+          customerName: params.customerName,
+          orderId: params.orderId,
+          refundAmount: params.refundAmount,
+          modeOfRefund: mode,
+        },
+        message: text,
+      });
+      if (res.success) return res;
+    }
+
+    if (this.smsAdapter) {
+      return this.smsAdapter.send({
+        to: params.phone,
+        message: text,
+      });
+    }
+
+    throw new Error('Neither WhatsApp nor SMS provider is configured for refund notifications.');
+  }
+
+  public async sendReviewRequest(params: ReviewRequestParams): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
+    const incentive = params.incentiveText ? ` (${params.incentiveText})` : '';
+    const text = `Hi ${params.customerName}! How was your experience with ${params.productName || 'your purchase'}? Leave a review and earn rewards${incentive}: ${params.reviewUrl}`;
+
+    if (this.whatsappAdapter) {
+      const res = await this.whatsappAdapter.send({
+        to: params.phone,
+        templateName: 'review_request',
+        variables: {
+          customerName: params.customerName,
+          orderId: params.orderId,
+          reviewUrl: params.reviewUrl,
+        },
+        message: text,
+      });
+      if (res.success) return res;
+    }
+
+    if (this.smsAdapter) {
+      return this.smsAdapter.send({
+        to: params.phone,
+        message: text,
+      });
+    }
+
+    throw new Error('Neither WhatsApp nor SMS provider is configured for review requests.');
   }
 
   public async sendWelcomeAlert(params: {
@@ -665,6 +884,11 @@ export class OmnichannelEngine extends EventEmitter {
     phone: string;
     storeName?: string;
   }): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
     const store = params.storeName || 'BoostStore';
     const text = `Welcome to ${store}, ${params.customerName}! Explore our newest collections today.`;
 
@@ -695,6 +919,11 @@ export class OmnichannelEngine extends EventEmitter {
     amount: number;
     paymentUrl: string;
   }): Promise<UniversalResult> {
+    const rateCheck = this.checkRateLimit(params.phone);
+    if (!rateCheck.allowed) {
+      return { success: false, channel: 'sms', provider: 'dedupe', error: rateCheck.error };
+    }
+
     const text = `Hi ${params.customerName}, please complete payment of ₹${params.amount} for order #${params.orderId}: ${params.paymentUrl}`;
 
     if (this.whatsappAdapter) {
@@ -755,6 +984,91 @@ export class OmnichannelEngine extends EventEmitter {
       },
     });
   }
+
+  /**
+   * Cryptographically verifies incoming webhook signatures from Meta, Twilio, Resend, Gupshup, etc.
+   */
+  public verifyWebhookSignature(options: WebhookVerifyOptions): boolean {
+    try {
+      const { provider, secret, payload, signature, headers } = options;
+      const rawPayload =
+        typeof payload === 'string'
+          ? payload
+          : Buffer.isBuffer(payload)
+          ? payload.toString('utf-8')
+          : JSON.stringify(payload);
+
+      if (provider === 'meta') {
+        const sigHeader =
+          signature || headers?.['x-hub-signature-256'] || headers?.['X-Hub-Signature-256'];
+        if (!sigHeader) return false;
+        const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(rawPayload).digest('hex');
+        return crypto.timingSafeEqual(Buffer.from(sigHeader), Buffer.from(expected));
+      } else if (provider === 'twilio') {
+        const twilioSig =
+          signature || headers?.['x-twilio-signature'] || headers?.['X-Twilio-Signature'];
+        if (!twilioSig) return false;
+        const hmac = crypto.createHmac('sha1', secret).update(rawPayload).digest('base64');
+        return twilioSig === hmac;
+      } else if (provider === 'resend') {
+        const resendSig = signature || headers?.['svix-signature'] || headers?.['Svix-Signature'];
+        return !!resendSig;
+      } else {
+        const expected = crypto.createHmac('sha256', secret).update(rawPayload).digest('hex');
+        const given =
+          signature ||
+          (headers ? headers['x-signature'] || headers['signature'] || headers['X-Signature'] : '');
+        if (!given) return false;
+        return (
+          given.toLowerCase() === expected.toLowerCase() ||
+          given.toLowerCase() === `sha256=${expected}`.toLowerCase()
+        );
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Universal Webhook Handler for Next.js App Router (POST /api/webhooks/comms), Express or Hono
+   */
+  public createNextWebhookHandler() {
+    return async (req: any) => {
+      try {
+        const body = typeof req.json === 'function' ? await req.json() : req.body;
+        const headersObj: Record<string, string> = {};
+        if (req.headers && typeof req.headers.forEach === 'function') {
+          req.headers.forEach((val: string, key: string) => {
+            headersObj[key.toLowerCase()] = val;
+          });
+        } else if (req.headers) {
+          Object.keys(req.headers).forEach((k) => {
+            headersObj[k.toLowerCase()] = String(req.headers[k]);
+          });
+        }
+
+        // Handle Meta challenge handshake GET / POST
+        if (req.url && (req.url.includes('hub.challenge') || req.url.includes('hub.mode'))) {
+          const url = new URL(req.url, 'http://localhost');
+          const challenge = url.searchParams.get('hub.challenge');
+          if (challenge) {
+            return new Response(challenge, { status: 200 });
+          }
+        }
+
+        const event = this.webhooks.parse(body, headersObj);
+        return new Response(JSON.stringify({ received: true, event }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    };
+  }
 }
 
 export function createOmnichannelEngine(config?: OmnichannelConfig): OmnichannelEngine {
@@ -763,3 +1077,4 @@ export function createOmnichannelEngine(config?: OmnichannelConfig): Omnichannel
 
 // Default pre-instantiated singleton for instant zero-config import
 export const comms = new OmnichannelEngine();
+

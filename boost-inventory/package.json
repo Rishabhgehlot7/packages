@@ -1,7 +1,7 @@
 {
   "name": "@boostengine/inventory",
-  "version": "1.0.3",
-  "description": "Real-Time Stock Urgency, Multi-Warehouse Fulfillment Allocation, Variant Inventory Tracking & Reservation Engine for eCommerce.",
+  "version": "1.1.0",
+  "description": "Ultra-fast headless eCommerce inventory engine with flash-sale stock lock (TTL), proximity multi-warehouse routing, split shipments, safety stock buffers, backorders, AI agent toolkit, and universal React/React Native hooks.",
   "author": "Boost Engine <boostengine001@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -11,9 +11,13 @@
     "multi-warehouse",
     "stock-reservation",
     "ecommerce-inventory",
-    "variant-matrix",
-    "headless-inventory",
-    "stock-sync"
+    "flash-sale",
+    "split-shipment",
+    "backorders",
+    "ai-agent",
+    "react-hooks",
+    "nextjs",
+    "react-native"
   ],
   "homepage": "https://github.com/boostengine/boostengine/tree/main/packages/boost-inventory#readme",
   "repository": {
@@ -35,6 +39,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.cjs"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.cjs"
     }
   },
   "files": [
@@ -46,6 +60,14 @@
     "build": "tsup",
     "test": "node test-suite.cjs",
     "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

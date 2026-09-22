@@ -1,4 +1,197 @@
-import React from 'react';
+import { EventEmitter } from 'events';
+
+type AnalyticsEventName = 'page_view' | 'product_view' | 'add_to_cart' | 'remove_from_cart' | 'checkout_started' | 'checkout_completed' | 'purchase' | 'search' | 'coupon_applied' | 'wishlist_added' | 'custom';
+interface AnalyticsEvent {
+    id: string;
+    name: AnalyticsEventName | string;
+    sessionId: string;
+    userId?: string;
+    properties: Record<string, unknown>;
+    timestamp: Date;
+}
+interface SaleRecord {
+    orderId: string;
+    userId?: string;
+    sessionId: string;
+    revenue: number;
+    items: SaleItem[];
+    couponCode?: string;
+    discountAmount?: number;
+    timestamp: Date;
+}
+interface SaleItem {
+    productId: string;
+    productName: string;
+    category?: string;
+    quantity: number;
+    price: number;
+}
+type FunnelStep = 'product_view' | 'add_to_cart' | 'checkout_started' | 'checkout_completed';
+interface FunnelStats {
+    steps: Array<{
+        step: FunnelStep;
+        count: number;
+        dropOffRate: number;
+    }>;
+    overallConversionRate: number;
+}
+interface AnalyticsKPIs {
+    totalRevenue: number;
+    totalOrders: number;
+    averageOrderValue: number;
+    conversionRate: number;
+    revenuePerVisit: number;
+    totalSessions: number;
+    totalProductViews: number;
+    cartAbandonmentRate: number;
+    topProducts: ProductRevenue[];
+}
+interface ProductRevenue {
+    productId: string;
+    productName: string;
+    totalRevenue: number;
+    unitsSold: number;
+}
+interface AnalyticsSession {
+    sessionId: string;
+    userId?: string;
+    events: AnalyticsEvent[];
+    startedAt: Date;
+    converted: boolean;
+}
+interface AnalyticsManagerEvents {
+    'sale:recorded': {
+        orderId: string;
+        revenue: number;
+    };
+    'event:tracked': {
+        name: string;
+        sessionId: string;
+    };
+    'funnel:converted': {
+        sessionId: string;
+        userId?: string;
+    };
+    'kpi:updated': {
+        kpis: AnalyticsKPIs;
+    };
+}
+
+declare class BoostAnalyticsManager extends EventEmitter {
+    private sessions;
+    private sales;
+    trackEvent(name: AnalyticsEventName | string, sessionId: string, properties?: Record<string, unknown>, userId?: string): AnalyticsEvent;
+    recordSale(params: {
+        orderId: string;
+        sessionId: string;
+        revenue: number;
+        items: SaleItem[];
+        userId?: string;
+        couponCode?: string;
+        discountAmount?: number;
+    }): SaleRecord;
+    getFunnelStats(): FunnelStats;
+    getKPIs(): AnalyticsKPIs;
+    getSession(sessionId: string): AnalyticsSession | undefined;
+    getAllSales(): SaleRecord[];
+    getTopProducts(n?: number): ProductRevenue[];
+    sync(sessions: AnalyticsSession[], sales?: SaleRecord[]): void;
+    export(): {
+        sessions: AnalyticsSession[];
+        sales: SaleRecord[];
+    };
+}
+
+declare const analyticsAgentTools: ({
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            name: {
+                type: string;
+            };
+            sessionId: {
+                type: string;
+            };
+            properties: {
+                type: string;
+            };
+            userId: {
+                type: string;
+            };
+            orderId?: undefined;
+            revenue?: undefined;
+            items?: undefined;
+            n?: undefined;
+        };
+        required: string[];
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            orderId: {
+                type: string;
+            };
+            sessionId: {
+                type: string;
+            };
+            revenue: {
+                type: string;
+            };
+            items: {
+                type: string;
+            };
+            userId: {
+                type: string;
+            };
+            name?: undefined;
+            properties?: undefined;
+            n?: undefined;
+        };
+        required: string[];
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            name?: undefined;
+            sessionId?: undefined;
+            properties?: undefined;
+            userId?: undefined;
+            orderId?: undefined;
+            revenue?: undefined;
+            items?: undefined;
+            n?: undefined;
+        };
+        required?: undefined;
+    };
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            n: {
+                type: string;
+            };
+            name?: undefined;
+            sessionId?: undefined;
+            properties?: undefined;
+            userId?: undefined;
+            orderId?: undefined;
+            revenue?: undefined;
+            items?: undefined;
+        };
+        required?: undefined;
+    };
+})[];
+type AnalyticsAgentToolName = typeof analyticsAgentTools[number]['name'];
 
 interface AnalyticsConfig {
     /** Meta (Facebook) Pixel ID, e.g. "1234567890" */
@@ -198,27 +391,4 @@ declare function trackCustomEvent(eventName: string, params?: Record<string, any
  */
 declare function fireTestEvent(type?: 'AddToCart' | 'Purchase'): void;
 
-interface BoostAnalyticsProps extends AnalyticsConfig {
-    children?: React.ReactNode;
-}
-/**
- * Universal Analytics Component for Next.js and Vite.
- * Injects Meta Pixel, Google Tag Manager, Microsoft Clarity, In-App WebView Shields,
- * and live testing debugger widget.
- */
-declare function BoostAnalytics({ fbPixelId, gtmId, clarityId, currency, defaultBrand, debug, enableInAppShield, showDebugger, children, }: BoostAnalyticsProps): React.ReactElement;
-
-/**
- * Suppresses common non-fatal In-App WebView and Java bridge exceptions
- * from polluting analytics and crash reports (e.g. Clarity, Sentry).
- */
-declare function InAppShield(): React.ReactElement | null;
-
-/**
- * On-Screen Live Analytics Tester & Debugger Widget.
- * Shows real-time event stream, connection status with Meta Pixel & GTM,
- * and lets developers fire 1-click test events.
- */
-declare function AnalyticsDebugger(): React.ReactElement | null;
-
-export { type AnalyticsConfig, AnalyticsDebugger, type AnalyticsDiagnosis, BoostAnalytics, type BoostAnalyticsProps, type EventLog, InAppShield, type TrackAddToCartParams, type TrackBeginCheckoutParams, type TrackItem, type TrackPaymentInfoParams, type TrackPurchaseParams, type TrackRemoveFromCartParams, type TrackViewItemParams, clearEventLogs, diagnoseAnalytics, fireTestEvent, getAnalyticsConfig, getEventLogs, initAnalytics, onAnalyticsEvent, pushToDataLayer, pushToFbPixel, trackAddPaymentInfo, trackAddToCart, trackBeginCheckout, trackCustomEvent, trackPurchase, trackRemoveFromCart, trackViewItem };
+export { type AnalyticsAgentToolName, type AnalyticsEvent, type AnalyticsEventName, type AnalyticsKPIs, type AnalyticsManagerEvents, type AnalyticsSession, BoostAnalyticsManager, type FunnelStats, type FunnelStep, type ProductRevenue, type SaleItem, type SaleRecord, analyticsAgentTools, clearEventLogs, diagnoseAnalytics, fireTestEvent, getAnalyticsConfig, getEventLogs, initAnalytics, onAnalyticsEvent, pushToDataLayer, pushToFbPixel, trackAddPaymentInfo, trackAddToCart, trackBeginCheckout, trackCustomEvent, trackPurchase, trackRemoveFromCart, trackViewItem };

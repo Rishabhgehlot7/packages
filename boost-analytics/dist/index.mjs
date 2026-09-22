@@ -1,4 +1,534 @@
-'use client';
-import {useEffect,useState}from'react';import {createPortal}from'react-dom';import {jsxs,jsx,Fragment}from'react/jsx-runtime';function L(e){if(typeof window>"u")return  true;try{let t=`boost_event_${e}`;return sessionStorage.getItem(t)?!0:(sessionStorage.setItem(t,"true"),!1)}catch{return  false}}var u={currency:"INR",defaultBrand:"Brand",debug:false,showDebugger:false},x=[],S=new Set;function q(e){return S.add(e),()=>{S.delete(e);}}function b(e,t,o){let r={id:`${Date.now()}_${Math.random().toString(36).substring(2,7)}`,timestamp:new Date().toLocaleTimeString(),eventName:e,channels:t,payload:o};if(x.unshift(r),x.length>50&&x.pop(),S.forEach(n=>{try{n(r,x);}catch{}}),(u.debug||typeof window<"u"&&(window.location.search.includes("boost_debug=1")||window.location.search.includes("boost_debug=true")))&&typeof console<"u"){let n=t.join(" + ");console.groupCollapsed(`%c\u{1F3AF} [BoostAnalytics] ${e} %c(${n})`,"background: #2563eb; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;","color: #64748b; font-size: 11px;"),console.log("Timestamp:",r.timestamp),console.log("Payload:",o),console.log("Active Channels:",t),console.groupEnd();}}function M(e){u={...u,...e};}function Y(){return u}function N(){return [...x]}function D(){x.length=0,S.forEach(e=>e({id:"0",timestamp:"",eventName:"cleared",channels:[],payload:{}},[]));}function E(){let e=typeof window<"u"&&typeof window.fbq=="function",t=typeof window<"u"&&Array.isArray(window.dataLayer),o=typeof window<"u"&&typeof window.clarity=="function";return {metaPixelReady:e,gtmReady:t,clarityReady:o,totalEventsFired:x.length,lastEvent:x[0]}}function w(e){typeof window>"u"||(window.dataLayer=window.dataLayer||[],e.ecommerce&&window.dataLayer.push({ecommerce:null}),window.dataLayer.push(e));}function _(e,t,o){typeof window>"u"||typeof window.fbq!="function"||(o?window.fbq(e,t,o):window.fbq(e,t));}function C(e,t){if(!e)return {item_id:"item",item_name:"Product",item_brand:u.defaultBrand||"Brand",item_category:"General",item_variant:"",price:0,quantity:1,currency:t};let o=e.id||e._id||e.product?._id||e.product?.id||e.productId||"item",r=e.name||e.title||e.product?.name||e.product?.title||"Product",i=e.brand||e.product?.brand||u.defaultBrand||"Brand",n=e.category||e.product?.category||"General",a=e.variant||e.product?.variant||"",s=Number(e.price??e.product?.price??0)||0,g=Number(e.quantity??e.qty??1)||1;return {item_id:String(o),item_name:String(r),item_brand:String(i),item_category:String(n),item_variant:String(a),price:s,quantity:g,currency:t}}function Q(e){if(typeof window>"u")return;let t=e.currency||u.currency||"INR",o=String(e.id||e._id||e.product?._id||e.product?.id||e.productId||"product"),r=String(e.name||e.title||e.product?.name||e.product?.title||"Product"),i=Number(e.price??e.product?.price??0)||0,n=e.brand||e.product?.brand||u.defaultBrand||"Brand",a=e.category||e.product?.category||"General",s=e.variant||e.product?.variant||"";w({event:"view_item",ecommerce:{currency:t,value:i,items:[C({id:o,name:r,price:i,brand:n,category:a,variant:s,quantity:1},t)]}}),_("track","ViewContent",{content_name:r,content_ids:[o],content_type:"product",value:i,currency:t}),b("ViewContent (view_item)",["Meta Pixel","Google Tag Manager"],{id:o,name:r,price:i,currency:t});}function G(e){if(typeof window>"u")return;let t=e.currency||u.currency||"INR",o=String(e.id||e._id||e.product?._id||e.product?.id||e.productId||"product"),r=String(e.name||e.title||e.product?.name||e.product?.title||"Product"),i=Number(e.price??e.product?.price??0)||0,n=Number(e.quantity??e.qty??1)||1,a=e.brand||e.product?.brand||u.defaultBrand||"Brand",s=e.category||e.product?.category||"General",g=e.variant||e.product?.variant||"";w({event:"add_to_cart",ecommerce:{currency:t,value:i*n,items:[C({id:o,name:r,price:i,quantity:n,brand:a,category:s,variant:g},t)]}}),_("track","AddToCart",{content_name:r,content_ids:[o],content_type:"product",value:i*n,currency:t}),b("AddToCart (add_to_cart)",["Meta Pixel","Google Tag Manager"],{id:o,name:r,price:i,quantity:n,value:i*n,currency:t});}function Z(e){if(typeof window>"u")return;let t=e.currency||u.currency||"INR",o=String(e.id||e._id||e.product?._id||e.product?.id||e.productId||"product"),r=String(e.name||e.title||e.product?.name||e.product?.title||"Product"),i=Number(e.price??e.product?.price??0)||0,n=Number(e.quantity??e.qty??1)||1,a=e.brand||e.product?.brand||u.defaultBrand||"Brand",s=e.category||e.product?.category||"General",g=e.variant||e.product?.variant||"";w({event:"remove_from_cart",ecommerce:{currency:t,value:i*n,items:[C({id:o,name:r,price:i,quantity:n,brand:a,category:s,variant:g},t)]}}),b("RemoveFromCart (remove_from_cart)",["Google Tag Manager"],{id:o,name:r,quantity:n,currency:t});}function ee(e){if(typeof window>"u")return;let t=e.currency||u.currency||"INR",o=Array.isArray(e.items)?e.items:[],r=o.map(n=>n.id||n._id||n.product?._id||n.product?.id||n.productId).filter(Boolean).map(String),i=o.reduce((n,a)=>n+(Number(a.quantity??a.qty??1)||1),0);w({event:"begin_checkout",ecommerce:{currency:t,value:e.totalValue,coupon:e.coupon||"",items:o.map(n=>C(n,t))}}),_("track","InitiateCheckout",{content_ids:r,num_items:i,value:e.totalValue,currency:t}),b("InitiateCheckout (begin_checkout)",["Meta Pixel","Google Tag Manager"],{totalValue:e.totalValue,itemCount:o.length,currency:t});}function te(e){if(typeof window>"u")return;let t=e.currency||u.currency||"INR",o=Array.isArray(e.items)?e.items:[];w({event:"add_payment_info",ecommerce:{currency:t,value:e.totalValue,payment_type:e.paymentMethod||"Online",items:o.map(r=>C(r,t))}}),_("track","AddPaymentInfo",{value:e.totalValue,currency:t}),b("AddPaymentInfo (add_payment_info)",["Meta Pixel","Google Tag Manager"],{totalValue:e.totalValue,paymentMethod:e.paymentMethod||"Online",currency:t});}function j(e){if(typeof window>"u"||L(`purchase_${e.transaction_id}`))return;let t=e.currency||u.currency||"INR",o=Array.isArray(e.items)?e.items:[],r=o.map(n=>n.id||n._id||n.product?._id||n.product?.id||n.productId).filter(Boolean).map(String),i=o.map(n=>{let a=n.id||n._id||n.product?._id||n.product?.id||n.productId||"item",s=Number(n.quantity??n.qty??1)||1,g=Number(n.price??n.product?.price??0)||0;return {id:String(a),quantity:s,item_price:g}});w({event:"purchase",ecommerce:{transaction_id:e.transaction_id,value:e.value,tax:e.tax||0,shipping:e.shipping||0,coupon:e.coupon||"",currency:t,items:o.map(n=>C(n,t))}}),_("track","Purchase",{content_type:"product",content_ids:r,contents:i,value:e.value,currency:t}),b("Purchase (purchase)",["Meta Pixel","Google Tag Manager"],{transaction_id:e.transaction_id,value:e.value,currency:t,items:o.length});}function ne(e,t){typeof window>"u"||(w({event:e,...t}),_("trackCustom",e,t),b(e,["Custom","Meta Pixel","Google Tag Manager"],t||{}));}function B(e="AddToCart"){e==="AddToCart"?G({id:"TEST-SKU-999",name:"Boost Engine Test T-Shirt",price:499,quantity:1,category:"Test Category",brand:u.defaultBrand||"Test Brand"}):j({transaction_id:`TEST_ORD_${Date.now().toString().slice(-6)}`,value:999,currency:u.currency||"INR",items:[{id:"TEST-SKU-999",name:"Boost Engine Test T-Shirt",price:999,quantity:1,category:"Test Category",brand:u.defaultBrand||"Test Brand"}]});}function z(){return useEffect(()=>{if(typeof window>"u")return;let e=o=>{let r=o&&o.message?String(o.message):"";if(r.includes("Java object")||r.includes("in-app")||r.includes("WebView")||r.includes("webkit"))return o.stopImmediatePropagation(),true},t=o=>{let r=o&&o.reason?String(o.reason):"";(r.includes("Java object")||r.includes("in-app")||r.includes("WebView"))&&(o.stopImmediatePropagation(),o.preventDefault());};return window.addEventListener("error",e,true),window.addEventListener("unhandledrejection",t,true),()=>{window.removeEventListener("error",e,true),window.removeEventListener("unhandledrejection",t,true);}},[]),null}function V(){let[e,t]=useState(false),[o,r]=useState(false),[i,n]=useState([]),[a,s]=useState({metaPixelReady:false,gtmReady:false,clarityReady:false,totalEventsFired:0}),[g,R]=useState(null);return useEffect(()=>{if(t(true),typeof window>"u")return;n(N()),s(E());let f=q((c,y)=>{n([...y]),s(E());}),h=setInterval(()=>{s(E());},2e3);return ()=>{f(),clearInterval(h);}},[]),!e||typeof document>"u"||!document.body?null:createPortal(jsxs("div",{style:{position:"fixed",bottom:"16px",right:"16px",zIndex:999999,fontFamily:'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',fontSize:"13px"},children:[!o&&jsxs("button",{onClick:()=>r(true),style:{display:"flex",alignItems:"center",gap:"6px",backgroundColor:"#0f172a",color:"#f8fafc",padding:"8px 14px",borderRadius:"9999px",boxShadow:"0 10px 25px -5px rgba(0,0,0,0.3)",border:"1px solid #334155",cursor:"pointer",fontWeight:600,transition:"all 0.2s ease"},onMouseEnter:f=>f.currentTarget.style.backgroundColor="#1e293b",onMouseLeave:f=>f.currentTarget.style.backgroundColor="#0f172a",children:[jsx("span",{children:"\u{1F3AF}"}),jsx("span",{children:"Analytics Test Mode"}),i.length>0&&jsx("span",{style:{backgroundColor:"#2563eb",color:"#fff",fontSize:"11px",padding:"1px 6px",borderRadius:"9999px"},children:i.length})]}),o&&jsxs("div",{style:{width:"380px",maxHeight:"520px",backgroundColor:"#090d16",color:"#f1f5f9",borderRadius:"16px",boxShadow:"0 25px 50px -12px rgba(0,0,0,0.6)",border:"1px solid #1e293b",display:"flex",flexDirection:"column",overflow:"hidden"},children:[jsxs("div",{style:{padding:"12px 16px",backgroundColor:"#0f172a",borderBottom:"1px solid #1e293b",display:"flex",justifyContent:"space-between",alignItems:"center"},children:[jsxs("div",{style:{display:"flex",alignItems:"center",gap:"8px"},children:[jsx("span",{style:{fontSize:"16px"},children:"\u{1F3AF}"}),jsx("strong",{style:{fontSize:"14px",color:"#fff"},children:"Analytics Inspector"})]}),jsx("button",{onClick:()=>r(false),style:{background:"none",border:"none",color:"#94a3b8",cursor:"pointer",fontSize:"18px",lineHeight:1},children:"\u2715"})]}),jsxs("div",{style:{padding:"10px 16px",backgroundColor:"#131b2e",borderBottom:"1px solid #1e293b",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px",fontSize:"11px"},children:[jsxs("div",{style:{display:"flex",alignItems:"center",gap:"6px"},children:[jsx("span",{children:a.metaPixelReady?"\u{1F7E2}":"\u{1F534}"}),jsxs("span",{children:["Meta Pixel: ",jsx("strong",{children:a.metaPixelReady?"Active":"Missing"})]})]}),jsxs("div",{style:{display:"flex",alignItems:"center",gap:"6px"},children:[jsx("span",{children:a.gtmReady?"\u{1F7E2}":"\u{1F534}"}),jsxs("span",{children:["GTM/GA4: ",jsx("strong",{children:a.gtmReady?"Active":"Missing"})]})]}),jsxs("div",{style:{display:"flex",alignItems:"center",gap:"6px"},children:[jsx("span",{children:a.clarityReady?"\u{1F7E2}":"\u26AA"}),jsxs("span",{children:["Clarity: ",jsx("strong",{children:a.clarityReady?"Active":"Off"})]})]}),jsxs("div",{style:{color:"#94a3b8",textAlign:"right"},children:["Events Logged: ",jsx("strong",{style:{color:"#fff"},children:i.length})]})]}),jsxs("div",{style:{padding:"8px 16px",backgroundColor:"#0c1222",display:"flex",gap:"8px",borderBottom:"1px solid #1e293b"},children:[jsx("button",{onClick:()=>B("AddToCart"),style:{flex:1,padding:"6px 8px",backgroundColor:"#2563eb",color:"#fff",border:"none",borderRadius:"6px",fontSize:"11px",fontWeight:600,cursor:"pointer"},children:"\u{1F6D2} Test AddToCart"}),jsx("button",{onClick:()=>B("Purchase"),style:{flex:1,padding:"6px 8px",backgroundColor:"#16a34a",color:"#fff",border:"none",borderRadius:"6px",fontSize:"11px",fontWeight:600,cursor:"pointer"},children:"\u{1F4B3} Test Purchase"}),jsx("button",{onClick:()=>D(),title:"Clear event history",style:{padding:"6px 10px",backgroundColor:"#334155",color:"#f8fafc",border:"none",borderRadius:"6px",fontSize:"11px",cursor:"pointer"},children:"Clear"})]}),jsx("div",{style:{padding:"8px 12px",overflowY:"auto",flex:1,display:"flex",flexDirection:"column",gap:"8px"},children:i.length===0?jsxs("div",{style:{textAlign:"center",padding:"30px 10px",color:"#64748b",fontSize:"12px"},children:[jsx("div",{children:"Waiting for events..."}),jsx("div",{style:{marginTop:"4px",fontSize:"11px"},children:'Click "Test AddToCart" or interact with products on page'})]}):i.map(f=>{let h=g===f.id;return jsxs("div",{onClick:()=>R(h?null:f.id),style:{backgroundColor:"#111827",border:"1px solid #1f2937",borderRadius:"8px",padding:"8px 10px",cursor:"pointer",transition:"border-color 0.15s ease"},children:[jsxs("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"4px"},children:[jsx("strong",{style:{color:"#38bdf8",fontSize:"12px",fontWeight:600},children:f.eventName}),jsx("span",{style:{fontSize:"10px",color:"#64748b"},children:f.timestamp})]}),jsx("div",{style:{display:"flex",gap:"4px",flexWrap:"wrap"},children:f.channels.map(c=>jsx("span",{style:{fontSize:"10px",backgroundColor:c==="Meta Pixel"?"rgba(59, 130, 246, 0.2)":"rgba(16, 185, 129, 0.2)",color:c==="Meta Pixel"?"#60a5fa":"#34d399",padding:"1px 5px",borderRadius:"4px"},children:c},c))}),h&&jsx("pre",{style:{marginTop:"8px",padding:"6px",backgroundColor:"#030712",color:"#cbd5e1",fontSize:"10px",borderRadius:"4px",overflowX:"auto",maxHeight:"140px",whiteSpace:"pre-wrap",wordBreak:"break-all"},children:JSON.stringify(f.payload,null,2)})]},f.id)})})]})]}),document.body)}function ve({fbPixelId:e,gtmId:t,clarityId:o,currency:r="INR",defaultBrand:i="Brand",debug:n=false,enableInAppShield:a=true,showDebugger:s=false,children:g}){let[R,f]=useState(s);return useEffect(()=>{if(typeof window>"u")return;let h=window.location.search.includes("boost_debug=1")||window.location.search.includes("boost_debug=true");if((s||n||h)&&f(true),M({fbPixelId:e,gtmId:t,clarityId:o,currency:r,defaultBrand:i,debug:n,enableInAppShield:a,showDebugger:s}),e&&!window.fbq){(function(y,v,T,P,l,m,I){y.fbq||(l=y.fbq=function(){l.callMethod?l.callMethod.apply(l,arguments):l.queue.push(arguments);},y._fbq||(y._fbq=l),l.push=l,l.loaded=true,l.version="2.0",l.queue=[],m=v.createElement(T),m.async=true,m.src=P,I=v.getElementsByTagName(T)[0],I.parentNode.insertBefore(m,I));})(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");let c=window.fbq;typeof c=="function"&&(c("init",e),c("track","PageView"));}if(t&&!document.getElementById("boost-gtm-script")){window.dataLayer=window.dataLayer||[],window.dataLayer.push({"gtm.start":new Date().getTime(),event:"gtm.js"});let c=document.createElement("script");c.id="boost-gtm-script",c.async=true,c.src=`https://www.googletagmanager.com/gtm.js?id=${t}`,document.head.appendChild(c);}o&&!document.getElementById("boost-clarity-script")&&(function(c,y,v,T,P,l,m){c[v]=c[v]||function(){(c[v].q=c[v].q||[]).push(arguments);},l=y.createElement(T),l.id="boost-clarity-script",l.async=1,l.src="https://www.clarity.ms/tag/"+P,m=y.getElementsByTagName(T)[0],m.parentNode.insertBefore(l,m);})(window,document,"clarity","script",o);},[e,t,o,r,i,n,a,s]),jsxs(Fragment,{children:[a&&jsx(z,{}),R&&jsx(V,{}),e&&jsx("noscript",{children:jsx("img",{height:"1",width:"1",style:{display:"none"},src:`https://www.facebook.com/tr?id=${e}&ev=PageView&noscript=1`,alt:""})}),g]})}
-export{V as AnalyticsDebugger,ve as BoostAnalytics,z as InAppShield,D as clearEventLogs,E as diagnoseAnalytics,B as fireTestEvent,Y as getAnalyticsConfig,N as getEventLogs,M as initAnalytics,q as onAnalyticsEvent,w as pushToDataLayer,_ as pushToFbPixel,te as trackAddPaymentInfo,G as trackAddToCart,ee as trackBeginCheckout,ne as trackCustomEvent,j as trackPurchase,Z as trackRemoveFromCart,Q as trackViewItem};//# sourceMappingURL=index.mjs.map
-//# sourceMappingURL=index.mjs.map
+// src/analytics-manager.ts
+import { EventEmitter } from "events";
+function uuid() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+var BoostAnalyticsManager = class extends EventEmitter {
+  sessions = /* @__PURE__ */ new Map();
+  sales = /* @__PURE__ */ new Map();
+  // ── Event Tracking ────────────────────────────────────────────────────────
+  trackEvent(name, sessionId, properties = {}, userId) {
+    const event = { id: uuid(), name, sessionId, userId, properties, timestamp: /* @__PURE__ */ new Date() };
+    let session = this.sessions.get(sessionId);
+    if (!session) {
+      session = { sessionId, userId, events: [], startedAt: /* @__PURE__ */ new Date(), converted: false };
+      this.sessions.set(sessionId, session);
+    }
+    session.events.push(event);
+    this.emit("event:tracked", { name, sessionId });
+    if (name === "purchase" || name === "checkout_completed") {
+      session.converted = true;
+      this.emit("funnel:converted", { sessionId, userId });
+    }
+    return event;
+  }
+  // ── Revenue Tracking ──────────────────────────────────────────────────────
+  recordSale(params) {
+    const sale = { ...params, timestamp: /* @__PURE__ */ new Date() };
+    this.sales.set(params.orderId, sale);
+    this.trackEvent("purchase", params.sessionId, { orderId: params.orderId, revenue: params.revenue }, params.userId);
+    this.emit("sale:recorded", { orderId: params.orderId, revenue: params.revenue });
+    this.emit("kpi:updated", { kpis: this.getKPIs() });
+    return sale;
+  }
+  // ── Funnel Analysis ───────────────────────────────────────────────────────
+  getFunnelStats() {
+    const steps = ["product_view", "add_to_cart", "checkout_started", "checkout_completed"];
+    const counts = {};
+    for (const session of this.sessions.values()) {
+      const sessionSteps = new Set(session.events.map((e) => e.name));
+      for (const step of steps) {
+        if (sessionSteps.has(step)) counts[step] = (counts[step] || 0) + 1;
+      }
+    }
+    const stepData = steps.map((step, i) => {
+      const count = counts[step] || 0;
+      const prevCount = i === 0 ? count : counts[steps[i - 1]] || 1;
+      const dropOff = i === 0 ? 0 : Math.round((1 - count / prevCount) * 100);
+      return { step, count, dropOffRate: dropOff };
+    });
+    const views = counts["product_view"] || 1;
+    const orders = counts["checkout_completed"] || 0;
+    return { steps: stepData, overallConversionRate: Math.round(orders / views * 1e3) / 10 };
+  }
+  // ── KPIs ─────────────────────────────────────────────────────────────────
+  getKPIs() {
+    const allSales = Array.from(this.sales.values());
+    const totalRevenue = allSales.reduce((s, r) => s + r.revenue, 0);
+    const totalOrders = allSales.length;
+    const totalSessions = this.sessions.size;
+    const converted = Array.from(this.sessions.values()).filter((s) => s.converted).length;
+    const productMap = /* @__PURE__ */ new Map();
+    for (const sale of allSales) {
+      for (const item of sale.items) {
+        const existing = productMap.get(item.productId) ?? { productId: item.productId, productName: item.productName, totalRevenue: 0, unitsSold: 0 };
+        existing.totalRevenue += item.price * item.quantity;
+        existing.unitsSold += item.quantity;
+        productMap.set(item.productId, existing);
+      }
+    }
+    const totalProductViews = Array.from(this.sessions.values()).reduce((s, sess) => s + sess.events.filter((e) => e.name === "product_view").length, 0);
+    const cartStarts = Array.from(this.sessions.values()).filter((s) => s.events.some((e) => e.name === "add_to_cart")).length;
+    const cartAbandoned = cartStarts - converted;
+    const cartAbandonmentRate = cartStarts > 0 ? Math.round(cartAbandoned / cartStarts * 100) : 0;
+    return {
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
+      totalOrders,
+      averageOrderValue: totalOrders > 0 ? Math.round(totalRevenue / totalOrders * 100) / 100 : 0,
+      conversionRate: totalSessions > 0 ? Math.round(converted / totalSessions * 1e3) / 10 : 0,
+      revenuePerVisit: totalSessions > 0 ? Math.round(totalRevenue / totalSessions * 100) / 100 : 0,
+      totalSessions,
+      totalProductViews,
+      cartAbandonmentRate,
+      topProducts: Array.from(productMap.values()).sort((a, b) => b.totalRevenue - a.totalRevenue).slice(0, 10)
+    };
+  }
+  // ── Queries ───────────────────────────────────────────────────────────────
+  getSession(sessionId) {
+    return this.sessions.get(sessionId);
+  }
+  getAllSales() {
+    return Array.from(this.sales.values());
+  }
+  getTopProducts(n = 10) {
+    return this.getKPIs().topProducts.slice(0, n);
+  }
+  // ── Sync ─────────────────────────────────────────────────────────────────
+  sync(sessions, sales = []) {
+    sessions.forEach((s) => this.sessions.set(s.sessionId, s));
+    sales.forEach((s) => this.sales.set(s.orderId, s));
+  }
+  export() {
+    return { sessions: Array.from(this.sessions.values()), sales: this.getAllSales() };
+  }
+};
+
+// src/analytics-agent.ts
+var analyticsAgentTools = [
+  { name: "track_analytics_event", description: "Track a user event (page_view, add_to_cart, purchase, etc.) for a session.", parameters: { type: "object", properties: { name: { type: "string" }, sessionId: { type: "string" }, properties: { type: "object" }, userId: { type: "string" } }, required: ["name", "sessionId"] } },
+  { name: "record_sale", description: "Record a completed sale with revenue and line items for KPI tracking.", parameters: { type: "object", properties: { orderId: { type: "string" }, sessionId: { type: "string" }, revenue: { type: "number" }, items: { type: "array" }, userId: { type: "string" } }, required: ["orderId", "sessionId", "revenue", "items"] } },
+  { name: "get_kpis", description: "Get current KPI dashboard: total revenue, AOV, CVR, RPV, cart abandonment rate, top products.", parameters: { type: "object", properties: {} } },
+  { name: "get_funnel_stats", description: "Get conversion funnel analysis from product_view \u2192 add_to_cart \u2192 checkout_started \u2192 checkout_completed.", parameters: { type: "object", properties: {} } },
+  { name: "get_top_products", description: "Get top N products ranked by revenue generated.", parameters: { type: "object", properties: { n: { type: "number" } } } }
+];
+
+// src/utils/dedupe.ts
+function isEventDuplicate(key) {
+  if (typeof window === "undefined") return true;
+  try {
+    const storageKey = `boost_event_${key}`;
+    if (sessionStorage.getItem(storageKey)) {
+      return true;
+    }
+    sessionStorage.setItem(storageKey, "true");
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+// src/tracker.ts
+var globalConfig = {
+  currency: "INR",
+  defaultBrand: "Brand",
+  debug: false,
+  showDebugger: false
+};
+var eventLogs = [];
+var listeners = /* @__PURE__ */ new Set();
+function onAnalyticsEvent(callback) {
+  listeners.add(callback);
+  return () => {
+    listeners.delete(callback);
+  };
+}
+function recordLog(eventName, channels, payload) {
+  const log = {
+    id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    timestamp: (/* @__PURE__ */ new Date()).toLocaleTimeString(),
+    eventName,
+    channels,
+    payload
+  };
+  eventLogs.unshift(log);
+  if (eventLogs.length > 50) {
+    eventLogs.pop();
+  }
+  listeners.forEach((fn) => {
+    try {
+      fn(log, eventLogs);
+    } catch {
+    }
+  });
+  const isDebug = globalConfig.debug || typeof window !== "undefined" && (window.location.search.includes("boost_debug=1") || window.location.search.includes("boost_debug=true"));
+  if (isDebug && typeof console !== "undefined") {
+    const channelBadges = channels.join(" + ");
+    console.groupCollapsed(
+      `%c\u{1F3AF} [BoostAnalytics] ${eventName} %c(${channelBadges})`,
+      "background: #2563eb; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;",
+      "color: #64748b; font-size: 11px;"
+    );
+    console.log("Timestamp:", log.timestamp);
+    console.log("Payload:", payload);
+    console.log("Active Channels:", channels);
+    console.groupEnd();
+  }
+}
+function initAnalytics(config) {
+  globalConfig = {
+    ...globalConfig,
+    ...config
+  };
+}
+function getAnalyticsConfig() {
+  return globalConfig;
+}
+function getEventLogs() {
+  return [...eventLogs];
+}
+function clearEventLogs() {
+  eventLogs.length = 0;
+  listeners.forEach((fn) => fn({ id: "0", timestamp: "", eventName: "cleared", channels: [], payload: {} }, []));
+}
+function diagnoseAnalytics() {
+  const metaPixelReady = typeof window !== "undefined" && typeof window.fbq === "function";
+  const gtmReady = typeof window !== "undefined" && Array.isArray(window.dataLayer);
+  const clarityReady = typeof window !== "undefined" && typeof window.clarity === "function";
+  return {
+    metaPixelReady,
+    gtmReady,
+    clarityReady,
+    totalEventsFired: eventLogs.length,
+    lastEvent: eventLogs[0]
+  };
+}
+function pushToDataLayer(data) {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer || [];
+  if (data.ecommerce) {
+    window.dataLayer.push({ ecommerce: null });
+  }
+  window.dataLayer.push(data);
+}
+function pushToFbPixel(action, eventName, params) {
+  if (typeof window === "undefined" || typeof window.fbq !== "function") return;
+  if (params) {
+    window.fbq(action, eventName, params);
+  } else {
+    window.fbq(action, eventName);
+  }
+}
+function normalizeGtmItem(item, currency) {
+  if (!item) {
+    return {
+      item_id: "item",
+      item_name: "Product",
+      item_brand: globalConfig.defaultBrand || "Brand",
+      item_category: "General",
+      item_variant: "",
+      price: 0,
+      quantity: 1,
+      currency
+    };
+  }
+  const itemId = item.id || item._id || item.product?._id || item.product?.id || item.productId || "item";
+  const itemName = item.name || item.title || item.product?.name || item.product?.title || "Product";
+  const itemBrand = item.brand || item.product?.brand || globalConfig.defaultBrand || "Brand";
+  const itemCategory = item.category || item.product?.category || "General";
+  const itemVariant = item.variant || item.product?.variant || "";
+  const price = Number(item.price ?? item.product?.price ?? 0) || 0;
+  const quantity = Number(item.quantity ?? item.qty ?? 1) || 1;
+  return {
+    item_id: String(itemId),
+    item_name: String(itemName),
+    item_brand: String(itemBrand),
+    item_category: String(itemCategory),
+    item_variant: String(itemVariant),
+    price,
+    quantity,
+    currency
+  };
+}
+function trackViewItem(params) {
+  if (typeof window === "undefined") return;
+  const currency = params.currency || globalConfig.currency || "INR";
+  const itemId = String(params.id || params._id || params.product?._id || params.product?.id || params.productId || "product");
+  const itemName = String(params.name || params.title || params.product?.name || params.product?.title || "Product");
+  const price = Number(params.price ?? params.product?.price ?? 0) || 0;
+  const brand = params.brand || params.product?.brand || globalConfig.defaultBrand || "Brand";
+  const category = params.category || params.product?.category || "General";
+  const variant = params.variant || params.product?.variant || "";
+  pushToDataLayer({
+    event: "view_item",
+    ecommerce: {
+      currency,
+      value: price,
+      items: [
+        normalizeGtmItem(
+          {
+            id: itemId,
+            name: itemName,
+            price,
+            brand,
+            category,
+            variant,
+            quantity: 1
+          },
+          currency
+        )
+      ]
+    }
+  });
+  pushToFbPixel("track", "ViewContent", {
+    content_name: itemName,
+    content_ids: [itemId],
+    content_type: "product",
+    value: price,
+    currency
+  });
+  recordLog("ViewContent (view_item)", ["Meta Pixel", "Google Tag Manager"], {
+    id: itemId,
+    name: itemName,
+    price,
+    currency
+  });
+}
+function trackAddToCart(params) {
+  if (typeof window === "undefined") return;
+  const currency = params.currency || globalConfig.currency || "INR";
+  const itemId = String(params.id || params._id || params.product?._id || params.product?.id || params.productId || "product");
+  const itemName = String(params.name || params.title || params.product?.name || params.product?.title || "Product");
+  const price = Number(params.price ?? params.product?.price ?? 0) || 0;
+  const quantity = Number(params.quantity ?? params.qty ?? 1) || 1;
+  const brand = params.brand || params.product?.brand || globalConfig.defaultBrand || "Brand";
+  const category = params.category || params.product?.category || "General";
+  const variant = params.variant || params.product?.variant || "";
+  pushToDataLayer({
+    event: "add_to_cart",
+    ecommerce: {
+      currency,
+      value: price * quantity,
+      items: [
+        normalizeGtmItem(
+          {
+            id: itemId,
+            name: itemName,
+            price,
+            quantity,
+            brand,
+            category,
+            variant
+          },
+          currency
+        )
+      ]
+    }
+  });
+  pushToFbPixel("track", "AddToCart", {
+    content_name: itemName,
+    content_ids: [itemId],
+    content_type: "product",
+    value: price * quantity,
+    currency
+  });
+  recordLog("AddToCart (add_to_cart)", ["Meta Pixel", "Google Tag Manager"], {
+    id: itemId,
+    name: itemName,
+    price,
+    quantity,
+    value: price * quantity,
+    currency
+  });
+}
+function trackRemoveFromCart(params) {
+  if (typeof window === "undefined") return;
+  const currency = params.currency || globalConfig.currency || "INR";
+  const itemId = String(params.id || params._id || params.product?._id || params.product?.id || params.productId || "product");
+  const itemName = String(params.name || params.title || params.product?.name || params.product?.title || "Product");
+  const price = Number(params.price ?? params.product?.price ?? 0) || 0;
+  const quantity = Number(params.quantity ?? params.qty ?? 1) || 1;
+  const brand = params.brand || params.product?.brand || globalConfig.defaultBrand || "Brand";
+  const category = params.category || params.product?.category || "General";
+  const variant = params.variant || params.product?.variant || "";
+  pushToDataLayer({
+    event: "remove_from_cart",
+    ecommerce: {
+      currency,
+      value: price * quantity,
+      items: [
+        normalizeGtmItem(
+          {
+            id: itemId,
+            name: itemName,
+            price,
+            quantity,
+            brand,
+            category,
+            variant
+          },
+          currency
+        )
+      ]
+    }
+  });
+  recordLog("RemoveFromCart (remove_from_cart)", ["Google Tag Manager"], {
+    id: itemId,
+    name: itemName,
+    quantity,
+    currency
+  });
+}
+function trackBeginCheckout(params) {
+  if (typeof window === "undefined") return;
+  const currency = params.currency || globalConfig.currency || "INR";
+  const itemsList = Array.isArray(params.items) ? params.items : [];
+  const contentIds = itemsList.map((item) => item.id || item._id || item.product?._id || item.product?.id || item.productId).filter(Boolean).map(String);
+  const numItems = itemsList.reduce(
+    (sum, item) => sum + (Number(item.quantity ?? item.qty ?? 1) || 1),
+    0
+  );
+  pushToDataLayer({
+    event: "begin_checkout",
+    ecommerce: {
+      currency,
+      value: params.totalValue,
+      coupon: params.coupon || "",
+      items: itemsList.map((item) => normalizeGtmItem(item, currency))
+    }
+  });
+  pushToFbPixel("track", "InitiateCheckout", {
+    content_ids: contentIds,
+    num_items: numItems,
+    value: params.totalValue,
+    currency
+  });
+  recordLog("InitiateCheckout (begin_checkout)", ["Meta Pixel", "Google Tag Manager"], {
+    totalValue: params.totalValue,
+    itemCount: itemsList.length,
+    currency
+  });
+}
+function trackAddPaymentInfo(params) {
+  if (typeof window === "undefined") return;
+  const currency = params.currency || globalConfig.currency || "INR";
+  const itemsList = Array.isArray(params.items) ? params.items : [];
+  pushToDataLayer({
+    event: "add_payment_info",
+    ecommerce: {
+      currency,
+      value: params.totalValue,
+      payment_type: params.paymentMethod || "Online",
+      items: itemsList.map((item) => normalizeGtmItem(item, currency))
+    }
+  });
+  pushToFbPixel("track", "AddPaymentInfo", {
+    value: params.totalValue,
+    currency
+  });
+  recordLog("AddPaymentInfo (add_payment_info)", ["Meta Pixel", "Google Tag Manager"], {
+    totalValue: params.totalValue,
+    paymentMethod: params.paymentMethod || "Online",
+    currency
+  });
+}
+function trackPurchase(params) {
+  if (typeof window === "undefined") return;
+  if (isEventDuplicate(`purchase_${params.transaction_id}`)) {
+    return;
+  }
+  const currency = params.currency || globalConfig.currency || "INR";
+  const itemsList = Array.isArray(params.items) ? params.items : [];
+  const contentIds = itemsList.map((item) => item.id || item._id || item.product?._id || item.product?.id || item.productId).filter(Boolean).map(String);
+  const contents = itemsList.map((item) => {
+    const id = item.id || item._id || item.product?._id || item.product?.id || item.productId || "item";
+    const quantity = Number(item.quantity ?? item.qty ?? 1) || 1;
+    const price = Number(item.price ?? item.product?.price ?? 0) || 0;
+    return {
+      id: String(id),
+      quantity,
+      item_price: price
+    };
+  });
+  pushToDataLayer({
+    event: "purchase",
+    ecommerce: {
+      transaction_id: params.transaction_id,
+      value: params.value,
+      tax: params.tax || 0,
+      shipping: params.shipping || 0,
+      coupon: params.coupon || "",
+      currency,
+      items: itemsList.map((item) => normalizeGtmItem(item, currency))
+    }
+  });
+  pushToFbPixel("track", "Purchase", {
+    content_type: "product",
+    content_ids: contentIds,
+    contents,
+    value: params.value,
+    currency
+  });
+  recordLog("Purchase (purchase)", ["Meta Pixel", "Google Tag Manager"], {
+    transaction_id: params.transaction_id,
+    value: params.value,
+    currency,
+    items: itemsList.length
+  });
+}
+function trackCustomEvent(eventName, params) {
+  if (typeof window === "undefined") return;
+  pushToDataLayer({
+    event: eventName,
+    ...params
+  });
+  pushToFbPixel("trackCustom", eventName, params);
+  recordLog(eventName, ["Custom", "Meta Pixel", "Google Tag Manager"], params || {});
+}
+function fireTestEvent(type = "AddToCart") {
+  if (type === "AddToCart") {
+    trackAddToCart({
+      id: "TEST-SKU-999",
+      name: "Boost Engine Test T-Shirt",
+      price: 499,
+      quantity: 1,
+      category: "Test Category",
+      brand: globalConfig.defaultBrand || "Test Brand"
+    });
+  } else {
+    trackPurchase({
+      transaction_id: `TEST_ORD_${Date.now().toString().slice(-6)}`,
+      value: 999,
+      currency: globalConfig.currency || "INR",
+      items: [
+        {
+          id: "TEST-SKU-999",
+          name: "Boost Engine Test T-Shirt",
+          price: 999,
+          quantity: 1,
+          category: "Test Category",
+          brand: globalConfig.defaultBrand || "Test Brand"
+        }
+      ]
+    });
+  }
+}
+export {
+  BoostAnalyticsManager,
+  analyticsAgentTools,
+  clearEventLogs,
+  diagnoseAnalytics,
+  fireTestEvent,
+  getAnalyticsConfig,
+  getEventLogs,
+  initAnalytics,
+  onAnalyticsEvent,
+  pushToDataLayer,
+  pushToFbPixel,
+  trackAddPaymentInfo,
+  trackAddToCart,
+  trackBeginCheckout,
+  trackCustomEvent,
+  trackPurchase,
+  trackRemoveFromCart,
+  trackViewItem
+};

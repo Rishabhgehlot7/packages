@@ -1,8 +1,119 @@
+// src/notif-manager.ts
+import { EventEmitter } from "events";
+
+// src/notif-types.ts
+var DEFAULT_NOTIFICATIONS_CONFIG = {
+  defaultChannel: "whatsapp",
+  throttleMs: 0
+};
+
+// src/notif-manager.ts
+function uuid() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+var BoostNotificationsManager = class extends EventEmitter {
+  history = /* @__PURE__ */ new Map();
+  webhooks = /* @__PURE__ */ new Map();
+  config;
+  constructor(config = {}) {
+    super();
+    this.config = { ...DEFAULT_NOTIFICATIONS_CONFIG, ...config };
+  }
+  // ── Send Notification ─────────────────────────────────────────────────────
+  send(params) {
+    const { channel = this.config.defaultChannel, template, recipient, variables = {} } = params;
+    const record = {
+      id: uuid(),
+      channel,
+      template,
+      recipient,
+      variables,
+      status: "sent",
+      sentAt: /* @__PURE__ */ new Date(),
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.history.set(record.id, record);
+    try {
+      this.emit("notification:sent", { id: record.id, channel, recipientId: recipient.id });
+    } catch (err) {
+      record.status = "failed";
+      record.error = err?.message ?? "Unknown error";
+      this.emit("notification:failed", { id: record.id, channel, error: record.error });
+    }
+    return record;
+  }
+  // ── Schedule Notification ─────────────────────────────────────────────────
+  scheduleNotification(params) {
+    const { channel = this.config.defaultChannel, template, recipient, variables = {}, scheduledAt } = params;
+    const record = {
+      id: uuid(),
+      channel,
+      template,
+      recipient,
+      variables,
+      status: "scheduled",
+      scheduledAt,
+      createdAt: /* @__PURE__ */ new Date()
+    };
+    this.history.set(record.id, record);
+    this.emit("notification:scheduled", { id: record.id, scheduledAt });
+    return record;
+  }
+  // ── Webhooks ─────────────────────────────────────────────────────────────
+  registerWebhook(url, events, secret) {
+    const webhook = { id: uuid(), url, events, secret, isActive: true, createdAt: /* @__PURE__ */ new Date() };
+    this.webhooks.set(webhook.id, webhook);
+    return webhook;
+  }
+  deactivateWebhook(webhookId) {
+    const wh = this.webhooks.get(webhookId);
+    if (wh) wh.isActive = false;
+  }
+  triggerWebhooks(event, data) {
+    const triggered = [];
+    for (const webhook of this.webhooks.values()) {
+      if (!webhook.isActive) continue;
+      if (!webhook.events.includes(event) && !webhook.events.includes("*")) continue;
+      const payload = { event, data, timestamp: /* @__PURE__ */ new Date() };
+      triggered.push(payload);
+      this.emit("webhook:triggered", { webhookId: webhook.id, event, url: webhook.url });
+    }
+    return triggered;
+  }
+  // ── History & Queries ─────────────────────────────────────────────────────
+  getHistory(recipientId) {
+    return Array.from(this.history.values()).filter((n) => n.recipient.id === recipientId);
+  }
+  getAllHistory() {
+    return Array.from(this.history.values());
+  }
+  getWebhooks() {
+    return Array.from(this.webhooks.values());
+  }
+  // ── Sync ─────────────────────────────────────────────────────────────────
+  sync(records) {
+    records.forEach((r) => this.history.set(r.id, r));
+  }
+  export() {
+    return this.getAllHistory();
+  }
+};
+
+// src/notif-agent.ts
+var notificationsAgentTools = [
+  { name: "send_notification", description: "Send a notification via WhatsApp, SMS, Email, or Push using a predefined template.", parameters: { type: "object", properties: { channel: { type: "string", enum: ["whatsapp", "sms", "email", "push"] }, template: { type: "string" }, recipient: { type: "object" }, variables: { type: "object" } }, required: ["template", "recipient"] } },
+  { name: "schedule_notification", description: "Schedule a notification to be sent at a future date/time.", parameters: { type: "object", properties: { channel: { type: "string" }, template: { type: "string" }, recipient: { type: "object" }, variables: { type: "object" }, scheduledAt: { type: "string", description: "ISO 8601 datetime" } }, required: ["template", "recipient", "scheduledAt"] } },
+  { name: "get_notification_history", description: "Get all notifications sent to a specific recipient.", parameters: { type: "object", properties: { recipientId: { type: "string" } }, required: ["recipientId"] } },
+  { name: "register_webhook", description: "Register a webhook URL to receive event notifications for specific events.", parameters: { type: "object", properties: { url: { type: "string" }, events: { type: "array", items: { type: "string" } }, secret: { type: "string" } }, required: ["url", "events"] } },
+  { name: "trigger_webhooks", description: "Trigger all registered webhooks for a specific event with a payload.", parameters: { type: "object", properties: { event: { type: "string" }, data: { type: "object" } }, required: ["event", "data"] } }
+];
+
 // src/adapters/whatsapp.adapter.ts
 var WhatsAppAdapter = class {
   constructor(config) {
     this.config = config;
   }
+  config;
   async send(options) {
     const phone = options.to.phone?.replace(/[^0-9]/g, "");
     if (!phone) {
@@ -65,6 +176,7 @@ var SMSAdapter = class {
   constructor(config) {
     this.config = config;
   }
+  config;
   async send(options) {
     const phone = options.to.phone?.replace(/[^0-9]/g, "").slice(-10);
     if (!phone) {
@@ -123,6 +235,7 @@ var EmailAdapter = class {
   constructor(config) {
     this.config = config;
   }
+  config;
   async send(options) {
     const email = options.to.email;
     if (!email) {
@@ -176,6 +289,10 @@ var EmailAdapter = class {
 
 // src/manager.ts
 var NotificationManager = class {
+  whatsapp;
+  sms;
+  email;
+  defaultChannel;
   constructor(options) {
     this.defaultChannel = options.defaultChannel || "whatsapp";
     if (options.whatsapp) {
@@ -276,7 +393,10 @@ var NotificationManager = class {
 function createNotificationManager(options) {
   return new NotificationManager(options);
 }
-
-export { EmailAdapter, NotificationManager, SMSAdapter, WhatsAppAdapter, createNotificationManager };
-//# sourceMappingURL=index.mjs.map
-//# sourceMappingURL=index.mjs.map
+export {
+  BoostNotificationsManager,
+  DEFAULT_NOTIFICATIONS_CONFIG,
+  NotificationManager,
+  createNotificationManager,
+  notificationsAgentTools
+};
