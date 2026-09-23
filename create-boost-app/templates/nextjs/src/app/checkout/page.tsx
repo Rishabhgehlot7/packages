@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore, getCityFromPincode } from '../../context/StoreContext';
 import { LoyaltyEngine } from '@boostengine/loyalty';
-import { AssuredBadge } from '@boostengine/ui';
+import { AssuredBadge, OTPInput } from '@boostengine/ui';
 import {
   ShieldCheck,
   Truck,
@@ -17,6 +17,8 @@ import {
   Building2,
   AlertTriangle,
   QrCode,
+  Lock,
+  MessageCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -28,6 +30,37 @@ export default function CheckoutPage() {
   const [deliverySpeed, setDeliverySpeed] = useState<'express' | 'standard'>('express');
   const [shippingQuote, setShippingQuote] = useState<any>(null);
   const [loadingShipping, setLoadingShipping] = useState(false);
+  const [paymentGateway, setPaymentGateway] = useState<'razorpay' | 'cashfree' | 'phonepe' | 'stripe' | 'cod'>('razorpay');
+  const [whatsappOptIn, setWhatsappOptIn] = useState(true);
+
+  const initialGeo = deliveryLocation?.pincode
+    ? getCityFromPincode(deliveryLocation.pincode)
+    : { city: 'Mumbai', state: 'Maharashtra' };
+
+  const [form, setForm] = useState({
+    name: 'Aarav Mehta',
+    phone: '9876543210',
+    email: 'aarav@example.com',
+    line1: 'Flat 402, Sea Breeze Apts, Bandra West',
+    city: deliveryLocation?.city || initialGeo.city,
+    state: initialGeo.state,
+    pincode: deliveryLocation?.pincode || '400050',
+    paymentMethod: 'razorpay' as 'razorpay' | 'cod' | 'upi',
+  });
+
+  // Phone OTP login state
+  const [loginPhone, setLoginPhone] = useState(form.phone);
+  const [showLoginOtp, setShowLoginOtp] = useState(false);
+  const [loginOtp, setLoginOtp] = useState('');
+  const [loginOtpError, setLoginOtpError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // seeded demo profile
+
+  // Saved addresses
+  const savedAddresses = [
+    { id: 'home', label: 'Home', fullName: 'Aarav Mehta', phone: '9876543210', pincode: '400050', houseNumber: 'Flat 402', street: 'Sea Breeze Apts, Bandra West', city: 'Mumbai', state: 'Maharashtra', addressType: 'home' as const, isDefault: true },
+    { id: 'work', label: 'Work', fullName: 'Aarav Mehta', phone: '9876543210', pincode: '400051', houseNumber: 'Office 12B', street: 'Maker Maxity, BKC', city: 'Mumbai', state: 'Maharashtra', addressType: 'work' as const, isDefault: false },
+  ];
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>('home');
 
   // B2B GST State
   const [claimGst, setClaimGst] = useState(false);
@@ -46,20 +79,9 @@ export default function CheckoutPage() {
   const [resendTimer, setResendTimer] = useState(30);
   const [codVerified, setCodVerified] = useState(false);
 
-  const initialGeo = deliveryLocation?.pincode
-    ? getCityFromPincode(deliveryLocation.pincode)
-    : { city: 'Mumbai', state: 'Maharashtra' };
-
-  const [form, setForm] = useState({
-    name: 'Aarav Mehta',
-    phone: '9876543210',
-    email: 'aarav@example.com',
-    line1: 'Flat 402, Sea Breeze Apts, Bandra West',
-    city: deliveryLocation.city || initialGeo.city,
-    state: initialGeo.state,
-    pincode: deliveryLocation.pincode || '400050',
-    paymentMethod: 'razorpay' as 'razorpay' | 'cod' | 'upi',
-  });
+  const autofillSavedProfile = (patch: Partial<typeof form>) => {
+    setForm((prev) => ({ ...prev, ...patch }));
+  };
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -471,6 +493,100 @@ export default function CheckoutPage() {
           </button>
         </div>
       </div>
+      {/* Secure Login / Saved Profile */}
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-black text-gray-900 dark:text-white">
+            <Lock className="w-4 h-4" /> Secure Checkout
+          </div>
+          {isLoggedIn ? (
+            <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">Logged in as {form.phone}</span>
+          ) : (
+            <button
+              onClick={() => setShowLoginOtp(true)}
+              className="text-[11px] font-bold bg-black text-white px-3 py-1.5 rounded-lg"
+            >
+              Login with OTP
+            </button>
+          )}
+        </div>
+
+        {showLoginOtp && !isLoggedIn && (
+          <div className="space-y-3 p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl">
+            <div className="flex gap-2">
+              <input
+                type="tel"
+                value={loginPhone}
+                onChange={(e) => setLoginPhone(e.target.value)}
+                placeholder="Enter mobile number"
+                className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-2"
+              />
+              <button
+                onClick={() => {
+                  setLoginOtpError('');
+                  fetch('/api/auth/otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'send', phone: loginPhone }) });
+                  setShowLoginOtp(true);
+                }}
+                className="text-[11px] font-bold bg-gray-900 text-white px-3 py-2 rounded-lg"
+              >
+                Send OTP
+              </button>
+            </div>
+            <OTPInput length={6} value={loginOtp} onChange={setLoginOtp} error={loginOtpError} />
+            <button
+              onClick={() => {
+                setLoginOtpError('');
+                fetch('/api/auth/otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'verify', phone: loginPhone, otp: loginOtp }) })
+                  .then((r) => r.json())
+                  .then((d) => {
+                    if (d.success) {
+                      setIsLoggedIn(true);
+                      setShowLoginOtp(false);
+                      setForm((prev) => ({ ...prev, phone: loginPhone }));
+                    } else {
+                      setLoginOtpError(d.error || 'Invalid OTP');
+                    }
+                  });
+              }}
+              className="w-full py-2.5 bg-black text-white text-xs font-black rounded-lg"
+            >
+              Verify & Continue
+            </button>
+          </div>
+        )}
+
+        {/* Saved Address Selector */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {savedAddresses.map((addr) => (
+            <button
+              key={addr.id}
+              type="button"
+              onClick={() => {
+                setSelectedAddressId(addr.id);
+                autofillSavedProfile({
+                  name: addr.fullName,
+                  phone: addr.phone,
+                  line1: `${addr.houseNumber}, ${addr.street}`,
+                  city: addr.city,
+                  state: addr.state,
+                  pincode: addr.pincode,
+                });
+              }}
+              className={`text-left p-3 rounded-xl border transition space-y-1 ${
+                selectedAddressId === addr.id ? 'border-black bg-gray-50 dark:bg-zinc-800' : 'border-gray-200 dark:border-zinc-700 hover:border-gray-400'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-gray-900 dark:text-white">{addr.label}</span>
+                {addr.isDefault && <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Default</span>}
+              </div>
+              <p className="text-[10px] text-gray-500 line-clamp-2">{addr.houseNumber}, {addr.street}, {addr.city} - {addr.pincode}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Form (Left) */}
@@ -704,6 +820,34 @@ export default function CheckoutPage() {
                 <span>Payment Method</span>
               </h2>
 
+              {/* Multi-PG Switcher */}
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {[
+                  { id: 'razorpay', label: 'Razorpay', icon: '💳' },
+                  { id: 'cashfree', label: 'Cashfree', icon: '💰' },
+                  { id: 'phonepe', label: 'PhonePe', icon: '📱' },
+                  { id: 'stripe', label: 'Stripe', icon: '🌐' },
+                  { id: 'cod', label: 'COD', icon: '🚚' },
+                ].map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => {
+                      setPaymentGateway(g.id as any);
+                      setForm((prev) => ({ ...prev, paymentMethod: g.id === 'cod' ? 'cod' : 'razorpay' }));
+                    }}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-[10px] font-bold transition ${
+                      paymentGateway === g.id
+                        ? 'border-black bg-gray-900 text-white'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                  >
+                    <span className="text-base">{g.icon}</span>
+                    {g.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="space-y-3">
                 {/* Razorpay Gateway */}
                 <label
@@ -929,6 +1073,19 @@ export default function CheckoutPage() {
                 <span>₹{finalPayable.toLocaleString('en-IN')}</span>
               </div>
             </div>
+
+            <label className="flex items-start gap-2 text-[11px] text-gray-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={whatsappOptIn}
+                onChange={(e) => setWhatsappOptIn(e.target.checked)}
+                className="w-4 h-4 accent-emerald-500 mt-0.5"
+              />
+              <span>
+                <MessageCircle className="w-3 h-3 inline text-emerald-400 mr-1" />
+                Send me order updates, delivery alerts & exclusive offers on WhatsApp.
+              </span>
+            </label>
 
             <button
               type="submit"

@@ -3,21 +3,21 @@
 import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { OrderTimeline } from '@boostengine/ui';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, FileText, Truck } from 'lucide-react';
 import { AdminOrder } from '../../../data/db';
 
 export default function OrderSuccessPage({
   params,
 }: {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const { orderId } = use(params);
+  const { id } = use(params);
   const [order, setOrder] = useState<AdminOrder | null>(null);
 
   useEffect(() => {
     async function loadOrder() {
       try {
-        const res = await fetch(`/api/admin/orders/${orderId}`);
+        const res = await fetch(`/api/admin/orders/${id}`);
         const data = await res.json();
         if (data.success) {
           setOrder(data.data);
@@ -27,7 +27,9 @@ export default function OrderSuccessPage({
       }
     }
     loadOrder();
-  }, [orderId]);
+  }, [id]);
+
+  const orderId = order?.id || order?.orderNumber || id;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-8">
@@ -38,7 +40,7 @@ export default function OrderSuccessPage({
       <div className="space-y-2">
         <h1 className="text-3xl font-black text-gray-900 tracking-tight">Order Confirmed!</h1>
         <p className="text-sm text-gray-500">
-          Thank you for shopping with us. Your order #{order?.orderNumber || orderId} is being prepared.
+          Thank you for shopping with us. Your order #{order?.orderNumber || id} is being prepared.
         </p>
       </div>
 
@@ -51,7 +53,7 @@ export default function OrderSuccessPage({
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
         <Link
           href="/"
           className="px-6 py-3 bg-black text-white text-xs font-bold rounded-full hover:bg-gray-800 transition flex items-center gap-2"
@@ -60,10 +62,16 @@ export default function OrderSuccessPage({
           <ArrowRight className="w-4 h-4" />
         </Link>
         <Link
-          href="/admin/orders"
-          className="px-6 py-3 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full hover:bg-indigo-100 transition"
+          href={`/orders/${orderId}/track`}
+          className="px-6 py-3 bg-yellow-400 text-black text-xs font-bold rounded-full hover:bg-yellow-500 transition flex items-center gap-2"
         >
-          <span>View in Admin Pipeline ⚡</span>
+          <Truck className="w-4 h-4" /> Track Order
+        </Link>
+        <Link
+          href={`/orders/${orderId}/invoice`}
+          className="px-6 py-3 bg-gray-100 text-gray-800 text-xs font-bold rounded-full hover:bg-gray-200 transition flex items-center gap-2"
+        >
+          <FileText className="w-4 h-4" /> GST Invoice
         </Link>
       </div>
     </div>

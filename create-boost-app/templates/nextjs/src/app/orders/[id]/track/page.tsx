@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Stepper } from '@boostengine/ui';
 import {
   PackageCheck,
   Truck,
@@ -161,51 +162,10 @@ export default function OrderTrackPage() {
 
           {/* Stepper Timeline */}
           <div className="pt-2 pb-6">
-            <div className="relative">
-              <div className="hidden md:block absolute top-5 left-8 right-8 h-1 bg-gray-200 dark:bg-zinc-800" />
-              <div
-                className="hidden md:block absolute top-5 left-8 h-1 bg-yellow-400 transition-all duration-700"
-                style={{ width: `${Math.min(100, Math.max(0, (currentStep / (steps.length - 1)) * 100))}%` }}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                {steps.map((step, idx) => {
-                  const Icon = step.icon;
-                  const isDone = idx <= currentStep;
-                  const isCurrent = idx === currentStep;
-
-                  return (
-                    <div key={step.key} className="flex md:flex-col items-center md:text-center gap-4 md:gap-2 relative">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all z-10 shadow-sm ${
-                          isCurrent
-                            ? 'bg-yellow-400 text-black ring-4 ring-yellow-400/20 scale-110'
-                            : isDone
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border border-gray-200 dark:border-zinc-700'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div
-                          className={`text-xs font-black ${
-                            isCurrent
-                              ? 'text-yellow-600 dark:text-yellow-400'
-                              : isDone
-                              ? 'text-gray-900 dark:text-white'
-                              : 'text-gray-400'
-                          }`}
-                        >
-                          {step.label}
-                        </div>
-                        <div className="text-[11px] text-gray-500 line-clamp-1">{step.desc}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <Stepper
+              steps={steps.map((s) => ({ id: s.key, title: s.label, description: s.desc }))}
+              activeStep={currentStep}
+            />
           </div>
 
           {/* Quick Action Buttons */}

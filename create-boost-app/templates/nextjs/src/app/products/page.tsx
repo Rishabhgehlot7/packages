@@ -147,7 +147,7 @@ function ProductsContent() {
                 }
                 rating={typeof product.rating === 'object' ? product.rating?.value : product.rating}
                 reviewCount={typeof product.rating === 'object' ? product.rating?.count : undefined}
-                onClick={() => router.push(`/products/${product.id}`)}
+                onClick={() => router.push(`/products/${product.slug || product.id}`)}
                 onAddToCart={() => {
                   addToCart(product);
                 }}

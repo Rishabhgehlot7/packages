@@ -22,7 +22,12 @@ import {
   Users,
   Star,
   BarChart3,
-  Code2,
+  Warehouse,
+  Flame,
+  Coins,
+  Share2,
+  MessageSquare,
+  Globe,
 } from 'lucide-react';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -55,7 +60,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       ],
     },
     {
-      group: 'COMMERCE',
+      group: 'COMMERCE & INVENTORY',
       items: [
         {
           href: '/admin/products',
@@ -65,10 +70,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           exact: false,
         },
         {
+          href: '/admin/inventory',
+          label: 'Stock & Warehouses',
+          icon: Warehouse,
+          badge: 'Multi-Hub',
+          exact: false,
+        },
+        {
           href: '/admin/categories',
-          label: 'Categories & Subs',
+          label: 'Categories & Taxonomy',
           icon: FolderTree,
-          badge: 'Tree',
+          badge: null,
           exact: false,
         },
         {
@@ -80,7 +92,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         },
         {
           href: '/admin/returns',
-          label: 'Returns & Reverse Logistics',
+          label: 'Returns & Doorstep QC',
           icon: RotateCcw,
           badge: 'Reverse',
           exact: false,
@@ -105,10 +117,31 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           exact: false,
         },
         {
-          href: '/admin/customers',
-          label: 'Customers & Loyalty',
-          icon: Users,
-          badge: 'VIP',
+          href: '/admin/deals',
+          label: 'Flash Deals Scheduler',
+          icon: Flame,
+          badge: 'Urgency',
+          exact: false,
+        },
+        {
+          href: '/admin/loyalty',
+          label: 'SuperCoins & VIP Tiers',
+          icon: Coins,
+          badge: 'Rewards',
+          exact: false,
+        },
+        {
+          href: '/admin/referrals',
+          label: 'Referrals & Viral Loop',
+          icon: Share2,
+          badge: 'Growth',
+          exact: false,
+        },
+        {
+          href: '/admin/communications',
+          label: 'Omnichannel Comms',
+          icon: MessageSquare,
+          badge: 'WhatsApp',
           exact: false,
         },
         {
@@ -118,10 +151,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           badge: null,
           exact: false,
         },
+        {
+          href: '/admin/customers',
+          label: 'Customer Accounts',
+          icon: Users,
+          badge: null,
+          exact: false,
+        },
       ],
     },
     {
-      group: 'EXTENSIONS & DEV',
+      group: 'EXTENSIONS & SEO',
       items: [
         {
           href: '/admin/plugins',
@@ -131,10 +171,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           exact: false,
         },
         {
-          href: '/admin/dev',
-          label: 'Dev Cheat-Sheet',
-          icon: Code2,
-          badge: 'SDK',
+          href: '/admin/seo',
+          label: 'SEO & Product Feeds',
+          icon: Globe,
+          badge: 'G-Merchant',
           exact: false,
         },
       ],
@@ -158,15 +198,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     if (pathname === '/admin/reports') return 'Analytics & Reports';
     if (pathname === '/admin/products/new') return 'New Product';
     if (pathname?.startsWith('/admin/products')) return 'Product Catalog';
+    if (pathname?.startsWith('/admin/inventory')) return 'Multi-Warehouse Inventory';
     if (pathname?.startsWith('/admin/categories')) return 'Categories & Taxonomy';
     if (pathname?.startsWith('/admin/orders')) return 'Order Management';
     if (pathname?.startsWith('/admin/returns')) return 'Returns & Reverse Logistics';
     if (pathname?.startsWith('/admin/coupons')) return 'Coupons & Promotions';
-    if (pathname?.startsWith('/admin/customers')) return 'Customers & Loyalty';
+    if (pathname?.startsWith('/admin/deals')) return 'Flash Deals Scheduler';
+    if (pathname?.startsWith('/admin/loyalty')) return 'SuperCoins & VIP Loyalty';
+    if (pathname?.startsWith('/admin/referrals')) return 'Referrals & Viral Growth';
+    if (pathname?.startsWith('/admin/communications')) return 'Omnichannel Communications';
     if (pathname?.startsWith('/admin/reviews')) return 'Reviews Moderation';
+    if (pathname?.startsWith('/admin/customers')) return 'Customer Accounts';
     if (pathname?.startsWith('/admin/banners')) return 'Banners & Media';
     if (pathname?.startsWith('/admin/plugins')) return 'Plugins Hub';
-    if (pathname?.startsWith('/admin/dev')) return 'Developer Engine Cheat-Sheet';
+    if (pathname?.startsWith('/admin/seo')) return 'SEO & Product Syndication Feeds';
     if (pathname?.startsWith('/admin/settings')) return 'Store Settings';
     return 'Admin Control';
   };
@@ -189,7 +234,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         }`}
       >
         {/* Brand Header */}
-        <div className="h-16 px-5 border-b border-slate-200/80 flex items-center justify-between">
+        <div className="h-16 px-5 border-b border-slate-200/80 flex items-center justify-between shrink-0">
           <Link
             href="/admin"
             onClick={() => setMobileMenuOpen(false)}
@@ -201,10 +246,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-black text-base text-slate-900 tracking-tight leading-tight">
-                  Boost<span className="text-indigo-600">Admin</span>
+                  Boost<span className="text-indigo-600">Merchant</span>
                 </span>
                 <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                  v2.0
+                  OS
                 </span>
               </div>
               <p className="text-[10px] font-semibold text-slate-500 tracking-wider uppercase">
@@ -225,21 +270,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Live Engine Status Badge */}
-        <div className="px-4 py-3 border-b border-slate-200/60 bg-slate-50/60">
+        <div className="px-4 py-2.5 border-b border-slate-200/60 bg-slate-50/60 shrink-0">
           <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] font-bold text-emerald-700">
             <span className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span>MongoDB Connected</span>
+              <span>Store Engine Active</span>
             </span>
             <Database className="w-3.5 h-3.5 text-emerald-600" />
           </div>
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto no-scrollbar text-xs font-semibold">
+        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto no-scrollbar text-xs font-semibold">
           {navItems.map((group) => (
             <div key={group.group} className="space-y-1">
               <span className="px-3 text-[10px] font-bold tracking-wider text-slate-400 uppercase select-none">
@@ -259,13 +304,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`group flex items-center justify-between px-3 py-2.5 rounded-xl transition duration-150 ${
+                      className={`group flex items-center justify-between px-3 py-2 rounded-xl transition duration-150 ${
                         isActive
                           ? 'bg-indigo-50 text-indigo-700 font-bold shadow-xs border border-indigo-200/80'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         <Icon
                           className={`w-4 h-4 transition duration-150 ${
                             isActive
@@ -277,7 +322,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                       </div>
 
                       {item.badge ? (
-                        <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                        <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80">
                           {item.badge}
                         </span>
                       ) : isActive ? (
@@ -292,11 +337,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Storefront Link Footer */}
-        <div className="p-3 border-t border-slate-200/80 space-y-2">
+        <div className="p-3 border-t border-slate-200/80 space-y-2 shrink-0">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs font-bold transition shadow-xs group"
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs font-bold transition shadow-xs group"
           >
             <span>🌐</span>
             <span>View Live Storefront</span>
@@ -304,14 +349,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* User Profile Mini Card */}
-          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
+          <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
                 RG
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-slate-800 truncate">Rishabh Gehlot</p>
-                <p className="text-[10px] font-medium text-slate-500 truncate">Store Owner • Admin</p>
+                <p className="text-[9px] font-medium text-slate-500 truncate">Store Owner • Admin</p>
               </div>
             </div>
             <ShieldCheck className="w-4 h-4 text-indigo-600 flex-shrink-0" />

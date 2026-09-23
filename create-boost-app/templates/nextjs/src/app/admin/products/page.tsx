@@ -230,7 +230,7 @@ export default function AdminProductsPage() {
 
                       <td className="py-4 px-5 text-right space-x-1.5">
                         <Link
-                          href={`/products/${product.id}`}
+                          href={`/products/${(product as any).slug || product.id}`}
                           target="_blank"
                           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 inline-flex transition"
                           title="Preview on Storefront"
@@ -303,7 +303,7 @@ export default function AdminProductsPage() {
 
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/products/${product.id}`}
+                        href={`/products/${(product as any).slug || product.id}`}
                         target="_blank"
                         className="p-1.5 text-slate-400 hover:text-slate-700"
                         title="Preview on Storefront"

@@ -18,5 +18,4 @@ export { default as Subscriber, type ISubscriber } from './Subscriber';
 export { default as Tag, type ITag } from './Tag';
 export { default as UrlPath, type IUrlPath } from './UrlPath';
 export { default as User, type IUser, type IAddress } from './User';
-export { default as WarrantyClaim, type IWarrantyClaim } from './WarrantyClaim';
-export { default as WarrantyRegistration, type IWarrantyRegistration } from './WarrantyRegistration';
+

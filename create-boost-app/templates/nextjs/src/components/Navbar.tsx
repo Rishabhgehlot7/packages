@@ -170,7 +170,7 @@ export const Navbar: React.FC = () => {
               {searchResults.map((product) => (
                 <Link
                   key={product.id}
-                  href={`/products/${product.id}`}
+                  href={`/products/${product.slug || product.id}`}
                   onClick={() => setIsSearchFocused(false)}
                   className="flex items-center gap-3 p-3 hover:bg-gray-50 transition"
                 >
@@ -351,7 +351,7 @@ export const Navbar: React.FC = () => {
             {searchResults.map((product) => (
               <Link
                 key={product.id}
-                href={`/products/${product.id}`}
+                href={`/products/${product.slug || product.id}`}
                 onClick={() => setIsSearchFocused(false)}
                 className="flex items-center gap-3 p-2.5 hover:bg-gray-50"
               >

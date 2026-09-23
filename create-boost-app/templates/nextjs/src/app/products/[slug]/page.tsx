@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { notFound } from 'next/navigation';
-import { PRODUCTS, StoreProduct } from '../../../data/products';
+import {
+  PRODUCTS,
+  StoreProduct,
+  getProductBySlug,
+  getProductById,
+  getProductUrl,
+} from '../../../data/products';
 import { useStore, getCityFromPincode } from '../../../context/StoreContext';
 import { RecommendationsEngine } from '@boostengine/recommendations';
+import { generateProductJsonLd, generateBreadcrumbJsonLd } from '@boostengine/seo';
+import { JsonLdScript } from '@boostengine/seo/react';
 import {
   PincodeChecker,
   StarRating,
@@ -19,14 +26,15 @@ import {
   BankOffersAccordion,
   FrequentlyBoughtTogether,
   DualMobileActionBar,
+  ProgressBar,
 } from '@boostengine/ui';
 import { Heart, ShoppingBag, ArrowLeft, Zap, CheckCircle2 } from 'lucide-react';
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const routeParams = useParams();
-  const id = (routeParams?.id as string) || '';
-  const initialProduct = PRODUCTS.find((p) => p.id === id) || null;
+  const slug = (routeParams?.slug as string) || '';
+  const initialProduct = getProductBySlug(slug) || getProductById(slug) || null;
   const [product, setProduct] = useState<StoreProduct | null>(initialProduct);
   const [loading, setLoading] = useState<boolean>(!initialProduct);
   const [allProducts, setAllProducts] = useState<StoreProduct[]>(PRODUCTS);
@@ -39,6 +47,7 @@ export default function ProductDetailPage() {
     addBundleToCart,
     deliveryLocation,
     setDeliveryLocation,
+    settings,
   } = useStore();
 
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
@@ -46,21 +55,25 @@ export default function ProductDetailPage() {
   );
   const [quantity, setQuantity] = useState<number>(1);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchDynamicProduct() {
+      const resolved = getProductBySlug(slug) || getProductById(slug);
       try {
         const [prodRes, catalogRes] = await Promise.all([
-          fetch(`/api/products?id=${encodeURIComponent(id)}`),
-          fetch('/api/products')
+          fetch(`/api/products?id=${encodeURIComponent(slug)}`),
+          fetch('/api/products'),
         ]);
         const prodData = await prodRes.json();
         const catData = await catalogRes.json();
 
         if (prodData.success && prodData.data && !Array.isArray(prodData.data)) {
-          setProduct(prodData.data);
-          if (prodData.data.variants && prodData.data.variants.length > 0) {
-            setSelectedVariantId(prodData.data.variants[0].id || prodData.data.variants[0].sku);
+          const merged = { ...(resolved || {}), ...(prodData.data as StoreProduct) };
+          setProduct(merged);
+          if (merged.variants && merged.variants.length > 0) {
+            setSelectedVariantId(merged.variants[0].id || merged.variants[0].sku);
           }
+        } else if (resolved) {
+          setProduct(resolved);
         }
         if (catData.success && catData.data && catData.data.length > 0) {
           setAllProducts(catData.data);
@@ -72,7 +85,7 @@ export default function ProductDetailPage() {
       }
     }
     fetchDynamicProduct();
-  }, [id]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -134,6 +147,53 @@ export default function ProductDetailPage() {
     1: Math.round(ratingCount * 0.01),
   };
 
+  const productUrl = `${settings.storeUrl}${getProductUrl(product)}`;
+  const productSchema = useMemo(
+    () =>
+      generateProductJsonLd({
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        url: productUrl,
+        images: galleryImages,
+        price: currentPrice,
+        currency: 'INR',
+        availability: product.inStock ? 'in_stock' : 'out_of_stock',
+        sku: currentSku,
+        brand: product.brand,
+        category: product.category,
+        rating: { value: ratingVal, count: ratingCount },
+        reviews:
+          product.reviews?.map((r) => ({
+            author: r.author,
+            rating: r.rating,
+            body: r.body || r.comment,
+            datePublished: r.createdAt,
+          })) || [],
+        returnPolicy: {
+          applicableCountry: 'IN',
+          merchantReturnDays: 7,
+          returnFees: 'https://schema.org/FreeReturn',
+        },
+        shippingDetails: {
+          shippingRate: { price: 0, currency: 'INR', free: true, freeOver: settings.freeShippingThreshold },
+          shippingDestination: ['IN'],
+          deliveryTime: { minDays: 2, maxDays: 5 },
+        },
+      }),
+    [product, currentPrice, currentSku, galleryImages, ratingVal, ratingCount, productUrl, settings.freeShippingThreshold]
+  );
+
+  const breadcrumbSchema = useMemo(
+    () =>
+      generateBreadcrumbJsonLd([
+        { name: 'Home', url: settings.storeUrl || '/' },
+        { name: product.category, url: `${settings.storeUrl}/category/${product.category.toLowerCase().replace(/\s+/g, '-')}` },
+        { name: product.title, url: productUrl },
+      ]),
+    [product, productUrl, settings.storeUrl]
+  );
+
   const mainRecItem = {
     id: product.id,
     title: product.title || product.name || '',
@@ -157,6 +217,9 @@ export default function ProductDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 pb-20 md:pb-12">
+      <JsonLdScript schema={productSchema} id="product-jsonld" />
+      <JsonLdScript schema={breadcrumbSchema} id="breadcrumb-jsonld" />
+
       {/* Breadcrumbs & Navigation */}
       <div className="flex items-center justify-between">
         <Link
@@ -244,6 +307,20 @@ export default function ProductDetailPage() {
             <span className="text-gray-600 dark:text-gray-400 text-[11px]">
               Only {stockQty > 0 ? stockQty : 3} left in Mumbai warehouse
             </span>
+          </div>
+
+          {/* 15-Minute Checkout Urgency Meter */}
+          <div className="space-y-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-extrabold text-amber-800 flex items-center gap-1">
+                <Zap className="w-3.5 h-3.5 text-amber-600 fill-amber-600" /> Hurry! Only {stockQty} items left
+              </span>
+              <span className="text-[11px] text-amber-700">4 people have this in their cart</span>
+            </div>
+            <ProgressBar value={Math.min(100, (stockQty / 20) * 100)} color="#f59e0b" height={6} />
+            <p className="text-[10px] text-amber-700">
+              High demand — complete checkout within 15 minutes to reserve your selection.
+            </p>
           </div>
 
           {/* Volume Tiered Pricing (Buy More Save More) */}

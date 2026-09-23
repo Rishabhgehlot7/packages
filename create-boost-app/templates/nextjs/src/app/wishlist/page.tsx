@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useStore } from '../../context/StoreContext';
+import { getProductById, getProductUrl } from '../../data/products';
 import { Heart, ShoppingBag, Trash2, ArrowLeft, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { AssuredBadge } from '@boostengine/ui';
 
@@ -58,14 +59,17 @@ export default function WishlistPage() {
 
       {/* Wishlist 2-col Mobile / 4-col Desktop Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-        {wishlistItems.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col group"
-          >
-            {/* Image Container */}
-            <div className="relative aspect-square bg-gray-50 overflow-hidden">
-              <Link href={`/products/${item.productId}`} className="block w-full h-full">
+        {wishlistItems.map((item) => {
+          const matched = getProductById(item.productId);
+          const itemUrl = matched ? getProductUrl(matched) : `/products/${item.productId}`;
+          return (
+            <div
+              key={item.id}
+              className="bg-white rounded-2xl border border-gray-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col group"
+            >
+              {/* Image Container */}
+              <div className="relative aspect-square bg-gray-50 overflow-hidden">
+                <Link href={itemUrl} className="block w-full h-full">
                 <img
                   src={item.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'}
                   alt={item.title}
@@ -86,7 +90,7 @@ export default function WishlistPage() {
             <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
               <div className="space-y-1">
                 <Link
-                  href={`/products/${item.productId}`}
+                  href={itemUrl}
                   className="text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 hover:text-blue-600 transition"
                 >
                   {item.title}
@@ -108,7 +112,8 @@ export default function WishlistPage() {
               </button>
             </div>
           </div>
-        ))}
+        );
+      })}
       </div>
     </div>
   );

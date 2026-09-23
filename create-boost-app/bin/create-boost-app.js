@@ -22,16 +22,21 @@ console.log(banner);
 const args = process.argv.slice(2);
 let templateFlag = null;
 let projectNameArg = null;
+let brandTitleFlag = null;
 let featuresFlag = null;
 let pmFlag = null;
 let gitFlag = null;      // true | false | null (unset)
 let installFlag = null;  // true | false | null (unset)
+let yesFlag = false;
 
 const VALID_PMS = ['npm', 'pnpm', 'yarn', 'bun'];
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--template' && args[i + 1]) {
     templateFlag = args[i + 1];
+    i++;
+  } else if ((args[i] === '--title' || args[i] === '--brand') && args[i + 1]) {
+    brandTitleFlag = args[i + 1];
     i++;
   } else if (args[i] === '--features' && args[i + 1]) {
     featuresFlag = args[i + 1];
@@ -47,6 +52,8 @@ for (let i = 0; i < args.length; i++) {
     installFlag = true;
   } else if (args[i] === '--no-install') {
     installFlag = false;
+  } else if (args[i] === '--yes' || args[i] === '-y') {
+    yesFlag = true;
   } else if (!args[i].startsWith('--')) {
     projectNameArg = args[i];
   }
@@ -59,9 +66,16 @@ if (pmFlag && !VALID_PMS.includes(pmFlag)) {
 }
 
 // ─── Readline helpers ─────────────────────────────────────────────────────────
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const isInteractive = Boolean(process.stdin.isTTY && !yesFlag);
+let rl = null;
+if (isInteractive) {
+  rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+}
 
 function ask(question, defaultValue) {
+  if (!isInteractive || !rl) {
+    return Promise.resolve(defaultValue);
+  }
   return new Promise((resolve) => {
     rl.question(`\x1b[1m\x1b[32m?\x1b[0m ${question} \x1b[90m(${defaultValue})\x1b[0m: `, (ans) => {
       resolve(ans.trim() || defaultValue);
@@ -70,20 +84,6 @@ function ask(question, defaultValue) {
 }
 
 // ─── Template Selection Menu ──────────────────────────────────────────────────
-//
-// Menu layout:
-//   ── FULL-STACK (STANDALONE) ──
-//   1. nextjs      — full-stack, one folder
-//
-//   ── PAIRED (FRONTEND + BACKEND) ──
-//   2. vite+express   — scaffolds <name>/ + <name>-api/
-//   3. expo+express   — scaffolds <name>/ + <name>-api/
-//
-//   ── STANDALONE (ADVANCED) ──
-//   4. vite alone
-//   5. backend-express alone
-//   6. expo-mobile alone
-
 const MENU = [
   // ── Full-stack standalone
   { type: 'standalone', key: 'nextjs',       display: 'Next.js 15  —  Full-Stack Store + Admin Panel  \x1b[90m(1 folder)\x1b[0m' },
@@ -120,6 +120,9 @@ function showMenu() {
 }
 
 function askMenu() {
+  if (!isInteractive || !rl) {
+    return Promise.resolve(MENU[0]);
+  }
   showMenu();
   return new Promise((resolve) => {
     rl.question('\x1b[1m\x1b[32m?\x1b[0m Enter number \x1b[90m(1)\x1b[0m: ', (ans) => {
@@ -158,6 +161,9 @@ function resolveFlag(flag) {
 
 // ─── Feature & Plugin Selector ───────────────────────────────────────────────
 async function askFeatures() {
+  if (!isInteractive || !rl) {
+    return 'all';
+  }
   console.log('\n\x1b[1mConfigure Features & Plugins:\x1b[0m\n');
   console.log('  \x1b[33m1\x1b[0m. 👑 \x1b[1mFull D2C Suite\x1b[0m \x1b[90m(All 15 plugins pre-installed — Recommended)\x1b[0m');
   console.log('  \x1b[33m2\x1b[0m. ⚡ \x1b[1mEssential Commerce\x1b[0m \x1b[90m(Payments, Shipping, Phone Auth, GST Invoices, Coupons, Search)\x1b[0m');
@@ -312,7 +318,13 @@ async function main() {
     }
 
     // 2. Brand title
-    const brandTitle = await ask('Brand title', 'Boost Aesthetic');
+    let brandTitle = brandTitleFlag;
+    if (!brandTitle) {
+      const defaultBrand = projectName
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+      brandTitle = await ask('Brand title', defaultBrand || 'Boost Aesthetic');
+    }
 
     // 3. Menu selection
     let menuItem;
@@ -397,7 +409,7 @@ async function main() {
     console.error('\n\x1b[31m✖ Error:\x1b[0m', err.message || err);
     process.exit(1);
   } finally {
-    rl.close();
+    if (rl) rl.close();
   }
 }
 

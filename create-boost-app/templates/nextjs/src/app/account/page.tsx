@@ -161,7 +161,20 @@ export default function AccountPage() {
         </div>
 
         {/* Quick Action Navigation */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <Link
+            href="/account/orders"
+            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-black dark:hover:border-white rounded-2xl p-4 transition shadow-xs flex items-center gap-3 group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center font-bold">
+              <Package className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-gray-900 dark:text-white block">Orders</span>
+              <span className="text-[10px] text-gray-400">Track & Reorder</span>
+            </div>
+          </Link>
+
           <Link
             href="/account/returns"
             className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-black dark:hover:border-white rounded-2xl p-4 transition shadow-xs flex items-center gap-3 group"
@@ -189,7 +202,7 @@ export default function AccountPage() {
           </Link>
 
           <Link
-            href="/wishlist"
+            href="/account/wishlist"
             className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-black dark:hover:border-white rounded-2xl p-4 transition shadow-xs flex items-center gap-3 group"
           >
             <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center font-bold">
@@ -198,6 +211,19 @@ export default function AccountPage() {
             <div>
               <span className="text-xs font-black text-gray-900 dark:text-white block">Wishlist</span>
               <span className="text-[10px] text-gray-400">Saved Favorites</span>
+            </div>
+          </Link>
+
+          <Link
+            href="/account/loyalty"
+            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-black dark:hover:border-white rounded-2xl p-4 transition shadow-xs flex items-center gap-3 group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center font-bold">
+              <Coins className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-gray-900 dark:text-white block">SuperCoins</span>
+              <span className="text-[10px] text-gray-400">Rewards & Tiers</span>
             </div>
           </Link>
 

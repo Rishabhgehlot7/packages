@@ -12,8 +12,9 @@ import {
   ProductCard,
   LightningDealsBar,
   AssuredBadge,
+  TestimonialCard,
 } from '@boostengine/ui';
-import { Flame, Sparkles, Zap, ArrowRight, Tag, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Flame, Sparkles, Zap, ArrowRight, Tag, Heart, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
@@ -353,7 +354,7 @@ export default function HomePage() {
                   </div>
 
                   <div
-                    onClick={() => router.push(`/products/${product.id}`)}
+                    onClick={() => router.push(`/products/${product.slug}`)}
                     className="cursor-pointer space-y-1"
                   >
                     <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center p-1">
@@ -498,7 +499,7 @@ export default function HomePage() {
                 stockUrgencyText={typeof totalStock === 'number' && totalStock > 0 && totalStock <= 3 ? `Only ${totalStock} left!` : undefined}
                 rating={typeof product.rating === 'object' ? product.rating?.value : product.rating}
                 reviewCount={typeof product.rating === 'object' ? product.rating?.count : undefined}
-                onClick={() => router.push(`/products/${product.id}`)}
+                onClick={() => router.push(`/products/${product.slug}`)}
                 onAddToCart={() => {
                   addToCart(product);
                 }}
@@ -515,6 +516,49 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-2">
         <TrustBadges />
       </section>
+
+      {/* 7. Verified Buyer Reviews Carousel */}
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm sm:text-base font-black tracking-tight uppercase flex items-center gap-1.5">
+            <span>Verified Buyer Reviews</span>
+            <Sparkles className="w-4 h-4 text-amber-500" />
+          </h2>
+          <Link
+            href="#"
+            className="text-[11px] font-black text-gray-500 hover:text-black transition flex items-center gap-1"
+          >
+            View all <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {PRODUCTS.flatMap((p) =>
+            (p.reviews || []).map((r) => ({
+              quote: r.body || '',
+              authorName: r.author,
+              authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(r.author)}&background=random`,
+              rating: r.rating,
+              verified: r.verifiedBuyer ?? true,
+            }))
+          )
+            .slice(0, 6)
+            .map((review, idx) => (
+              <TestimonialCard key={idx} {...review} />
+            ))}
+        </div>
+      </section>
+
+      {/* WhatsApp Floating Support Bubble */}
+      <a
+        href={`https://wa.me/919876543210?text=Hi%20Boost%20Store%2C%20I%20have%20a%20pre-order%20question`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-20 right-4 z-50 inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-3 rounded-full shadow-lg transition"
+        aria-label="Chat on WhatsApp"
+      >
+        <MessageCircle className="w-5 h-5" />
+        <span className="text-xs font-black hidden sm:inline">Support</span>
+      </a>
     </div>
   );
 }

@@ -71,6 +71,7 @@ export interface StoreProduct {
 export const PRODUCTS: StoreProduct[] = [
   {
     id: 'prod_cyberpunk_hoodie',
+    slug: 'cyberpunk-heavyweight-450-gsm-hoodie',
     title: 'Cyberpunk Heavyweight 450 GSM Hoodie',
     description: 'Ultra-heavyweight 450 GSM French Terry pure cotton hoodie with cyberpunk backprint, double-layered hood, and ribbed cuffs. Handcrafted for maximum comfort and durability.',
     price: 2499,
@@ -99,6 +100,7 @@ export const PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod_acid_wash_tee',
+    slug: 'vintage-acid-wash-streetwear-tee',
     title: 'Vintage Acid-Wash Streetwear Tee',
     description: '240 GSM single-jersey combed cotton oversized streetwear t-shirt with vintage acid-wash mineral dye treatment.',
     price: 999,
@@ -124,6 +126,7 @@ export const PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod_retro_sneakers',
+    slug: 'retro-high-top-street-sneakers',
     title: 'Retro High-Top Street Sneakers',
     description: 'Handcrafted vulcanized leather streetwear sneakers with reinforced heel counter, memory-foam insole, and non-slip rubber outsoles.',
     price: 3499,
@@ -149,6 +152,7 @@ export const PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod_wireless_anc_earbuds',
+    slug: 'boostpods-pro-active-noise-cancelling-earbuds',
     title: 'BoostPods Pro Active Noise Cancelling Earbuds',
     description: '35dB Hybrid Active Noise Cancellation, 40-hour battery life, 13mm deep bass drivers, and IPX5 water resistance for gaming and workouts.',
     price: 1999,
@@ -175,6 +179,7 @@ export const PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod_smart_watch_ultra',
+    slug: 'titanium-ultra-amoled-smartwatch-bluetooth-calling',
     title: 'Titanium Ultra AMOLED Smartwatch (Bluetooth Calling)',
     description: '1.96-inch Always-On AMOLED Display, aerospace titanium alloy casing, 120+ sports modes, 24/7 heart & SpO2 health tracking.',
     price: 2999,
@@ -200,6 +205,7 @@ export const PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod_anti_theft_backpack',
+    slug: 'urban-armor-waterproof-laptop-backpack-28l',
     title: 'Urban Armor Waterproof Laptop Backpack (28L)',
     description: 'TSA-approved anti-theft hidden zippers, waterproof ballistic nylon, dedicated 16-inch velvet laptop compartment, and external USB charging pass.',
     price: 1299,
@@ -225,4 +231,25 @@ export const PRODUCTS: StoreProduct[] = [
 ];
 
 export const initialProducts = PRODUCTS;
+
+export function getProductBySlug(slug: string): StoreProduct | undefined {
+  return PRODUCTS.find((p) => p.slug === slug);
+}
+
+export function getProductById(id: string): StoreProduct | undefined {
+  return PRODUCTS.find((p) => p.id === id);
+}
+
+export function getProductSlug(product: StoreProduct): string {
+  if (product.slug) return product.slug;
+  // Fall back to a stable identifier (works for live/Mongo catalog entries that
+  // have not been given an SEO slug yet).
+  const identifier = product.id || product.sku || '';
+  if (identifier) return identifier;
+  return product.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+export function getProductUrl(product: StoreProduct): string {
+  return `/products/${getProductSlug(product)}`;
+}
 

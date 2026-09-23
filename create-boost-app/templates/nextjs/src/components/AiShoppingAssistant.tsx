@@ -7,6 +7,7 @@ import { useStore } from '../context/StoreContext';
 
 interface RecommendedProduct {
   id: string;
+  slug?: string;
   title: string;
   price: number;
   compareAtPrice: number;
@@ -228,7 +229,7 @@ export function AiShoppingAssistant() {
                             Add
                           </button>
                           <Link
-                            href={`/products/${prod.id}`}
+                            href={`/products/${prod.slug || prod.id}`}
                             className="text-indigo-600 hover:text-indigo-800 text-[11px] font-medium text-center hover:underline"
                           >
                             View
