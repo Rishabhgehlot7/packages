@@ -1,7 +1,7 @@
 # 🚀 @boostengine Complete eCommerce Micro-Packages Ecosystem
 
 [![Documentation](https://img.shields.io/badge/Docs-boostengine--docs.netlify.app-blueviolet.svg?style=flat&logo=netlify)](https://boostengine-docs.netlify.app/)
-[![npm total packages](https://img.shields.io/badge/Packages-24%20Micro--Packages-blue.svg)](https://www.npmjs.com/org/boostengine)
+[![npm total packages](https://img.shields.io/badge/Packages-30%20Enterprise%20Micro--Packages-blue.svg)](https://www.npmjs.com/org/boostengine)
 [![Total Downloads](https://img.shields.io/badge/Total%20Downloads-1%2C490%2B-brightgreen.svg)](https://www.npmjs.com/org/boostengine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript Ready](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://www.typescriptlang.org/)
@@ -19,7 +19,7 @@
 - [Live Interactive Documentation](#-live-interactive-documentation)
 - [Why BoostEngine?](#-why-boostengine)
 - [Framework Compatibility (Next.js, Vite, Node, Mobile)](#-framework-compatibility)
-- [Complete Package Directory (All 24 Packages)](#-the-core-ecosystem--packages-directory)
+- [Complete Package Directory (All 30 Packages)](#-the-core-ecosystem--packages-directory)
 - [1-Click Full Store Generator (npx create-boost-app)](#-1-click-store-generation-with-npx)
 - [Complete Architectural Workflow](#-complete-d2c-store-architecture)
 - [Developer Quick Recipes](#-developer-quick-recipes)
@@ -30,7 +30,7 @@
 
 ## 🌐 Live Interactive Documentation
 
-Explore interactive component previews, API references, AI Agent guides, and code examples for all 24 packages at:
+Explore interactive component previews, API references, AI Agent guides, and code examples for all 30 packages at:
 
 👉 **[https://boostengine-docs.netlify.app/](https://boostengine-docs.netlify.app/)**
 
@@ -64,7 +64,7 @@ All packages are compiled with **dual ESM (`.mjs`) and CommonJS (`.js`)** output
 
 ## 📦 The Core Ecosystem & Packages Directory
 
-All 24 micro-packages are published publicly on NPM under the official `@boostengine` organization:
+All 30 micro-packages are published publicly on NPM under the official `@boostengine` organization:
 
 | # | Package Name | NPM Install Command | Key Responsibilities |
 |:---:|---|---|---|
@@ -92,6 +92,12 @@ All 24 micro-packages are published publicly on NPM under the official `@boosten
 | 19 | [`@boostengine/notifications`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-notifications) | `npm i @boostengine/notifications` | WhatsApp (Interakt, Wati, Gupshup), SMS (Fast2SMS, Msg91), Email (Resend) order & recovery alerts |
 | 20 | [`@boostengine/communications`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-communications) | `npm i @boostengine/communications` | Unified omnichannel communications, messaging dispatch & automated template engine |
 | 21 | [`@boostengine/collections`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-collections) | `npm i @boostengine/collections` | Postman v2.1, OpenAPI 3.0 & Bruno Exporter, cURL snippet generator & AI Agent tools |
+| 22 | [`@boostengine/bundles`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-bundles) | `npm i @boostengine/bundles` | Custom combo bundles, mix-and-match bundle builder, tiered volume discounts & gift-with-purchase |
+| 23 | [`@boostengine/reels`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-reels) | `npm i @boostengine/reels` | Shoppable 9:16 video reels & stories, live product pinning, 1-tap add-to-bag & video feed analytics |
+| 24 | [`@boostengine/gamification`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-gamification) | `npm i @boostengine/gamification` | Spin-to-Win wheel, scratch cards, mystery discounts, exit-intent lead capture & anti-fraud limits |
+| 25 | [`@boostengine/importer`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-importer) | `npm i @boostengine/importer` | 1-Click CSV/XLSX/JSON bulk importer & exporter with Shopify & WooCommerce auto-schema mapping |
+| 26 | [`@boostengine/subscriptions`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-subscriptions) | `npm i @boostengine/subscriptions` | Enterprise Subscribe & Save, recurring billing, auto-deliveries, pause/skip/cancel portal & MRR analytics |
+| 27 | [`@boostengine/currency`](file:///e:/boost%20engine%20mobile%20apps/04_Client_Projects/Ecom-app/packages/boost-currency) | `npm i @boostengine/currency` | 160+ Multi-currency switching, Geo-IP auto-detection, dynamic FX rates & psychological price rounding (.99) |
 
 ---
 

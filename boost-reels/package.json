@@ -1,0 +1,72 @@
+{
+  "name": "@boostengine/reels",
+  "version": "1.1.0",
+  "description": "Shoppable vertical video reels, Instagram/TikTok-style story players, live product tag overlays, 1-click cart insertion, and AI reel optimization for modern D2C commerce.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "boost-reels": "./bin/cli.cjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.js"
+    }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test",
+    "prepare": "tsup"
+  },
+  "keywords": [
+    "boostengine",
+    "ecommerce",
+    "reels",
+    "shoppable-video",
+    "stories",
+    "tiktok-ecommerce",
+    "instagram-reels",
+    "video-commerce",
+    "product-tagging",
+    "react-hooks",
+    "d2c"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boostengine/boostengine.git"
+  },
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

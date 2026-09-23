@@ -27,6 +27,12 @@ import {
   Coins,
   Share2,
   MessageSquare,
+  Video,
+  Repeat,
+  Boxes,
+  Sparkles,
+  UploadCloud,
+  DollarSign,
   Globe,
 } from 'lucide-react';
 
@@ -60,13 +66,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       ],
     },
     {
-      group: 'COMMERCE & INVENTORY',
+      group: 'COMMERCE & CATALOG',
       items: [
         {
           href: '/admin/products',
           label: 'Products Catalog',
           icon: Package,
           badge: null,
+          exact: false,
+        },
+        {
+          href: '/admin/bundles',
+          label: 'Bundles & Combos',
+          icon: Boxes,
+          badge: 'New',
           exact: false,
         },
         {
@@ -91,17 +104,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           exact: false,
         },
         {
+          href: '/admin/subscriptions',
+          label: 'Subscribe & Save',
+          icon: Repeat,
+          badge: 'MRR',
+          exact: false,
+        },
+        {
           href: '/admin/returns',
           label: 'Returns & Doorstep QC',
           icon: RotateCcw,
           badge: 'Reverse',
-          exact: false,
-        },
-        {
-          href: '/admin/banners',
-          label: 'Banners & Ads',
-          icon: Megaphone,
-          badge: 'Live',
           exact: false,
         },
       ],
@@ -109,6 +122,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     {
       group: 'GROWTH & MARKETING',
       items: [
+        {
+          href: '/admin/reels',
+          label: 'Shoppable Reels',
+          icon: Video,
+          badge: '9:16 Feed',
+          exact: false,
+        },
+        {
+          href: '/admin/gamification',
+          label: 'Spin Wheel & Leads',
+          icon: Sparkles,
+          badge: 'Viral',
+          exact: false,
+        },
         {
           href: '/admin/coupons',
           label: 'Coupons & Discounts',
@@ -145,6 +172,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           exact: false,
         },
         {
+          href: '/admin/banners',
+          label: 'Banners & Ads',
+          icon: Megaphone,
+          badge: 'Live',
+          exact: false,
+        },
+        {
           href: '/admin/reviews',
           label: 'Reviews Moderation',
           icon: Star,
@@ -161,8 +195,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       ],
     },
     {
-      group: 'EXTENSIONS & SEO',
+      group: 'MARKETS & EXTENSIONS',
       items: [
+        {
+          href: '/admin/currency',
+          label: 'Multi-Currency & FX',
+          icon: DollarSign,
+          badge: 'Global',
+          exact: false,
+        },
+        {
+          href: '/admin/importer',
+          label: 'Bulk Catalog Importer',
+          icon: UploadCloud,
+          badge: 'Shopify/Woo',
+          exact: false,
+        },
         {
           href: '/admin/plugins',
           label: 'Plugins Hub',
@@ -172,7 +220,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         },
         {
           href: '/admin/seo',
-          label: 'SEO & Product Feeds',
+          label: 'SEO & Feeds',
           icon: Globe,
           badge: 'G-Merchant',
           exact: false,

@@ -1,0 +1,57 @@
+{
+  "name": "@boostengine/importer",
+  "version": "1.1.0",
+  "description": "Enterprise high-throughput CSV, XLSX & JSON catalog importer/exporter with auto-schema detection for Shopify, WooCommerce, Magento, and custom feeds.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "boost-importer": "./bin/cli.cjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.js"
+    }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test",
+    "prepare": "tsup"
+  },
+  "keywords": [
+    "boostengine",
+    "ecommerce",
+    "importer",
+    "exporter",
+    "csv-import",
+    "shopify-migration",
+    "woocommerce-migration",
+    "catalog-sync",
+    "bulk-upload",
+    "excel",
+    "d2c"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boostengine/boostengine.git"
+  },
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

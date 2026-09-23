@@ -1,0 +1,55 @@
+{
+  "name": "@boostengine/subscriptions",
+  "version": "1.0.0",
+  "description": "Enterprise Subscribe & Save, Recurring Billing, Auto-Delivery Scheduling, and Customer Portal Engine for BoostEngine Ecosystem",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "boost-subscriptions": "./bin/cli.cjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "node test-suite.cjs",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "boostengine",
+    "subscriptions",
+    "subscribe-and-save",
+    "recurring-billing",
+    "auto-delivery",
+    "ecommerce",
+    "shopify-recharge-alternative"
+  ],
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "@boostengine/bundles",
+  "version": "1.1.0",
+  "description": "Enterprise product bundles, mix-and-match kits, frequently bought together combos, tiered volume discounts, and autonomous AI bundle optimization for modern commerce.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "boost-bundles": "./bin/cli.cjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.js"
+    }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node test-suite.cjs",
+    "prepublishOnly": "npm run build && npm test",
+    "prepare": "tsup"
+  },
+  "keywords": [
+    "boostengine",
+    "ecommerce",
+    "bundles",
+    "product-bundles",
+    "frequently-bought-together",
+    "volume-discount",
+    "tiered-pricing",
+    "mix-and-match",
+    "kits",
+    "cross-sell",
+    "upsell",
+    "react-hooks",
+    "ai-agent"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boostengine/boostengine.git"
+  },
+  "author": "BoostEngine Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}
