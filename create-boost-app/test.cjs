@@ -163,7 +163,7 @@ try {
   assert.strictEqual(pkg.dependencies['@boostengine/ui'], '^2.1.1');
   assert.strictEqual(pkg.dependencies['@boostengine/core'], '^1.1.0');
   assert.strictEqual(pkg.dependencies['@boostengine/seo'], '^1.1.0');
-  assert.strictEqual(pkg.dependencies['@boostengine/payments'], '^1.1.0');
+  assert.strictEqual(pkg.dependencies['@boostengine/payments'], '^1.2.0');
   assert.strictEqual(pkg.dependencies['@boostengine/shipping'], '^1.1.0');
   assert.strictEqual(pkg.dependencies['@boostengine/cart'], '^1.1.0');
 

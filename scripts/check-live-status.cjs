@@ -5,9 +5,9 @@ const path = require('path');
 const packages = [
   'create-boost-app',
   'boost-core',
+  'boost-server',
   'boost-ui',
   'boost-seo',
-  'boost-server',
   'boost-analytics',
   'boost-collections',
   'boost-payments',
@@ -26,7 +26,13 @@ const packages = [
   'boost-loyalty',
   'boost-returns',
   'boost-referrals',
-  'boost-communications'
+  'boost-communications',
+  'boost-bundles',
+  'boost-reels',
+  'boost-gamification',
+  'boost-importer',
+  'boost-subscriptions',
+  'boost-currency'
 ];
 
 function fetchNpmVersion(pkgName) {

@@ -1,7 +1,7 @@
 {
   "name": "create-boost-app",
-  "version": "1.1.0",
-  "description": "Create a high-converting, production-ready D2C eCommerce store with Next.js, Vite, Expo, and Express — pre-wired with all 23 BoostEngine micro-packages in 60 seconds.",
+  "version": "1.2.0",
+  "description": "Create a high-converting, production-ready D2C eCommerce store with Next.js, Vite, Expo, and Express — pre-wired with all 30 BoostEngine enterprise micro-packages in 60 seconds.",
   "author": "Rishabh Gehlot <boostengine001@gmail.com> (https://github.com/Rishabhgehlot7)",
   "funding": {
     "type": "github",

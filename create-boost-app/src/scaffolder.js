@@ -148,6 +148,36 @@ const FEATURES = {
     name: '📊 Store Analytics & Events',
     default: false,
   },
+  'bundles': {
+    pkg: '@boostengine/bundles',
+    name: '📦 Product Combos & Tiered Bundles',
+    default: false,
+  },
+  'reels': {
+    pkg: '@boostengine/reels',
+    name: '🎬 Shoppable 9:16 Video Reels',
+    default: false,
+  },
+  'gamification': {
+    pkg: '@boostengine/gamification',
+    name: '🎡 Spin-to-Win & Scratch Cards',
+    default: false,
+  },
+  'importer': {
+    pkg: '@boostengine/importer',
+    name: '📥 1-Click Shopify/Woo Catalog Importer',
+    default: false,
+  },
+  'subscriptions': {
+    pkg: '@boostengine/subscriptions',
+    name: '🔁 Subscribe & Save Recurring Billing',
+    default: false,
+  },
+  'currency': {
+    pkg: '@boostengine/currency',
+    name: '🌍 Multi-Currency & Geo-IP Engine',
+    default: false,
+  },
 };
 
 const FEATURE_PRESETS = {
