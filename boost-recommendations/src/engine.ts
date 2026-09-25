@@ -26,7 +26,7 @@ export class RecommendationsEngine {
     // Filter out the main product itself and out of stock products
     const pool = catalog.filter((p) => p.id !== mainProduct.id && (p.stock === undefined || p.stock > 0));
 
-    // Complementary scoring: Prefer products in same category or matching tags
+    // Complementary scoring: Prefer products in same category or matching tags, favor accessories over competing products
     const ranked = pool.map((item) => {
       let score = 0;
       if ((item.category || '').toLowerCase() === (mainProduct.category || '').toLowerCase()) {
@@ -36,9 +36,17 @@ export class RecommendationsEngine {
         const matchingTags = item.tags.filter((t) => mainProduct.tags!.includes(t));
         score += matchingTags.length * 20;
       }
+      // Accessory tag affinity boost
+      if (item.tags && item.tags.some((t) => ['accessory', 'accessories', 'protection', 'addon', 'care'].includes(t.toLowerCase()))) {
+        score += 35;
+      }
       // Price affinity: items that are cheaper or within 20%-80% of main item are classic accessories
       if (item.price <= mainProduct.price * 0.8) {
         score += 15;
+      }
+      // Items priced equal to or above the main product are competing products / upgrades, not bundle add-ons
+      if (item.price >= mainProduct.price) {
+        score -= 50;
       }
       // Social proof bonus
       if (item.rating && item.rating >= 4.0) {
@@ -75,7 +83,7 @@ export class RecommendationsEngine {
     catalog: ProductRecommendationItem[],
     limit: number = 4
   ): ProductRecommendationItem[] {
-    const pool = catalog.filter((p) => p.id !== targetProduct.id);
+    const pool = catalog.filter((p) => p.id !== targetProduct.id && (p.stock === undefined || p.stock > 0));
 
     const scored: RecommendationScore[] = pool.map((item) => {
       let score = 0;
@@ -113,6 +121,7 @@ export class RecommendationsEngine {
     if (!viewHistoryIds || viewHistoryIds.length === 0) {
       // Fallback to highest rated items
       return [...catalog]
+        .filter((p) => p.stock === undefined || p.stock > 0)
         .sort((a, b) => (b.rating || 0) - (a.rating || 0))
         .slice(0, limit);
     }
@@ -120,7 +129,7 @@ export class RecommendationsEngine {
     const viewedProducts = catalog.filter((p) => viewHistoryIds.includes(p.id));
     const viewedCategories = new Set(viewedProducts.map((p) => p.category.toLowerCase()));
 
-    const candidates = catalog.filter((p) => !viewHistoryIds.includes(p.id));
+    const candidates = catalog.filter((p) => !viewHistoryIds.includes(p.id) && (p.stock === undefined || p.stock > 0));
     const scored = candidates.map((item) => {
       let score = 0;
       if (viewedCategories.has(item.category.toLowerCase())) {
@@ -403,7 +412,7 @@ export class BoostRecommendationsManager {
     for (const pid of purchasedProductIds) {
       const alsoBought = this.getCustomersAlsoBought(pid, catalog, 5);
       for (const item of alsoBought) {
-        if (!purchasedSet.has(item.id)) {
+        if (!purchasedSet.has(item.id) && (item.stock === undefined || item.stock > 0)) {
           candidates.push({ item, score: 50 + (item.rating || 0) * 5 });
         }
       }
@@ -412,7 +421,7 @@ export class BoostRecommendationsManager {
     if (candidates.length === 0) {
       // Fallback to top-rated items in catalog
       return catalog
-        .filter((p) => !purchasedSet.has(p.id))
+        .filter((p) => !purchasedSet.has(p.id) && (p.stock === undefined || p.stock > 0))
         .sort((a, b) => (b.rating || 0) - (a.rating || 0))
         .slice(0, limit);
     }
@@ -427,7 +436,19 @@ export class BoostRecommendationsManager {
     }
 
     const sorted = Array.from(map.values()).sort((a, b) => b.score - a.score);
-    return sorted.slice(0, limit).map((s) => s.item);
+    const results = sorted.slice(0, limit).map((s) => s.item);
+
+    // If fewer than limit, backfill with top-rated items
+    if (results.length < limit) {
+      const existingIds = new Set([...purchasedSet, ...results.map((r) => r.id)]);
+      const fallbacks = catalog
+        .filter((p) => !existingIds.has(p.id) && (p.stock === undefined || p.stock > 0))
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, limit - results.length);
+      results.push(...fallbacks);
+    }
+
+    return results;
   }
 
   /**

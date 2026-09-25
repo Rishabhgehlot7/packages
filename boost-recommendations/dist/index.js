@@ -22,8 +22,14 @@ var RecommendationsEngine = class {
         const matchingTags = item.tags.filter((t) => mainProduct.tags.includes(t));
         score += matchingTags.length * 20;
       }
+      if (item.tags && item.tags.some((t) => ["accessory", "accessories", "protection", "addon", "care"].includes(t.toLowerCase()))) {
+        score += 35;
+      }
       if (item.price <= mainProduct.price * 0.8) {
         score += 15;
+      }
+      if (item.price >= mainProduct.price) {
+        score -= 50;
       }
       if (item.rating && item.rating >= 4) {
         score += 10;
@@ -50,7 +56,7 @@ var RecommendationsEngine = class {
    * Finds similar products (Customers who viewed this also viewed)
    */
   static getSimilarProducts(targetProduct, catalog, limit = 4) {
-    const pool = catalog.filter((p) => p.id !== targetProduct.id);
+    const pool = catalog.filter((p) => p.id !== targetProduct.id && (p.stock === void 0 || p.stock > 0));
     const scored = pool.map((item) => {
       let score = 0;
       if ((item.category || "").toLowerCase() === (targetProduct.category || "").toLowerCase()) {
@@ -78,11 +84,11 @@ var RecommendationsEngine = class {
    */
   static getPersonalizedPicks(viewHistoryIds, catalog, limit = 4) {
     if (!viewHistoryIds || viewHistoryIds.length === 0) {
-      return [...catalog].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, limit);
+      return [...catalog].filter((p) => p.stock === void 0 || p.stock > 0).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, limit);
     }
     const viewedProducts = catalog.filter((p) => viewHistoryIds.includes(p.id));
     const viewedCategories = new Set(viewedProducts.map((p) => p.category.toLowerCase()));
-    const candidates = catalog.filter((p) => !viewHistoryIds.includes(p.id));
+    const candidates = catalog.filter((p) => !viewHistoryIds.includes(p.id) && (p.stock === void 0 || p.stock > 0));
     const scored = candidates.map((item) => {
       let score = 0;
       if (viewedCategories.has(item.category.toLowerCase())) {
@@ -289,13 +295,13 @@ var BoostRecommendationsManager = class {
     for (const pid of purchasedProductIds) {
       const alsoBought = this.getCustomersAlsoBought(pid, catalog, 5);
       for (const item of alsoBought) {
-        if (!purchasedSet.has(item.id)) {
+        if (!purchasedSet.has(item.id) && (item.stock === void 0 || item.stock > 0)) {
           candidates.push({ item, score: 50 + (item.rating || 0) * 5 });
         }
       }
     }
     if (candidates.length === 0) {
-      return catalog.filter((p) => !purchasedSet.has(p.id)).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, limit);
+      return catalog.filter((p) => !purchasedSet.has(p.id) && (p.stock === void 0 || p.stock > 0)).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, limit);
     }
     const map = /* @__PURE__ */ new Map();
     for (const c of candidates) {
@@ -305,7 +311,13 @@ var BoostRecommendationsManager = class {
       }
     }
     const sorted = Array.from(map.values()).sort((a, b) => b.score - a.score);
-    return sorted.slice(0, limit).map((s) => s.item);
+    const results = sorted.slice(0, limit).map((s) => s.item);
+    if (results.length < limit) {
+      const existingIds = /* @__PURE__ */ new Set([...purchasedSet, ...results.map((r) => r.id)]);
+      const fallbacks = catalog.filter((p) => !existingIds.has(p.id) && (p.stock === void 0 || p.stock > 0)).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, limit - results.length);
+      results.push(...fallbacks);
+    }
+    return results;
   }
   /**
    * Universal Database Sync.
